@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel='stylesheet' href='../build.css' type='text/css' />
+    <title>Builder Documentation</title>
+</head>
+<body>
+    <h1>
+        <a href='index.html'>Builder Documentation</a>
+    </h1>
+    <h3>
+        TODO list (in no specific order)</h3>
+    <ul>
+        <li>Find a way to put host/lane configuration in some sort of version control.</li>
+        <li>Priority (builder should build lane 'X' before lane 'Y')</li>
+        <li>Pirority (builder should build revision 'X' before revision 'Y')</li>
+        <li>Configuration option: # of simultaneous running lanes on a host</li>
+        <li>Configuration option: mark a lane as &quot;shouldn&#39;t ever run in parallel with
+            any other lane&quot;</li>
+        <li>Dependency between lanes (revision A(command C) on lane Y requires revision B(command
+            D) on lane X to have completed successfully in order to execute)</li>
+    </ul>
+    <h3>
+        Done
+    </h3>
+    <ul>
+        <li>Pause revisions/steps (unqueue them)</li>
+        <li>Color code revision according to the current status of the revision in ViewTable.aspx</li>
+        <li>Paging in ViewTable.aspx</li>
+        <li>Color code main table so that it's easy to see status of the latest build.</li>
+        <li>Access control (user &amp; passwords, etc).</li>
+        <li>Store and send compressed log files.</li>
+        <li>Revision locks so that more than one machine can work on the same host/lane configuration</li>
+    </ul>
+</body>
+</html>

@@ -1,0 +1,290 @@
+h1 {
+	color: #efefef;
+	font-size: 14pt;
+	font-family: "Trebuchet MS";
+	border: 0;
+	margin: 0;
+	padding: 1em;
+	background: #666666;
+}
+
+.h1link 
+{
+	font-size:14pt;
+	font-family: "Trebuchet MS";
+	color: #efefef;
+}
+
+h2, h3, h4, h5, h6 {
+	font-family: Verdana,sans-serif;
+	font-weight: bold;
+	margin: 9pt;
+}
+
+h2 {
+	font-size: 18px;
+}
+
+h3 {
+	font-size: 13px;
+	border-bottom: 2px solid #dddddd;
+}
+
+body, table {
+	background-color: #ffffff;
+	font-family: Verdana, sans-serif; font-size: 12px;
+	color: black;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+p {
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+a.table_link:visited
+{
+	color: black;
+}
+
+
+
+div {
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+.code, .xml , .script
+{
+	margin:15px;
+	padding:15px;
+	font-size: small;
+	font-family: "Courier New", Courier;
+	background:whitesmoke;
+	border: solid 1px silver;
+	line-height:110%;
+}
+
+
+.code-xml, .code-csharp, .code-mdb, .code-gaim
+{
+	margin:15px;
+	padding:15px;
+	font-size: small;
+	font-family: "Courier New", Courier;
+	background:whitesmoke;
+	border: solid 1px silver;
+	line-height:110%;
+}
+
+table.commands {
+	border-collapse: collapse;
+}
+
+table.commands td 
+{
+	padding:.5em;
+}
+table.commands tbody td
+{
+	border: solid 1px whitesmoke;
+	text-align: center;
+}
+
+table.commands th
+{
+	border: solid 1px whitesmoke;
+	font-weight:bold;
+	text-align:center;
+	padding: .5em;
+}
+
+table.commands a:visited, a:link
+{
+	color:black;
+}
+
+table.files {
+	border-collapse: collapse;
+}
+
+table.files td 
+{
+	padding:.5em;
+}
+table.files tbody td
+{
+	border: solid 1px whitesmoke;
+	text-align: center;
+}
+
+table.files th
+{
+	border: solid 1px whitesmoke;
+	font-weight:bold;
+	text-align:center;
+	padding: .5em;
+}
+
+table.files a:visited, a:link
+{
+	color:black;
+}
+
+/* */
+
+table.buildstatus {
+	border-collapse: collapse;
+}
+table.buildstatus td {
+	padding:.5em;
+}
+
+table.buildstatus tbody td {
+	border: solid 1px #CCCCCC;
+	text-align: center;
+}
+
+table.buildstatus th
+{
+	border: 1px solid #CCCCCC;
+	font-weight: normal;
+	text-align: center;
+	padding: .5em;
+}
+
+table.buildstatus a:visited, a:link
+{
+	color:black;
+}
+
+table.buildstatus .disabled
+{
+	background: #FFD0D0;
+}
+
+table.buildstatus .enabled
+{
+	background: #C9FFC9;
+}
+
+.success {
+	background:springgreen;
+}
+
+
+.failure, .failed {
+	background:red;
+}
+
+.running, .inprogress, .executing {
+	background:yellow
+}
+
+.notused {
+	background:white;
+}
+
+.skipped {
+	background:white;
+}
+
+.paused 
+{
+	background:lightblue;
+}
+
+.aborted 
+{
+	background:purple;
+}
+
+.timeout
+{
+	background:gray;
+}
+
+.new {
+	background:#d3d3d3;
+}
+
+.queued, .notdone {
+	background:pink;
+}
+
+.timeout {
+	background:steelblue;
+}
+
+.testfailure, .issues {
+	background: orange;
+}
+
+table.legend th {
+	font-weight:normal;
+	text-align:center;
+	padding: .5em;
+}
+
+table.legend td {
+	width: 10em;
+	padding: 1em;
+}
+
+table.packagestatus th {
+	text-align:left;
+}
+
+
+.faillinkcolor {
+	color:red;
+}
+
+
+/*
+ * Documentation
+ */ 
+ 
+pre
+{
+	border: 1px solid Black;
+	padding: 3px;
+	padding-top:5px;
+	margin: 2px 2px 2px 2px;
+}
+
+li
+{
+	padding: 3px;
+}
+
+table.headertable 
+{
+	width:100%;
+	height:20px;
+	color: #efefef;
+	font-size: 14pt;
+	font-family: "Trebuchet MS";
+	font-weight:bold;
+	border: 0;
+	margin: 0;
+	padding: 1em;
+	background: #666666;
+}
+
+table.headertable td 
+{
+	font-size: 14pt;
+}
+
+table.headertable a:visited, a.link
+{
+	color: White;
+}
+
+td.headerlogin 
+{
+	text-align:right;
+}

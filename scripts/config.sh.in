@@ -1,0 +1,38 @@
+#!/bin/bash -ex
+
+# Copy to config.sh and modify where required
+
+# This is the host name of the machine. 
+# This should be unique for every builder machine 
+export BUILD_HOST=changeme
+
+# This is the name of the host this machine should do work for.
+# If not set, defaults to BUILD_HOST
+export BUILD_HOST_MASTER=$BUILD_HOST
+
+# BUILDER_HOST is obsolete, don't use it.
+export BUILDER_HOST=$BUILD_HOST
+
+# This is the directory where the temporary build files should go.
+# You might end up needing quite an amount of space here.
+export BUILDER_DATA=~/moonbuilder/data
+
+# This is the directory of the sources
+# Only used by the web server machine
+export BUILDER_CONFIG=~/moonbuilder/builder
+
+# This is the port where the database will be listening for connections.
+export BUILDER_DATABASE_PORT=5544
+export BUILDER_DATABASE_HOST=localhost
+
+# These are the variables used by sshtunnel.sh
+export BUILDER_DATABASE_REMOTE_PORT=5544
+export BUILDER_DATABASE_REMOTE_HOST=changeme
+export BUILDER_DATABASE_REMOTE_USER=changeme
+
+# This is required for postgre to work properly
+export PGPORT=$BUILDER_DATABASE_PORT
+
+# Add anything else required for this machine here
+
+# source ~/.ssh-agent
