@@ -60,11 +60,17 @@ public partial class index : System.Web.UI.Page
 		StringBuilder host_row = new StringBuilder ();
 		List<StringBuilder> rows = new List<StringBuilder> ();
 		Dictionary<long, int> col_indices = new Dictionary<long, int> ();
-		int limit;
+		int limit = 10;
 
-		int.TryParse (Request ["limit"], out limit);
+		if (string.IsNullOrEmpty (Request ["limit"])) {
+			if (Request.Cookies ["limit"] != null)
+				int.TryParse (Request.Cookies ["limit"].Value, out limit);
+		} else {
+			int.TryParse (Request ["limit"], out limit);
+		}
 		if (limit <= 0)
 			limit = 10;
+		Response.Cookies.Add (new HttpCookie ("limit", limit.ToString ()));
 
 		using (IDbCommand cmd = db.Connection.CreateCommand ()) {
 			cmd.CommandText = @"
