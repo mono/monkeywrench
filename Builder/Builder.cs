@@ -323,18 +323,14 @@ namespace Builder
 					return;
 				}
 
-				revisionwork = db.GetRevisionWork (lane, master_host, host);
-				if (revisionwork == null) {
-					Logger.Log ("There is nothing to do for lane '{0}'.", lane.lane);
-					return;
-				}
-
-				if (!revisionwork.Lock (db)) {
-					Logger.Log ("Could not acquire revisionwork lock for lane '{0}'.", lane.lane);
-					return;
-				}
-
-				revisionwork.SetWorkHost (db, host);
+				int counter = 10;
+				do {
+					revisionwork = db.GetRevisionWork (lane, master_host, host);
+					if (revisionwork == null) {
+						Logger.Log ("There is nothing to do for lane '{0}'.", lane.lane);
+						return;
+					}
+				} while (!revisionwork.SetWorkHost (db, host) && counter-- > 0);
 
 				if (revisionwork.State == DBState.NotDone)
 					revisionwork.State = DBState.Executing;
@@ -377,7 +373,6 @@ namespace Builder
 
 						if (host.QueueManagement == DBQueueManagement.ExecuteLatestAsap && !db.IsLatestRevisionWork (revisionwork)) {
 							Logger.Log ("Builder has detected that a new revision has been committed, and this host is configured to build new revisions asap. Exiting.");
-							// CHECK: Should the RevisionWork get unlocked here?
 							break; ;
 						}
 					}

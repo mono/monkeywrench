@@ -82,10 +82,10 @@ CREATE TABLE Revision (
 	UNIQUE (lane_id, revision)
 );
 
-CREATE TABLE Work (
+CREATE TABLE "Work" (
 	id               serial    PRIMARY KEY,
 	--TODO: Pending removal -- lane_id          int       NOT NULL REFERENCES Lane(id), -- the lane
-	host_id          int       NOT NULL REFERENCES Host(id), 
+	host_id          int       REFERENCES Host(id),  -- the host that is doing the work, null if not assigned.
 	--TODO: Pending removal -- revision_id      int       NOT NULL REFERENCES Revision(id), -- the revision to use for this step
 	command_id       int       NOT NULL REFERENCES Command(id),  -- the command to execute
 	state            int       NOT NULL DEFAULT 0,                       -- 0 queued, 1 executing, 2 failed, 3 success, 
@@ -131,7 +131,7 @@ CREATE TABLE RevisionWork (
 	id             serial     PRIMARY KEY,
 	lane_id        int        NOT NULL REFERENCES Lane (id),
 	host_id        int        NOT NULL REFERENCES Host (id),
-	workhost_id    int        NULL     REFERENCES Host (id) DEFAULT NULL , -- the host which is actually working on this revision. If NULL, same as host_id.
+	workhost_id    int        NULL     REFERENCES Host (id) DEFAULT NULL , -- the host which is actually working on this revision. If NULL, work no started.
 	revision_id    int        NOT NULL REFERENCES Revision (id),
 	state          int        NOT NULL DEFAULT 0, -- same as Work.state, though not all are applicable
 
@@ -186,7 +186,7 @@ CREATE VIEW WorkView2 AS
 		INNER JOIN Revision ON RevisionWork.revision_id = Revision.id 
 		INNER JOIN Lane ON RevisionWork.lane_id = Lane.id 
 		INNER JOIN Host AS MasterHost ON RevisionWork.host_id = MasterHost.id 
-		INNER JOIN Host AS WorkHost ON Work.host_id = WorkHost.id
+		LEFT JOIN Host AS WorkHost ON Work.host_id = WorkHost.id
 		INNER JOIN Command ON Work.command_id = Command.id;
 
 

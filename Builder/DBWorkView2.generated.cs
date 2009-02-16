@@ -70,7 +70,7 @@ namespace Builder
 
 
 
-		private static string [] _fields_ = new string [] { "id", "lane", "command_id", "state", "starttime", "endtime", "duration", "logfile", "summary", "workhost_id", "nonfatal", "alwaysexecute", "sequence", "internal", "command", "masterhost_id", "lane_id", "revision_id", "masterhost", "workhost", "author", "revision" };
+		private static string [] _fields_ = new string [] { "id", "lane", "command_id", "state", "starttime", "endtime", "duration", "logfile", "summary", "workhost_id", "nonfatal", "alwaysexecute", "sequence", "internal", "command", "revisionwork_id", "masterhost_id", "lane_id", "revision_id", "masterhost", "workhost", "author", "revision" };
 		public override string [] Fields
 		{
 			get

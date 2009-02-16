@@ -73,7 +73,7 @@ namespace Builder
 
 				line = RemoveComment (line);
 				if (line.StartsWith ("CREATE TABLE")) {
-					ParseTable (reader, line.Replace ("CREATE TABLE", "").Trim (new char [] { ' ', ',', '\t', '(' }));
+					ParseTable (reader, line.Replace ("CREATE TABLE", "").Trim (new char [] { ' ', ',', '\t', '(', '"' }));
 				} else if (line.StartsWith ("CREATE VIEW")) {
 					ParseView (reader, line);
 				}

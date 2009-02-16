@@ -226,7 +226,6 @@ WHERE
 						foreach (DBCommand command in commands) {
 							work = new DBWork ();
 							work.command_id = command.id;
-							work.host_id = host.id;
 							work.State = dependencies_satisfied ? DBState.NotDone : DBState.DependencyNotFulfilled;
 							using (IDbCommand cmd = db.Connection.CreateCommand ()) {
 								cmd.CommandText = "SELECT add_revisionwork (@lane_id, @host_id, @revision_id);";

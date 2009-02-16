@@ -320,48 +320,23 @@ FROM RevisionWork;";
 		/// </summary>
 		/// <param name="db"></param>
 		/// <param name="host"></param>
-		public void SetWorkHost (DB db, DBHost host)
+		public bool SetWorkHost (DB db, DBHost host)
 		{
+			object result;
 			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
 				cmd.CommandText = @"
-UPDATE RevisionWork SET workhost_id = @workhost_id WHERE id = @id;";
+UPDATE RevisionWork SET workhost_id = @workhost_id WHERE id = @id AND workhost_id IS NULL;
+SELECT workhost_id FROM RevisionWork where id = @id AND workhost_id = @workhost_id;
+";
 				DB.CreateParameter (cmd, "workhost_id", host.id);
 				DB.CreateParameter (cmd, "id", id);
-				if (cmd.ExecuteNonQuery () == 1)
+
+				result = cmd.ExecuteScalar ();
+				if (result != null && (result is int || result is long)) {
 					workhost_id = host.id;
-			}
-		}
-
-		public bool Lock (DB db)
-		{
-			bool result;
-
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
-				cmd.CommandText = @"
-UPDATE RevisionWork SET lock_expires = now () + interval '2 hours' WHERE id = @id AND lock_expires < now ();
-SELECT lock_expires FROM RevisionWork WHERE id = @id;
-";
-				DB.CreateParameter (cmd, "id", id);
-
-				object obj = cmd.ExecuteScalar ();
-
-				if (obj is DateTime) {
-					lock_expires = (DateTime) obj;
-					result = true;
-				}else{
-					result = false;
+					return true;
 				}
-			}
-
-			return result;
-		}
-
-		public void Unlock (DB db)
-		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
-				cmd.CommandText = "UPDATE RevisionWork SET lock_expires = DEFAULT WHERE id = @id";
-				DB.CreateParameter (cmd, "id", id);
-				cmd.ExecuteNonQuery ();
+				return false;
 			}
 		}
 

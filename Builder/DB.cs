@@ -735,7 +735,7 @@ ORDER BY Revision.date DESC;
 			using (IDbCommand cmd = Connection.CreateCommand ()) {
 				cmd.CommandText = @"
 UPDATE 
-	Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT
+	Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
 WHERE
 	Work.revisionwork_id IN 
 		(SELECT	RevisionWork.id 
@@ -991,8 +991,7 @@ FROM
 INNER JOIN 
 	Revision ON RevisionWork.revision_id = Revision.id
 WHERE 
-		lock_expires < now ()	
-	AND RevisionWork.host_id = @host_id 
+        RevisionWork.host_id = @host_id 
 	AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
 	AND RevisionWork.lane_id = @lane_id
 	AND RevisionWork.completed = false
