@@ -657,7 +657,7 @@ SELECT Revision.*, C
 FROM 
 	(SELECT RevisionWork.id, RevisionWork.revision_id, Count(Work.revisionwork_id) AS C 
 		FROM RevisionWork 
-		INNER JOIN work ON Work.revisionwork_id = RevisionWork.id 
+		LEFT JOIN work ON Work.revisionwork_id = RevisionWork.id 
 		WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id 
 		GROUP BY RevisionWork.id, RevisionWork.revision_id) AS T 
 INNER JOIN Revision ON Revision.id = T.revision_id
