@@ -65,10 +65,15 @@ CREATE TABLE HostLane (
 
 CREATE TABLE Lanefile (
 	id             serial     PRIMARY KEY,
-	lane_id        int        NOT NULL REFERENCES Lane(id),
 	name           text       NOT NULL,                          -- the filename
 	contents       text       NOT NULL,
 	mime           text       NOT NULL DEFAULT 'text/plain'
+);
+
+CREATE TABLE Lanefiles (
+	id             serial     PRIMARY KEY,
+	lanefile_id    int        NOT NULL REFERENCES Lanefile (id),
+	lane_id        int        NOT NULL REFERENCES Lane (id)
 );
 
 CREATE TABLE Revision (
@@ -85,7 +90,7 @@ CREATE TABLE Revision (
 CREATE TABLE "Work" (
 	id               serial    PRIMARY KEY,
 	--TODO: Pending removal -- lane_id          int       NOT NULL REFERENCES Lane(id), -- the lane
-	host_id          int       REFERENCES Host(id),  -- the host that is doing the work, null if not assigned.
+	host_id          int       NULL REFERENCES Host(id),  -- the host that is doing the work, null if not assigned.
 	--TODO: Pending removal -- revision_id      int       NOT NULL REFERENCES Revision(id), -- the revision to use for this step
 	command_id       int       NOT NULL REFERENCES Command(id),  -- the command to execute
 	state            int       NOT NULL DEFAULT 0,                       -- 0 queued, 1 executing, 2 failed, 3 success, 

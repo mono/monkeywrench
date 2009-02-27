@@ -53,5 +53,22 @@ namespace Builder
         {
             contents = value;
         }
+
+
+		public static List<DBLane> GetLanesForFile (DB db, DBLanefile lanefile)
+		{
+			List<DBLane> result = new List<DBLane> ();
+
+			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM Lane WHERE Lane.id IN (SELECT DISTINCT lane_id FROM Lanefiles WHERE lanefile_id = @lanefile_id);";
+				DB.CreateParameter (cmd, "lanefile_id", lanefile.id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ())
+						result.Add (new DBLane (reader));
+				}
+			}
+
+			return result;
+		}
     }
 }

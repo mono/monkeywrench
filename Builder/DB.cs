@@ -392,7 +392,6 @@ namespace Builder
 
 					foreach (DBLanefile filemaster in master.GetFiles (this)) {
 						DBLanefile clone = new DBLanefile ();
-						clone.lane_id = result.id;
 						clone.contents = filemaster.contents;
 						clone.mime = filemaster.mime;
 						clone.name = filemaster.name;

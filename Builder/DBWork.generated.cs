@@ -28,7 +28,7 @@ namespace Builder
 {
 	public partial class DBWork : DBRecord
 	{
-		private int _host_id;
+		private int? _host_id;
 		private int _command_id;
 		private int _state;
 		private DateTime _starttime;
@@ -38,7 +38,7 @@ namespace Builder
 		private string _summary;
 		private int _revisionwork_id;
 
-		public int @host_id { get { return _host_id; } set { _host_id = value; } }
+		public int? @host_id { get { return _host_id; } set { _host_id = value; } }
 		public int @command_id { get { return _command_id; } set { _command_id = value; } }
 		public int @state { get { return _state; } set { _state = value; } }
 		public DateTime @starttime { get { return _starttime; } set { _starttime = value; } }

@@ -37,6 +37,11 @@ public partial class EditLaneFile : System.Web.UI.Page
 			if (int.TryParse (Request ["file_id"], out id)) {
 				DBLanefile file = new DBLanefile (Master.DB, id);
 				txtEditor.Text = file.contents;
+
+				foreach (DBLane lane in DBLanefile.GetLanesForFile (Master.DB, file)) {
+					lstLanes.Items.Add (lane.lane);
+				}
+
 			} else {
 				txtEditor.Text = "Invalid file id.";
 			}

@@ -61,6 +61,8 @@
     <Compile Include="Builder\DBLaneDependencyCondition.cs" />
     <Compile Include="Builder\DBLanefile.cs" />
     <Compile Include="Builder\DBLanefile.generated.cs" />
+    <Compile Include="Builder\DBLanefiles.cs" />
+    <Compile Include="Builder\DBLanefiles.generated.cs" />
     <Compile Include="Builder\DBLogin.cs" />
     <Compile Include="Builder\DBLogin.generated.cs" />
     <Compile Include="Builder\DBLoginView.cs" />
@@ -100,7 +102,6 @@
     <None Include="Makefile" />
     <None Include="README" />
     <None Include="scripts\build.sh" />
-    <None Include="scripts\config.sh" />
     <None Include="scripts\config.sh.in" />
     <None Include="scripts\database.sql" />
     <None Include="scripts\dbcontrol.sh" />
@@ -108,7 +109,6 @@
     <None Include="scripts\Makefile" />
     <None Include="scripts\setenv.sh" />
     <None Include="scripts\sshtunnel.sh" />
-    <None Include="scripts\updater" />
     <None Include="scripts\updater.sh" />
     <None Include="scripts\web.sh" />
   </ItemGroup>

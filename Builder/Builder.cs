@@ -183,6 +183,8 @@ namespace Builder
 								stdout_thread.Start ();
 
 								while (!p.WaitForExit (1000 * 60)) {
+									if (p.HasExited)
+										break;
 
 									//// Check if finished every 3 seconds.
 									//Thread.Sleep(3 * 1000);

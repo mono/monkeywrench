@@ -36,12 +36,13 @@ namespace Builder
 		private int _duration;
 		private string _logfile;
 		private string _summary;
-		private int _workhost_id;
+		private int? _workhost_id;
 		private bool _nonfatal;
 		private bool _alwaysexecute;
 		private int _sequence;
 		private bool _internal;
 		private string _command;
+		private int _revisionwork_id;
 		private int _masterhost_id;
 		private int _lane_id;
 		private int _revision_id;
@@ -56,12 +57,13 @@ namespace Builder
 		public int @duration { get { return _duration; } }
 		public string @logfile { get { return _logfile; } }
 		public string @summary { get { return _summary; } }
-		public int @workhost_id { get { return _workhost_id; } }
+		public int? @workhost_id { get { return _workhost_id; } }
 		public bool @nonfatal { get { return _nonfatal; } }
 		public bool @alwaysexecute { get { return _alwaysexecute; } }
 		public int @sequence { get { return _sequence; } }
 		public bool @internal { get { return _internal; } }
 		public string @command { get { return _command; } }
+		public int @revisionwork_id { get { return _revisionwork_id; } }
 		public int @masterhost_id { get { return _masterhost_id; } }
 		public int @lane_id { get { return _lane_id; } }
 		public int @revision_id { get { return _revision_id; } }

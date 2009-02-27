@@ -55,7 +55,7 @@ namespace Builder
 		{
 			List<DBLanefile> result = new List<DBLanefile> ();
 			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
-				cmd.CommandText = "SELECT id, lane_id, name, mime, contents FROM Lanefile WHERE lane_id = @lane_id ORDER BY name ASC";
+				cmd.CommandText = "SELECT Lanefile.id, Lanefiles.lane_id, name, mime, contents FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = @lane_id ORDER BY name ASC";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ())
@@ -64,21 +64,6 @@ namespace Builder
 			}
 			return result;
 		}
-
-		public static List<DBLanefile> GetFiles (DB db, string lane)
-		{
-			List<DBLanefile> result = new List<DBLanefile> ();
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
-				cmd.CommandText = "SELECT id, lane_id, name, mime, contents FROM Lanefile WHERE lane_id = (SELECT id FROM Lane WHERE lane = @lane) ORDER BY name ASC";
-				DB.CreateParameter (cmd, "lane", lane);
-				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ())
-						result.Add (new DBLanefile (reader));
-				}
-			}
-			return result;
-		}
-
 
 		public List<DBHostLaneView> GetHosts (DB db)
 		{

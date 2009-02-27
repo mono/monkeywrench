@@ -156,17 +156,20 @@ namespace Builder
 				for (int c = 0; c < columns.Count; c++) {
 					string type;
 					string [] args = columns [c].Split (':');
+
 					type = args [1];
 					column = args [0];
+
 					if (column.EndsWith (".id")) {
 						columns [c] = "id";
 						continue;
 					} else if (!col_type_mapping.ContainsKey (type)) {
-						Console.WriteLine ("Couldn't find type for column: '{0}'", column);
+						Console.WriteLine ("Couldn't find type for column: '{0}' (type: {1})", column, type);
 						columns [c] = column;
 						continue;
 					} else {
 						mtype = col_type_mapping [type];
+						Console.WriteLine ("Found mtype {0} for column {1} type {2}", mtype, column, type);
 						column = column.Substring (column.IndexOf ('.') + 1);
 						columns [c] = column;
 					}
@@ -275,8 +278,10 @@ namespace Builder
 					if (string.IsNullOrEmpty (column) || string.IsNullOrEmpty (type))
 						continue;
 
-					if (column == "id")
+					if (column == "id") {
+						col_type_mapping.Add (table + ".id", "int");
 						continue;
+					}
 
 					bool is_null = false;
 					string tmp;
@@ -318,6 +323,8 @@ namespace Builder
 						Console.WriteLine ("Table: '{0}' unknown type '{1}' for column '{2}'", table, type, column);
 						continue;
 					}
+
+					Console.WriteLine ("Found field {0}.{1} is_null: {2}", table, column, is_null);
 
 					if (is_null)
 						mtype += "?";

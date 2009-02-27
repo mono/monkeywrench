@@ -6,6 +6,8 @@
         <br />
         <asp:Button ID="cmdSave" runat="server" OnClick="cmdSave_Click" Text="Save" />
         <asp:Button ID="cmdCancel" runat="server" OnClick="cmdCancel_Click" Text="Cancel" />
+        <h5>This file is used by the following lanes:</h5>
+        <asp:ListBox ID="lstLanes" runat="server"></asp:ListBox>
         <h5>
             Environment variables set by the builder:</h5>
             <pre>

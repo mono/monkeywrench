@@ -26,20 +26,18 @@ using System.Reflection;
 
 namespace Builder
 {
-	public partial class DBLanefile : DBRecord
+	public partial class DBLanefiles : DBRecord
 	{
-		private string _name;
-		private string _contents;
-		private string _mime;
+		private int _lanefile_id;
+		private int _lane_id;
 
-		public string @name { get { return _name; } set { _name = value; } }
-		public string @contents { get { return _contents; } set { _contents = value; } }
-		public string @mime { get { return _mime; } set { _mime = value; } }
+		public int @lanefile_id { get { return _lanefile_id; } set { _lanefile_id = value; } }
+		public int @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 
 
 		public override string Table
 		{
-			get { return "Lanefile"; }
+			get { return "Lanefiles"; }
 		}
         
 
@@ -47,7 +45,7 @@ namespace Builder
 		{
 			get
 			{
-				return new string [] { "name", "contents", "mime" };
+				return new string [] { "lanefile_id", "lane_id" };
 			}
 		}
         

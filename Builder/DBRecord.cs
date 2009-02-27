@@ -127,7 +127,10 @@ namespace Builder
 					value = cmd.GetValue (cmd.GetOrdinal (field));
 					if (value == DBNull.Value)
 						value = null;
-					fi.SetValue (this, value);
+					if (fi != null)
+						fi.SetValue (this, value);
+					else
+						Logger.Log ("{0} Could not find the field '{1}'", GetType ().Name, field);
 				} else {
 					Logger.Log ("{0}.LoadInternal: Could not find the field '{1}' in the reader.", GetType ().Name, field);
 				}

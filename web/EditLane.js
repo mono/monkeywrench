@@ -28,6 +28,10 @@ function createFile(lane_id) {
     window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=createFile&filename=" + document.getElementById("txtCreateFileName").value;
 }
 
+function addFile(lane_id) {
+    window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=addFile&lanefile_id=" + document.getElementById("cmbExistingFiles").value;
+}
+
 function addHost(lane_id) {
     window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=addHost&host_id=" + document.getElementById("lstHosts").value;
 }

@@ -139,6 +139,18 @@ public partial class ViewLane : System.Web.UI.Page
 				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision'>delete work</a>", lane.id, dbr.id, host.id);
 				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=updatestate'>update state</a>", lane.id, dbr.id, host.id);
 			}
+			if (revisionwork.workhost_id.HasValue) {
+				string h;
+				if (revisionwork.workhost_id.Value == host.id) {
+					h = host.host;
+				} else {
+					DBHost tmp = new DBHost (db, revisionwork.workhost_id.Value);
+					h = tmp.host;
+				}
+				header.AppendFormat (" - Assigned to {0}", h);
+			}  else {
+				header.AppendFormat (" - Unassigned.");
+			}
 
 			if (!revisionwork.completed && revisionwork.State != DBState.NotDone && revisionwork.State != DBState.Paused) {
 				header.Insert (0, "<center><table class='executing'><td>");

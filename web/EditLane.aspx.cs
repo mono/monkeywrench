@@ -11,13 +11,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
 using Builder;
 
 public partial class EditLane : System.Web.UI.Page
@@ -77,17 +78,29 @@ public partial class EditLane : System.Web.UI.Page
 				switch (action) {
 				case "createFile": {
 						DBLanefile file = new DBLanefile ();
-						file.lane_id = lane.id;
 						file.name = Request ["filename"];
 						file.contents = "#!/bin/bash -ex\n\n#Your commands here\n";
 						file.mime = "text/plain";
 						file.Save (db.Connection);
+
+						DBLanefiles lanefile = new DBLanefiles ();
+						lanefile.lane_id = lane.id;
+						lanefile.lanefile_id = file.id;
+						lanefile.Save (db);
 						// TODO: Check if filename already exists.
 						break;
 					}
+				case "addFile":
+					if (int.TryParse (Request ["lanefile_id"], out id)) {
+						DBLanefiles lanefile = new DBLanefiles ();
+						lanefile.lane_id = lane.id;
+						lanefile.lanefile_id = id;
+						lanefile.Save (db);
+					}
+					break;
 				case "deleteFile":
 					if (int.TryParse (Request ["file_id"], out id))
-						DBLanefile.Delete (db, id, DBLanefile.TableName);
+						DBLanefiles.Delete (db, lane.id, id);
 					break;
 				case "editCommandFilename":
 					if (int.TryParse (command_id, out id)) {
@@ -202,6 +215,7 @@ public partial class EditLane : System.Web.UI.Page
 				Response.Redirect ("EditLane.aspx?lane_id=" + lane.id.ToString ());
 			}
 
+			// Files
 			tblFiles.Rows.Add (Utils.CreateTableHeaderRow ("Files"));
 			tblFiles.Rows [0].Cells [0].ColumnSpan = 4;
 			foreach (DBLanefile file in lane.GetFiles (db)) {
@@ -218,6 +232,34 @@ public partial class EditLane : System.Web.UI.Page
 				"<input type='text' value='filename' id='txtCreateFileName'></input>",
 				"text/plain",
 				string.Format ("<a href='javascript:createFile ({0})'>Add</a>", lane.id)
+				));
+			StringBuilder existing_files = new StringBuilder ();
+			existing_files.AppendLine ("<select id='cmbExistingFiles'>");
+			List<DBLanefile> result = new List<DBLanefile> ();
+			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+				cmd.CommandText = @"
+SELECT Lanefiles.lane_id, Lanefile.id, Lanefile.name, Lane.lane
+FROM Lanefiles 
+INNER JOIN Lanefile ON Lanefile.id = Lanefiles.lanefile_id
+INNER JOIN Lane ON Lanefiles.lane_id = Lane.id
+WHERE Lanefiles.lane_id <> @lane_id 
+ORDER BY lane_id, name ASC";
+				DB.CreateParameter (cmd, "lane_id", lane.id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					int lane_index = reader.GetOrdinal ("lane");
+					int name_index = reader.GetOrdinal ("name");
+					int id_index = reader.GetOrdinal ("id");
+					while (reader.Read ()) {
+						result.Add (new DBLanefile (reader));
+						existing_files.AppendFormat ("<option value='{2}'>{0} - {1}</option>\n", reader.GetString (lane_index), reader.GetString (name_index), reader.GetInt32 (id_index));
+					}
+				}
+			}
+			existing_files.AppendLine ("</select>");
+			tblFiles.Rows.Add (Utils.CreateTableRow (
+				existing_files.ToString (),
+				"N/A",
+				string.Format ("<a href='javascript:addFile ({0})'>Add</a>", lane.id)
 				));
 			tblFiles.Visible = true;
 
