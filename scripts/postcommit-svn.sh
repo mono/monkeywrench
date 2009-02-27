@@ -1,5 +1,22 @@
 #!/bin/sh -ex
 
+#
+# This script sends an xml file with a list of all the changed directories
+# for a particular revision to a configurable url. 
+#
+# The xml file has the following format:
+#
+# <monkeywrench version="1">
+#   <changeset sourcecountrol="svn|git" root="<repository root>" revision="<revision>">
+#     <directories>
+#        <directory>/dir1</directory>
+#        <directory>/dir2</directory>
+#     </directories>
+#   </changeset>
+# </monkeywrench>
+#
+#
+
 # configurable variables
 
 REPOSITORY_ROOT=mono-cvs.ximian.com/source
@@ -16,7 +33,7 @@ TMPFILE=`mktemp`
 
 cat >$TMPFILE <<EOF
 <monkeywrench version="1">
-  <changeset sourcecontrol="svn" root="$REPOSITORY_ROOT">
+  <changeset sourcecontrol="svn" root="$REPOSITORY_ROOT" revision="$REV">
     <directories>
 EOF
 

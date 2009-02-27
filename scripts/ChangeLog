@@ -1,0 +1,5 @@
+2009-02-27  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* postcommit-svn.sh: Added comment and include the revision in
+	  the xml.
+
