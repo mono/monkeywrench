@@ -1,0 +1,6 @@
+2009-02-27  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.sln:
+	* Builder.csproj: Add changelog/commit message instructions
+	  for MonoDevelop.
+
