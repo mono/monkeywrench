@@ -29,11 +29,11 @@ namespace Builder
         public static string Host;
 		public static string MasterHost;
 
-		public static void InitializeApp (string [] commandline_arguments, string appname)
+		static Configuration ()
 		{
 			BUILDER_DATA = Environment.GetEnvironmentVariable ("BUILDER_DATA");
 			BUILDER_CONFIG = Environment.GetEnvironmentVariable ("BUILDER_CONFIG");
-            Host = Environment.GetEnvironmentVariable("BUILDER_HOST");
+			Host = Environment.GetEnvironmentVariable ("BUILDER_HOST");
 			MasterHost = Environment.GetEnvironmentVariable ("BUILDER_HOST_MASTER");
 
 			if (string.IsNullOrEmpty (Host))
@@ -44,7 +44,10 @@ namespace Builder
 
 			if (string.IsNullOrEmpty (Logger.LogFile))
 				Logger.LogFile = Path.Combine (Path.GetTempPath (), "Builder.log");
+		}
 
+		public static void InitializeApp (string [] commandline_arguments, string appname)
+		{
 			if (commandline_arguments != null) {
 				foreach (string arg in commandline_arguments) {
 					if (arg.StartsWith ("-logfile:")) {
@@ -190,6 +193,17 @@ namespace Builder
 			if (string.IsNullOrEmpty (result))
 				result = "Default";
 			return result;
+		}
+
+		/// <summary>
+		/// The web frontend receives files to ReportCommit.aspx, these files are written into this directory.
+		/// The scheduler looks for files in this directory and only accesses the remote repository when
+		/// it determines that something has been committed.
+		/// </summary>
+		/// <returns></returns>
+		public static string GetSchedulerCommitsDirectory ()
+		{
+			return Path.Combine (BUILDER_DATA, "commits");
 		}
 	}
 }
