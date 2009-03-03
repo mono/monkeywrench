@@ -1,0 +1,7 @@
+2009-03-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ChangeLog: Added.
+
+	* DBWorkView2.cs: Disable warnings about fields accessed using
+	  reflection.
+
