@@ -82,8 +82,8 @@ public partial class ViewWorkTable : System.Web.UI.Page
 		using (IDbCommand cmd = db.Connection.CreateCommand ()) {
 			cmd.CommandText = @"
 SELECT * 
-FROM WorkView
-WHERE command_id = @command_id AND host_id = @host_id AND lane_id = @lane_id
+FROM WorkView2
+WHERE command_id = @command_id AND masterhost_id = @host_id AND lane_id = @lane_id
 ORDER BY revision DESC;
 ";
 			DB.CreateParameter (cmd, "command_id", command.id);

@@ -1,0 +1,6 @@
+2009-03-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ChangeLog: Added.
+
+	* ViewWorkTable.aspx.cs: Fix this page.
+
