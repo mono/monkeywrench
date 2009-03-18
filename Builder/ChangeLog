@@ -1,3 +1,10 @@
+2009-03-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: When a process needs to be killed, kill all
+	  descendent processes too.
+
+	* ProcessHelper.cs: Added.
+
 2009-03-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ChangeLog: Added.

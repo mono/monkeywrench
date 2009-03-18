@@ -204,7 +204,7 @@ namespace Builder
 										try {
 											exitcode = 255;
 											Logger.Log ("{1} The build step '{0}' has been aborted, killing it.", info.command.command, info.number);
-											p.Kill ();
+											p.KillTree ();
 											log.WriteLine ("{1} The build step '{0}' was aborted, killed it.", info.command.command, info.number);
 										} catch (Exception ex) {
 											Logger.Log ("{1} Exception while killing build step: {0}", ex.ToString (), info.number);
@@ -233,7 +233,7 @@ namespace Builder
 										result = DBState.Timeout;
 										exitcode = 255;
 										Logger.Log ("{0} {1}", info.number, timeoutReason);
-										p.Kill ();
+										p.KillTree ();
 										log.WriteLine (timeoutReason);
 									} catch (Exception ex) {
 										Logger.Log ("{1} Exception while killing build step: {0}", ex.ToString (), info.number);
