@@ -276,7 +276,7 @@ FROM RevisionWork;";
 			bool failed_revision = false;
 
 			for (int i = 0; i < steps.Count; i++) {
-				if (steps [i].State == DBState.NotDone) {
+				if (steps [i].State == DBState.NotDone || steps [i].State == DBState.Executing) {
 					// After a failed and fatal step, don't add any steps which aren't marked as alwaysexecute.
 					if (failed_revision && !steps [i].alwaysexecute) {
 						DBWork.SetState (db, steps [i].id, steps [i].State, DBState.Skipped);

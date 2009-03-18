@@ -1,5 +1,12 @@
 2009-03-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DBRevisionWork.cs: If a step is being executed, and a host
+	  is looking for work, include the step being executed, since
+	  most probably the execution failed somehow (machine reboot,
+	  builder crash, etc), and we'll just try to do it again.
+
+2009-03-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Builder.cs: When a process needs to be killed, kill all
 	  descendent processes too.
 
