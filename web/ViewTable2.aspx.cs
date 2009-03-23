@@ -108,10 +108,44 @@ public partial class ViewTable2 : System.Web.UI.Page
 			pages++;
 		Console.WriteLine ("Pages: {0} total: {1}", pages, total);
 
-		for (int i = 0; i < pages; i++) {
-			pager.AppendFormat ("<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>Page {4}</a> ", host.id, lane.id, i, limit, i + 1);
-		}
+		if (page > pages - 1)
+			page = pages - 1;
 
+		int range = 3;
+		pager.AppendFormat("<p> Page&nbsp;");
+		if (page < 12) {
+			for (int i = 0; i < pages; i++) {
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, i, limit, i + 1);
+			} 
+		} else {
+			if (page < (range + 1)) {
+				for (int i = 0; i < page + range; i++) {
+					pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, i, limit, i + 1);
+				}
+				pager.AppendFormat ("...");
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, pages-3, limit, pages -2);
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, pages-2, limit, pages - 1);
+			} else if (page > (pages - range)) {
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, 0, limit,1);
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, 1, limit,2);
+				pager.AppendFormat ("...");
+				for (int i = page-range; i < pages; i++) {
+					pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, i, limit, i + 1);
+				}
+			} else {
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, 0, limit,1);
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, 1, limit,2);
+				pager.AppendFormat ("...");
+				for (int i = page - range; i < page + range; i++) {
+					
+					pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, i, limit, i + 1);
+				}
+				pager.AppendFormat ("...");
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, pages-3, limit, pages -2);
+				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, pages-2, limit, pages - 1);
+			}
+		}
+		pager.AppendFormat("</p>");
 		return pager.ToString ();
 	}
 
