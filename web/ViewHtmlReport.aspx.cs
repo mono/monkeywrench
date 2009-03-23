@@ -85,7 +85,7 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 									line = line.Replace (find [i], replace [i]);
 								
 								// undo any changes for relative links
-								line = line.Replace ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=#", "#");
+								line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=#", workfile_id), "#");
 
 								Response.Write (line);
 								Response.Write ('\n');

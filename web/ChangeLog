@@ -1,5 +1,9 @@
 2009-03-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewHtmlReport.aspx.cs: Fix c&p error.
+
+2009-03-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewHtmlReport.aspx.cs: Augment ViewHtmlReport to fix both
 	  images and links.
 
