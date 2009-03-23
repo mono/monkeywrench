@@ -39,7 +39,7 @@ EOF
 
 # write directories
 for directory in `svnlook dirs-changed -r $REV $REPOS`; do
-	echo "      <directory>$directory</directory" >> $TMPFILE
+	echo "      <directory>$directory</directory>" >> $TMPFILE
 done
 
 # write xml end
@@ -50,7 +50,7 @@ cat >>$TMPFILE <<EOF
 </monkeywrench>
 EOF
 
-curl $REPORT_URL --form xml=@$TMPFILE
+curl $REPORT_URL --form xml=@$TMPFILE -m 15
 
 rm $TMPFILE
 

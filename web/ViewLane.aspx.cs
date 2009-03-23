@@ -191,7 +191,7 @@ public partial class ViewLane : System.Web.UI.Page
 				string command = step.command;
 				List<DBWorkFileView> files = DBWork.GetFiles (db, step.id);
 
-				Console.WriteLine ("starttime: {0}, endtime: {1}, db.now: {2}, duration: {3} s", starttime.ToLongTimeString (), endtime.ToLongTimeString (), db.Now.ToLongTimeString (), duration);
+				// Console.WriteLine ("starttime: {0}, endtime: {1}, db.now: {2}, duration: {3} s", starttime.ToLongTimeString (), endtime.ToLongTimeString (), db.Now.ToLongTimeString (), duration);
 
 				if (step.endtime.Year < DateTime.Now.Year - 1 && step.duration == 0) {// Not ended, endtime defaults to year 2000
 					duration = (int) (db.Now - starttime).TotalSeconds;

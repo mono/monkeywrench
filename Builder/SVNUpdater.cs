@@ -26,6 +26,79 @@ namespace Builder
 		private static bool quit_svn_diff = false;
 		private static Thread diff_thread;
 
+		// a tuple, each path and the first revision (in a list of changesets) the path was modified
+		private static List<string> paths;
+		private static List<int> min_revisions;
+
+		public static void AddChangeSet (XmlDocument doc)
+		{
+			XmlNode rev = doc.SelectSingleNode ("/monkeywrench/changeset");
+			int revision = int.Parse (rev.Attributes ["revision"].Value);
+			string root = rev.Attributes ["root"].Value;
+			string sc = rev.Attributes ["sourcecontrol"].Value;
+
+			if (sc != "svn")
+				return;
+
+			if (paths == null) {
+				paths = new List<string> ();
+				min_revisions = new List<int> ();
+			}
+
+			foreach (XmlNode node in doc.SelectNodes ("/monkeywrench/changeset/directories/directory")) {
+				Logger.Log ("SVN: Checking changeset directory: '{0}'", node.InnerText);
+				string dir = root + "/" + node.InnerText;
+				int existing_rev;
+				int existing_index = paths.IndexOf (dir);
+
+				if (existing_index > 0) {
+					existing_rev = min_revisions [existing_index];
+					if (existing_rev > revision)
+						continue;
+				}
+				Logger.Log ("SVN: Added changeset for r{1} with path: {0}", dir, revision);
+				paths.Add (dir);
+				min_revisions.Add (revision);
+			}
+		}
+
+		/// <summary>
+		/// Checks if a lane has any reported commits.
+		/// If so, min_revision will be the first reported commit (otherwise min_revision will be 0).
+		/// </summary>
+		/// <param name="lane"></param>
+		/// <param name="min_revision"></param>
+		/// <returns></returns>
+		private bool HasCommits (DBLane lane, out int min_revision)
+		{
+			min_revision = 0;
+
+			if (Configuration.ForceFullCheck)
+				return true;
+
+			if (paths == null || paths.Count == 0)
+				return false;
+
+			min_revision = int.MaxValue;
+			foreach (string repo in lane.repository.Split (';')) {
+				Uri uri = new Uri (repo);
+				string dir = uri.Host + uri.LocalPath;
+				for (int i = 0; i < paths.Count; i++) {
+					if (paths [i].StartsWith (dir)) {
+						min_revision = Math.Min (min_revision, min_revisions [i]);
+						Logger.Log ("SVN: A commit report shows that {0} (lane: {2}) was changed in r{1}", paths [i], min_revision, repo);
+					}
+				}
+			}
+
+			if (min_revision == int.MaxValue) {
+				min_revision = 0;
+				return false;
+			}
+
+			return true;
+		}
+
 		public bool UpdateRevisionsInDB (DB db, DBLane lane, List<DBHost> hosts, List<DBHostLane> hostlanes)
 		{
 			string revision;
@@ -55,10 +128,21 @@ namespace Builder
 					return false;
 				}
 
+				// check for commit reports
+				if (!HasCommits (lane, out min_revision)) {
+					Logger.Log ("SVN: Skipping lane {0}, no commits.", lane.lane);
+					return false;
+				}
+
 				revisions = db.GetDBRevisions (lane.id);
 
 				foreach (string repository in lane.repository.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
-					log = GetSVNLog (lane, repository);
+					if (min_revision == 0 && !string.IsNullOrEmpty (lane.min_revision))
+						min_revision = int.Parse (lane.min_revision);
+					if (!string.IsNullOrEmpty (lane.max_revision))
+						max_revision = int.Parse (lane.max_revision);
+
+					log = GetSVNLog (lane, repository, min_revision, max_revision);
 
 					if (string.IsNullOrEmpty (log)) {
 						Logger.Log ("SVN: Didn't get a svn log for '{0}'", repository);
@@ -68,11 +152,6 @@ namespace Builder
 					svn_log = new XmlDocument ();
 					svn_log.PreserveWhitespace = true;
 					svn_log.Load (new StringReader (log));
-
-					if (!string.IsNullOrEmpty (lane.min_revision))
-						min_revision = int.Parse (lane.min_revision);
-					if (!string.IsNullOrEmpty (lane.max_revision))
-						max_revision = int.Parse (lane.max_revision);
 
 					foreach (XmlNode node in svn_log.SelectNodes ("/log/logentry")) {
 						revision = node.Attributes ["revision"].Value;
@@ -110,20 +189,22 @@ namespace Builder
 
 			return update_steps;
 		}
-		
-		private static string GetSVNLog (DBLane dblane, string repository)
+
+		private static string GetSVNLog (DBLane dblane, string repository, int min_revision, int max_revision)
 		{
 			StringBuilder result = new StringBuilder ();
 			string revs = string.Empty;
 
 			try {
-				Logger.Log ("SVN: Retrieving svn log for '{0}', repository: '{1}'", dblane.lane, repository);
+				Logger.Log ("SVN: Retrieving svn log for '{0}', repository: '{1}', min_revision: {2} max_revision: {3}", dblane.lane, repository, min_revision, max_revision);
 
-				if (!string.IsNullOrEmpty (dblane.min_revision)) {
-					if (string.IsNullOrEmpty (dblane.max_revision))
-						revs = " -r " + dblane.min_revision + ":HEAD";
-					else
-						revs = " -r " + dblane.min_revision + ":" + dblane.max_revision;
+				if (min_revision > 0) {
+					revs = " -r " + min_revision.ToString ();
+					if (max_revision < int.MaxValue) {
+						revs += ":" + max_revision.ToString ();
+					} else {
+						revs += ":HEAD";
+					}
 				}
 
 				using (Process p = new Process ()) {

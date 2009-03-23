@@ -1,3 +1,7 @@
+2009-03-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* postcommit-svn.sh: Added -m 15 to curl and fix a typo.
+
 2009-02-27  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* postcommit-svn.sh: Added comment and include the revision in

@@ -35,12 +35,25 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 		string uncompressed_filename = null;
 		string line;
 		int workfile_id;
-		string replace;
 		int read;
 		byte [] buffer;
 
+		string [] find;
+		string [] replace;
+
 		if (!int.TryParse (Request ["workfile_id"], out workfile_id))
 			return;
+
+		find = new string [] { 
+				"img src=\"", 
+				"img src='", 
+				"a href=\"", 
+				"a href='" };
+		replace = new string []{
+				string.Format ("img src=\"ViewHtmlReport.aspx?workfile_id={0}&amp;filename=", workfile_id), 
+				string.Format ("img src='ViewHtmlReport.aspx?workfile_id={0}&amp;filename=", workfile_id),
+				string.Format ("a href=\"ViewHtmlReport.aspx?workfile_id={0}&amp;filename=", workfile_id),
+				string.Format ("a href='ViewHtmlReport.aspx?workfile_id={0}&amp;filename=", workfile_id)};
 
 		using (DB db = new DB (true)) {
 
@@ -51,8 +64,6 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 				throw new HttpException (404, "File not found.");
 
 			if (string.IsNullOrEmpty (filename)) {
-
-				replace = string.Format ("img src=\"ViewHtmlReport.aspx?workfile_id={0}&amp;filename=", workfile_id);
 
 				Response.ContentType = "text/html";
 
@@ -70,7 +81,12 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 					using (Stream stream = uncompressed_filename == null ? db.Download (view) : new FileStream (uncompressed_filename, FileMode.Open, FileAccess.Read)) {
 						using (StreamReader reader = new StreamReader (stream)) {
 							while (null != (line = reader.ReadLine ())) {
-								line = line.Replace ("img src=\"", replace);
+								for (int i = 0; i < find.Length; i++)
+									line = line.Replace (find [i], replace [i]);
+								
+								// undo any changes for relative links
+								line = line.Replace ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=#", "#");
+
 								Response.Write (line);
 								Response.Write ('\n');
 								Response.Flush ();

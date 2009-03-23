@@ -60,6 +60,33 @@ namespace Builder
 
 				SVNUpdater.StartDiffThread ();
 
+				// Check reports
+				if (!Configuration.ForceFullCheck) {
+					try {
+						foreach (string file in Directory.GetFiles (Configuration.GetSchedulerCommitsDirectory (), "*.xml")) {
+							string hack = File.ReadAllText (file);
+							if (!hack.Contains ("</directory>"))
+								hack = hack.Replace ("</directory", "</directory>");
+							File.WriteAllText (file, hack);
+							XmlDocument doc = new XmlDocument ();
+							try {
+								Logger.Log ("Updater: got report file '{0}'", file);
+								doc.Load (file);
+								SVNUpdater.AddChangeSet (doc);
+							} catch (Exception ex) {
+								Logger.Log ("Updater: exception while checking commit report '{0}': {1}", file, ex);
+							}
+							try {
+								 File.Delete (file); // No need to check this file more than once.
+							} catch {
+								// Ignore any exceptions
+							}
+						}
+					} catch (Exception ex) {
+						Logger.Log ("Updater: exception while checking commit reports: {0}", ex);
+					}
+				}
+
 				using (DB db = new DB (true)) {
 					lanes = db.GetAllLanes ();
 					hosts = db.GetHosts ();

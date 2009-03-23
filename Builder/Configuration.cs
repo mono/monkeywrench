@@ -28,6 +28,7 @@ namespace Builder
 		
         public static string Host;
 		public static string MasterHost;
+		public static bool ForceFullCheck;
 
 		static Configuration ()
 		{
@@ -56,8 +57,10 @@ namespace Builder
 						BUILDER_DATA = arg.Substring (9);
 					} else if (arg.StartsWith ("-configdir:")) {
 						BUILDER_CONFIG = arg.Substring (11);
-                    }else if (arg.StartsWith ("-host:")) {
+                    } else if (arg.StartsWith ("-host:")) {
                         Host = arg.Substring(6);
+					} else if (arg == "-forcefullcheck") {
+						ForceFullCheck = true;
 					} else {
 						throw new Exception (string.Format ("Invalid argument: {0}", arg));
 					}
