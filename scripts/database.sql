@@ -87,7 +87,7 @@ CREATE TABLE Revision (
 	UNIQUE (lane_id, revision)
 );
 
-CREATE TABLE "Work" (
+CREATE TABLE "work" ( -- lower case since postgre won't lowercase quoted identifiers like it does with unquoted identifiers
 	id               serial    PRIMARY KEY,
 	--TODO: Pending removal -- lane_id          int       NOT NULL REFERENCES Lane(id), -- the lane
 	host_id          int       NULL REFERENCES Host(id),  -- the host that is doing the work, null if not assigned.
@@ -163,6 +163,7 @@ CREATE TABLE Person ( -- 'User' is a reserved word in sql...
 	password       text      NOT NULL DEFAULT '', -- the password (in plain text)
 	fullname       text      NOT NULL DEFAULT ''  -- the full name of the user
 );
+INSERT INTO Person (login, password, fullname) VALUES ('admin', 'admin', 'admin');
 
 CREATE TABLE Login (
 	id             serial    PRIMARY KEY,
@@ -171,7 +172,6 @@ CREATE TABLE Login (
 	expires        timestamp NOT NULL,                   	  -- the date/time this login expires
 	ip4            text      NOT NULL DEFAULT ''              -- the ip the user is connecting from
 );
-
 
 CREATE VIEW WorkView2 AS 
 	SELECT 
@@ -216,6 +216,7 @@ CREATE VIEW WorkFileView AS
 -- ignore generator --		
 
 -- method to get id for revisionwork, adding a new record if none is found.
+CREATE LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION add_revisionwork (lane int, host int, revision int) RETURNS INT AS $$ 
 BEGIN 
 	IF 0 = (SELECT COUNT(*) FROM RevisionWork WHERE lane_id = lane AND host_id = host AND revision_id = revision) THEN
