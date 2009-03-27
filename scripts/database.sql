@@ -127,7 +127,6 @@ CREATE TABLE WorkFile (
 	hidden         boolean    NOT NULL DEFAULT FALSE,
 	filename       text       NOT NULL DEFAULT ''     -- we need to have a filename here too, since File is unique based on md5, we can have several WorkFiles with different names and same content.
 	                                                  -- in any case, if this field is '', the filename is File's filename.
-	UNIQUE (work_id, file_id) -- it doesn't make sense to have the same file referenced twice for a work record
 );
 CREATE INDEX workfile_idx_file_id_key ON WorkFile (file_id);
 CREATE INDEX workfile_idx_work_id_key ON WorkFile (work_id);
@@ -226,37 +225,5 @@ BEGIN
 END; 
 $$ 
 LANGUAGE plpgsql; 
-
-CREATE OR REPLACE FUNCTION get_revisionwork (lane int, host int, revision int, int, int) RETURNS SETOF AS $$
-BEGIN
-	SELECT revisionwork.id,revision.revision INTO revisionworkview_temp 
-	from revisionwork 
-	inner join revision on revision.id = revisionwork.revision_id 
-	where 
-		revisionwork.lane_id = $1 and revisionwork.host_id = $2 
-		ORDER BY revision.date LIMIT $3 OFFSET $4;
-		
-RETURN 
-		SELECT 
-		Work.id, Work.revision_id, Work.lane_id, Work.host_id, Work.command_id, Work.state, Work.starttime, Work.endtime, Work.duration, Work.logfile, Work.summary, 
-		Host.host, 
-		Lane.lane, 
-		Revision.author, Revision.revision, 
-		Command.command, 
-		Command.nonfatal, Command.alwaysexecute, Command.sequence, Command.internal
-	FROM Work
-	INNER JOIN Revision ON Work.revision_id = Revision.id 
-	INNER JOIN Lane ON Work.lane_id = Lane.id 
-	INNER JOIN Host ON Work.host_id = Host.id 
-	INNER JOIN Command ON Work.command_id = Command.id
-	INNER JOIN RevisionWork ON Work.revisionwork_id = RevisionWork.id
-	WHERE 
-		RevisionWork.host_id = @host_id AND
-		RevisionWork.lane_id = @lane_id AND
-		Work.revisionwork_id IN revisionworkview_temp
-	ORDER BY Revision.date DESC; 
-END;
-$$
-LANGUAGE plpgsql;
 
 -- unignore generator --
