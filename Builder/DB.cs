@@ -221,7 +221,7 @@ namespace Builder
 		{
 			using (IDbCommand cmd = Connection.CreateCommand ()) {
 				object o = ExecuteScalar ("SELECT file_id FROM File where File.id = " + file_id.ToString ());
-				
+
 				if (!(o is int))
 					throw new Exception ("File_id doesn't exist.");
 
@@ -763,23 +763,30 @@ WHERE
 		/// <param name="revision_id"></param>
 		public void DeleteFiles (DBHost host, DBLane lane, int revision_id)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
-				cmd.CommandText = @"
-DELETE FROM WorkFile
-WHERE EXISTS (
-	SELECT 1 
-	FROM Work 
+			using (IDbTransaction transaction = Connection.BeginTransaction ()) {
+				using (IDbCommand cmd = Connection.CreateCommand ()) {
+					cmd.CommandText = @"
+SELECT WorkFile.id AS id
+	INTO TEMP WorkFile_delete_tmpfile 
+	FROM WorkFile 
+	INNER JOIN Work ON Work.id = WorkFile.work_id
 	INNER JOIN RevisionWork ON RevisionWork.id = Work.revisionwork_id
 	WHERE
 		RevisionWork.lane_id = @lane_id AND
 		RevisionWork.host_id = @host_id AND
-		RevisionWork.revision_id = @revision_id AND
-		Work.id = WorkFile.work_id);
+		RevisionWork.revision_id = @revision_id;
+		
+DELETE FROM WorkFile
+WHERE id IN (select * from WorkFile_delete_tmpfile);
+
+	DROP TABLE WorkFile_delete_tmpfile;
 ";
-				DB.CreateParameter (cmd, "lane_id", lane.id);
-				DB.CreateParameter (cmd, "host_id", host.id);
-				DB.CreateParameter (cmd, "revision_id", revision_id);
-				cmd.ExecuteNonQuery ();
+					DB.CreateParameter (cmd, "lane_id", lane.id);
+					DB.CreateParameter (cmd, "host_id", host.id);
+					DB.CreateParameter (cmd, "revision_id", revision_id);
+					cmd.ExecuteNonQuery ();
+					transaction.Commit ();
+				}
 			}
 		}
 
@@ -797,7 +804,7 @@ WHERE EXISTS (
 		public void DeleteWork (int lane_id, int revision_id, int host_id)
 		{
 			using (IDbCommand cmd = Connection.CreateCommand ()) {
-//				cmd.CommandText = "DELETE FROM Work WHERE lane_id = @lane_id AND revision_id = @revision_id AND host_id = @host_id;";
+				//				cmd.CommandText = "DELETE FROM Work WHERE lane_id = @lane_id AND revision_id = @revision_id AND host_id = @host_id;";
 				cmd.CommandText = @"
 DELETE FROM Work 
 WHERE Work.revisionwork_id = 
