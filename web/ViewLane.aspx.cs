@@ -105,11 +105,11 @@ public partial class ViewLane : System.Web.UI.Page
 	{
 		if (Master.Login == null) {
 			return string.Format (@"
-<h2>Builds for lane '{2}' on '{3}' (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host);
+<h2>Builds for lane '{2}' on '{3}' (<a href='ViewTable2.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host);
 		} else {
 			return string.Format (@"
 <h2>Builds for lane '<a href='EditLane.aspx?lane_id={0}'>{2}</a>' on '<a href='EditHost.aspx?host_id={1}'>{3}</a>' 
-(<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host);
+(<a href='ViewTable2.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host);
 		}
 	}
 

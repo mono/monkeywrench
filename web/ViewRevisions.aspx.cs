@@ -71,7 +71,7 @@ public partial class ViewRevisions : System.Web.UI.Page
 					//db.DeleteFiles (dbhost, dblane, id);
 					//db.ClearWork (dblane.id, id, dbhost.id);
 				}
-				Response.Redirect (string.Format ("ViewTable.aspx?host_id={0}&lane_id={1}", host_id, lane_id));
+				Response.Redirect (string.Format ("ViewTable2.aspx?host_id={0}&lane_id={1}", host_id, lane_id));
 				return;
 			}
 

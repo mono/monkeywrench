@@ -36,7 +36,7 @@ public partial class index : System.Web.UI.Page
 				switch (Request ["action"]) {
 				case "updatestate":
 					DBRevisionWork.UpdateStateAll (Master.DB);
-					Response.Redirect ("index2.aspx");
+					Response.Redirect ("index.aspx");
 					return;
 				default:
 					break;
@@ -46,7 +46,7 @@ public partial class index : System.Web.UI.Page
 			this.buildtable.InnerHtml = GenerateOverview (Master.DB);
 			if (Master.Login != null) {
 				this.adminlinksheader.InnerHtml = "Admin";
-				this.adminlinks.InnerHtml = "<a href='index2.aspx?action=updatestate'>Update states</a>";
+				this.adminlinks.InnerHtml = "<a href='index.aspx?action=updatestate'>Update states</a>";
 			}
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
