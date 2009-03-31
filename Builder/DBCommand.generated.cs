@@ -36,6 +36,7 @@ namespace Builder
 		private bool _alwaysexecute;
 		private bool _nonfatal;
 		private bool _internal;
+		private int _timeout;
 
 		public int @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public string @command { get { return _command; } set { _command = value; } }
@@ -45,6 +46,7 @@ namespace Builder
 		public bool @alwaysexecute { get { return _alwaysexecute; } set { _alwaysexecute = value; } }
 		public bool @nonfatal { get { return _nonfatal; } set { _nonfatal = value; } }
 		public bool @internal { get { return _internal; } set { _internal = value; } }
+		public int @timeout { get { return _timeout; } set { _timeout = value; } }
 
 
 		public override string Table
@@ -57,7 +59,7 @@ namespace Builder
 		{
 			get
 			{
-				return new string [] { "lane_id", "command", "filename", "arguments", "sequence", "alwaysexecute", "nonfatal", "internal" };
+				return new string [] { "lane_id", "command", "filename", "arguments", "sequence", "alwaysexecute", "nonfatal", "internal", "timeout" };
 			}
 		}
         

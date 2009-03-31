@@ -24,6 +24,13 @@ function editCommandSequence(lane_id, command_id, saved, def) {
     }
 }
 
+function editCommandTimeout(lane_id, command_id, saved, def) {
+    var timeout = prompt("Set the new timeout (in minutes):", def);
+    if (arguments != null && arguments != "" && arguments != def) {
+        window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=editCommandTimeout&command_id=" + command_id + "&timeout=" + timeout;
+    }
+}
+
 function createFile(lane_id) {
     window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=createFile&filename=" + document.getElementById("txtCreateFileName").value;
 }

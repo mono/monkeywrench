@@ -1,5 +1,12 @@
 2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Builder.cs:
+	* DBCommand.generated.cs: Added support for per-command
+	  timeout instead of having a 60-minute timeout for all
+	  commands.
+
+2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* SqlToCSharp.cs: Fix this after lowercasing "work" in
 	  database.sql.
 

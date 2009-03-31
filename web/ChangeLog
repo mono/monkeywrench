@@ -1,3 +1,9 @@
+2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* EditLane.js:
+	* EditLane.aspx.cs: Added support for per-command timeout
+	  instead of having a 60-minute timeout for all commands.
+
 2009-03-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ViewHtmlReport.aspx.cs: Fix c&p error.

@@ -53,7 +53,8 @@ CREATE TABLE Command (
 	                                                            -- (it doesn't necessarily mean the harness will actually run anything in parallel)
 	alwaysexecute  boolean    NOT NULL DEFAULT FALSE,           -- if this command will always be executed, even if any previous steps failed. Typical case is a cleanup command.
 	nonfatal       boolean    NOT NULL DEFAULT FALSE,           -- if this command will allow subsequent steps to be executed even if this step fails. Typical case is a test command.
-	internal       boolean    NOT NULL DEFAULT FALSE            -- if the user has to be logged in to see files this command produces.
+	internal       boolean    NOT NULL DEFAULT FALSE,           -- if the user has to be logged in to see files this command produces.
+	timeout        int        NOT NULL DEFAULT 60				-- after how many minutes should this step time out
 );
 
 CREATE TABLE HostLane (

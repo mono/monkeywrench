@@ -182,7 +182,7 @@ namespace Builder
 								stderr_thread.Start ();
 								stdout_thread.Start ();
 
-								while (!p.WaitForExit (1000 * 60)) {
+								while (!p.WaitForExit (1000 * info.command.timeout)) {
 									if (p.HasExited)
 										break;
 
@@ -220,7 +220,7 @@ namespace Builder
 
 									if ((DateTime.Now > local_starttime.AddHours (1))) {
 										timedout = true;
-										timeoutReason = string.Format ("The build step '{0}' didn't finish in 1 hour.", info.command.command);
+										timeoutReason = string.Format ("The build step '{0}' didn't finish in {1} minutes.", info.command.timeout);
 									} else if (last_stamp.AddMinutes (timeout) <= DateTime.Now) {
 										timedout = true;
 										timeoutReason = string.Format ("The build step '{0}' has had no output for {1} minutes.", info.command.command, timeout);

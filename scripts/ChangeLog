@@ -1,3 +1,8 @@
+2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* database.sql: Added support for per-command timeout instead
+	  of having a 60-minute timeout for all commands.
+
 2009-03-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* postcommit-svn.sh: Added -m 15 to curl and fix a typo.
