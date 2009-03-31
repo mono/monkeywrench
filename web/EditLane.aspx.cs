@@ -136,8 +136,12 @@ public partial class EditLane : System.Web.UI.Page
 					}
 					break;
 				case "deletecommand":
-					if (int.TryParse (command_id, out id))
-						DBCommand.Delete (db, id, DBCommand.TableName);
+					if (int.TryParse (command_id, out id)) {
+						// TODO: Check if the command has any work, if not just delete it.
+						DBCommand cmd = new DBCommand (db, id);
+						cmd.lane_id = null;
+						cmd.Save (db);
+					}
 					break;
 				case "switchNonFatal":
 					if (int.TryParse (command_id, out id)) {

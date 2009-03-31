@@ -1,5 +1,10 @@
 2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DBCommand.generated.cs: First attempt of implementing
+	  deletion of a command from a lane.
+
+2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Builder.cs:
 	* DBCommand.generated.cs: Added support for per-command
 	  timeout instead of having a 60-minute timeout for all

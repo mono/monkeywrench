@@ -43,7 +43,7 @@ CREATE TABLE LaneDependency (
 
 CREATE TABLE Command (
 	id             serial     PRIMARY KEY,
-	lane_id        int        NOT NULL REFERENCES Lane(id),
+	lane_id        int        NULL REFERENCES Lane(id),         -- this can be null to remove a command from a lane (deleting the command won't work if there already is work executed for the command)
 	command        text       NOT NULL,                         -- the actual file to execute. This should probably be a filename in Lanefile.
 	filename       text       NOT NULL DEFAULT 'bash',          -- the program used to execute the command
 	arguments      text       NOT NULL DEFAULT '-ex {0}',       -- the arguments passed to the program. The command will be saved to a temporary file on disk, 

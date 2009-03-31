@@ -1,5 +1,10 @@
 2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* EditLane.aspx.cs: First attempt of implementing deletion of
+	  a command from a lane.
+
+2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* index2.aspx:
 	* index.aspx.cs:
 	* ViewTable.aspx:

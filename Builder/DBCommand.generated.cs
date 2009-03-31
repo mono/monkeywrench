@@ -28,7 +28,7 @@ namespace Builder
 {
 	public partial class DBCommand : DBRecord
 	{
-		private int _lane_id;
+		private int? _lane_id;
 		private string _command;
 		private string _filename;
 		private string _arguments;
@@ -38,7 +38,7 @@ namespace Builder
 		private bool _internal;
 		private int _timeout;
 
-		public int @lane_id { get { return _lane_id; } set { _lane_id = value; } }
+		public int? @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public string @command { get { return _command; } set { _command = value; } }
 		public string @filename { get { return _filename; } set { _filename = value; } }
 		public string @arguments { get { return _arguments; } set { _arguments = value; } }
