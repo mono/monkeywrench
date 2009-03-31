@@ -76,7 +76,7 @@ public partial class ViewWorkTable : System.Web.UI.Page
 	public string GenerateLane (DB db, DBLane lane, DBHost host, DBCommand command)
 	{
 		StringBuilder matrix = new StringBuilder ();
-		List<DBWorkView> steps = new List<DBWorkView> () ;
+		List<DBWorkView2> steps = new List<DBWorkView2> () ;
 		DateTime beginning = new DateTime (2001, 1, 1, 0, 0, 0);
 
 		using (IDbCommand cmd = db.Connection.CreateCommand ()) {
@@ -84,14 +84,14 @@ public partial class ViewWorkTable : System.Web.UI.Page
 SELECT * 
 FROM WorkView2
 WHERE command_id = @command_id AND masterhost_id = @host_id AND lane_id = @lane_id
-ORDER BY revision DESC;
+ORDER BY revision DESC LIMIT 250;
 ";
 			DB.CreateParameter (cmd, "command_id", command.id);
 			DB.CreateParameter (cmd, "host_id", host.id);
 			DB.CreateParameter (cmd, "lane_id", lane.id);
 			using (IDataReader reader = cmd.ExecuteReader ()) {
 				while (reader.Read ())
-					steps.Add (new DBWorkView (reader));
+					steps.Add (new DBWorkView2 (reader));
 			}
 		}
 
@@ -109,7 +109,8 @@ ORDER BY revision DESC;
 
 
 		for (int i = 0; i < steps.Count; i++) {
-			DBWorkView view = steps [i];
+			DBWorkView2 view = steps [i];
+			List<DBWorkFileView> files = DBWork.GetFiles (db, view.id);
 
 			matrix.Append ("<tr>");
 
@@ -132,7 +133,19 @@ ORDER BY revision DESC;
 			}
 
 			// result
-			matrix.AppendFormat ("\t<td class='{0}'>{1}</td>", result, view.revision);
+
+			int file_id = 0;
+			foreach (DBWorkFileView file in files) {
+				if (!file.filename.StartsWith (view.command))
+					continue;
+				file_id = file.id;
+				break;
+			}
+			if (file_id == 0) {
+				matrix.AppendFormat ("\t<td class='{0}'>{1}</td>", result, view.revision);
+			} else {
+				matrix.AppendFormat ("\t<td class='{0}'><a href='GetFile.aspx?id={2}'>{1}</a></td>", result, view.revision, file_id);
+			}
 
 			if (view.State > DBState.NotDone && view.State != DBState.Paused) {
 				matrix.AppendFormat ("<td>{0}</td>", view.starttime.ToString ("yyyy/MM/dd HH:mm:ss UTC"));
@@ -140,49 +153,40 @@ ORDER BY revision DESC;
 				matrix.AppendLine ("<td>-</td>");
 			}
 			// duration
+			DateTime starttime = view.starttime.ToLocalTime ();
+			DateTime endtime = view.endtime.ToLocalTime ();
+			int duration = (int) (endtime - starttime).TotalSeconds;
 			matrix.Append ("\t<td>");
 			if (view.State >= DBState.Executing && view.State != DBState.Paused) {
 				matrix.Append ("[");
-				matrix.Append (TimeSpan.FromSeconds (view.duration).ToString ());
+				matrix.Append (TimeSpan.FromSeconds (duration).ToString ());
 				matrix.Append ("]");
 			} else {
 				matrix.Append ("-");
 			}
 			matrix.AppendLine ("</td>");
 
+			// html report
 			matrix.AppendLine ("<td>");
-			//string html_report_index_html = null;
-			//DBWorkFileView index_html = null;
-			//foreach (DBWorkFileView file in files) {
-			//    if (file.filename == "index.html") {
-			//        index_html = file;
-			//        break;
-			//    }
-			//}
-			//if (index_html != null) {
-			//    matrix.AppendFormat ("<a href='ViewHtmlReport.aspx?workfile_id={0}'>View html report</a>", index_html.id);
-			//} else {
-			//    matrix.AppendLine ("-");
-			//}
+			DBWorkFileView index_html = null;
+			foreach (DBWorkFileView file in files) {
+				if (file.filename == "index.html") {
+					index_html = file;
+					break;
+				}
+			}
+			if (index_html != null) {
+				matrix.AppendFormat ("<a href='ViewHtmlReport.aspx?workfile_id={0}'>View html report</a>", index_html.id);
+			} else {
+				matrix.AppendLine ("-");
+			}
 			matrix.AppendLine ("</td>");
 
+			// summary
 			matrix.AppendLine ("<td>");
 			matrix.AppendLine (view.summary);
 			matrix.AppendLine ("</td>");
 
-			matrix.AppendLine ("<td>");
-			//bool did_first = false;
-			//foreach (DBWorkFileView file in files) {
-			//    if (file.hidden)
-			//        continue;
-			//    if (file.hidden)
-			//        continue;
-			//    if (did_first)
-			//        matrix.Append (", ");
-			//    matrix.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> ", file.id, file.filename);
-			//    did_first = true;
-			//}
-			matrix.AppendLine ("</td>");
 
 			matrix.AppendLine ("</tr>");
 		}

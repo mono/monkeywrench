@@ -1,5 +1,10 @@
 2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewWorkTable.aspx.cs: Show the html report and the correct
+	  duration. Fixes #490454.
+
+2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditLane.js:
 	* EditLane.aspx.cs: Added support for per-command timeout
 	  instead of having a 60-minute timeout for all commands.
