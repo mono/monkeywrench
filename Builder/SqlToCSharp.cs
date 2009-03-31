@@ -18,7 +18,7 @@ namespace Builder
 {
 	class SqlToCSharp
 	{
-		static Dictionary<string, string> col_type_mapping = new Dictionary<string, string> ();
+		static Dictionary<string, string> col_type_mapping = new Dictionary<string, string> (StringComparer.OrdinalIgnoreCase);
 
 		public static void Main (string [] args)
 		{

@@ -1,3 +1,8 @@
+2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* SqlToCSharp.cs: Fix this after lowercasing "work" in
+	  database.sql.
+
 2009-03-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Updater.cs:
