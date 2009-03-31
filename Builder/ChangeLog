@@ -1,5 +1,10 @@
 2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Builder.cs: Fix timeout message to not crash, and fix the
+	  actual detection of the timeout too.
+
+2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DB.cs: Speed up resetting a revision.
 
 2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
