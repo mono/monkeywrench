@@ -145,6 +145,21 @@ namespace Builder
 								p.StartInfo.EnvironmentVariables.Add ("BUILD_STEP", info.command.command.Replace (".sh", ""));
 								p.StartInfo.EnvironmentVariables.Add ("BUILDER_DATA_LANE", Configuration.GetDataLane (lane.lane));
 
+								// We need to remove all paths from environment variables that were
+								// set for this executable to work so that they don't mess with 
+								// whatever we're trying to execute
+								string [] bot_dependencies = new string [] { "PATH", "LD_LIBRARY_PATH", "PKG_CONFIG_PATH", "C_INCLUDE_PATH", "CPULS_INCLUDE_PATH", "AC_LOCAL_PATH" , "MONO_PATH"};
+								foreach (string bot_dependency in bot_dependencies) {
+									if (!p.StartInfo.EnvironmentVariables.ContainsKey (bot_dependency))
+										continue;
+									List<string> paths = new List<string> (p.StartInfo.EnvironmentVariables [bot_dependency].Split (new char [] { ':' /* XXX: does windows use ';' here? */}, StringSplitOptions.None));
+									for (int i = paths.Count - 1; i >= 0; i--) {
+										if (paths [i].Contains ("bot-dependencies"))
+											paths.RemoveAt (i);
+									}
+									p.StartInfo.EnvironmentVariables [bot_dependency] = string.Join (":", paths.ToArray ());
+								}
+
 								Thread stdout_thread = new Thread (delegate ()
 								{
 									try {
