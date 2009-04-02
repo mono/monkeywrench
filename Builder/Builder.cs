@@ -404,6 +404,8 @@ namespace Builder
 					threads.Clear ();
 					infos.Clear ();
 
+					int timeout = 60;
+
 					// Create worker data.
 					for (int i = 0; i < pending_work.Count; i++) {
 						BuildInfo info = new BuildInfo ();
@@ -418,6 +420,7 @@ namespace Builder
 						info.revision = revision;
 						info.temp_dir = temp_dir;
 						info.work = new DBWork (db, pending_work [i].id);
+						timeout = Math.Max (timeout, info.command.timeout);
 						Logger.Log ("Starting thread #{3} for revision {0} step {1} with sequence {2}", revision.revision, pending_work [i].command, pending_work [i].sequence, i);
 						infos.Add (info);
 					}
@@ -428,10 +431,10 @@ namespace Builder
 						threads [i].Start (infos [i]);
 					}
 
-					// Wait until all threads have stopped or 75 minutes has passed.
-					// Give a max of 75 minutes before all threads must have stopped.
+					// Wait until all threads have stopped or the max timeout + 15 minutes has passed.
+					// Give a max of max timeout + 15 minutes before all threads must have stopped.
 					DateTime start = DateTime.Now;
-					DateTime end = start.AddMinutes (75);
+					DateTime end = start.AddMinutes (timeout + 15);
 					for (int i = 0; i < threads.Count; i++) {
 						DateTime now = DateTime.Now;
 						TimeSpan duration;

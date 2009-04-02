@@ -1,3 +1,8 @@
+2009-04-02  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Calculate the timeout to abort the thread from
+	  the timeout of each work item to execute.
+
 2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Fix timeout message to not crash, and fix the
