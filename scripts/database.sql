@@ -3,7 +3,7 @@ SET client_encoding = 'UTF8';
 -- DROP SCHEMA IF EXISTS public CASCADE;
 -- DROP DATABASE IF EXISTS builder;
 
-CREATE SCHEMA public;
+-- CREATE SCHEMA public;
 CREATE DATABASE builder OWNER builder;
 
 \connect builder
@@ -88,6 +88,31 @@ CREATE TABLE Revision (
 	UNIQUE (lane_id, revision)
 );
 
+CREATE TABLE RevisionWork (
+	id             serial     PRIMARY KEY,
+	lane_id        int        NOT NULL REFERENCES Lane (id),
+	host_id        int        NOT NULL REFERENCES Host (id),
+	workhost_id    int        NULL     REFERENCES Host (id) DEFAULT NULL , -- the host which is actually working on this revision. If NULL, work no started.
+	revision_id    int        NOT NULL REFERENCES Revision (id),
+	state          int        NOT NULL DEFAULT 0, -- same as Work.state, though not all are applicable
+
+	-- ** possible states (evaluated in this order) ** 
+	-- dependency not fulfilled (any Work.State == dependency not fulfilled)
+	-- paused (any Work.State == paused)
+	-- queued (all Work.State == queued)
+	-- success (all Work.State == success)
+	-- failed (any fatal Work.State == failed || Work.state == aborted)
+	-- timeout (any fatal Work.State == timeout)
+	-- issues (any nonfatal Work.State == failed || Work.State == timeout || Work.State == aborted)
+	-- executing (any Work.State == executing)
+	-- executing (default)
+	
+	lock_expires   timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time when this revisionwork's lock (if any) expires
+	completed      boolean    NOT NULL DEFAULT FALSE, -- if this revision has completed it's work
+	
+	UNIQUE (lane_id, host_id, revision_id)
+);
+
 CREATE TABLE "work" ( -- lower case since postgre won't lowercase quoted identifiers like it does with unquoted identifiers
 	id               serial    PRIMARY KEY,
 	--TODO: Pending removal -- lane_id          int       NOT NULL REFERENCES Lane(id), -- the lane
@@ -131,32 +156,6 @@ CREATE TABLE WorkFile (
 );
 CREATE INDEX workfile_idx_file_id_key ON WorkFile (file_id);
 CREATE INDEX workfile_idx_work_id_key ON WorkFile (work_id);
-
-CREATE TABLE RevisionWork (
-	id             serial     PRIMARY KEY,
-	lane_id        int        NOT NULL REFERENCES Lane (id),
-	host_id        int        NOT NULL REFERENCES Host (id),
-	workhost_id    int        NULL     REFERENCES Host (id) DEFAULT NULL , -- the host which is actually working on this revision. If NULL, work no started.
-	revision_id    int        NOT NULL REFERENCES Revision (id),
-	state          int        NOT NULL DEFAULT 0, -- same as Work.state, though not all are applicable
-
-	-- ** possible states (evaluated in this order) ** 
-	-- dependency not fulfilled (any Work.State == dependency not fulfilled)
-	-- paused (any Work.State == paused)
-	-- queued (all Work.State == queued)
-	-- success (all Work.State == success)
-	-- failed (any fatal Work.State == failed || Work.state == aborted)
-	-- timeout (any fatal Work.State == timeout)
-	-- issues (any nonfatal Work.State == failed || Work.State == timeout || Work.State == aborted)
-	-- executing (any Work.State == executing)
-	-- executing (default)
-	
-	lock_expires   timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time when this revisionwork's lock (if any) expires
-	completed      boolean    NOT NULL DEFAULT FALSE, -- if this revision has completed it's work
-	
-	UNIQUE (lane_id, host_id, revision_id)
-);
-
 
 CREATE TABLE Person ( -- 'User' is a reserved word in sql...
 	id             serial    PRIMARY KEY,

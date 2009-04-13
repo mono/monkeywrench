@@ -1,3 +1,9 @@
+2009-04-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* database.sql: Don't create the schema 'public' (it's already
+	  created) and move RevisionWork before Work since Work
+	  references RevisionWork.
+
 2009-03-31  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: First attempt of implementing deletion of a
