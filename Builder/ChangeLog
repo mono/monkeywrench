@@ -1,3 +1,8 @@
+2009-04-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Don't abort any threads. It just messes up
+	  everything when it happens.
+
 2009-04-02  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Calculate the timeout to abort the thread from

@@ -436,9 +436,12 @@ namespace Builder
 					DateTime start = DateTime.Now;
 					DateTime end = start.AddMinutes (timeout + 15);
 					for (int i = 0; i < threads.Count; i++) {
-						DateTime now = DateTime.Now;
-						TimeSpan duration;
-
+						//DateTime now = DateTime.Now;
+						//TimeSpan duration;
+						
+						threads [i].Join ();
+						
+						/*
 						if (end <= DateTime.Now) {
 							if (threads [i].ThreadState != System.Threading.ThreadState.Stopped) {
 								Logger.Log ("Aborting thread #{0}, time is up.", i);
@@ -455,6 +458,7 @@ namespace Builder
 								}
 							}
 						}
+						*/
 					}
 
 					for (int i = 0; i < infos.Count; i++) {
