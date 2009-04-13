@@ -120,7 +120,7 @@ public partial class ViewTable2 : System.Web.UI.Page
 		} else {
 			if (page < (range + 1)) {
 				for (int i = 0; i < (page + range); i++) {
-					pager.Append(GeneratePageLink(host.id,lane.id.i+1,limit));
+					pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
 				}
 				pager.AppendFormat ("...");
 				pager.Append(GeneratePageLink(host.id,lane.id,pages-2,limit));
