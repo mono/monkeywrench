@@ -113,40 +113,44 @@ public partial class ViewTable2 : System.Web.UI.Page
 
 		int range = 3;
 		pager.AppendFormat("<p> Page&nbsp;");
-		if (page < 12) {
+		if (pages < (range + limit)) {
 			for (int i = 0; i < pages; i++) {
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, i, limit, i + 1);
+				pager.Append(GeneratePageLink(host.id,lane.id.i+1,limit));
 			} 
 		} else {
 			if (page < (range + 1)) {
-				for (int i = 0; i < page + range; i++) {
-					pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, i, limit, i + 1);
+				for (int i = 0; i < (page + range); i++) {
+					pager.Append(GeneratePageLink(host.id,lane.id.i+1,limit));
 				}
 				pager.AppendFormat ("...");
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, pages-3, limit, pages -2);
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, pages-2, limit, pages - 1);
+				pager.Append(GeneratePageLink(host.id,lane.id,pages-2,limit));
+				pager.Append(GeneratePageLink(host.id,lane.id,pages-1,limit));
 			} else if (page > (pages - range)) {
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, 0, limit,1);
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, 1, limit,2);
+				pager.Append(GeneratePageLink(host.id,lane.id,1,limit));
+				pager.Append(GeneratePageLink(host.id,lane.id,2,limit));
 				pager.AppendFormat ("...");
 				for (int i = page-range; i < pages; i++) {
-					pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, i, limit, i + 1);
+					pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
 				}
 			} else {
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, 0, limit,1);
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, 1, limit,2);
+				pager.Append(GeneratePageLink(host.id,lane.id,1,limit));
+				pager.Append(GeneratePageLink(host.id,lane.id,2,limit));
 				pager.AppendFormat ("...");
 				for (int i = page - range; i < page + range; i++) {
-					
-					pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, i, limit, i + 1);
+					pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
 				}
 				pager.AppendFormat ("...");
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, pages-3, limit, pages -2);
-				pager.AppendFormat ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", host.id, lane.id, pages-2, limit, pages - 1);
+				pager.Append(GeneratePageLink(host.id,lane.id,pages-2,limit));
+				pager.Append(GeneratePageLink(host.id,lane.id,pages-1,limit));
 			}
 		}
 		pager.AppendFormat("</p>");
 		return pager.ToString ();
+	}
+
+	private string GeneratePageLink(int hostid, int laneid, int page, int limit)
+	{
+		return string.Format ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", hostid, laneid, page - 1 , limit, page);
 	}
 
 	public string GenerateHeader (DB db, DBLane lane, DBHost host, bool horizontal)
