@@ -115,7 +115,7 @@ public partial class ViewTable2 : System.Web.UI.Page
 		pager.AppendFormat("<p> Page&nbsp;");
 		if (pages < (range + limit)) {
 			for (int i = 0; i < pages; i++) {
-				pager.Append(GeneratePageLink(host.id,lane.id.i+1,limit));
+				pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
 			} 
 		} else {
 			if (page < (range + 1)) {
