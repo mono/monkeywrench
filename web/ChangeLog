@@ -1,5 +1,10 @@
 2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewHtmlReport.aspx.cs: Check the compressed mime type of
+	  the file we're actually serving.
+
+2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditLane.aspx.cs: Allow for editing the command timeout, and
 	  set a default value of 60 minutes. Also add the ability to
 	  edit a file by clicking on the step too.

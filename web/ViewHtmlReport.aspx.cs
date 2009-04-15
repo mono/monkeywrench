@@ -110,7 +110,7 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 
 				Response.ContentType = file.mime;
 
-				if (view.compressed_mime == "application/x-gzip")
+				if (file.compressed_mime == "application/x-gzip")
 					Response.AppendHeader ("Content-Encoding", "gzip");
 
 				using (Stream stream = db.Download (file)) {
