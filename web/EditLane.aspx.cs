@@ -172,6 +172,7 @@ public partial class EditLane : System.Web.UI.Page
 						cmd.lane_id = lane.id;
 						cmd.alwaysexecute = false;
 						cmd.nonfatal = false;
+						cmd.timeout = 60;
 						if (int.TryParse (Request ["sequence"], out sequence)) {
 							cmd.sequence = sequence;
 						} else {
@@ -232,7 +233,8 @@ public partial class EditLane : System.Web.UI.Page
 			// Files
 			tblFiles.Rows.Add (Utils.CreateTableHeaderRow ("Files"));
 			tblFiles.Rows [0].Cells [0].ColumnSpan = 4;
-			foreach (DBLanefile file in lane.GetFiles (db)) {
+			List<DBLanefile> files = lane.GetFiles (db);
+			foreach (DBLanefile file in files) {
 				string text = file.name;
 				if (!string.IsNullOrEmpty (file.mime))
 					text += " (" + file.mime + ")";
@@ -240,7 +242,7 @@ public partial class EditLane : System.Web.UI.Page
 				tblFiles.Rows.Add (Utils.CreateTableRow (
 					string.Format ("<a href='EditLaneFile.aspx?lane_id={1}&amp;file_id={0}'>{2}</a>", file.id, lane.id, file.name),
 					file.mime,
-					string.Format ("<a href='EditLane.aspx?lane_id={1}&amp;action=deleteFile&amp;file_id={0}'>Delete</a>", file.id, lane.id)));
+					string.Format ("<a href='EditLane.aspx?lane_id={1}&amp;action=deleteFile&amp;file_id={0}'>Delete</a> <a href='ViewLaneFileHistory.aspx?id={0}'>View history</a>", file.id, lane.id)));
 			}
 			tblFiles.Rows.Add (Utils.CreateTableRow (
 				"<input type='text' value='filename' id='txtCreateFileName'></input>",
@@ -284,9 +286,14 @@ ORDER BY lane_id, name ASC";
 
 			List<DBCommand> commands = lane.GetCommands (db);
 			foreach (DBCommand command in commands) {
+				string filename = command.command;
+				DBLanefile file = files.Find (f => f.name == filename);
+				if (file != null)
+					filename = string.Format ("<a href='EditLaneFile.aspx?lane_id={1}&amp;file_id={0}'>{2}</a>", file.id, lane.id, file.name);
+
 				tblCommands.Rows.Add (Utils.CreateTableRow (
 					string.Format ("<a href='javascript:editCommandSequence ({2}, {0}, true, \"{1}\")'>{1}</a>", command.id, command.sequence, lane.id),
-					command.command,
+					filename,
 					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={3}&amp;action=switchAlwaysExecute'>{2}</a>", lane.id, (!command.alwaysexecute).ToString (), command.alwaysexecute ? "yes" : "no", command.id),
 					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={3}&amp;action=switchNonFatal'>{2}</a>", lane.id, (!command.nonfatal).ToString (), command.nonfatal ? "yes" : "no", command.id),
 					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={1}&amp;action=switchInternal'>{2}</a>", lane.id, command.id, (command.@internal ? "yes" : "no")),
@@ -300,8 +307,10 @@ ORDER BY lane_id, name ASC";
 				string.Format ("<input type='text' value='command' id='txtCreateCommand_name'></input>"),
 				"no",
 				"no",
+				"no",
 				"bash",
 				"-ex {0}",
+				"60 minutes",
 				string.Format ("<a href='javascript:addCommand ({0}, {1})'>Add</a>", lane.id, (commands.Count * 10))));
 
 			// Show all the hosts

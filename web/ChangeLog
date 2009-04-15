@@ -1,5 +1,11 @@
 2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* EditLane.aspx.cs: Allow for editing the command timeout, and
+	  set a default value of 60 minutes. Also add the ability to
+	  edit a file by clicking on the step too.
+
+2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditLaneFile.aspx.cs: Add some simple change tracking to
 	  steps.
 
