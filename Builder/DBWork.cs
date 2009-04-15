@@ -27,6 +27,11 @@ namespace Builder
 		{
 		}
 
+		public DBWork (IDataReader reader)
+			: base (reader)
+		{
+		}
+
 		public DBState State
 		{
 			get { return (DBState) state; }

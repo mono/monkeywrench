@@ -1,5 +1,12 @@
 2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* EditLane.aspx: Add more explicit comments.
+
+	* EditLane.js:
+	* EditLane.aspx.cs: Implement dependency deletion.
+
+2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewHtmlReport.aspx.cs: Check the compressed mime type of
 	  the file we're actually serving.
 

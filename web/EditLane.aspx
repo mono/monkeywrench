@@ -20,10 +20,10 @@
                     <asp:TextBox ID="txtRepository" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>The repository where the code for this lane is located. The scheduler uses the revisions for this repository to schedule work. Can include multiple repositories separated with commas.</asp:TableCell></asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>Min revision:</asp:TableCell><asp:TableCell>
-                    <asp:TextBox ID="txtMinRevision" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>Revisions before this one won't get scheduled.</asp:TableCell></asp:TableRow>
+                    <asp:TextBox ID="txtMinRevision" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>Revisions before this one won't get scheduled. Leave blank to include all revisions.</asp:TableCell></asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>Max revision:</asp:TableCell><asp:TableCell>
-                    <asp:TextBox ID="txtMaxRevision" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>Revisions after this one won't get scheduled.</asp:TableCell></asp:TableRow>
+                    <asp:TextBox ID="txtMaxRevision" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>Revisions after this one won't get scheduled. Leave blank to include all (future) revisions.</asp:TableCell></asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>
                     <asp:Button ID="cmdSave" runat="server" Text="Save" OnClick="cmdSave_Click" /></asp:TableCell><asp:TableCell>

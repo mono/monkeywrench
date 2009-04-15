@@ -1,5 +1,9 @@
 2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DBWork.cs: Add a ctor.
+
+2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DBLanefile.generated.cs: Add some simple change tracking to
 	  steps.
 

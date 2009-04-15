@@ -223,6 +223,10 @@ public partial class EditLane : System.Web.UI.Page
 						dep.Save (db);
 					}
 					break;
+				case "deleteDependency":
+					if (int.TryParse (Request ["dependency_id"], out id))
+						DBLaneDependency.Delete (db, id, DBLaneDependency.TableName);
+					break;
 				default:
 					break;
 				}

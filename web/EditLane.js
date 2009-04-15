@@ -54,3 +54,7 @@ function editDependencyFilename(lane_id, lanedependency_id, filename) {
         window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=editDependencyFilename&lanedependency_id=" + lanedependency_id + "&filename=" + fn;
     }
 }
+
+function deleteDependency(lane_id, dependency_id) {
+    window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=deleteDependency&dependency_id=" + dependency_id;
+}
