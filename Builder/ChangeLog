@@ -1,3 +1,8 @@
+2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBLanefile.generated.cs: Add some simple change tracking to
+	  steps.
+
 2009-04-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Don't abort any threads. It just messes up

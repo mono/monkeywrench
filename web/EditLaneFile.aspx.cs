@@ -38,6 +38,9 @@ public partial class EditLaneFile : System.Web.UI.Page
 				DBLanefile file = new DBLanefile (Master.DB, id);
 				txtEditor.Text = file.contents;
 
+				if (file.original_id != null)
+					cmdSave.Visible = false; // Don't allow editing previous versions of a file
+				
 				foreach (DBLane lane in DBLanefile.GetLanesForFile (Master.DB, file)) {
 					lstLanes.Items.Add (lane.lane);
 				}
@@ -58,15 +61,30 @@ public partial class EditLaneFile : System.Web.UI.Page
 		try {
 			string file_id = Request ["file_id"];
 			int id;
-			DBLanefile file;
+			DBLanefile file, old_file;
 
 			if (int.TryParse (file_id, out id)) {
 				file = new DBLanefile (Master.DB, id);
-				file.contents = txtEditor.Text;
-				file.Save (Master.DB);
+
+				if (file.original_id == null) {// This is the latest version of the file
+					old_file = new DBLanefile ();
+					old_file.contents = file.contents;
+					old_file.mime = file.mime;
+					old_file.name = file.name;
+					old_file.original_id = id;
+					old_file.changed_date = DBRecord.DatabaseNow;
+					old_file.Save (Master.DB);
+
+					file.contents = txtEditor.Text;
+					file.Save (Master.DB);
+				}
 			}
 
-			Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"]);
+			if (Request.UrlReferrer != null && Request.UrlReferrer.LocalPath.Contains ("ViewLaneFileHistory.aspx")) {
+				Response.Redirect ("ViewLaneFileHistory.aspx?id=" + Request ["file_id"]);
+			} else {
+				Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"]);
+			}
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
 		}

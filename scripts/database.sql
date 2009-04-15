@@ -68,7 +68,12 @@ CREATE TABLE Lanefile (
 	id             serial     PRIMARY KEY,
 	name           text       NOT NULL,                          -- the filename
 	contents       text       NOT NULL,
-	mime           text       NOT NULL DEFAULT 'text/plain'
+	mime           text       NOT NULL DEFAULT 'text/plain',
+	
+	-- this is some simple change tracking
+	-- on every change a new Lanefile is stored, with the old contents and original_id referencing the real Lanefile
+	original_id    int        NULL REFERENCES Lanefile (id),
+	changed_date   timestamp  NULL -- the date the change was made	
 );
 
 CREATE TABLE Lanefiles (

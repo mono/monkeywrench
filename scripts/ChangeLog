@@ -1,3 +1,7 @@
+2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* database.sql: Add some simple change tracking to steps.
+
 2009-04-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: Don't create the schema 'public' (it's already
