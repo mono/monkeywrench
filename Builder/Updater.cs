@@ -231,6 +231,8 @@ WHERE
 						}
 
 						if (dependencies != null) {
+							Logger.Log ("Lane '{0}', revision '{1}' checking dependencies...", lane.lane, revision.revision);
+
 							foreach (DBLaneDependency dependency in dependencies) {
 								switch (dependency.Condition) {
 								case DBLaneDependencyCondition.DependentLaneSuccess:
@@ -249,20 +251,56 @@ WHERE
 							Logger.Log ("Lane '{0}', revision '{1}' has unfulfilled dependencies.", lane.lane, revision.revision);
 						}
 
+						int revisionwork_id;
+						bool pending_dependencies;
+
+						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+							cmd.CommandText = "SELECT add_revisionwork (@lane_id, @host_id, @revision_id);";
+							DB.CreateParameter (cmd, "lane_id", lane.id);
+							DB.CreateParameter (cmd, "host_id", host.id);
+							DB.CreateParameter (cmd, "revision_id", revision.id);
+							revisionwork_id = (int) cmd.ExecuteScalar ();
+						}
+
+						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+							cmd.CommandText = "SELECT state FROM RevisionWork WHERE id = @id;";
+							DB.CreateParameter (cmd, "id", revisionwork_id);
+							pending_dependencies = (int) DBState.DependencyNotFulfilled == (int) cmd.ExecuteScalar ();
+						}
+
+						if (pending_dependencies && !dependencies_satisfied)
+							continue;
+
+						Logger.Log ("Pending dependencies: {0}", pending_dependencies);
 
 						foreach (DBCommand command in commands) {
-							work = new DBWork ();
-							work.command_id = command.id;
-							work.State = dependencies_satisfied ? DBState.NotDone : DBState.DependencyNotFulfilled;
-							using (IDbCommand cmd = db.Connection.CreateCommand ()) {
-								cmd.CommandText = "SELECT add_revisionwork (@lane_id, @host_id, @revision_id);";
-								DB.CreateParameter (cmd, "lane_id", lane.id);
-								DB.CreateParameter (cmd, "host_id", host.id);
-								DB.CreateParameter (cmd, "revision_id", revision.id);
-								work.revisionwork_id = (int) cmd.ExecuteScalar ();
+							work = null;
+							if (pending_dependencies) {
+								using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+									cmd.CommandText = "SELECT * FROM Work WHERE revisionwork_id = @revisionwork_id AND command_id = @command_id;";
+									DB.CreateParameter (cmd, "revisionwork_id", revisionwork_id);
+									DB.CreateParameter (cmd, "command_id", command.id);
+									using (IDataReader reader = cmd.ExecuteReader ()) {
+										if (reader.Read ())
+											work = new DBWork (reader);
+									}
+								}
 							}
+
+							if (work == null) {
+								work = new DBWork ();
+								work.command_id = command.id;
+								work.revisionwork_id = revisionwork_id;
+							}
+							work.State = dependencies_satisfied ? DBState.NotDone : DBState.DependencyNotFulfilled;
 							work.Save (db.Connection);
 							Logger.Log ("Saved revision {0}, host {2}, command {1}", revision.revision, command.command, host.host);
+						}
+
+						if (!dependencies_satisfied) {
+							db.ExecuteScalar (string.Format ("UPDATE RevisionWork SET state = 9 WHERE id = {0} AND state = 0;", revisionwork_id));
+						} else {
+							db.ExecuteScalar (string.Format ("UPDATE RevisionWork SET state = 0 WHERE id = {0} AND state = 9;", revisionwork_id));
 						}
 					}
 				}

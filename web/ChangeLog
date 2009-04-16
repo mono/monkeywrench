@@ -1,3 +1,12 @@
+2009-04-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* EditLaneFile.aspx: Add support for BUILD_REPOSITORY_#.
+
+	* index.aspx.cs:
+	* GetDependentFile.aspx:
+	* GetDependentFile.aspx.cs: Complete support for lane
+	  dependencies matching exact revision.
+
 2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* EditLane.aspx: Add more explicit comments.

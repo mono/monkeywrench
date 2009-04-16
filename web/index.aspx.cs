@@ -171,7 +171,7 @@ ORDER BY
 					string state_str = state.ToString ().ToLowerInvariant ();
 					bool completed = reader.GetBoolean (reader.GetOrdinal ("completed"));
 
-					if (!completed && state != DBState.Executing && state != DBState.NotDone && state != DBState.Paused) {
+					if (!completed && state != DBState.Executing && state != DBState.NotDone && state != DBState.Paused && state != DBState.DependencyNotFulfilled) {
 						row_builder.AppendFormat (
 							@"<td class='{1}'>
 								<center>

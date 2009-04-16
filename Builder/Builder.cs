@@ -135,6 +135,12 @@ namespace Builder
 								p.StartInfo.EnvironmentVariables ["BUILD_INSTALL"] = info.BUILDER_DATA_INSTALL_DIR;
 								p.StartInfo.EnvironmentVariables ["BUILD_DATA_LANE"] = Configuration.GetDataLane (info.lane.lane);
 								p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY"] = info.lane.repository;
+								int r = 0;
+								foreach (string repo in info.lane.repository.Split (',')) {
+									p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY_" + r.ToString ()] = repo;
+									r++;
+								}
+
 								p.StartInfo.EnvironmentVariables ["BUILD_SEQUENCE"] = "0";
 								p.StartInfo.EnvironmentVariables ["LD_LIBRARY_PATH"] = Configuration.GetLdLibraryPath (info.lane.lane, info.revision.revision);
 								p.StartInfo.EnvironmentVariables ["PKG_CONFIG_PATH"] = Configuration.GetPkgConfigPath (info.lane.lane, info.revision.revision);

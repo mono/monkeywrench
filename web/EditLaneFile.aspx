@@ -12,6 +12,7 @@
             Environment variables set by the builder:</h5>
             <pre>
 BUILD_REPOSITORY:   The svn repository of this lane. (Exactly as configured for the lane, if the lane has multiple svn repositories separated by commas, this variable will have it too).
+BUILD_REPOSITORY_0: Each individial repository of BUILD_REPOSITORY (named _0, _1, etc)
 BUILD_DATA_LANE:    The directory where this lane puts its data.
 BUILD_INSTALL:      The install directory (typically BUILDER_DATA_LANE/BUILD_REVISION/install)
 BUILD_REVISION:     The revision currently being built.

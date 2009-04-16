@@ -660,7 +660,8 @@ FROM
 		WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id 
 		GROUP BY RevisionWork.id, RevisionWork.revision_id) AS T 
 INNER JOIN Revision ON Revision.id = T.revision_id
-WHERE C = 0
+INNER JOIN RevisionWork ON T.id = RevisionWork.id
+WHERE C = 0 OR RevisionWork.state = 9
 ORDER BY Revision.date DESC;
 ";
 				DB.CreateParameter (cmd, "lane_id", lane_id);

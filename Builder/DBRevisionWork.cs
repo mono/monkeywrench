@@ -358,7 +358,7 @@ LIMIT 1;
 			}
 		}
 
-		public static bool IsSuccessWithFile (DB db, int lane_id, DBRecord revision, string filename)
+		public static bool IsSuccessWithFile (DB db, int lane_id, DBRevision revision, string filename)
 		{
 			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
 				cmd.CommandText = @"
@@ -366,16 +366,21 @@ SELECT RevisionWork.id
 FROM RevisionWork
 INNER JOIN Work ON RevisionWork.id = Work.revisionwork_id
 INNER JOIN WorkFile ON Work.id = WorkFile.work_id
-WHERE lane_id = @lane_id AND state = @success AND revision_id = @revision_id AND WorkFile.filename = @filename
+INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
+WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revision.revision = @revision AND WorkFile.filename = @filename
 LIMIT 1;
 ";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
-				DB.CreateParameter (cmd, "revision_id", revision.id);
+				DB.CreateParameter (cmd, "revision", revision.revision); // Don't join with id here, if the revision comes from another lane, it might have a different id
 				DB.CreateParameter (cmd, "success", (int) DBState.Success);
 				DB.CreateParameter (cmd, "filename", filename);
 
 				object obj = cmd.ExecuteScalar ();
-				return obj != null && !(obj is DBNull);
+				bool result = obj != null && !(obj is DBNull);
+
+				// Console.WriteLine ("IsSuccessWithFile ({0}, {1}, '{2}') => {3}", lane_id, revision.id, filename, result);
+
+				return result;
 			}
 		}
 	}

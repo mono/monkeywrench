@@ -1,3 +1,15 @@
+2009-04-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Add support for BUILD_REPOSITORY_#.
+
+	* DB.cs: Include revisionwork which is missing dependencies
+	  too.
+
+	* Updater.cs:
+	* DBWorkFileView.cs:
+	* DBRevisionWork.cs: Complete support for lane dependencies
+	  matching exact revision.
+
 2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBWork.cs: Add a ctor.
