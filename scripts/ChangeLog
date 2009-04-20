@@ -1,3 +1,7 @@
+2009-04-20  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* moonbuilder-clean-tmp.sh: Added.
+
 2009-04-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: Add some simple change tracking to steps.
