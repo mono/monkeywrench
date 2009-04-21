@@ -1,3 +1,17 @@
+2009-04-21  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DB.cs:
+	* DBLane.cs:
+	* Builder.cs:
+	* DBWorkFile.cs:
+	* FileManager.cs:
+	* Configuration.cs:
+	* DBRevisionWork.cs:
+	* DBWorkFile.generated.cs:
+	* DBLaneDependency.generated.cs: Add support for downloading
+	  dependencies to a directory on the buildbot when the bot
+	  starts working on a new revision.
+
 2009-04-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Add support for BUILD_REPOSITORY_#.

@@ -227,6 +227,13 @@ public partial class EditLane : System.Web.UI.Page
 					if (int.TryParse (Request ["dependency_id"], out id))
 						DBLaneDependency.Delete (db, id, DBLaneDependency.TableName);
 					break;
+				case "editDependencyDownloads":
+					if (int.TryParse (Request ["lanedependency_id"], out id)) {
+						DBLaneDependency dep = new DBLaneDependency (db, id);
+						dep.download_files = Request ["downloads"];
+						dep.Save (db);
+					}
+					break;
 				default:
 					break;
 				}
@@ -355,7 +362,7 @@ ORDER BY lane_id, name ASC";
 			// dependencies
 			List<DBLane> lanes = db.GetAllLanes ();
 			List<DBLaneDependency> dependencies = lane.GetDependencies (db);
-			tblDependencies.Rows.Add (Utils.CreateTableHeaderRow ("Dependent lane", "Condition", "Filename", "Actions"));
+			tblDependencies.Rows.Add (Utils.CreateTableHeaderRow ("Dependent lane", "Condition", "Filename", "Files to download", "Actions"));
 			foreach (DBLaneDependency dependency in dependencies) {
 				row = new TableRow ();
 				for (int i = 0; i < lanes.Count; i++) {
@@ -365,7 +372,16 @@ ORDER BY lane_id, name ASC";
 					}
 				}
 				row.Cells.Add (Utils.CreateTableCell (dependency.Condition.ToString ()));
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: editDependencyFilename ({0}, {1}, \"{2}\")'>{2}</a>", lane.id, dependency.id, string.IsNullOrEmpty (dependency.filename) ? "(edit)" : dependency.filename)));
+				switch (dependency.Condition) {
+				case DBLaneDependencyCondition.DependentLaneSuccessWithFile:
+					row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: editDependencyFilename ({0}, {1}, \"{2}\")'>{2}</a>", lane.id, dependency.id, string.IsNullOrEmpty (dependency.filename) ? "(edit)" : dependency.filename)));
+					break;
+				case DBLaneDependencyCondition.DependentLaneSuccess:
+				default:
+					row.Cells.Add (Utils.CreateTableCell ("-"));
+					break;
+				}
+				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: editDependencyDownloads ({0}, {1}, \"{2}\")'>{3}</a>", lane.id, dependency.id,  string.IsNullOrEmpty (dependency.download_files) ? string.Empty : dependency.download_files.Replace ("\"", "\\\""), string.IsNullOrEmpty (dependency.download_files) ? "(edit)" : HttpUtility.HtmlEncode (dependency.download_files))));
 				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: deleteDependency ({0}, {1})'>Delete</a>", lane.id, dependency.id)));
 				tblDependencies.Rows.Add (row);
 			}
@@ -387,6 +403,7 @@ ORDER BY lane_id, name ASC";
 			}
 			html += "</select>";
 			row.Cells.Add (Utils.CreateTableCell (html));
+			row.Cells.Add (Utils.CreateTableCell (string.Empty));
 			row.Cells.Add (Utils.CreateTableCell (string.Empty));
 			row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript:addDependency ({0})'>Add</a>", lane.id)));
 			tblDependencies.Rows.Add (row);

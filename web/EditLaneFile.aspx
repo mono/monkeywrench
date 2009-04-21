@@ -13,8 +13,9 @@
             <pre>
 BUILD_REPOSITORY:   The svn repository of this lane. (Exactly as configured for the lane, if the lane has multiple svn repositories separated by commas, this variable will have it too).
 BUILD_REPOSITORY_0: Each individial repository of BUILD_REPOSITORY (named _0, _1, etc)
+BUILD_REPOSITORY_SPACE: Same as BUILD_REPOSITORY, just with space instead of comma separating repositories.
 BUILD_DATA_LANE:    The directory where this lane puts its data.
-BUILD_INSTALL:      The install directory (typically BUILDER_DATA_LANE/BUILD_REVISION/install)
+BUILD_INSTALL:      The install directory (typically BUILD_DATA_LANE/BUILD_REVISION/install)
 BUILD_REVISION:     The revision currently being built.
 BUILD_COMMAND:      The command currently being executed.
 BUILD_LANE:         The lane currently being built.
@@ -30,5 +31,7 @@ SVN_REPOSITORY:     (Obsolete) The svn repository of this lane. (Exactly as conf
 BUILDER_DATA_LANE:  (Obsolete) The directory where this lane puts its data.
 BUILD_STEP:         (Obsolete) BUILD_COMMAND.Replace (".sh", "")
         </pre>
+        <h5>Dependencies</h5>
+        <pre>Dependencies are downloaded into the directory BUILD_DATA_LANE/BUILD_REVISION/dependencies/[dependent lane]/</pre>
     </div>
 </asp:Content>

@@ -111,5 +111,19 @@ namespace Builder
 			}
 			return result;
 		}
+
+		public DBRevision FindRevision (DB db, string revision)
+		{
+			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+				cmd.CommandText = "SELECT Revision.* FROM Revision WHERE lane_id = @lane_id AND revision = @revision;";
+				DB.CreateParameter (cmd, "lane_id", id);
+				DB.CreateParameter (cmd, "revision", revision);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					if (reader.Read ())
+						return new DBRevision (reader);
+					return null;
+				}
+			}
+		}
 	}
 }

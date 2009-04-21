@@ -60,6 +60,35 @@ namespace Builder
 		}
 
 		/// <summary>
+		/// Returns a list of all the files this revisionwork has produced
+		/// </summary>
+		/// <param name="db"></param>
+		/// <returns></returns>
+		public List<DBWorkFile> GetFiles (DB db)
+		{
+			List<DBWorkFile> result = new List<DBWorkFile> ();
+
+			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+				cmd.CommandText = @"
+SELECT 
+	WorkFile.* 
+FROM WorkFile 
+	INNER JOIN Work ON WorkFile.work_id = Work.id
+	INNER JOIN RevisionWork ON Work.revisionwork_id = RevisionWork.id
+WHERE
+	RevisionWork.id = @id;
+";
+				DB.CreateParameter (cmd, "id", id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ())
+						result.Add (new DBWorkFile (reader));
+				}
+			}
+
+			return result;
+		}
+
+		/// <summary>
 		/// Calculates a new state if the current state is NotDone
 		/// </summary>
 		/// <param name="db"></param>

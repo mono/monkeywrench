@@ -202,6 +202,11 @@ namespace Builder
 			}
 		}
 
+		public Stream Download (DBWorkFile file)
+		{
+			return new DBFileStream (new DBFile (this, file.file_id), this);
+		}
+
 		public Stream Download (DBFile file)
 		{
 			return new DBFileStream (file, this);

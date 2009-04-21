@@ -1,3 +1,9 @@
+2009-04-21  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* database.sql: Add support for downloading dependencies to a
+	  directory on the buildbot when the bot starts working on a
+	  new revision.
+
 2009-04-20  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* moonbuilder-clean-tmp.sh: Added.

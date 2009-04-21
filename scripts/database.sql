@@ -38,7 +38,8 @@ CREATE TABLE LaneDependency (
 	                                                           -- 0: no condition at all
 	                                                           -- 1: dependent_lane_id has succeeded (for the same revision)
 	                                                           -- 2: dependent_lane has produced a file whose name is 'filename' (for the same revision)
-    filename          text       NULL DEFAULT NULL            
+    filename          text       NULL DEFAULT NULL,
+    download_files    text       NULL DEFAULT NULL 			   -- comma separated list of files to download, admits * and ? as wild cards
 );
 
 CREATE TABLE Command (

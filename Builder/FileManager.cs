@@ -49,6 +49,24 @@ namespace Builder
 			}
 		}
 
+		public static void GZUncompress (string filename)
+		{
+			if (!filename.EndsWith (".gz")) {
+				File.Move (filename, filename + ".gz");
+				filename = filename + ".gz";
+			}
+
+			// Uncompress it
+			using (Process p = new Process ()) {
+				p.StartInfo.FileName = "gunzip";
+				p.StartInfo.Arguments = "--force " + filename; // --force is needed since Path.GetTempFileName creates the file
+				p.Start ();
+				if (!p.WaitForExit (1000 * 60 /* 1 minute */ )) {
+					Logger.Log ("GZUncompress: gunzip didn't finish in one minute, killing it.");
+					p.Kill ();
+				}
+			}
+		}
 
 		/// <summary>
 		/// Downloads the large object and uncompresses it.
@@ -81,17 +99,7 @@ namespace Builder
 					}
 				}
 
-				// Uncompress it
-				using (Process p = new Process ()) {
-					p.StartInfo.FileName = "gunzip";
-					p.StartInfo.Arguments = "--force " + input; // --force is needed since Path.GetTempFileName creates the file
-					p.Start ();
-					if (!p.WaitForExit (1000 * 60 /* 1 minute */ )) {
-						Logger.Log ("GZUncompress: gunzip didn't finish in one minute, killing it.");
-						p.Kill ();
-						return null;
-					}
-				}
+				GZUncompress (input);
 
 				return output;
 			} catch (Exception ex) {

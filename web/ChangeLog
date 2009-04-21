@@ -1,3 +1,13 @@
+2009-04-21  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* EditLane.js:
+	* EditLane.aspx.cs:
+	* EditLaneFile.aspx:
+	* GetDependentFile.aspx:
+	* GetDependentFile.aspx.cs: Add support for downloading
+	  dependencies to a directory on the buildbot when the bot
+	  starts working on a new revision.
+
 2009-04-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* EditLaneFile.aspx: Add support for BUILD_REPOSITORY_#.

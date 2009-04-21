@@ -32,11 +32,13 @@ namespace Builder
 		private int _dependent_lane_id;
 		private int _condition;
 		private string _filename;
+		private string _download_files;
 
 		public int @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public int @dependent_lane_id { get { return _dependent_lane_id; } set { _dependent_lane_id = value; } }
 		public int @condition { get { return _condition; } set { _condition = value; } }
 		public string @filename { get { return _filename; } set { _filename = value; } }
+		public string @download_files { get { return _download_files; } set { _download_files = value; } }
 
 
 		public override string Table
@@ -49,7 +51,7 @@ namespace Builder
 		{
 			get
 			{
-				return new string [] { "lane_id", "dependent_lane_id", "condition", "filename" };
+				return new string [] { "lane_id", "dependent_lane_id", "condition", "filename", "download_files" };
 			}
 		}
         

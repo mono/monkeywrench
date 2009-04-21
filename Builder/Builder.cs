@@ -107,7 +107,7 @@ namespace Builder
 					DBLane lane = info.lane;
 					DBCommand command = info.command;
 					int exitcode = 0;
-					
+
 					Logger.Log ("{0} Builder started new thread for sequence {1} step {2}", info.number, info.command.sequence, info.command.command);
 
 					result = DBState.Executing;
@@ -140,7 +140,7 @@ namespace Builder
 									p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY_" + r.ToString ()] = repo;
 									r++;
 								}
-
+								p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY_SPACE"] = info.lane.repository.Replace (',', ' ');
 								p.StartInfo.EnvironmentVariables ["BUILD_SEQUENCE"] = "0";
 								p.StartInfo.EnvironmentVariables ["LD_LIBRARY_PATH"] = Configuration.GetLdLibraryPath (info.lane.lane, info.revision.revision);
 								p.StartInfo.EnvironmentVariables ["PKG_CONFIG_PATH"] = Configuration.GetPkgConfigPath (info.lane.lane, info.revision.revision);
@@ -154,7 +154,7 @@ namespace Builder
 								// We need to remove all paths from environment variables that were
 								// set for this executable to work so that they don't mess with 
 								// whatever we're trying to execute
-								string [] bot_dependencies = new string [] { "PATH", "LD_LIBRARY_PATH", "PKG_CONFIG_PATH", "C_INCLUDE_PATH", "CPULS_INCLUDE_PATH", "AC_LOCAL_PATH" , "MONO_PATH"};
+								string [] bot_dependencies = new string [] { "PATH", "LD_LIBRARY_PATH", "PKG_CONFIG_PATH", "C_INCLUDE_PATH", "CPULS_INCLUDE_PATH", "AC_LOCAL_PATH", "MONO_PATH" };
 								foreach (string bot_dependency in bot_dependencies) {
 									if (!p.StartInfo.EnvironmentVariables.ContainsKey (bot_dependency))
 										continue;
@@ -355,10 +355,47 @@ namespace Builder
 					}
 				} while (!revisionwork.SetWorkHost (db, host) && counter-- > 0);
 
-				if (revisionwork.State == DBState.NotDone)
+				revision = new DBRevision (db, revisionwork.revision_id);
+
+				if (revisionwork.State == DBState.NotDone) {
 					revisionwork.State = DBState.Executing;
 
-				revision = new DBRevision (db, revisionwork.revision_id);
+					// download dependent files
+					List<DBLaneDependency> dependencies = lane.GetDependencies (db);
+					Dictionary<int, string> dependent_lanes = null;
+					if (dependencies != null && dependencies.Count > 0) {
+						foreach (DBLaneDependency dep in dependencies) {
+							if (dependent_lanes == null)
+								dependent_lanes = new Dictionary<int, string> ();
+							if (!dependent_lanes.ContainsKey (dep.dependent_lane_id))
+								dependent_lanes.Add (dep.dependent_lane_id, dep.download_files);
+						}
+						if (dependent_lanes != null) {
+							foreach (int id in dependent_lanes.Keys) {
+								string file_exp;
+								DBLane dependent_lane;
+								DBRevisionWork dep_revwork;
+								List<DBWorkFile> work_files;
+
+								file_exp = dependent_lanes [id];
+
+								if (string.IsNullOrEmpty (file_exp))
+									continue;
+
+								dependent_lane = new DBLane (db, id);
+								dep_revwork = DBRevisionWork.Find (db, dependent_lane, host, dependent_lane.FindRevision (db, revision.revision));
+								work_files = dep_revwork.GetFiles (db);
+
+								foreach (DBWorkFile file in work_files) {
+									if (!System.Text.RegularExpressions.Regex.IsMatch (file.filename, file_exp))
+										continue;
+									file.WriteToDisk (db, Configuration.GetDependentDownloadDirectory (lane, dependent_lane, revision.revision));
+								}
+							}
+						}
+					}
+				}
+
 
 				// Set revision-specific paths
 				BUILDER_DATA_LOG_DIR = Configuration.GetDataLogDir (lane.lane, revision.revision);
@@ -444,9 +481,9 @@ namespace Builder
 					for (int i = 0; i < threads.Count; i++) {
 						//DateTime now = DateTime.Now;
 						//TimeSpan duration;
-						
+
 						threads [i].Join ();
-						
+
 						/*
 						if (end <= DateTime.Now) {
 							if (threads [i].ThreadState != System.Threading.ThreadState.Stopped) {

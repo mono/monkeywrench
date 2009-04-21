@@ -58,3 +58,11 @@ function editDependencyFilename(lane_id, lanedependency_id, filename) {
 function deleteDependency(lane_id, dependency_id) {
     window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=deleteDependency&dependency_id=" + dependency_id;
 }
+
+function editDependencyDownloads(lane_id, lanedependency_id, downloads) {
+    var dl = prompt("The files to download (matched as a regular expression):", downloads);
+    if (dl != null && dl != "" && dl != downloads) {
+        dl = encodeURIComponent(dl);
+        window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=editDependencyDownloads&lanedependency_id=" + lanedependency_id + "&downloads=" + dl;
+    }
+}

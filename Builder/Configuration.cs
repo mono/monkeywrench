@@ -121,6 +121,11 @@ namespace Builder
 			return Path.Combine (GetDataRevisionDir (lane, revision), "logs");
 		}
 
+		public static string GetDependentDownloadDirectory (DBLane lane, DBLane dependent_lane, string revision)
+		{
+			return Path.Combine (Path.Combine (GetDataRevisionDir (lane.lane, revision), "dependencies"), dependent_lane.lane);
+		}
+
 		/// <summary>
 		/// BUILD_DATA/lanes/BUILD_LANE/BUILD_REVISION/source
 		/// </summary>
