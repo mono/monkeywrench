@@ -375,11 +375,12 @@ SELECT workhost_id FROM RevisionWork where id = @id AND workhost_id = @workhost_
 				cmd.CommandText = @"
 SELECT RevisionWork.id
 FROM RevisionWork 
-WHERE lane_id = @lane_id AND state = @success AND revision_id = @revision_id
+INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
+WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revision.revision = @revision
 LIMIT 1;
 ";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
-				DB.CreateParameter (cmd, "revision_id", revision.id);
+				DB.CreateParameter (cmd, "revision", revision.revision);
 				DB.CreateParameter (cmd, "success", (int) DBState.Success);
 
 				object obj = cmd.ExecuteScalar ();
