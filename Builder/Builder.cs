@@ -142,6 +142,7 @@ namespace Builder
 								}
 								p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY_SPACE"] = info.lane.repository.Replace (',', ' ');
 								p.StartInfo.EnvironmentVariables ["BUILD_SEQUENCE"] = "0";
+								p.StartInfo.EnvironmentVariables ["BUILD_SCRIPT_DIR"] = info.temp_dir;
 								p.StartInfo.EnvironmentVariables ["LD_LIBRARY_PATH"] = Configuration.GetLdLibraryPath (info.lane.lane, info.revision.revision);
 								p.StartInfo.EnvironmentVariables ["PKG_CONFIG_PATH"] = Configuration.GetPkgConfigPath (info.lane.lane, info.revision.revision);
 								p.StartInfo.EnvironmentVariables ["PATH"] = Configuration.GetPath (info.lane.lane, info.revision.revision);

@@ -22,6 +22,7 @@ BUILD_LANE:         The lane currently being built.
 BUILD_SEQUENCE:     For parallelizable commands, this is the sequence of the command. For instance:
                     You have 3 commands which can run in parallel. The first one gets BUILD_SEQUENCE=0,
                     the second BUILD_SEQUENCE=1, etc.
+BUILD_SCRIPT_DIR:   The directory the script files for the lane are stored before executing them.
 
 PATH:               BUILD_INSTALL/bin:PATH
 LD_LIBRARY_PATH     BUILD_INSTALL/lib:LD_LIBRARY_PATH
