@@ -1,5 +1,11 @@
 2009-04-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Builder.cs:
+	* FileManager.cs: Match filenames using shell globs instead of
+	  regexps.
+
+2009-04-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DB.cs: Don't try to build work which unfulfilled
 	  dependencies.
 

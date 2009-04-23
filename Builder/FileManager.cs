@@ -404,5 +404,120 @@ ORDER BY loid;
 			}
 			return 0;
 		}
+
+	   //Private Shared Function ConvertLikeExpression(ByVal expression As String) As String
+	   //     Dim carr() As Char = expression.ToCharArray()
+
+	   //     Dim sb As StringBuilder = New StringBuilder
+	   //     Dim bDigit As Boolean = False '' need it in order to clode the string pattern
+
+	   //     For pos As Integer = 0 To carr.Length - 1
+	   //         Select Case carr(pos)
+	   //             Case "?"c
+	   //                 sb.Append("."c)
+	   //             Case "*"c
+	   //                 sb.Append("."c).Append("*"c)
+	   //             Case "#"c  '' only one digit and only once ->  "^\d{1}$"
+	   //                 If bDigit Then
+	   //                     sb.Append("\"c).Append("d"c).Append("{"c).Append("1"c).Append("}"c)
+	   //                 Else
+	   //                     sb.Append("^"c).Append("\"c).Append("d"c).Append("{"c).Append("1"c).Append("}"c)
+	   //                     bDigit = True
+	   //                 End If
+	   //             Case "["c
+	   //                 Dim gsb As StringBuilder = ConvertGroupSubexpression(carr, pos)
+	   //                 ' skip groups of form [], i.e. empty strings
+	   //                 If gsb.Length > 2 Then
+	   //                     sb.Append(gsb)
+	   //                 End If
+	   //             Case Else
+	   //                 sb.Append(carr(pos))
+	   //         End Select
+	   //     Next
+	   //     If bDigit Then sb.Append("$"c)
+
+	   //     Return sb.ToString()
+	   // End Function
+		public static string GlobToRegExp (string expression)
+		{
+			char [] carr = expression.ToCharArray ();
+
+			StringBuilder sb = new StringBuilder ();
+			bool bDigit = false;
+
+			for (int pos = 0; pos < carr.Length; pos++) {
+				switch (carr [pos]) {
+				case '?':
+					sb.Append ('.');
+					break;
+				case '*':
+					sb.Append (".*");
+					break;
+				case '#':
+					if (bDigit) {
+						sb.Append (@"\d{1}");
+					} else {
+						sb.Append (@"^\d{1}");
+						bDigit = true;
+					}
+					break;
+				case '[':
+					StringBuilder gsb = ConvertGroupSubexpression (carr, ref pos);
+					if (gsb.Length > 2) {
+						sb.Append (gsb);
+					}
+					break;
+				default:
+					sb.Append (carr [pos]);
+					break;
+				}
+			}
+			if (bDigit)
+				sb.Append ('$');
+
+			return sb.ToString ();
+		}
+
+		//Private Shared Function ConvertGroupSubexpression(ByVal carr() As Char, ByRef pos As Integer) As StringBuilder
+		//    Dim sb As StringBuilder = New StringBuilder
+		//    Dim negate As Boolean = False
+		//    While Not carr(pos) = "]"c
+		//        If negate Then
+		//            sb.Append("^"c)
+		//            negate = False
+		//        End If
+		//        If carr(pos) = "!"c Then
+		//            sb.Remove(1, sb.Length - 1)
+		//            negate = True
+		//        Else
+		//            sb.Append(carr(pos)
+		//        End If
+		//        pos = pos + 1
+		//    End While
+		//    sb.Append("]"c)
+		//    Return sb
+		//End Function
+		private static StringBuilder ConvertGroupSubexpression (char [] carr, ref int pos)
+		{
+			StringBuilder sb = new StringBuilder ();
+			bool negate = false;
+
+			while (!(carr [pos] == ']')) {
+				if (negate) {
+					sb.Append ('^');
+					negate = false;
+				}
+				if (carr [pos] == '!') {
+					sb.Remove (1, sb.Length - 1);
+					negate = true;
+				} else {
+					sb.Append (carr [pos]);
+				}
+				pos++;
+			}
+			sb.Append (']');
+
+			return sb;
+		}
 	}
 }
