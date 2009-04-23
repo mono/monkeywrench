@@ -207,12 +207,20 @@ public partial class EditLane : System.Web.UI.Page
 				case "addDependency":
 					if (int.TryParse (Request ["dependent_lane_id"], out id)) {
 						int condition;
+						int host_id;
 						if (int.TryParse (Request ["condition"], out condition) && Enum.IsDefined (typeof (DBLaneDependencyCondition), condition)) {
-							DBLaneDependency dep = new DBLaneDependency ();
-							dep.condition = condition;
-							dep.dependent_lane_id = id;
-							dep.lane_id = lane.id;
-							dep.Save (db);
+							if (int.TryParse (Request ["dependent_host_id"], out host_id)) {
+								DBLaneDependency dep = new DBLaneDependency ();
+								dep.condition = condition;
+								dep.dependent_lane_id = id;
+								dep.lane_id = lane.id;
+								if (host_id > 0) {
+									dep.dependent_host_id = host_id;
+								} else {
+									dep.dependent_host_id = null;
+								}
+								dep.Save (db);
+							}
 						}
 					}
 					break;
@@ -361,8 +369,9 @@ ORDER BY lane_id, name ASC";
 
 			// dependencies
 			List<DBLane> lanes = db.GetAllLanes ();
+			List<DBHost> hosts = db.GetHosts ();
 			List<DBLaneDependency> dependencies = lane.GetDependencies (db);
-			tblDependencies.Rows.Add (Utils.CreateTableHeaderRow ("Dependent lane", "Condition", "Filename", "Files to download", "Actions"));
+			tblDependencies.Rows.Add (Utils.CreateTableHeaderRow ("Dependent lane", "Condition", "Host", "Filename", "Files to download", "Actions"));
 			foreach (DBLaneDependency dependency in dependencies) {
 				row = new TableRow ();
 				for (int i = 0; i < lanes.Count; i++) {
@@ -372,6 +381,7 @@ ORDER BY lane_id, name ASC";
 					}
 				}
 				row.Cells.Add (Utils.CreateTableCell (dependency.Condition.ToString ()));
+				row.Cells.Add (Utils.CreateTableCell (dependency.dependent_host_id.HasValue ? new DBHost (db, dependency.dependent_host_id.Value).host : "Any"));
 				switch (dependency.Condition) {
 				case DBLaneDependencyCondition.DependentLaneSuccessWithFile:
 					row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: editDependencyFilename ({0}, {1}, \"{2}\")'>{2}</a>", lane.id, dependency.id, string.IsNullOrEmpty (dependency.filename) ? "(edit)" : dependency.filename)));
@@ -381,7 +391,7 @@ ORDER BY lane_id, name ASC";
 					row.Cells.Add (Utils.CreateTableCell ("-"));
 					break;
 				}
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: editDependencyDownloads ({0}, {1}, \"{2}\")'>{3}</a>", lane.id, dependency.id,  string.IsNullOrEmpty (dependency.download_files) ? string.Empty : dependency.download_files.Replace ("\"", "\\\""), string.IsNullOrEmpty (dependency.download_files) ? "(edit)" : HttpUtility.HtmlEncode (dependency.download_files))));
+				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: editDependencyDownloads ({0}, {1}, \"{2}\")'>{3}</a>", lane.id, dependency.id, string.IsNullOrEmpty (dependency.download_files) ? string.Empty : dependency.download_files.Replace ("\"", "\\\""), string.IsNullOrEmpty (dependency.download_files) ? "(edit)" : HttpUtility.HtmlEncode (dependency.download_files))));
 				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: deleteDependency ({0}, {1})'>Delete</a>", lane.id, dependency.id)));
 				tblDependencies.Rows.Add (row);
 			}
@@ -400,6 +410,14 @@ ORDER BY lane_id, name ASC";
 				if ((int) value == 0)
 					continue;
 				html += string.Format ("<option value='{0}'>{1}</option>", (int) value, value.ToString ());
+			}
+			html += "</select>";
+			row.Cells.Add (Utils.CreateTableCell (html));
+			// host
+			html = "<select id='lstDependentHosts'>";
+			html += "<option value='0'>Any</option>";
+			foreach (DBHost h in hosts) {
+				html += string.Format ("<option value='{0}'>{1}</option>", h.id, h.host);
 			}
 			html += "</select>";
 			row.Cells.Add (Utils.CreateTableCell (html));

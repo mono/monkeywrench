@@ -25,13 +25,13 @@ namespace Builder
 		public DBLaneDependency ()
 		{
 		}
-	
+
 		public DBLaneDependency (DB db, int id)
 			: base (db, id)
 		{
 		}
-	
-		public DBLaneDependency (IDataReader reader) 
+
+		public DBLaneDependency (IDataReader reader)
 			: base (reader)
 		{
 		}
@@ -65,6 +65,48 @@ namespace Builder
 			}
 
 			return result;
+		}
+
+		public bool IsSuccess (DB db, string revision)
+		{
+			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+				cmd.CommandText = @"
+SELECT RevisionWork.id
+FROM RevisionWork 
+INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
+WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revision.revision = @revision
+";
+
+				if (dependent_host_id.HasValue) {
+					cmd.CommandText += " AND RevisionWork.host_id = @host_id";
+					DB.CreateParameter (cmd, "host_id", dependent_host_id.Value);
+				}
+
+				switch (Condition) {
+				case DBLaneDependencyCondition.DependentLaneSuccess:
+					break;
+				case DBLaneDependencyCondition.DependentLaneSuccessWithFile:
+					cmd.CommandText += " AND WorkFile.filename = @filename";
+					DB.CreateParameter (cmd, "filename", filename);
+					break;
+				default:
+					Logger.Log ("LaneDependency '{0}' contains an unknown dependency condition: {1}", id, Condition);
+					return false;
+				}
+
+				cmd.CommandText += " LIMIT 1;";
+
+				DB.CreateParameter (cmd, "lane_id", dependent_lane_id);
+				DB.CreateParameter (cmd, "revision", revision); // Don't join with id here, if the revision comes from another lane, it might have a different id
+				DB.CreateParameter (cmd, "success", (int) DBState.Success);
+
+				object obj = cmd.ExecuteScalar ();
+				bool result = obj != null && !(obj is DBNull);
+
+				Logger.Log ("Dependency id {0}: {1} (condition: {2}, revision: {3}, host_id: {4}, filename: {5}, lane: {6})", id, result, Condition, revision, dependent_host_id.HasValue ? dependent_host_id.Value.ToString () : "null", filename, dependent_lane_id);
+
+				return result;
+			}
 		}
 	}
 }

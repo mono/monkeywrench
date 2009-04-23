@@ -363,35 +363,33 @@ namespace Builder
 
 					// download dependent files
 					List<DBLaneDependency> dependencies = lane.GetDependencies (db);
-					Dictionary<int, string> dependent_lanes = null;
 					if (dependencies != null && dependencies.Count > 0) {
 						foreach (DBLaneDependency dep in dependencies) {
-							if (dependent_lanes == null)
-								dependent_lanes = new Dictionary<int, string> ();
-							if (!dependent_lanes.ContainsKey (dep.dependent_lane_id))
-								dependent_lanes.Add (dep.dependent_lane_id, dep.download_files);
-						}
-						if (dependent_lanes != null) {
-							foreach (int id in dependent_lanes.Keys) {
-								string file_exp;
-								DBLane dependent_lane;
-								DBRevisionWork dep_revwork;
-								List<DBWorkFile> work_files;
+							DBLane dependent_lane;
+							DBHost dependent_host;
+							DBRevisionWork dep_revwork;
+							List<DBWorkFile> work_files;
 
-								file_exp = dependent_lanes [id];
+							if (string.IsNullOrEmpty (dep.download_files))
+								continue;
 
-								if (string.IsNullOrEmpty (file_exp))
-									continue;
+							dependent_lane = new DBLane (db, dep.dependent_lane_id);
+							dependent_host = dep.dependent_host_id.HasValue ? new DBHost (db, dep.dependent_host_id.Value) : null;
+							dep_revwork = DBRevisionWork.Find (db, dependent_lane, dependent_host, dependent_lane.FindRevision (db, revision.revision));
 
-								dependent_lane = new DBLane (db, id);
-								dep_revwork = DBRevisionWork.Find (db, dependent_lane, host, dependent_lane.FindRevision (db, revision.revision));
-								work_files = dep_revwork.GetFiles (db);
+							work_files = dep_revwork.GetFiles (db);
 
-								foreach (DBWorkFile file in work_files) {
-									if (!System.Text.RegularExpressions.Regex.IsMatch (file.filename, file_exp))
-										continue;
-									file.WriteToDisk (db, Configuration.GetDependentDownloadDirectory (lane, dependent_lane, revision.revision));
+							foreach (DBWorkFile file in work_files) {
+								bool download = true;
+								foreach (string exp in dep.download_files.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries)) {
+									if (!System.Text.RegularExpressions.Regex.IsMatch (file.filename, exp)) {
+										download = false;
+										break;
+									}
 								}
+								if (!download)
+									continue;
+								file.WriteToDisk (db, Configuration.GetDependentDownloadDirectory (lane, dependent_lane, revision.revision));
 							}
 						}
 					}

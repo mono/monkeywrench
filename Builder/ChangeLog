@@ -1,3 +1,17 @@
+2009-04-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DB.cs: Don't try to build work which unfulfilled
+	  dependencies.
+
+	* Updater.cs:
+	* Builder.cs:
+	* DBRevisionWork.cs:
+	* DBLaneDependency.cs:
+	* DBWorkFile.generated.cs:
+	* DBLaneDependency.generated.cs: Add a dependency_host_id to
+	  lane dependencies, to specify the host the lane must have
+	  succeeded on.
+
 2009-04-22  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Added BUILD_SCRIPT_DIR.

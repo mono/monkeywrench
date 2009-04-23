@@ -34,6 +34,7 @@ CREATE TABLE LaneDependency (
 	id                serial     PRIMARY KEY,
 	lane_id           int        NOT NULL REFERENCES Lane(id), -- the lane we're configuring
 	dependent_lane_id int        NOT NULL REFERENCES Lane(id), -- the lane we're depending on
+	dependent_host_id int        NULL REFERENCES Host(id),     -- the host used to satisfy the condition (null to include all hosts)
 	condition         int        NOT NULL,                     -- the condition
 	                                                           -- 0: no condition at all
 	                                                           -- 1: dependent_lane_id has succeeded (for the same revision)
@@ -119,7 +120,7 @@ CREATE TABLE RevisionWork (
 	UNIQUE (lane_id, host_id, revision_id)
 );
 
-CREATE TABLE "work" ( -- lower case since postgre won't lowercase quoted identifiers like it does with unquoted identifiers
+CREATE TABLE Work (
 	id               serial    PRIMARY KEY,
 	--TODO: Pending removal -- lane_id          int       NOT NULL REFERENCES Lane(id), -- the lane
 	host_id          int       NULL REFERENCES Host(id),  -- the host that is doing the work, null if not assigned.

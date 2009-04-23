@@ -330,19 +330,29 @@ FROM RevisionWork;";
 
 		public static DBRevisionWork Find (DB db, DBLane lane, DBHost host, DBRevision revision)
 		{
+			DBRevisionWork result;
+
 			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
-				cmd.CommandText = "SELECT * FROM RevisionWork WHERE lane_id = @lane_id AND host_id = @host_id AND revision_id = @revision_id;";
-				DB.CreateParameter (cmd, "host_id", host.id);
+				cmd.CommandText = "SELECT * FROM RevisionWork WHERE lane_id = @lane_id AND revision_id = @revision_id ";
+				if (host != null) {
+					cmd.CommandText += " AND host_id = @host_id;";
+					DB.CreateParameter (cmd, "host_id", host.id);
+				}
 				DB.CreateParameter (cmd, "lane_id", lane.id);
 				DB.CreateParameter (cmd, "revision_id", revision.id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
+					if (!reader.Read ())
+						return null;
+
+					result = new DBRevisionWork (reader);
+
 					if (reader.Read ())
-						return new DBRevisionWork (reader);
-					return null;
+						throw new ApplicationException (string.Format ("Found more than one revision work for the specified lane/host/revision ({0}/{1}/{2})", lane.lane, host == null ? "null" : host.host, revision.revision));
+
+					return result;
 				}
 			}
 		}
-
 
 		/// <summary>
 		/// Sets workhost to the specified host and saves it to the db.
@@ -366,51 +376,6 @@ SELECT workhost_id FROM RevisionWork where id = @id AND workhost_id = @workhost_
 					return true;
 				}
 				return false;
-			}
-		}
-
-		public static bool IsSuccess (DB db, int lane_id, DBRevision revision)
-		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
-				cmd.CommandText = @"
-SELECT RevisionWork.id
-FROM RevisionWork 
-INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
-WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revision.revision = @revision
-LIMIT 1;
-";
-				DB.CreateParameter (cmd, "lane_id", lane_id);
-				DB.CreateParameter (cmd, "revision", revision.revision);
-				DB.CreateParameter (cmd, "success", (int) DBState.Success);
-
-				object obj = cmd.ExecuteScalar ();
-				return obj != null && !(obj is DBNull);
-			}
-		}
-
-		public static bool IsSuccessWithFile (DB db, int lane_id, DBRevision revision, string filename)
-		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
-				cmd.CommandText = @"
-SELECT RevisionWork.id
-FROM RevisionWork
-INNER JOIN Work ON RevisionWork.id = Work.revisionwork_id
-INNER JOIN WorkFile ON Work.id = WorkFile.work_id
-INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
-WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revision.revision = @revision AND WorkFile.filename = @filename
-LIMIT 1;
-";
-				DB.CreateParameter (cmd, "lane_id", lane_id);
-				DB.CreateParameter (cmd, "revision", revision.revision); // Don't join with id here, if the revision comes from another lane, it might have a different id
-				DB.CreateParameter (cmd, "success", (int) DBState.Success);
-				DB.CreateParameter (cmd, "filename", filename);
-
-				object obj = cmd.ExecuteScalar ();
-				bool result = obj != null && !(obj is DBNull);
-
-				// Console.WriteLine ("IsSuccessWithFile ({0}, {1}, '{2}') => {3}", lane_id, revision.id, filename, result);
-
-				return result;
 			}
 		}
 	}

@@ -44,7 +44,11 @@ function addHost(lane_id) {
 }
 
 function addDependency(lane_id) {
-    window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=addDependency&dependent_lane_id=" + document.getElementById("lstDependentLanes").value + "&condition=" + document.getElementById("lstDependencyConditions").value;
+    window.location = window.location.pathname + "?lane_id=" + lane_id + 
+        "&action=addDependency" +
+        "&dependent_lane_id=" + document.getElementById("lstDependentLanes").value + 
+        "&condition=" + document.getElementById("lstDependencyConditions").value +
+        "&dependent_host_id=" + document.getElementById ("lstDependentHosts").value;
 
 }
 

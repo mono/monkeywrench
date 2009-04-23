@@ -233,22 +233,10 @@ WHERE
 						if (dependencies != null) {
 							Logger.Log ("Lane '{0}', revision '{1}' checking dependencies...", lane.lane, revision.revision);
 
-							foreach (DBLaneDependency dependency in dependencies) {
-								switch (dependency.Condition) {
-								case DBLaneDependencyCondition.DependentLaneSuccess:
-									dependencies_satisfied &= DBRevisionWork.IsSuccess (db, dependency.dependent_lane_id, revision);
-									break;
-								case DBLaneDependencyCondition.DependentLaneSuccessWithFile:
-									dependencies_satisfied &= DBRevisionWork.IsSuccessWithFile (db, dependency.dependent_lane_id, revision, dependency.filename);
-									break;
-								default:
-									Logger.Log ("Lane '{0}' contains an unknown dependency condition: {1}", lane.lane, dependency.Condition);
-									dependencies_satisfied = false;
-									break;
-								}
-							}
+							foreach (DBLaneDependency dependency in dependencies)
+								dependencies_satisfied &= dependency.IsSuccess (db, revision.revision);
 
-							Logger.Log ("Lane '{0}', revision '{1}' has unfulfilled dependencies.", lane.lane, revision.revision);
+							Logger.Log ("Lane '{0}', revision '{1}' dependency checking resulted in: {2}.", lane.lane, revision.revision, dependencies_satisfied);
 						}
 
 						int revisionwork_id;
