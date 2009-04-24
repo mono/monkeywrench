@@ -8,6 +8,24 @@ CREATE DATABASE builder OWNER builder;
 
 \connect builder
 
+-- 
+-- Enums:
+--
+-- DependencyCondition (0, 1, 2) 
+--
+-- State (0 - 9)
+--
+-- MatchMode:
+-- * 0: space separated shell globs
+-- * 1: regexp
+-- * 2: exact match
+--
+-- DeleteCondition:
+-- * 0: never (to make it default to not delete)
+-- * 1: delete after x days (example: x = 7, would delete all data which is more than one week old)
+-- * 2: delete after x built revisions (example: x = 100, if there are 200 revisions, revisions 50 - 200 are built, we'd delete data from revisions 151 - 200)
+--
+--
 
 CREATE TABLE Host (
 	id              serial     PRIMARY KEY,
@@ -28,6 +46,24 @@ CREATE TABLE Lane (
 	repository     text       NOT NULL,               -- the source control repository.
 	min_revision   text       NOT NULL DEFAULT '1',   -- the first revision to do.
 	max_revision   text       NOT NULL DEFAULT ''     -- the last revision to do. '' defaults to all revisions
+);
+
+CREATE TABLE FileDeletionDirective (
+	id             serial     PRIMARY KEY,
+	name           text       UNIQUE NOT NULL,    -- a descriptive name     
+	filename       text       NOT NULL,           -- the filename to act upon. space separated shell globs.
+	match_mode     int        NOT NULL DEFAULT 0, -- value of MatchMode enum above, applied to 'filename'
+	condition      int        NOT NULL DEFAULT 0, -- value of DeleteCondition enum above.
+	x              int        NOT NULL DEFAULT 0  -- the parameter of DeleteCondition
+);
+
+CREATE TABLE LaneDeletionDirective (
+	id                           serial     PRIMARY KEY,
+	lane_id                      int        NOT NULL References Lane (id),
+	file_deletion_directive_id   int        NOT NULL References FileDeletionDirective (id),
+	enabled                      boolean    NOT NULL DEFAULT false, -- if the deletion directive is enabled
+	
+	UNIQUE (lane_id, file_deletion_directive_id)
 );
 
 CREATE TABLE LaneDependency (
@@ -119,6 +155,10 @@ CREATE TABLE RevisionWork (
 	
 	UNIQUE (lane_id, host_id, revision_id)
 );
+CREATE INDEX RevisionWork_revision_id_ix ON RevisionWork (revision_id);
+CREATE INDEX RevisionWork_workhost_id_idx ON RevisionWork (workhost_id);
+CREATE INDEX RevisionWork_host_id_idx ON RevisionWork (host_id);
+CREATE INDEX RevisionWork_lane_id_idx ON RevisionWork (lane_id);
 
 CREATE TABLE Work (
 	id               serial    PRIMARY KEY,
@@ -138,6 +178,9 @@ CREATE TABLE Work (
 	revisionwork_id  int       REFERENCES RevisionWork (id) -- make NOT NULL after successful move
 );
 
+--
+-- Do NOT put any cascade delete clauses on the File table.
+-- we try to delete File, and we rely on an exception being thrown if the File is being used somewhere.
 CREATE TABLE File (
 	id              serial     PRIMARY KEY,
 	filename        text       NOT NULL DEFAULT '',   -- filenames can be duplicate
@@ -219,6 +262,12 @@ CREATE VIEW WorkFileView AS
 		INNER JOIN File ON WorkFile.file_id = File.id
 		INNER JOIN Work ON WorkFile.work_id = Work.id
 		INNER JOIN Command ON Work.command_id = Command.id;
+		
+CREATE VIEW LaneDeletionDirectiveView AS
+	SELECT LaneDeletionDirective.id, LaneDeletionDirective.lane_id, LaneDeletionDirective.file_deletion_directive_id, LaneDeletionDirective.enabled,
+		FileDeletionDirective.name, FileDeletionDirective.filename, FileDeletionDirective.match_mode, FileDeletionDirective.condition, FileDeletionDirective.x
+	FROM LaneDeletionDirective
+		INNER JOIN FileDeletionDirective ON FileDeletionDirective.id = LaneDeletionDirective.file_deletion_directive_id;
 		
 -- ignore generator --		
 

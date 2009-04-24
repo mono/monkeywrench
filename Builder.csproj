@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Builder</RootNamespace>
     <AssemblyName>Builder</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkSubset>
     </TargetFrameworkSubset>
@@ -38,6 +38,9 @@
       <HintPath>scripts\bin\Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -47,8 +50,12 @@
     <Compile Include="Builder\DB.cs" />
     <Compile Include="Builder\DBCommand.cs" />
     <Compile Include="Builder\DBCommand.generated.cs" />
+    <Compile Include="Builder\DBDeleteCondition.cs" />
     <Compile Include="Builder\DBFile.cs" />
     <Compile Include="Builder\DBFile.generated.cs" />
+    <Compile Include="Builder\DBFileDeletionDirective.cs" />
+    <Compile Include="Builder\DBFileDeletionDirective.generated.cs" />
+    <Compile Include="Builder\DBMatchMode.cs" />
     <Compile Include="Builder\DBHost.cs" />
     <Compile Include="Builder\DBHost.generated.cs" />
     <Compile Include="Builder\DBHostLane.cs" />
@@ -56,6 +63,10 @@
     <Compile Include="Builder\DBHostLaneView.generated.cs" />
     <Compile Include="Builder\DBLane.cs" />
     <Compile Include="Builder\DBLane.generated.cs" />
+    <Compile Include="Builder\DBLaneDeletionDirective.cs" />
+    <Compile Include="Builder\DBLaneDeletionDirective.generated.cs" />
+    <Compile Include="Builder\DBLaneDeletionDirectiveView.cs" />
+    <Compile Include="Builder\DBLaneDeletionDirectiveView.generated.cs" />
     <Compile Include="Builder\DBLaneDependency.cs" />
     <Compile Include="Builder\DBLaneDependency.generated.cs" />
     <Compile Include="Builder\DBLaneDependencyCondition.cs" />

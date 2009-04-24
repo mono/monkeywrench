@@ -44,7 +44,7 @@ namespace Builder
 			try {
 				message = FormatLog (format, args);
 				if (string.IsNullOrEmpty (LogFile)) {
-					Console.WriteLine (message);
+					Console.Write (message);
 				} else {
 					using (FileStream fs = new FileStream (LogFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)) {
 						using (StreamWriter st = new StreamWriter (fs)) {

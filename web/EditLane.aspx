@@ -1,9 +1,11 @@
-<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" CodeFile="EditLane.aspx.cs"
-    Inherits="EditLane" %>
+<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" CodeFile="EditLane.aspx.cs" Inherits="EditLane" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
+
     <script type="text/javascript" src="EditLane.js"></script>
-    <h2><asp:Label ID="lblH2" runat="server"></asp:Label></h2>
+
+    <h2>
+        <asp:Label ID="lblH2" runat="server"></asp:Label></h2>
     <div>
         <asp:Table runat="server">
             <asp:TableRow>
@@ -30,16 +32,77 @@
                     </asp:TableCell></asp:TableRow>
         </asp:Table>
         <br />
-        <asp:Table runat="server" ID="tblDependencies" CssClass="buildstatus">
+        <asp:Table runat="server" ID="tblDependencies" CssClass="commands">
         </asp:Table>
         <br />
         <asp:Table runat="server" ID="tblCommands" CssClass="commands">
         </asp:Table>
         <br />
-        <asp:Table runat="server" ID="tblFiles" CssClass="files">
+        <asp:Table runat="server" ID="tblFiles" CssClass="commands">
         </asp:Table>
         <br />
-        <asp:Table runat="server" ID="tblHosts" CssClass="buildstatus">
+        <asp:Table runat="server" ID="tblDeletionDirective" CssClass="commands">
+            <asp:TableHeaderRow>
+                <asp:TableHeaderCell ColumnSpan="7">Deletion directives</asp:TableHeaderCell></asp:TableHeaderRow>
+            <asp:TableHeaderRow>
+                <asp:TableHeaderCell>Directive</asp:TableHeaderCell>
+                <asp:TableHeaderCell>Filename</asp:TableHeaderCell>
+                <asp:TableHeaderCell>Glob mode</asp:TableHeaderCell>
+                <asp:TableHeaderCell>Condition</asp:TableHeaderCell>
+                <asp:TableHeaderCell>X</asp:TableHeaderCell>
+                <asp:TableHeaderCell>Enabled</asp:TableHeaderCell>
+                <asp:TableHeaderCell></asp:TableHeaderCell>
+            </asp:TableHeaderRow>
+            <asp:TableRow>
+                <asp:TableCell>
+                    <asp:TextBox ID="txtDeletionDirective1" runat="server" Text="description" />
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:TextBox ID="txtDeletionDirectiveFilename1" Text="filename" runat="server" />
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:DropDownList ID="lstDeletionDirectiveGlobs1" runat="server" />
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:DropDownList ID="lstDeletionDirectiveCondition1" runat="server" />
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:TextBox ID="txtDeletionDirectiveX1" runat="server" />
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:CheckBox ID="chkDeletionDirectiveEnabled1" runat="server" />
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:LinkButton ID="lnkAddDeletionDirective1" CommandName="addDeletionDirective" CommandArgument="1" OnCommand="btn_Command" runat="server" Text="Add" />
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell>
+                    <asp:DropDownList ID="lstDeletionDirectives2" runat="server" />
+                </asp:TableCell>
+                <asp:TableCell>
+                    -
+                </asp:TableCell>
+                <asp:TableCell>
+                    -
+                </asp:TableCell>
+                <asp:TableCell>
+                    -
+                </asp:TableCell>
+                <asp:TableCell>
+                    -
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:CheckBox ID="chkDeletionDirectiveEnabled2" runat="server" />
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:LinkButton ID="lnkAddDeletionDirective2" CommandName="addDeletionDirective" CommandArgument="2" OnCommand="btn_Command" runat="server" Text="Link" />
+                </asp:TableCell>
+            </asp:TableRow>
+        </asp:Table>
+        <asp:Label Visible="false" ID="lblDeletionDirectiveErrors" runat="server" ForeColor="Red" />
+        <br />
+        <asp:Table runat="server" ID="tblHosts" CssClass="commands">
         </asp:Table>
     </div>
 </asp:Content>

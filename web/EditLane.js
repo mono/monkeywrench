@@ -44,11 +44,11 @@ function addHost(lane_id) {
 }
 
 function addDependency(lane_id) {
-    window.location = window.location.pathname + "?lane_id=" + lane_id + 
+    window.location = window.location.pathname + "?lane_id=" + lane_id +
         "&action=addDependency" +
-        "&dependent_lane_id=" + document.getElementById("lstDependentLanes").value + 
+        "&dependent_lane_id=" + document.getElementById("lstDependentLanes").value +
         "&condition=" + document.getElementById("lstDependencyConditions").value +
-        "&dependent_host_id=" + document.getElementById ("lstDependentHosts").value;
+        "&dependent_host_id=" + document.getElementById("lstDependentHosts").value;
 
 }
 
@@ -69,4 +69,42 @@ function editDependencyDownloads(lane_id, lanedependency_id, downloads) {
         dl = encodeURIComponent(dl);
         window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=editDependencyDownloads&lanedependency_id=" + lanedependency_id + "&downloads=" + dl;
     }
+}
+
+function addDeletionDirective(lane_id) {
+    var filename = document.getElementById("txtDeletionDirectiveFilename").value;
+    var desc = document.getElementById("txtDeletionDirective").value;
+
+    if (filename == null || filename == undefined || filename == "") {
+        alert("You need to enter a filename.");
+        return;
+    }
+
+    if (desc == null || desc == undefined || desc == "") {
+        alert("You need to enter name for the directive.");
+        return;
+    }
+
+    window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=addDeletionDirective&filename=" + filename + "&description=" + desc;
+}
+
+function enableDeletionDirective(lane_id, deletion_directive_id, enable) {
+    window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=enableDeletionDirective&directive_id=" + deletion_directive_id + "&enable=" + enable;
+}
+
+function setDeletionDirectiveX(lane_id, deletion_directive_id, previous_x) {
+    var x = prompt("X:");
+    if (x != null && x != "" && x != previous_x) {
+        window.location = window.location.pathname + "?lane_id=" + lane_id & "&action=setDeletionDirectiveX&directive_id=" + deletion_directive_id + "&x=" + x;
+    }
+}
+
+function updateDeletionDirectiveGlobMode(lane_id, deletion_directive_id) {
+    var glob = document.getElementById("lstDeletionGlobModes").value;
+    window.location = window.location.pathname + "?lane_id=" + lane_id & "&action=updateDeletionDirectiveGlobMode&directive_id=" + deletion_directive_id + "&match_mode=" + glob;
+}
+
+function updateDeletionDirectiveCondition(lane_id, deletion_directive_id) {
+    var condition = document.getElementById("lstDeletionConditions").value;
+    window.location = window.location.pathname + "?lane_id=" + lane_id & "&action=updateDeletionDirectiveCondition&directive_id=" + deletion_directive_id + "&condition=" + condition;
 }

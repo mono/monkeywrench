@@ -23,15 +23,23 @@ using Builder;
 
 public partial class EditLane : System.Web.UI.Page
 {
+	private DBLane lane;
+
 	private new Master Master
 	{
 		get { return base.Master as Master; }
 	}
 
-	protected void Page_Load (object sender, EventArgs e)
+	private void RedirectToSelf ()
 	{
+		Response.Redirect ("EditLane.aspx?lane_id=" + lane.id.ToString ());
+	}
+
+	protected override void OnInit (EventArgs e)
+	{
+		base.OnInit (e);
 		try {
-			DBLane lane;
+			Console.WriteLine ("Page_Init");
 			TableRow row;
 			string strlane = Request ["lane"];
 			string laneid = Request ["lane_id"];
@@ -65,6 +73,7 @@ public partial class EditLane : System.Web.UI.Page
 			}
 
 			lblH2.Text = "Lane: " + lane.lane;
+			lblDeletionDirectiveErrors.Visible = false;
 
 			if (!IsPostBack) {
 				txtSourceControl.Text = lane.source_control;
@@ -246,7 +255,7 @@ public partial class EditLane : System.Web.UI.Page
 					break;
 				}
 
-				Response.Redirect ("EditLane.aspx?lane_id=" + lane.id.ToString ());
+				RedirectToSelf ();
 			}
 
 			// Files
@@ -371,7 +380,9 @@ ORDER BY lane_id, name ASC";
 			List<DBLane> lanes = db.GetAllLanes ();
 			List<DBHost> hosts = db.GetHosts ();
 			List<DBLaneDependency> dependencies = lane.GetDependencies (db);
+			tblDependencies.Rows.Add (Utils.CreateTableHeaderRow ("Dependencies"));
 			tblDependencies.Rows.Add (Utils.CreateTableHeaderRow ("Dependent lane", "Condition", "Host", "Filename", "Files to download", "Actions"));
+			tblDependencies.Rows [0].Cells [0].ColumnSpan = tblDependencies.Rows [1].Cells.Count;
 			foreach (DBLaneDependency dependency in dependencies) {
 				row = new TableRow ();
 				for (int i = 0; i < lanes.Count; i++) {
@@ -426,9 +437,177 @@ ORDER BY lane_id, name ASC";
 			row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript:addDependency ({0})'>Add</a>", lane.id)));
 			tblDependencies.Rows.Add (row);
 
-
+			// deletion directives
+			List<DBLaneDeletionDirectiveView> lane_deletion_directives = DBLaneDeletionDirectiveView.Find (Master.DB, lane);
+			foreach (DBLaneDeletionDirectiveView directive in lane_deletion_directives)
+				AddDeletionDirectiveRow (directive);
+			List<DBFileDeletionDirective> file_deletion_directives = DBFileDeletionDirective.GetAll (Master.DB);
+			foreach (DBFileDeletionDirective directive in file_deletion_directives) {
+				lstDeletionDirectives2.Items.Add (new ListItem (directive.name, directive.id.ToString ()));
+			}
+			foreach (DBDeleteCondition condition in Enum.GetValues (typeof (DBDeleteCondition)))
+				lstDeletionDirectiveCondition1.Items.Add (new ListItem (condition.ToString (), ((int) condition).ToString ()));
+			foreach (DBMatchMode mode in Enum.GetValues (typeof (DBMatchMode)))
+				lstDeletionDirectiveGlobs1.Items.Add (new ListItem (mode.ToString (), ((int) mode).ToString ()));
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+		}
+	}
+
+	private void AddDeletionDirectiveRow (DBLaneDeletionDirectiveView directive)
+	{
+		TableRow row;
+		int index = tblDeletionDirective.Rows.Count - 2;
+		row = Utils.CreateTableRow (
+			directive.name,
+			directive.filename,
+			((DBMatchMode) directive.match_mode).ToString (),
+			((DBDeleteCondition) directive.condition).ToString (),
+			directive.x.ToString (),
+			Utils.CreateLinkButton ("lnkEnableDirective" + directive.id.ToString (), directive.enabled ? "True" : "False", directive.enabled ? "disableDeletionDirective" : "enableDeletionDirective", directive.id.ToString (), btn_Command),
+			Utils.CreateLinkButton ("lnkUnlinkDirective" + directive.id.ToString (), "Unlink", "unlinkDeletionDirective", directive.id.ToString () + ";" + index.ToString (), btn_Command),
+			Utils.CreateLinkButton ("lnkDeleteDirective" + directive.id.ToString (), "Delete", "deleteDeletionDirective", directive.file_deletion_directive_id.ToString () + ";" + directive.id + ";" + index.ToString (), btn_Command)
+			);
+		tblDeletionDirective.Rows.AddAt (index, row);
+	}
+
+	private void DumpArguments ()
+	{
+		Console.WriteLine ("> ARGUMENT DUMP");
+		foreach (string obj in Request.Params.AllKeys)
+			Console.WriteLine (">> '{0}' = '{1}'", obj, Request [obj]);
+		Console.WriteLine ("> ARGUMENT DUMP END");
+
+	}
+
+	protected override void OnLoadComplete (EventArgs e)
+	{
+		base.OnLoadComplete (e);
+
+	}
+
+	public void btn_Command (object sender, CommandEventArgs e)
+	{
+		//	Console.WriteLine ("EditLane, got command '{0}' with arguments '{1}'", e.CommandName, e.CommandArgument);
+
+		switch (e.CommandName) {
+		case "addDeletionDirective":
+			switch ((string) e.CommandArgument) {
+			case "1":
+				string description = txtDeletionDirective1.Text;
+				string filename = txtDeletionDirectiveFilename1.Text;
+
+				lblDeletionDirectiveErrors.Visible = false;
+				try {
+					if (!string.IsNullOrEmpty (filename) && !string.IsNullOrEmpty (description)) {
+						DBFileDeletionDirective directive = new DBFileDeletionDirective ();
+						directive.filename = filename;
+						directive.name = description;
+						directive.match_mode = int.Parse (lstDeletionDirectiveGlobs1.SelectedValue);
+						directive.x = int.Parse (txtDeletionDirectiveX1.Text);
+						directive.condition = int.Parse (lstDeletionDirectiveCondition1.SelectedValue);
+						directive.Save (Master.DB);
+
+						DBLaneDeletionDirective lane_directive = new DBLaneDeletionDirective ();
+						lane_directive.file_deletion_directive_id = directive.id;
+						lane_directive.lane_id = lane.id;
+						lane_directive.Save (Master.DB);
+
+						AddDeletionDirectiveRow (DBLaneDeletionDirectiveView.Find (Master.DB, directive.id, lane_directive.lane_id));
+					}
+				} catch (Exception ex) {
+					lblDeletionDirectiveErrors.Text = ex.Message;
+					lblDeletionDirectiveErrors.Visible = true;
+				}
+				break;
+			case "2":
+				int directive_id;
+
+				if (int.TryParse (lstDeletionDirectives2.SelectedValue, out directive_id)) {
+					lblDeletionDirectiveErrors.Visible = false;
+					try {
+						DBLaneDeletionDirective lane_directive = new DBLaneDeletionDirective ();
+						lane_directive.file_deletion_directive_id = directive_id;
+						lane_directive.lane_id = lane.id;
+						lane_directive.Save (Master.DB);
+
+						AddDeletionDirectiveRow (DBLaneDeletionDirectiveView.Find (Master.DB, directive_id, lane_directive.lane_id));
+					} catch (Exception ex) {
+						lblDeletionDirectiveErrors.Text = ex.Message;
+						lblDeletionDirectiveErrors.Visible = true;
+					}
+				}
+
+				break;
+			}
+			break;
+		case "disableDeletionDirective": {
+				int id;
+
+				if (int.TryParse ((string) e.CommandArgument, out id)) {
+					DBLaneDeletionDirective view = new DBLaneDeletionDirective (Master.DB, id);
+					view.enabled = false;
+					view.Save (Master.DB);
+					RedirectToSelf (); // This is needed, otherwise hitting F5 will flap the enabled state
+				}
+				break;
+			}
+		case "enableDeletionDirective": {
+				int id;
+
+				if (int.TryParse ((string) e.CommandArgument, out id)) {
+					DBLaneDeletionDirective view = new DBLaneDeletionDirective (Master.DB, id);
+					view.enabled = true;
+					view.Save (Master.DB);
+					RedirectToSelf (); // This is needed, otherwise hitting F5 will flap the enabled state
+				}
+				break;
+			}
+		case "deleteDeletionDirective": {
+				int file_directive_id, id, index;
+
+				string [] args = ((string) e.CommandArgument).Split (';');
+
+				if (int.TryParse (args [0], out file_directive_id)) {
+					if (int.TryParse (args [1], out id)) {
+						if (int.TryParse (args [2], out index)) {
+							// todo
+							try {
+								DBLaneDeletionDirective.Delete (Master.DB, id, DBLaneDeletionDirective.TableName);
+								DBFileDeletionDirective.Delete (Master.DB, file_directive_id, DBFileDeletionDirective.TableName);
+								tblDeletionDirective.Rows.RemoveAt (index);
+								for (int i = 0; i < lstDeletionDirectives2.Items.Count - 1; i++) {
+									if (lstDeletionDirectives2.Items [i].Value == file_directive_id.ToString ()) {
+										lstDeletionDirectives2.Items.RemoveAt (i);
+										break;
+									}
+								}
+							} catch (Exception ex) {
+								lblDeletionDirectiveErrors.Text = ex.Message;
+								lblDeletionDirectiveErrors.Visible = true;
+							}
+						}
+					}
+				}
+				break;
+			}
+		case "unlinkDeletionDirective": {
+				int id, index;
+
+				string [] args = ((string) e.CommandArgument).Split (';');
+
+				if (int.TryParse (args [0], out id)) {
+					if (int.TryParse (args [1], out index)) {
+						// todo
+						DBLaneDeletionDirective.Delete (Master.DB, id, DBLaneDeletionDirective.TableName);
+						tblDeletionDirective.Rows.RemoveAt (index);
+					}
+				}
+				break;
+			}
+		default:
+			Console.WriteLine ("EditLane: unknown command '{0}' '{1}'", e.CommandName, e.CommandArgument);
+			break;
 		}
 	}
 

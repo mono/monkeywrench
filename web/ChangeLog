@@ -1,3 +1,12 @@
+2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* EditLane.js:
+	* EditLane.aspx:
+	* EditHosts.aspx:
+	* EditLane.aspx.cs:
+	* App_Code/Utils.cs:
+	* EditHosts.aspx.cs: Add support for deletion directives.
+
 2009-04-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* EditLane.js:

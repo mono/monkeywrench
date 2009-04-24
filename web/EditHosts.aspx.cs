@@ -17,7 +17,7 @@ using System.Web.UI.WebControls;
 
 using Builder;
 
-public partial class EditHost : System.Web.UI.Page
+public partial class EditHosts : System.Web.UI.Page
 {
 	private new Master Master
 	{

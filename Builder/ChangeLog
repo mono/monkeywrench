@@ -1,3 +1,18 @@
+2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBMatchMode.cs:
+	* DBDeleteCondition.cs:
+	* DBLaneDeletionDirective.cs:
+	* DBFileDeletionDirective.cs:
+	* DBLaneDeletionDirectiveView.cs:
+	* DBFileDeletionDirective.generated.cs:
+	* DBLaneDeletionDirective.generated.cs:
+	* DBLaneDeletionDirectiveView.generated.cs: Added.
+
+	* Logger.cs:
+	* DBFile.cs:
+	* FileManager.cs: Add support for deletion directives.
+
 2009-04-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs:

@@ -18,6 +18,8 @@ namespace Builder
 {
 	public partial class DBFile
 	{
+		public const string TableName = "File";
+
 		public DBFile ()
 		{
 		}
@@ -43,6 +45,18 @@ namespace Builder
 		public override void Load (IDataReader reader)
 		{
 			base.Load (reader);
+		}
+
+		/// <summary>
+		/// This method deletes the record in pg_largeobject too (if the File could be deleted)
+		/// </summary>
+		/// <param name="db"></param>
+		/// <param name="id">File.id</param>
+		/// <param name="file_id">File.file_id</param>
+		public static void Delete (DB db, int id, int file_id)
+		{
+			Delete (db, id, TableName);
+			db.Manager.Delete (file_id);
 		}
 	}
 }

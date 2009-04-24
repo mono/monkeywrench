@@ -34,3 +34,5 @@ clean-large-objects: filemanager
 compress-files: filemanager
 	mono --debug bin/Builder.FileManager.exe compress-files
 
+execute-deletion-directives: filemanager
+	mono --debug bin/Builder.FileManager.exe execute-deletion-directives

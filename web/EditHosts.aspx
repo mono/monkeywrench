@@ -1,4 +1,4 @@
-<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" CodeFile="EditHosts.aspx.cs" Inherits="EditHost" %>
+<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" CodeFile="EditHosts.aspx.cs" Inherits="EditHosts" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
     <script type="text/javascript" src="EditHosts.js"></script>
