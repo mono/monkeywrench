@@ -43,6 +43,7 @@ namespace Builder
 			List<DBLane> lanes;
 			DBHost master_host;
 			DBHost host;
+			DBHost self;
 
 			try {
 				Logger.LogFile = Configuration.DEFAULT_BUILDER_LOG;
@@ -50,9 +51,16 @@ namespace Builder
 				Configuration.InitializeApp (args, "Builder");
 
 				using (DB db = new DB (true)) {
+					self = db.LookupHost (Configuration.Host);
+
+					if (!self.enabled) {
+						Logger.Log ("This host is disabled. Exiting.");
+						return 0;
+					}
+
 					master_host = db.LookupHost (Configuration.MasterHost);
 					if (Configuration.MasterHost != Configuration.Host)
-						host = db.LookupHost (Configuration.Host);
+						host = self;
 					else
 						host = master_host;
 

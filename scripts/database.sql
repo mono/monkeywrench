@@ -32,11 +32,23 @@ CREATE TABLE Host (
 	host            text       UNIQUE NOT NULL,     -- the name of this host (no commas allowed)
 	description     text       NOT NULL DEFAULT '', -- a description for this host
 	architecture    text       NOT NULL DEFAULT '', -- this host's architecture.
-	queuemanagement int        NOT NULL DEFAULT 0   -- how this host manages its queue. 
+	queuemanagement int        NOT NULL DEFAULT 0,  -- how this host manages its queue. 
                                                     -- 0: minimize the number of revisions currently in work
                                                     --    * there might be a significant delay until the latest revision is built.
                                                     -- 1: start building the latest revision as soon as possible
                                                     --    * if the bot can't keep up with the number of commits, it'll run out of disk space.
+    enabled         boolean    NOT NULL DEFAULT TRUE, -- if this host is enabled.
+);
+
+-- host/master host relationships
+-- a host will do work for any of its master hosts and itself.
+-- TODO: add priority?
+CREATE TABLE MasterHost (
+    id              serial     PRIMARY KEY,
+    host_id         int        NOT NULL REFERENCES Host (id),
+    master_host_id  int        NOT NULL REFERENCES Host (id),
+    
+    UNIQUE (host_id, master_host_id)     
 );
 
 CREATE TABLE Lane (

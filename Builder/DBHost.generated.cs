@@ -32,11 +32,13 @@ namespace Builder
 		private string _description;
 		private string _architecture;
 		private int _queuemanagement;
+		private bool _enabled;
 
 		public string @host { get { return _host; } set { _host = value; } }
 		public string @description { get { return _description; } set { _description = value; } }
 		public string @architecture { get { return _architecture; } set { _architecture = value; } }
 		public int @queuemanagement { get { return _queuemanagement; } set { _queuemanagement = value; } }
+		public bool @enabled { get { return _enabled; } set { _enabled = value; } }
 
 
 		public override string Table
@@ -49,7 +51,7 @@ namespace Builder
 		{
 			get
 			{
-				return new string [] { "host", "description", "architecture", "queuemanagement" };
+				return new string [] { "host", "description", "architecture", "queuemanagement", "enabled" };
 			}
 		}
         

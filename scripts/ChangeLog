@@ -1,5 +1,9 @@
 2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* database.sql: Add support for disabling hosts.
+
+2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Makefile:
 	* database.sql: Add support for deletion directives.
 

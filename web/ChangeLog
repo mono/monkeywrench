@@ -1,5 +1,10 @@
 2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* EditHost.aspx:
+	* EditHost.aspx.cs: Add support for disabling hosts.
+
+2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditLane.js:
 	* EditLane.aspx:
 	* EditHosts.aspx:

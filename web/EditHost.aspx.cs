@@ -99,6 +99,7 @@ public partial class EditHost : System.Web.UI.Page
 				txtArchitecture.Text = host.architecture;
 				txtDescription.Text = host.description;
 				txtHost.Text = host.host;
+				chkEnabled.Checked = host.enabled;
 				cmbQueueManagement.SelectedIndex = host.queuemanagement;
 			}
 
@@ -150,6 +151,7 @@ public partial class EditHost : System.Web.UI.Page
 		host.architecture = txtArchitecture.Text;
 		host.description = txtDescription.Text;
 		host.queuemanagement = cmbQueueManagement.SelectedIndex;
+		host.enabled = chkEnabled.Checked;
 		host.Save (db);
 	}
 }

@@ -59,6 +59,9 @@
                 </td>
             </tr>
             <tr>
+            <td>Enabled</td><td><asp:CheckBox ID="chkEnabled" runat="server" /></td>
+            </tr>
+            <tr>
                 <td colspan='2'>
                     <center>
                         <asp:Button ID="cmdSave" runat="server" Text="Save" OnClick="cmdSave_Click" />
