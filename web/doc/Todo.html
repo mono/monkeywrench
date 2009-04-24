@@ -17,15 +17,26 @@
         <li>Configuration option: # of simultaneous running lanes on a host</li>
         <li>Configuration option: mark a lane as &quot;shouldn&#39;t ever run in parallel with
             any other lane&quot;</li>
-        <li>Dependency between lanes (revision A(command C) on lane Y requires revision B(command
-            D) on lane X to have completed successfully in order to execute)</li>
         <li>View/Edit builder config from the web ui (monkeywrench revision, config.sh)</li>
         <li>Request builder update (svn up -r 123) from the web ui</li>
+        <li>Auto configurable bots (download vm to machine, vm starts up and goes to work)</li>
+        <li>Multiple master hosts per host, and configurable from the web app</li>
+        <li>Move config.sh configuration to the web app</li>
+        <li>More discoverable links (something like: http://server/downloadfile/my-lane/my-host/123456/log.txt)</li>
+        <li>Predefined upload directory on the buildbot (everything in directory 'uploads' is uploaded after a step is executed)</li>
+        <li>Revision search and execute commands on that set of revisions (clear work, delete work, etc).</li>
+        <li>Filestorage on file system as an alternative to the db</li>
+        <li>Lane configuration: add possibility to specifi min revision by date </li>
+        <li>@Moonbuilder: AddFilesInDirectory</li>
+        <li>Use web service instead of ssh tunnels and direct db access.</li>
+        <li>Pause lane</li>
     </ul>
     <h3>
         Done
     </h3>
     <ul>
+        <li>Dependency between lanes (revision A(command C) on lane Y requires revision B(command
+            D) on lane X to have completed successfully in order to execute)</li>
         <li>Pause revisions/steps (unqueue them)</li>
         <li>Color code revision according to the current status of the revision in ViewTable.aspx</li>
         <li>Paging in ViewTable.aspx</li>

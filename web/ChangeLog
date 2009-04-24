@@ -1,5 +1,9 @@
 2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* doc/Todo.html: Updated.
+
+2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditHost.aspx:
 	* EditHost.aspx.cs: Add support for disabling hosts.
 
