@@ -111,33 +111,42 @@ public partial class ViewTable2 : System.Web.UI.Page
 		if (page > pages - 1)
 			page = pages - 1;
 
-		int range = 3;
+		int range = 5;
 		pager.AppendFormat("<p> Page&nbsp;");
-		if (pages < (range + limit)) {
+		if (pages < (range * 2)) {
 			for (int i = 0; i < pages; i++) {
 				pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
 			} 
 		} else {
-			if (page < (range + 1)) {
+			if (page <= (range + 1)) {
 				for (int i = 0; i < (page + range); i++) {
-					pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
+					if (page == i)
+						pager.Append(string.Format("<b>{0}</b>",i+1));
+					else
+						pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
 				}
 				pager.AppendFormat ("...");
 				pager.Append(GeneratePageLink(host.id,lane.id,pages-2,limit));
 				pager.Append(GeneratePageLink(host.id,lane.id,pages-1,limit));
-			} else if (page > (pages - range)) {
+			} else if (page > (pages - range - 4)) {
 				pager.Append(GeneratePageLink(host.id,lane.id,1,limit));
 				pager.Append(GeneratePageLink(host.id,lane.id,2,limit));
 				pager.AppendFormat ("...");
 				for (int i = page-range; i < pages; i++) {
-					pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
+					if (page == i)
+						pager.Append(string.Format("<b>{0}</b>",i+1));
+					else
+						pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
 				}
 			} else {
 				pager.Append(GeneratePageLink(host.id,lane.id,1,limit));
 				pager.Append(GeneratePageLink(host.id,lane.id,2,limit));
 				pager.AppendFormat ("...");
 				for (int i = page - range; i < page + range; i++) {
-					pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
+					if (page == i)
+						pager.Append(string.Format("<b>{0}</b>",i+1));
+					else
+						pager.Append(GeneratePageLink(host.id,lane.id,i+1,limit));
 				}
 				pager.AppendFormat ("...");
 				pager.Append(GeneratePageLink(host.id,lane.id,pages-2,limit));
