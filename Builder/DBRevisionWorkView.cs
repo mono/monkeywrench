@@ -1,4 +1,4 @@
-﻿/*
+/*
  *
  * Contact:
  *   Moonlight List (moonlight-list@lists.ximian.com)
@@ -9,6 +9,8 @@
  *
  */
 
+
+#pragma warning disable 649
 
 using System;
 using System.Collections.Generic;
@@ -21,12 +23,17 @@ namespace Builder
 {
 	public partial class DBRevisionWorkView : DBView
 	{
+		private string _workhost;
+
+		public string workhost { get { return _workhost; } }
+
 		public DBState State
 		{
 			get { return (DBState) state; }
 		}
 
-		public DBState RevisionWorkState {
+		public DBState RevisionWorkState
+		{
 			get { return (DBState) revisionwork_state; }
 		}
 
@@ -62,12 +69,14 @@ SELECT RevisionWork.id, Revision.revision
 		Command.command, 
 		Command.nonfatal, Command.alwaysexecute, Command.sequence, Command.internal,
 		RevisionWork.lane_id, RevisionWork.host_id, RevisionWork.revision_id, 
-		RevisionWork.state AS revisionwork_state
+		RevisionWork.state AS revisionwork_state,
+		WorkHost.host AS workhost
 	FROM Work
 	INNER JOIN RevisionWork ON Work.revisionwork_id = RevisionWork.id
 	INNER JOIN Revision ON RevisionWork.revision_id = Revision.id 
 	INNER JOIN Lane ON RevisionWork.lane_id = Lane.id 
 	INNER JOIN Host ON RevisionWork.host_id = Host.id 
+	LEFT JOIN Host AS WorkHost ON RevisionWork.workhost_id = WorkHost.id
 	INNER JOIN Command ON Work.command_id = Command.id
 	WHERE
 		Work.revisionwork_id IN (SELECT id FROM revisionwork_temptable)
@@ -78,11 +87,11 @@ SELECT RevisionWork.id, Revision.revision
 					DB.CreateParameter (cmd, "host_id", host.id);
 					DB.CreateParameter (cmd, "limit", limit);
 					DB.CreateParameter (cmd, "offset", page * limit);
-				
+
 					using (IDataReader reader = cmd.ExecuteReader ()) {
-							while (reader.Read ()) {
-								result.Add (new DBRevisionWorkView (reader));
-							}
+						while (reader.Read ()) {
+							result.Add (new DBRevisionWorkView (reader));
+						}
 					}
 				}
 

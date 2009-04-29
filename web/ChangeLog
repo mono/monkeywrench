@@ -1,3 +1,7 @@
+2009-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ViewTable2.aspx.cs: Add the work host to the table.
+
 2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ViewLaneFileHistory.aspx:

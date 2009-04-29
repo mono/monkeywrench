@@ -214,6 +214,7 @@ public partial class ViewTable2 : System.Web.UI.Page
 			header.Insert (1, "Author");
 			if (Login != null)
 				header.Insert (2, "Select");
+			header.Add ("Host");
 			result_index = Login != null ? 3 : 2;
 			table.Add (header);
 
@@ -234,8 +235,9 @@ public partial class ViewTable2 : System.Web.UI.Page
 					row.Add (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>{1}</a></td>", view.revision_id, view.author));
 					if (Login != null)
 						row.Add (string.Format ("<input type=checkbox name='revision_id_{0}' />", view.revision_id));
-					while (row.Count < header.Count)
+					while (row.Count < header.Count - 1)
 						row.Add ("-");
+					row.Add (view.workhost ?? "");
 					header_classes.Add (view.RevisionWorkState.ToString ().ToLower ());
 					failed = false;
 				}
@@ -280,8 +282,12 @@ public partial class ViewTable2 : System.Web.UI.Page
 					matrix.Append ("<tr>");
 					for (int j = 0; j < table.Count; j++) {
 						string td = j == 0 ? "th" : "td";
-						if (i == 0 && j > 0) {
-							matrix.AppendFormat ("<{0} class='{1}'>", td, header_classes [j - 1]);
+						if ((i == 0 || i == row.Count - 1) && j > 0) {
+							if (i == row.Count - 1) {
+								matrix.AppendFormat ("<{0} class='{1}' style='white-space: nowrap;'>", td, header_classes [j - 1]);
+							} else {
+								matrix.AppendFormat ("<{0} class='{1}'>", td, header_classes [j - 1]);
+							}
 						} else if (i >= result_index && j > 1) {
 							matrix.AppendFormat ("<{0} class='{1}'>", td, table [j] [i]);
 						} else {
@@ -298,8 +304,12 @@ public partial class ViewTable2 : System.Web.UI.Page
 					matrix.Append ("<tr>\n");
 					for (int j = 0; j < row.Count; j++) {
 						string td = j == 0 ? "th" : "td";
-						if (j == 0 & i > 0) {
-							matrix.AppendFormat ("\t<{0} class='{1}'>", td, header_classes [i - 1]);
+						if ((j == 0 || j == row.Count - 1) & i > 0) {
+							if (j == row.Count - 1) {
+								matrix.AppendFormat ("\t<{0} class='{1}' style='white-space: nowrap;'>", td, header_classes [i - 1]);
+							} else {
+								matrix.AppendFormat ("\t<{0} class='{1}'>", td, header_classes [i - 1]);
+							}
 						} else if (j >= result_index && row [j] != "-" && i > 0) {
 							matrix.AppendFormat ("\t<{0} class='{1}'>", td, row [j]);
 						} else {

@@ -1,3 +1,19 @@
+/*
+ *
+ * Contact:
+ *   Moonlight List (moonlight-list@lists.ximian.com)
+ *
+ * Copyright 2008 Novell, Inc. (http://www.novell.com)
+ *
+ * See the LICENSE file included with the distribution for details.
+ *
+ */
+
+/*
+ * This file has been generated. 
+ * If you modify it you'll loose your changes.
+ */ 
+
 
 using System;
 using System.Collections.Generic;
@@ -12,9 +28,6 @@ namespace Builder
 {
 	public partial class DBRevisionWorkView : DBView
 	{
-		private int _revision_id;
-		private int _lane_id;
-		private int _host_id;
 		private int _command_id;
 		private int _state;
 		private DateTime _starttime;
@@ -30,11 +43,11 @@ namespace Builder
 		private bool _alwaysexecute;
 		private int _sequence;
 		private bool _internal;
+		private int _lane_id;
+		private int _host_id;
+		private int _revision_id;
 		private int _revisionwork_state;
 
-		public int @revision_id { get { return _revision_id; } }
-		public int @lane_id { get { return _lane_id; } }
-		public int @host_id { get { return _host_id; } }
 		public int @command_id { get { return _command_id; } }
 		public int @state { get { return _state; } }
 		public DateTime @starttime { get { return _starttime; } }
@@ -50,15 +63,19 @@ namespace Builder
 		public bool @alwaysexecute { get { return _alwaysexecute; } }
 		public int @sequence { get { return _sequence; } }
 		public bool @internal { get { return _internal; } }
+		public int @lane_id { get { return _lane_id; } }
+		public int @host_id { get { return _host_id; } }
+		public int @revision_id { get { return _revision_id; } }
 		public int @revisionwork_state { get { return _revisionwork_state; } }
 
 
 
+		private static string [] _fields_ = new string [] { "id", "command_id", "state", "starttime", "duration", "logfile", "summary", "host", "lane", "author", "revision", "command", "nonfatal", "alwaysexecute", "sequence", "internal", "lane_id", "host_id", "revision_id", "revisionwork_state", "workhost" };
 		public override string [] Fields
 		{
 			get
 			{
-				return new string [] { "id", "revision_id", "lane_id", "host_id", "command_id", "state", "starttime", "duration", "logfile", "summary", "host", "lane", "author", "revision", "command", "nonfatal", "alwaysexecute", "sequence", "internal", "revisionwork_state" };
+				return _fields_;
 			}
 		}
         

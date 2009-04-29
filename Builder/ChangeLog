@@ -1,3 +1,10 @@
+2009-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* CustomTypes.sql:
+	* DBRevisionWorkView.cs: Include WorkHost in RevisionWorkView.
+
+	* DBRevisionWorkView.generated.cs: Regenerated.
+
 2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs:

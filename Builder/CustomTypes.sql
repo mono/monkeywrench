@@ -15,17 +15,20 @@
 -- 
 CREATE VIEW RevisionWorkView AS 
 	SELECT 
-		Work.id, Work.revision_id, Work.lane_id, Work.host_id, Work.command_id, Work.state, Work.starttime, Work.endtime, Work.duration, Work.logfile, Work.summary, 
+		Work.id, Work.command_id, Work.state, Work.starttime, Work.duration, Work.logfile, Work.summary, 
 		Host.host, 
 		Lane.lane, 
 		Revision.author, Revision.revision, 
 		Command.command, 
 		Command.nonfatal, Command.alwaysexecute, Command.sequence, Command.internal,
-		RevisionWork.state AS revisionwork_state
+		RevisionWork.lane_id, RevisionWork.host_id, RevisionWork.revision_id, 
+		RevisionWork.state AS revisionwork_state,
+		WorkHost.host AS workhost
 	FROM Work
 	INNER JOIN Revision ON Work.revision_id = Revision.id 
 	INNER JOIN Lane ON Work.lane_id = Lane.id 
 	INNER JOIN Host ON Work.host_id = Host.id 
+	INNER JOIN Host AS WorkHost ON RevisionWork.workhost_id = WorkHost.id
 	INNER JOIN Command ON Work.command_id = Command.id
 	INNER JOIN RevisionWork ON Work.revisionwork_id = RevisionWork.id
 	WHERE 
