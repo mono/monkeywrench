@@ -1,3 +1,8 @@
+2009-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* updatemono.sh: Added script to have a parallel mono for the
+	  buildbot.
+
 2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: Add support for disabling hosts.
