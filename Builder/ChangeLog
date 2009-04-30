@@ -1,3 +1,8 @@
+2009-05-01  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Remove dead code and add a suggested work around
+	  for runtime bug# 499702.
+
 2009-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* CustomTypes.sql:

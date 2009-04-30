@@ -73,10 +73,11 @@ namespace Builder
 					}
 				}
 				Logger.Log ("Builder finished successfully.");
-
+				Environment.Exit (0); // Work around #499702
 				return 0;
 			} catch (Exception ex) {
 				Logger.Log ("An exception occurred: {0}", ex.ToString ());
+				Environment.Exit (1); // Work around #499702
 				return 1;
 			}
 		}
@@ -481,35 +482,12 @@ namespace Builder
 						threads [i].Start (infos [i]);
 					}
 
-					// Wait until all threads have stopped or the max timeout + 15 minutes has passed.
-					// Give a max of max timeout + 15 minutes before all threads must have stopped.
-					DateTime start = DateTime.Now;
-					DateTime end = start.AddMinutes (timeout + 15);
-					for (int i = 0; i < threads.Count; i++) {
-						//DateTime now = DateTime.Now;
-						//TimeSpan duration;
-
+					// Wait until all threads have stopped.
+					// Don't try to abort the threads after a certain time has passed
+					// when threads are aborted they leave things in a pretty messed-up state,
+					// and that pain is worse than the one caused if something hangs.
+					for (int i = 0; i < threads.Count; i++)
 						threads [i].Join ();
-
-						/*
-						if (end <= DateTime.Now) {
-							if (threads [i].ThreadState != System.Threading.ThreadState.Stopped) {
-								Logger.Log ("Aborting thread #{0}, time is up.", i);
-								threads [i].Abort ();
-								Thread.Sleep (1000);
-							}
-						} else {
-							duration = end - now;
-							if (threads [i].ThreadState != System.Threading.ThreadState.Stopped) {
-								if (!threads [i].Join (duration)) {
-									Logger.Log ("Aborting thread #{0}, join timed out.", i);
-									threads [i].Abort ();
-									Thread.Sleep (1000);
-								}
-							}
-						}
-						*/
-					}
 
 					for (int i = 0; i < infos.Count; i++) {
 						if (infos [i].work.State == DBState.Aborted) {
