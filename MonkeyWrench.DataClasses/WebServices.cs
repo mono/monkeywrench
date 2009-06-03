@@ -48,11 +48,16 @@ namespace MonkeyWrench.Web.WebServices
 
 		public string CreateWebServiceDownloadUrl (int workfile_id)
 		{
+			return CreateWebServiceDownloadUrl (workfile_id, WebServiceLogin);
+		}
+
+		public static string CreateWebServiceDownloadUrl (int workfile_id, WebServiceLogin login)
+		{
 			string uri = CreatePage ("Download.aspx");
 			uri += "?";
-			uri += "cookie=" + WebServiceLogin.Cookie;
-			uri += "&ip4=" + WebServiceLogin.Ip4;
-			uri += "&user=" + WebServiceLogin.User;
+			uri += "cookie=" + login.Cookie;
+			uri += "&ip4=" + login.Ip4;
+			uri += "&user=" + login.User;
 			uri += "&workfile_id=" + workfile_id.ToString ();
 			return uri;
 

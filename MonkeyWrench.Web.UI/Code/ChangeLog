@@ -1,0 +1,4 @@
+2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.cs: Refactor CreateWebServiceDownloadUrl into
+	two separate methods.

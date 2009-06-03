@@ -1,0 +1,3 @@
+2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Utils.cs: Don't hardcode the path to the web service.

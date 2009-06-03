@@ -173,16 +173,13 @@ public static class Utils
 	}
 
 	private static WebServices web_service;
-	public const string WebServiceUrl = "http://192.168.1.4:8123/WebServices/";
 
 	public static WebServices WebService
 	{
 		get
 		{
-			if (web_service == null) {
-				web_service = new WebServices ();
-				web_service.Url = WebServiceUrl + "WebServices.asmx";
-			}
+			if (web_service == null) 
+				web_service = WebServices.Create ();
 			return web_service;
 		}
 	}
@@ -203,15 +200,7 @@ public static class Utils
 
 	public static string CreateWebServiceDownloadUrl (HttpRequest Request, int workfile_id)
 	{
-		WebServiceLogin login = Utils.CreateWebServiceLogin (Request);
-		string uri = Utils.WebServiceUrl + "Download.aspx";
-		uri += "?";
-		uri += "cookie=" + login.Cookie;
-		uri += "&ip4=" + login.Ip4;
-		uri += "&user=" + login.User;
-		uri += "&workfile_id=" + workfile_id.ToString ();
-		return uri;
-
+		return WebServices.CreateWebServiceDownloadUrl (workfile_id, Utils.CreateWebServiceLogin (Request));
 	}
 
 	public static bool IsInRole (string role)
