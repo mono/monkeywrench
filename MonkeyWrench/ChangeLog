@@ -1,0 +1,4 @@
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.cs: Moved documentation to html file.
+

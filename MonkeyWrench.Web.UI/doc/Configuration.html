@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Configuration</title>
+</head>
+<body>
+    <h1>
+        Configuration</h1>
+    <h2>
+        Location</h2>
+    The configuration is stored in a file called MonkeyWrench.xml (for both server and buildbots).<br />
+    The file is searched for in the following locations (and in this order):
+    <ol>
+        <li>The environment variable MONKEYWRENCH_CONFIG_FILE (the full path of the file, which in this case does not have to be named 'MonkeyWrench.xml')</li>
+        <li>The current directory</li>
+        <li>~/.config/MonkeyWrench (linux only)</li>
+        <li>/etc (linux only)</li>
+    </ol>
+    <h2>
+        Format</h2>
+    MonkeyWrench.xml is an xml file with the following elements:
+    <pre>
+&lt;MonkeyWrench Version=&quot;2&quot;&gt;
+    &lt;Configuration&gt;
+        &lt;DataDirectory /&gt;
+        &lt;DatabaseDirectory /&gt;
+        &lt;Host /&gt;
+        &lt;LogFile /&gt;
+        &lt;WebServiceUrl /&gt;
+        &lt;ForceFullUpdate&gt;true|false&lt;/ForceFullUpdate&gt;
+        &lt;WebServicePassword /&gt;
+        &lt;DatabaseHost /&gt;
+        &lt;DatabasePort /&gt;
+    &lt;/Configuration&gt;
+&lt;/MonkeyWrench&gt;
+</pre>
+    All values can also be set with the equivalent (case insensitive) command line arguments (which override the configuration file)
+    <h3>DataDirectory</h3>
+    Data directory.<br />
+    Defaults to ~/monkeywrench/data.<br />
+    For buildbots: The directory of the build data.<br />
+    For web server: The post commit hook reports are stored in this directory (in the commits subdirectory)<br />
+    For database server: The files in the database are stored in this directory (in the db/files subdirectory)
+    <h3>Host</h3>
+    The name of the current host. Only relevant for buildbots (in which case it is required).
+    <h3>LogFile</h3>
+    The log file. Defaults to MonkeyWrench.log in the tmp directory (which is platform specific).
+    <h3>WebServiceUrl</h3>
+    The url (http://host[:port]/...) for the web service. Required for buildbots and web server.
+    <h3>ForceFullUpdate</h3>
+    Specifies if a full update should be performed on the database (as opposed to only update what was reported through post-commit hooks, etc).<br />
+    Only relevant for database/web server. Defaults to true. Possible values: 'true' or 'false'
+    <h3>WebServicePassword</h3>
+    If required, a password to log into the web service.
+    <h3>DatabaseDirectory</h3>
+    <h3>DatabaseHost</h3>
+    The host machine of the database. Defaults to 'localhost'.
+    <h3>DatabasePort</h3>
+    The port to use to connect to the database.
+    <h2>Sample configuration</h2>
+    This is a sample configuration file for a buildbot:
+    <pre>
+&lt;MonkeyWrench Version=&quot;2&quot;&gt; 
+    &lt;Configuration&gt; 
+        &lt;WebServiceUrl&gt;http://151.155.5.5/WebServices/&lt;/WebServiceUrl&gt;
+        &lt;WebServicePassword&gt;sample-password&lt;/WebServicePassword&gt;
+        &lt;Host&gt;sample-buildbot&lt;/Host&gt;
+        &lt;DataDirectory&gt;/home/builder/monkeywrench/data&lt;/DataDirectory&gt;
+    &lt;/Configuration&gt;
+&lt;/MonkeyWrench&gt;
+    </pre>
+    
+</body>
+</html>

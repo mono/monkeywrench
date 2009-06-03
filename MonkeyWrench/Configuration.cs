@@ -23,68 +23,13 @@ namespace MonkeyWrench
 {
 	public static class Configuration
 	{
-		/*
-		 * The configuration is stored in an xml file whose schema looks like this:
-		 * (see xml comments for more information about each entry)
-		 * <MonkeyWrench Version="2">
-		 *   <Configuration>
-		 *	   <DataDirectory />
-		 *	   <DatabaseDirectory />
-		 *	   <Host />
-		 *	   <LogFile />
-		 *	   <WebServiceUrl />
-		 *	   <ForceFullUpdate>true|false</ForceFullUpdate>
-		 *	   <WebServicePassword />
-		 *	   <DatabaseHost />
-		 *	   <DatabasePort />
-		 *   </Configuration>
-		 * </MonkeyWrench>
-		 * 
-		 * All values can also be set with the equivalent (case insensitive) command line arguments (which override the configuration file)
-		 */
-
-		/// <summary>
-		/// The log file. Defaults to MonkeyWrench.log in the tmp directory (which is platform specific).
-		/// </summary>
 		public static string LogFile = Path.Combine (Path.GetTempPath (), "MonkeyWrench.log");
-
-		/// <summary>
-		/// Data directory. Defaults to ~/monkeywrench/data.
-		/// For buildbots: The directory of the build data.
-		/// For web server: Used to derive the paths where the post commit hook reports are stored.
-		/// For database server: User to derive the paths where the database is.
-		/// </summary>
 		public static string DataDirectory = Path.Combine (Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.Personal), "monkeywrench"), "data");
-
-		/// <summary>
-		/// The name of the current host. Only relevant for buildbots (in which case it is required).
-		/// </summary>
 		public static string Host;
-
-		/// <summary>
-		/// The url (http://host[:port]/...) for the web service. Required for buildbots and web server.
-		/// </summary>
 		public static string WebServiceUrl;
-
-		/// <summary>
-		/// Specifies if a full update should be performed on the database (as opposed to only update what was reported through post-commit hooks, etc).
-		/// Only relevant for database/web server. Defaults to true.
-		/// </summary>
 		public static bool ForceFullUpdate = true;
-
-		/// <summary>
-		/// If required, a password to log into the web service.
-		/// </summary>
 		public static string WebServicePassword;
-
-		/// <summary>
-		/// The host machine of the database. Defaults to 'localhost'.
-		/// </summary>
 		public static string DatabaseHost = "localhost";
-
-		/// <summary>
-		/// The port to use to connect to the database.
-		/// </summary>
 		public static string DatabasePort;
 
 		private static string GetNodeValue (this XmlNode node, string @default)
@@ -202,17 +147,6 @@ namespace MonkeyWrench
 		/// <returns></returns>
 		public static bool LoadConfiguration (string [] arguments)
 		{
-			//
-			// Possible locations of the configuration file (MonkeyWrench.xml) - in this order:
-			// 
-			// $MONKEYWRENCH_CONFIG_FILE (with this env variable the file can be named anything)
-			// $(PWD)/MonkeyWrench.xml
-			// linux specifics paths:
-			// $(HOME)/.config/MonkeyWrench/MonkeyWrench.xml
-			// /etc/MonkeyWrench.xml
-			// windows specific paths:
-			// (todo)
-
 			if (!LoadConfiguration (arguments, Environment.GetEnvironmentVariable ("MONKEYWRENCH_CONFIG_FILE"))) {
 				if (!LoadConfiguration (arguments, Path.Combine (Environment.CurrentDirectory, "MonkeyWrench.xml"))) {
 					switch (Environment.OSVersion.Platform) {
@@ -225,7 +159,7 @@ namespace MonkeyWrench
 						return false;
 					default:
 						// if not windows, we assume linux
-						if (!LoadConfiguration (arguments, Path.Combine (Environment.GetEnvironmentVariable ("HOME"), Path.Combine (Path.Combine (".config","MonkeyWrench"), "MonkeyWrench.xml")))) {
+						if (!LoadConfiguration (arguments, Path.Combine (Environment.GetEnvironmentVariable ("HOME"), Path.Combine (Path.Combine (".config", "MonkeyWrench"), "MonkeyWrench.xml")))) {
 							if (!LoadConfiguration (arguments, "/etc/MonkeyWrench.xml")) {
 								Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not find the configuration file 'MonkeyWrench.xml'.");
 								return false;
@@ -242,7 +176,8 @@ namespace MonkeyWrench
 
 		public static string ApplicationName
 		{
-			get { 
+			get
+			{
 				if (System.Reflection.Assembly.GetEntryAssembly () != null)
 					return System.Reflection.Assembly.GetEntryAssembly ().GetName ().Name;
 				if (System.Reflection.Assembly.GetCallingAssembly () != null)
