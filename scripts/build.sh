@@ -4,4 +4,4 @@
 # Script to execute builder
 #
 
-make build -C `dirname $0`\..
+make build -C `dirname $0`/..
