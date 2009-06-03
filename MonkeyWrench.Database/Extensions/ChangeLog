@@ -1,0 +1,5 @@
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBWork_Extensions.cs: Propagate the extension correctly
+	on file upload to set the mime type correctly.
+

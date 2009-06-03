@@ -247,7 +247,7 @@ namespace MonkeyWrench
 		/// </summary>
 		/// <param name="Filename"></param>
 		/// <returns></returns>
-		public DBFile Upload (string Filename, bool hidden)
+		public DBFile Upload (string Filename, string extension, bool hidden)
 		{
 			IDbTransaction transaction = null;
 			LargeObjectManager manager;
@@ -307,7 +307,7 @@ namespace MonkeyWrench
 				result.md5 = md5;
 				result.size = (int) filesize;
 				result.hidden = hidden;
-				switch (Path.GetExtension (Filename).ToLower ()) {
+				switch (extension.ToLower ()) {
 				case ".log":
 				case ".txt":
 				case ".html":
