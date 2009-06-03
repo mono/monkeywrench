@@ -274,8 +274,8 @@ WHERE
 					}
 
 					// if we already have steps, don't add steps with higher sequence numbers
-					//if (result.Count > 0 && result [0].sequence != steps [i].sequence)
-					//	continue;
+					if (result.Count > 0 && result [0].sequence != steps [i].sequence)
+						continue;
 
 					result.Add (steps [i]);
 				} else if (steps [i].State == DBState.Paused) {
