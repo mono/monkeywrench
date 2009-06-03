@@ -237,7 +237,7 @@ CREATE TABLE Person ( -- 'User' is a reserved word in sql...
 	password       text      NOT NULL DEFAULT '', -- the password (in plain text)
 	fullname       text      NOT NULL DEFAULT '', -- the full name of the user
 	roles          text      NULL DEFAULT NULL,   -- comma separated list of roles the user is member of
-                                                  -- current values: <none>, Administrator 
+                                                  -- current values: <none>, Administrator, BuildBot
 	UNIQUE (login)
 );
 INSERT INTO Person (login, password, fullname, roles) VALUES ('admin', 'admin', 'admin', 'Administrator');
