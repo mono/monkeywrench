@@ -1,3 +1,9 @@
+2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ViewWorkTable.aspx.designer.cs: Updated.
+
+	* ViewWorkTable.aspx: Remove Title, the master page sets it.
+
 2009-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ViewTable2.aspx.cs: Add the work host to the table.
