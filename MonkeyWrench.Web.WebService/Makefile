@@ -33,6 +33,7 @@ clean:
 	rm -f bin/*.dll bin/*.mdb bin/*.pdb
 
 publish: all
+	mkdir -p bin
 	cp $(OUT)* bin
 	cp -p $(OUT_DIR)/Npgsql.dll* bin
 	cp -p $(OUT_DIR)/MonkeyWrench.dll* bin
