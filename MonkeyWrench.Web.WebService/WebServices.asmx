@@ -1271,16 +1271,13 @@ ORDER BY revision DESC LIMIT 250;
                         if (revisionwork == null)
                             continue;
                         
-                        Console.WriteLine ("A: {0}", revisionwork == null);
                         if (revisionwork.workhost_id != response.Host.id)
                             continue; // couldn't lock this revisionwork.
 
-                        Console.WriteLine ("B");
                         DBRevision revision = DBRevision_Extensions.Create (db, revisionwork.revision_id);
                         List<DBWorkFile> files_to_download = null;
                         List<DBLane> dependent_lanes = null;
 
-                        Console.WriteLine ("C");
                         // get dependent files
                         List<DBLaneDependency> dependencies = lane.GetDependencies (db);
                         if (dependencies != null && dependencies.Count > 0) {
