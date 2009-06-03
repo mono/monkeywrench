@@ -1,20 +1,23 @@
-default:
+default: all
 	@:
 
 SVN_EXEC_FILES = $(wildcard scripts/*.sh)
 SVN_NO_EXEC_FILES = \
-	$(wildcard Builder/*.cs)	\
+	$(wildcard */*.cs)			\
+	$(wildcard */*/*.cs)		\
+	$(wildcard */*/*/*.cs)		\
 	$(wildcard */*.sql)			\
-	$(wildcard web/*.cs)		\
-	$(wildcard web/*.aspx)		\
-	$(wildcard web/*.js)		\
+	$(wildcard */*.aspx)		\
+	$(wildcard */*.js)			\
 	$(wildcard web/doc/*)		\
-	$(wildcard web/*.css)		\
-	$(wildcard web/*.master)	\
-	web/web.config				\
-	Makefile				\
-	*/Makefile				\
-	LICENSE					\
+	$(wildcard */*.css)			\
+	$(wildcard */*.master)		\
+	$(wildcard */web.config)	\
+	$(wildcard */Web.config)	\
+	$(wildcard */*.csproj)		\
+	Makefile					\
+	$(wildcard */Makefile)		\
+	LICENSE						\
 	README					
 	
 SVN_EOL_FILES = $(SVN_EXEC_FILES) $(SVN_NO_EXEC_FILES)
@@ -26,3 +29,44 @@ svn:
 	svn pd svn:executable $(SVN_NO_EXEC_FILES)
 	svn ps svn:executable $(SVN_EXEC_FILES)
 	
+all clean publish install:
+	$(MAKE) -C MonkeyWrench $@
+	$(MAKE) -C MonkeyWrench.DataClasses $@
+	$(MAKE) -C MonkeyWrench.Database $@
+	$(MAKE) -C MonkeyWrench.Scheduler $@
+	$(MAKE) -C MonkeyWrench.Builder $@
+	$(MAKE) -C MonkeyWrench.Web.UI $@
+	$(MAKE) -C MonkeyWrench.Web.WebService $@
+
+wsdl:
+	$(MAKE) -C MonkeyWrench.Web.WebService $@
+
+build: all
+	mono --debug class/lib/MonkeyWrench.Builder.exe
+
+schedule update: all
+	mono --debug class/lib/MonkeyWrench.Scheduler.exe
+
+web: all
+	scripts/web.sh
+
+generate:
+	$(MAKE) -C MonkeyWrench.DataClasses $@
+
+#
+#clean-large-objects: filemanager
+#	mono --debug bin/Builder.FileManager.exe clean-large-objects
+#
+#compress-files: filemanager
+#	mono --debug bin/Builder.FileManager.exe compress-files
+#
+#execute-deletion-directives: filemanager
+#	mono --debug bin/Builder.FileManager.exe execute-deletion-directives
+#
+
+zip:
+	echo "Not implemented yet"
+	exit 1
+
+	
+

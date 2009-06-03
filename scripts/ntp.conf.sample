@@ -1,9 +1,0 @@
-# Taken from page 18 in http://www.vmware.com/pdf/vmware_timekeeping.pdf
-
-tinker panic 0
-restrict 127.0.0.1
-restrict default kod nomodify notrap
-server 0.vmware.pool.ntp.org
-server 1.vmware.pool.ntp.org
-server 2.vmware.pool.ntp.org
-server 3.vmware.pool.ntp.org

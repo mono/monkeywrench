@@ -10,26 +10,20 @@
 # create: creates the db (and starts it). if the database already exists, an error is returned.
 # delete: stops the db and deletes all files. if the database doesn't exist, this option does nothing.
 #
-# if no argument is specified, it defaults to 'start' if the database files are found, otherwise 'create'
-#
-
-SCRIPT_DIR=`dirname $0`
-
-echo SCRIPT_DIR=$SCRIPT_DIR
-
-source $SCRIPT_DIR/config.sh
 
 # derive some paths from the config sourced above
-export BUILDER_DATA_DB=$BUILDER_DATA/db
+export BUILDER_DATA_DB=`getcfgvar.pl /MonkeyWrench/Configuration/DatabaseDirectory`
+export BUILDER_DATA_PORT=`getcfgvar.pl /MonkeyWrench/Configuration/DatabasePort`
 export BUILDER_DATA_DB_DATA=$BUILDER_DATA_DB/data
 export BUILDER_DATA_DB_LOGS=$BUILDER_DATA_DB/logs
 
 # some postgres variables
+export PGPORT=$BUILDER_DATA_PORT
 export PGDATA=$BUILDER_DATA_DB_DATA
 
 # verify variables
-if [[ "x$2" != "x" ]]; then
-	echo Too many arguments, only one is possible.
+if [[ "x$1" == "x" || "x$2" != "x" ]]; then
+	echo "Syntax: $0 [start|stop|create|delete|pgsql]"
 	exit 1
 fi
 
@@ -74,15 +68,11 @@ case "$1" in
 			CMD=delete
 		fi
 		;;
-	"")
-		if [[ "x$EXISTS" == "x0" ]]; then
-			CMD=create
-		else
-			CMD=start
-		fi
+	psql)
+		CMD=psql
 		;;
 	*)
-		echo Invalid option: $1
+		echo "Invalid option: $1 (must be either start, stop, create or delete)"
 		exit 1
 		;;
 esac
@@ -115,6 +105,9 @@ case "$CMD" in
 	start)
 		# start the database
 		pg_ctl -l $BUILDER_DATA_DB_LOGS/logfile start
+		;;
+	psql)
+		psql --user builder --db builder
 		;;
 	*)
 		echo "Invalid command: $CMD"

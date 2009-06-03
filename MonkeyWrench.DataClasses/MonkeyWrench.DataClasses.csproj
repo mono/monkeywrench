@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A461423E-8232-42D6-AA34-8DEC97F6D8F8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MonkeyWrench.DataClasses</RootNamespace>
+    <AssemblyName>MonkeyWrench.DataClasses</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Database\DBCommand.cs" />
+    <Compile Include="Database\DBCommand.generated.cs" />
+    <Compile Include="Database\DBDeleteCondition.cs" />
+    <Compile Include="Database\DBEnvironmentVariable.cs" />
+    <Compile Include="Database\DBEnvironmentVariable.generated.cs" />
+    <Compile Include="Database\DBFile.cs" />
+    <Compile Include="Database\DBFile.generated.cs" />
+    <Compile Include="Database\DBFileDeletionDirective.cs" />
+    <Compile Include="Database\DBFileDeletionDirective.generated.cs" />
+    <Compile Include="Database\DBHost.cs" />
+    <Compile Include="Database\DBHost.generated.cs" />
+    <Compile Include="Database\DBHostLane.cs" />
+    <Compile Include="Database\DBHostLane.generated.cs" />
+    <Compile Include="Database\DBHostLaneView.cs" />
+    <Compile Include="Database\DBHostLaneView.generated.cs" />
+    <Compile Include="Database\DBLane.cs" />
+    <Compile Include="Database\DBLane.generated.cs" />
+    <Compile Include="Database\DBLaneDeletionDirective.cs" />
+    <Compile Include="Database\DBLaneDeletionDirective.generated.cs" />
+    <Compile Include="Database\DBLaneDeletionDirectiveView.cs" />
+    <Compile Include="Database\DBLaneDeletionDirectiveView.generated.cs" />
+    <Compile Include="Database\DBLaneDependency.cs" />
+    <Compile Include="Database\DBLaneDependency.generated.cs" />
+    <Compile Include="Database\DBLaneDependencyCondition.cs" />
+    <Compile Include="Database\DBLanefile.cs" />
+    <Compile Include="Database\DBLanefile.generated.cs" />
+    <Compile Include="Database\DBLanefiles.cs" />
+    <Compile Include="Database\DBLanefiles.generated.cs" />
+    <Compile Include="Database\DBLogin.cs" />
+    <Compile Include="Database\DBLogin.generated.cs" />
+    <Compile Include="Database\DBLoginView.cs" />
+    <Compile Include="Database\DBLoginView.generated.cs" />
+    <Compile Include="Database\DBMasterHost.cs" />
+    <Compile Include="Database\DBMasterHost.generated.cs" />
+    <Compile Include="Database\DBMatchMode.cs" />
+    <Compile Include="Database\DBPerson.cs" />
+    <Compile Include="Database\DBPerson.generated.cs" />
+    <Compile Include="Database\DBQueueManagement.cs" />
+    <Compile Include="Database\DBRecord.cs" />
+    <Compile Include="Database\DBRevision.cs" />
+    <Compile Include="Database\DBRevision.generated.cs" />
+    <Compile Include="Database\DBRevisionWork.cs" />
+    <Compile Include="Database\DBRevisionWork.generated.cs" />
+    <Compile Include="Database\DBRevisionWorkView.cs" />
+    <Compile Include="Database\DBRevisionWorkView.generated.cs" />
+    <Compile Include="Database\DBRevisionWorkView2.cs" />
+    <Compile Include="Database\DBRevisionWorkView2.generated.cs" />
+    <Compile Include="Database\DBState.cs" />
+    <Compile Include="Database\DBView.cs" />
+    <Compile Include="Database\DBWork.cs" />
+    <Compile Include="Database\DBWork.generated.cs" />
+    <Compile Include="Database\DBWorkFile.cs" />
+    <Compile Include="Database\DBWorkFile.generated.cs" />
+    <Compile Include="Database\DBWorkFileView.cs" />
+    <Compile Include="Database\DBWorkFileView.generated.cs" />
+    <Compile Include="Database\DBWorkView2.cs" />
+    <Compile Include="Database\DBWorkView2.generated.cs" />
+    <Compile Include="Logic\BuildInfoEntry.cs" />
+    <Compile Include="Logic\FindLaneResponse.cs" />
+    <Compile Include="Logic\FindRevisionResponse.cs" />
+    <Compile Include="Logic\FrontPageResponse.cs" />
+    <Compile Include="Logic\GetBuildInfoResponse.cs" />
+    <Compile Include="Logic\GetHostForEditResponse.cs" />
+    <Compile Include="Logic\GetHostsResponse.cs" />
+    <Compile Include="Logic\GetLaneFileForEditResponse.cs" />
+    <Compile Include="Logic\GetLaneForEditResponse.cs" />
+    <Compile Include="Logic\GetLaneResponse.cs" />
+    <Compile Include="Logic\GetLanesResponse.cs" />
+    <Compile Include="Logic\GetUsersResponse.cs" />
+    <Compile Include="Logic\GetViewLaneDataResponse.cs" />
+    <Compile Include="Logic\GetViewLaneFileHistoryDataResponse.cs" />
+    <Compile Include="Logic\GetViewTableDataResponse.cs" />
+    <Compile Include="Logic\GetViewWorkTableDataResponse.cs" />
+    <Compile Include="Logic\LoginResponse.cs" />
+    <Compile Include="Logic\ReportBuildStateResponse.cs" />
+    <Compile Include="Logic\Roles.cs" />
+    <Compile Include="Logic\WebServiceLogin.cs" />
+    <Compile Include="Logic\WebServiceResponse.cs" />
+    <Compile Include="SqlToCSharp.cs" />
+    <Compile Include="WebServices.cs" />
+    <Compile Include="WebServices.Generated.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CustomTypes.sql" />
+    <None Include="Makefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonkeyWrench\MonkeyWrench.csproj">
+      <Project>{EBFBC3BF-10E1-4482-B9BE-A516934C099A}</Project>
+      <Name>MonkeyWrench</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,3 +1,9 @@
+2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* everything: Major rewrite to use a web services instead
+	of direct database access from buildbots and web ui. Also
+	included a lot of code reorganization.
+
 2009-04-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.csproj: Updated.

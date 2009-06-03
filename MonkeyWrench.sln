@@ -1,0 +1,70 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench.Scheduler", "MonkeyWrench.Scheduler\MonkeyWrench.Scheduler.csproj", "{D78E8A6F-2A80-4F3C-8F4F-42C1043ED5E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench", "MonkeyWrench\MonkeyWrench.csproj", "{EBFBC3BF-10E1-4482-B9BE-A516934C099A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench.DataClasses", "MonkeyWrench.DataClasses\MonkeyWrench.DataClasses.csproj", "{A461423E-8232-42D6-AA34-8DEC97F6D8F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench.Builder", "MonkeyWrench.Builder\MonkeyWrench.Builder.csproj", "{8E126CCA-C7B2-4108-99F0-1F675C23A69B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench.Web.UI", "MonkeyWrench.Web.UI\MonkeyWrench.Web.UI.csproj", "{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench.Web.WebService", "MonkeyWrench.Web.WebService\MonkeyWrench.Web.WebService.csproj", "{86D06788-14A7-4962-88F0-FB58B7D34FF1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench.Database", "MonkeyWrench.Database\MonkeyWrench.Database.csproj", "{1C38937B-F45F-4EB1-B4D1-893FF684C525}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D78E8A6F-2A80-4F3C-8F4F-42C1043ED5E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D78E8A6F-2A80-4F3C-8F4F-42C1043ED5E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D78E8A6F-2A80-4F3C-8F4F-42C1043ED5E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D78E8A6F-2A80-4F3C-8F4F-42C1043ED5E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBFBC3BF-10E1-4482-B9BE-A516934C099A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBFBC3BF-10E1-4482-B9BE-A516934C099A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBFBC3BF-10E1-4482-B9BE-A516934C099A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBFBC3BF-10E1-4482-B9BE-A516934C099A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A461423E-8232-42D6-AA34-8DEC97F6D8F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A461423E-8232-42D6-AA34-8DEC97F6D8F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A461423E-8232-42D6-AA34-8DEC97F6D8F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A461423E-8232-42D6-AA34-8DEC97F6D8F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E126CCA-C7B2-4108-99F0-1F675C23A69B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E126CCA-C7B2-4108-99F0-1F675C23A69B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E126CCA-C7B2-4108-99F0-1F675C23A69B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E126CCA-C7B2-4108-99F0-1F675C23A69B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86D06788-14A7-4962-88F0-FB58B7D34FF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86D06788-14A7-4962-88F0-FB58B7D34FF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86D06788-14A7-4962-88F0-FB58B7D34FF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86D06788-14A7-4962-88F0-FB58B7D34FF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C38937B-F45F-4EB1-B4D1-893FF684C525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C38937B-F45F-4EB1-B4D1-893FF684C525}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C38937B-F45F-4EB1-B4D1-893FF684C525}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C38937B-F45F-4EB1-B4D1-893FF684C525}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		version = 0.1
+		StartupItem = Builder.csproj
+		Policies = $0
+		$0.VersionControlPolicy = $1
+		$1.CommitMessageStyle = $2
+		$2.Header = @${Date:yyyy-MM-dd}  ${AuthorName}  <${AuthorEmail}>\n\n
+		$2.Indent = @\t
+		$1.inheritsSet = Mono
+		$0.ChangeLogPolicy = $3
+		$3.UpdateMode = Nearest
+		$3.VcsIntegration = RequireEntry
+		$3.inheritsSet = Mono
+	EndGlobalSection
+EndGlobal

@@ -57,7 +57,19 @@ CREATE TABLE Lane (
 	source_control text       NOT NULL DEFAULT 'svn', -- the source control system. only svn supported so far
 	repository     text       NOT NULL,               -- the source control repository.
 	min_revision   text       NOT NULL DEFAULT '1',   -- the first revision to do.
-	max_revision   text       NOT NULL DEFAULT ''     -- the last revision to do. '' defaults to all revisions
+	max_revision   text       NOT NULL DEFAULT '',    -- the last revision to do. '' defaults to all revisions
+	parent_lane_id int        NULL DEFAULT NULL,      -- the parent lane (if any) of this lane
+	UNIQUE (lane)
+);
+
+CREATE TABLE EnvironmentVariable (
+	id              serial    PRIMARY KEY,
+	host_id         int       NULL REFERENCES Host (id),
+	lane_id         int       NULL REFERENCES Lane (id),
+	name            text      NULL DEFAULT NULL,
+	value           text      NULL DEFAULT NULL,
+
+	UNIQUE (host_id, lane_id, name)
 );
 
 CREATE TABLE FileDeletionDirective (
@@ -187,7 +199,7 @@ CREATE TABLE Work (
 	duration         int       NOT NULL DEFAULT 0,                       -- duration in seconds
 	logfile          text      NOT NULL DEFAULT '',                      -- path of the log file
 	summary          text      NOT NULL DEFAULT '',                      -- a one line summary of the log
-	revisionwork_id  int       REFERENCES RevisionWork (id) -- make NOT NULL after successful move
+	revisionwork_id  int       REFERENCES RevisionWork (id) ON DELETE CASCADE -- make NOT NULL after successful move
 );
 
 --
@@ -210,7 +222,7 @@ CREATE INDEX file_idx_file_id_key ON File (file_id);
 
 CREATE TABLE WorkFile (
 	id             serial     PRIMARY KEY,
-	work_id        int        NOT NULL REFERENCES Work (id),
+	work_id        int        NOT NULL REFERENCES Work (id) ON DELETE CASCADE,
 	file_id        int        NOT NULL REFERENCES File (id),
 	hidden         boolean    NOT NULL DEFAULT FALSE,
 	filename       text       NOT NULL DEFAULT ''     -- we need to have a filename here too, since File is unique based on md5, we can have several WorkFiles with different names and same content.
@@ -223,9 +235,12 @@ CREATE TABLE Person ( -- 'User' is a reserved word in sql...
 	id             serial    PRIMARY KEY,
 	login          text      NOT NULL,            -- the login name of the user a-zA-Z0-9_-
 	password       text      NOT NULL DEFAULT '', -- the password (in plain text)
-	fullname       text      NOT NULL DEFAULT ''  -- the full name of the user
+	fullname       text      NOT NULL DEFAULT '', -- the full name of the user
+	roles          text      NULL DEFAULT NULL,   -- comma separated list of roles the user is member of
+                                                  -- current values: <none>, Administrator 
+	UNIQUE (login)
 );
-INSERT INTO Person (login, password, fullname) VALUES ('admin', 'admin', 'admin');
+INSERT INTO Person (login, password, fullname, roles) VALUES ('admin', 'admin', 'admin', 'Administrator');
 
 CREATE TABLE Login (
 	id             serial    PRIMARY KEY,
@@ -296,3 +311,4 @@ $$
 LANGUAGE plpgsql; 
 
 -- unignore generator --
+

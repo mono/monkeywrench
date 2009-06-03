@@ -1,0 +1,3682 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s0="http://monkeywrench.novell.com/" name="WebServices" targetNamespace="http://monkeywrench.novell.com/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://monkeywrench.novell.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="GetRoles">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="user" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:complexType name="ArrayOfString">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="GetRolesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetRolesResult" type="s0:ArrayOfString" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:complexType name="WebServiceLogin">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="User" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Cookie" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Ip4" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="Login">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:complexType name="LoginResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="User" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Cookie" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="FullName" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="ID" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="WebServiceResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="UserRoles" type="s0:ArrayOfString" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetLaneResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="lane" type="s0:DBLane" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBLane">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="source_control" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="repository" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="min_revision" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="max_revision" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="parent_lane_id" nillable="true" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBRecord">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="id" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="DBView">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord" />
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBLaneDeletionDirectiveView">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBView">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="file_deletion_directive_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
+              <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="match_mode" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="condition" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="x" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBHostLaneView">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBView">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
+              <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBWorkView2">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBView">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="starttime" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="endtime" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="duration" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="logfile" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="summary" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="workhost_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="nonfatal" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="alwaysexecute" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="sequence" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="internal" type="xs:boolean" />
+              <xs:element minOccurs="0" maxOccurs="1" name="command" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revisionwork_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="masterhost_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="masterhost" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="workhost" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="author" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBWorkFileView">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBView">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="work_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="file_id" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="hidden" type="xs:boolean" />
+              <xs:element minOccurs="0" maxOccurs="1" name="mime" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="compressed_mime" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="internal" type="xs:boolean" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBRevisionWorkView2">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBView">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
+              <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:simpleType name="DBState">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="NotDone" />
+          <xs:enumeration value="Executing" />
+          <xs:enumeration value="Failed" />
+          <xs:enumeration value="Success" />
+          <xs:enumeration value="Aborted" />
+          <xs:enumeration value="Timeout" />
+          <xs:enumeration value="Paused" />
+          <xs:enumeration value="Skipped" />
+          <xs:enumeration value="Issues" />
+          <xs:enumeration value="DependencyNotFulfilled" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="DBRevisionWorkView">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBView">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="starttime" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="duration" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="logfile" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="summary" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="author" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="command" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="nonfatal" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="alwaysexecute" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="sequence" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="internal" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revisionwork_state" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="workhost" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBHost">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="architecture" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="queuemanagement" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBEnvironmentVariable">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="value" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBLanefile">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="contents" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="mime" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="original_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="changed_date" nillable="true" type="xs:dateTime" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBCommand">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="command" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="arguments" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="sequence" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="alwaysexecute" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="nonfatal" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="internal" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="timeout" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBLaneDependency">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="Condition" type="s0:DBLaneDependencyCondition" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="dependent_lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="dependent_host_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="condition" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="download_files" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:simpleType name="DBLaneDependencyCondition">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Invalid" />
+          <xs:enumeration value="DependentLaneSuccess" />
+          <xs:enumeration value="DependentLaneSuccessWithFile" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="DBFileDeletionDirective">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="match_mode" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="condition" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="x" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBRevision">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="author" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
+              <xs:element minOccurs="0" maxOccurs="1" name="log" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="diff" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBRevisionWork">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="workhost_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lock_expires" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBHostLane">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBPerson">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="login" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="fullname" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="roles" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBWork">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="starttime" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="endtime" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="duration" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="logfile" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="summary" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revisionwork_id" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBWorkFile">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="work_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="file_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="hidden" type="xs:boolean" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBMasterHost">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="master_host_id" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetHostForEditResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="HostLaneViews" type="s0:ArrayOfDBHostLaneView" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Variables" type="s0:ArrayOfDBEnvironmentVariable" />
+              <xs:element minOccurs="0" maxOccurs="1" name="MasterHosts" type="s0:ArrayOfDBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="SlaveHosts" type="s0:ArrayOfDBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Hosts" type="s0:ArrayOfDBHost" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBHostLaneView">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBHostLaneView" nillable="true" type="s0:DBHostLaneView" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBLane">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLane" nillable="true" type="s0:DBLane" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBEnvironmentVariable">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBEnvironmentVariable" nillable="true" type="s0:DBEnvironmentVariable" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBHost">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBHost" nillable="true" type="s0:DBHost" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetLaneForEditResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Files" type="s0:ArrayOfDBLanefile" />
+              <xs:element minOccurs="0" maxOccurs="1" name="ExistingFiles" type="s0:ArrayOfDBLanefile" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Commands" type="s0:ArrayOfDBCommand" />
+              <xs:element minOccurs="0" maxOccurs="1" name="HostLaneViews" type="s0:ArrayOfDBHostLaneView" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Hosts" type="s0:ArrayOfDBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Dependencies" type="s0:ArrayOfDBLaneDependency" />
+              <xs:element minOccurs="0" maxOccurs="1" name="LaneDeletionDirectives" type="s0:ArrayOfDBLaneDeletionDirectiveView" />
+              <xs:element minOccurs="0" maxOccurs="1" name="FileDeletionDirectives" type="s0:ArrayOfDBFileDeletionDirective" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Variables" type="s0:ArrayOfDBEnvironmentVariable" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBLanefile">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLanefile" nillable="true" type="s0:DBLanefile" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBCommand">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBCommand" nillable="true" type="s0:DBCommand" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBLaneDependency">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLaneDependency" nillable="true" type="s0:DBLaneDependency" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBLaneDeletionDirectiveView">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLaneDeletionDirectiveView" nillable="true" type="s0:DBLaneDeletionDirectiveView" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBFileDeletionDirective">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBFileDeletionDirective" nillable="true" type="s0:DBFileDeletionDirective" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="FindRevisionResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Revision" type="s0:DBRevision" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="FindLaneResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="lane" type="s0:DBLane" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetViewLaneDataResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="Now" type="xs:dateTime" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="WorkHost" type="s0:DBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Revision" type="s0:DBRevision" />
+              <xs:element minOccurs="0" maxOccurs="1" name="RevisionWork" type="s0:DBRevisionWork" />
+              <xs:element minOccurs="0" maxOccurs="1" name="WorkViews" type="s0:ArrayOfDBWorkView2" />
+              <xs:element minOccurs="0" maxOccurs="1" name="WorkFileViews" type="s0:ArrayOfArrayOfDBWorkFileView" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBWorkView2">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBWorkView2" nillable="true" type="s0:DBWorkView2" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfArrayOfDBWorkFileView">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ArrayOfDBWorkFileView" nillable="true" type="s0:ArrayOfDBWorkFileView" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBWorkFileView">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBWorkFileView" nillable="true" type="s0:DBWorkFileView" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="FrontPageResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Hosts" type="s0:ArrayOfDBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="HostLanes" type="s0:ArrayOfDBHostLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="RevisionWorkHostLaneRelation" type="s0:ArrayOfInt" />
+              <xs:element minOccurs="0" maxOccurs="1" name="RevisionWorkViews" type="s0:ArrayOfArrayOfDBRevisionWorkView2" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBHostLane">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBHostLane" nillable="true" type="s0:DBHostLane" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfInt">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="int" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfArrayOfDBRevisionWorkView2">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ArrayOfDBRevisionWorkView2" nillable="true" type="s0:ArrayOfDBRevisionWorkView2" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBRevisionWorkView2">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRevisionWorkView2" nillable="true" type="s0:DBRevisionWorkView2" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetLanesResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetHostsResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Hosts" type="s0:ArrayOfDBHost" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetViewTableDataResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="Page" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="PageSize" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="Count" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="RevisionWorkViews" type="s0:ArrayOfDBRevisionWorkView" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBRevisionWorkView">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRevisionWorkView" nillable="true" type="s0:DBRevisionWorkView" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetViewWorkTableDataResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Command" type="s0:DBCommand" />
+              <xs:element minOccurs="0" maxOccurs="1" name="WorkViews" type="s0:ArrayOfDBWorkView2" />
+              <xs:element minOccurs="0" maxOccurs="1" name="WorkFileViews" type="s0:ArrayOfArrayOfDBWorkFileView" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetLaneFileForEditResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanefile" type="s0:DBLanefile" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetViewLaneFileHistoryDataResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanefiles" type="s0:ArrayOfDBLanefile" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetUsersResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Users" type="s0:ArrayOfDBPerson" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBPerson">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBPerson" nillable="true" type="s0:DBPerson" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ReportBuildStateResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Work" type="s0:DBWork" />
+              <xs:element minOccurs="1" maxOccurs="1" name="RevisionWorkCompleted" type="xs:boolean" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetBuildInfoResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Work" type="s0:ArrayOfArrayOfBuildInfoEntry" />
+              <xs:element minOccurs="0" maxOccurs="1" name="MasterHosts" type="s0:ArrayOfDBMasterHost" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfArrayOfBuildInfoEntry">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ArrayOfBuildInfoEntry" nillable="true" type="s0:ArrayOfBuildInfoEntry" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfBuildInfoEntry">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="BuildInfoEntry" nillable="true" type="s0:BuildInfoEntry" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="BuildInfoEntry">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Revision" type="s0:DBRevision" />
+          <xs:element minOccurs="0" maxOccurs="1" name="FilesToDownload" type="s0:ArrayOfDBWorkFile" />
+          <xs:element minOccurs="0" maxOccurs="1" name="LaneFiles" type="s0:ArrayOfDBLanefile" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Work" type="s0:DBWork" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Command" type="s0:DBCommand" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBWorkFile">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBWorkFile" nillable="true" type="s0:DBWorkFile" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBMasterHost">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBMasterHost" nillable="true" type="s0:DBMasterHost" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="LoginResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="LoginResult" type="s0:LoginResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="CreateLanefile">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="CreateLanefileResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="AttachFileToLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lanefile_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AttachFileToLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="DeattachFileFromLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lanefile_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeattachFileFromLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditCommandFilename">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditCommandFilenameResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditCommandSequence">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="sequence" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditCommandSequenceResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditCommandArguments">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="arguments" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditCommandArgumentsResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditCommandTimeout">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="timeout" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditCommandTimeoutResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="SwitchCommandNonFatal">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SwitchCommandNonFatalResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="SwitchCommandAlwaysExecute">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SwitchCommandAlwaysExecuteResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="SwitchCommandInternal">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SwitchCommandInternalResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="DeleteCommand">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteCommandResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="AddCommand">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="command" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="always_execute" type="xs:boolean" />
+            <xs:element minOccurs="1" maxOccurs="1" name="nonfatal" type="xs:boolean" />
+            <xs:element minOccurs="1" maxOccurs="1" name="timeout" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="sequence" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddCommandResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="SwitchHostEnabledForLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SwitchHostEnabledForLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="RemoveHostForLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveHostForLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="AddHostToLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddHostToLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="AddDependencyToLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="dependent_lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="condition" type="s0:DBLaneDependencyCondition" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddDependencyToLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditLaneDependencyFilename">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lanedependency_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditLaneDependencyFilenameResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="DeleteLaneDependency">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lanedependency_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteLaneDependencyResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditLaneDependencyDownloads">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lanedependency_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="downloads" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditLaneDependencyDownloadsResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="UnlinkDeletionDirective">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="directive_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UnlinkDeletionDirectiveResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="DeleteDeletionDirective">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_directive_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="file_directive_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteDeletionDirectiveResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EnableDeletionDirective">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_deletion_directive_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EnableDeletionDirectiveResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:simpleType name="DBMatchMode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ShellGlobs" />
+          <xs:enumeration value="RegExp" />
+          <xs:enumeration value="Exact" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="DBDeleteCondition">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Never" />
+          <xs:enumeration value="AfterXDays" />
+          <xs:enumeration value="AfterXBuiltRevisions" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="AddFileDeletionDirective">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="match_mode" type="s0:DBMatchMode" />
+            <xs:element minOccurs="1" maxOccurs="1" name="x" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="condition" type="s0:DBDeleteCondition" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddFileDeletionDirectiveResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="AddFileDeletionDirectiveResult" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddLaneDeletionDirective">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="file_deletion_directive_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddLaneDeletionDirectiveResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="AddLaneDeletionDirectiveResult" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindLaneDeletionDirective">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="file_deletion_directive_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindLaneDeletionDirectiveResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="FindLaneDeletionDirectiveResult" type="s0:DBLaneDeletionDirectiveView" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetLaneResult" type="s0:GetLaneResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetHostForEdit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetHostForEditResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetHostForEditResult" type="s0:GetHostForEditResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddMasterHost">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="masterhost_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddMasterHostResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="RemoveMasterHost">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="masterhost_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveMasterHostResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="GetLaneForEdit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLaneForEditResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetLaneForEditResult" type="s0:GetLaneForEditResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindRevision">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindRevisionResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="FindRevisionResult" type="s0:FindRevisionResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="FindLaneResult" type="s0:FindLaneResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="s0:DBLane" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditHost">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="s0:DBHost" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditHostResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="GetViewLaneData">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetViewLaneDataResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetViewLaneDataResult" type="s0:GetViewLaneDataResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetFrontPageData">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="limit" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetFrontPageDataResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetFrontPageDataResult" type="s0:FrontPageResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLanes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLanesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetLanesResult" type="s0:GetLanesResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetHosts">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetHostsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetHostsResult" type="s0:GetHostsResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="CloneLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="new_name" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="copy_files" type="xs:boolean" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="CloneLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="CloneLaneResult" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="AddLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="AddLaneResult" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteHost">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteHostResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="AddHost">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddHostResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="AddHostResult" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ClearRevision">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ClearRevisionResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="RescheduleRevision">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RescheduleRevisionResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="ClearWork">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="work_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ClearWorkResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="AbortWork">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="work_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AbortWorkResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="PauseWork">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="work_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PauseWorkResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="ResumeWork">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="work_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ResumeWorkResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="GetViewTableData">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="page" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="page_size" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetViewTableDataResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetViewTableDataResult" type="s0:GetViewTableDataResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetViewWorkTableData">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="command" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetViewWorkTableDataResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetViewWorkTableDataResult" type="s0:GetViewWorkTableDataResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLaneFileForEdit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lanefile_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLaneFileForEditResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetLaneFileForEditResult" type="s0:GetLaneFileForEditResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditLaneFile">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lanefile" type="s0:DBLanefile" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditLaneFileResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="GetViewLaneFileHistoryData">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lanefile_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetViewLaneFileHistoryDataResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetViewLaneFileHistoryDataResult" type="s0:GetViewLaneFileHistoryDataResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetUsers">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetUsersResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetUsersResult" type="s0:GetUsersResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddEnvironmentVariable">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="value" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddEnvironmentVariableResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="AddEnvironmentVariableResult" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditEnvironmentVariable">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="variable" type="s0:DBEnvironmentVariable" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditEnvironmentVariableResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="DeleteEnvironmentVariable">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="variable_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteEnvironmentVariableResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="UploadFile">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="work" type="s0:DBWork" />
+            <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="contents" type="xs:base64Binary" />
+            <xs:element minOccurs="1" maxOccurs="1" name="hidden" type="xs:boolean" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UploadFileResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="GetWorkState">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="work" type="s0:DBWork" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetWorkStateResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="GetWorkStateResult" type="s0:DBState" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ReportBuildState">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="work" type="s0:DBWork" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ReportBuildStateResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="ReportBuildStateResult" type="s0:ReportBuildStateResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetBuildInfo">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetBuildInfoResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetBuildInfoResult" type="s0:GetBuildInfoResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ArrayOfString" nillable="true" type="s0:ArrayOfString" />
+    </xs:schema>
+  </types>
+  <message name="GetRolesSoapIn">
+    <part name="parameters" element="s0:GetRoles" />
+  </message>
+  <message name="GetRolesSoapOut">
+    <part name="parameters" element="s0:GetRolesResponse" />
+  </message>
+  <message name="LoginSoapIn">
+    <part name="parameters" element="s0:Login" />
+  </message>
+  <message name="LoginSoapOut">
+    <part name="parameters" element="s0:LoginResponse" />
+  </message>
+  <message name="CreateLanefileSoapIn">
+    <part name="parameters" element="s0:CreateLanefile" />
+  </message>
+  <message name="CreateLanefileSoapOut">
+    <part name="parameters" element="s0:CreateLanefileResponse" />
+  </message>
+  <message name="AttachFileToLaneSoapIn">
+    <part name="parameters" element="s0:AttachFileToLane" />
+  </message>
+  <message name="AttachFileToLaneSoapOut">
+    <part name="parameters" element="s0:AttachFileToLaneResponse" />
+  </message>
+  <message name="DeattachFileFromLaneSoapIn">
+    <part name="parameters" element="s0:DeattachFileFromLane" />
+  </message>
+  <message name="DeattachFileFromLaneSoapOut">
+    <part name="parameters" element="s0:DeattachFileFromLaneResponse" />
+  </message>
+  <message name="EditCommandFilenameSoapIn">
+    <part name="parameters" element="s0:EditCommandFilename" />
+  </message>
+  <message name="EditCommandFilenameSoapOut">
+    <part name="parameters" element="s0:EditCommandFilenameResponse" />
+  </message>
+  <message name="EditCommandSequenceSoapIn">
+    <part name="parameters" element="s0:EditCommandSequence" />
+  </message>
+  <message name="EditCommandSequenceSoapOut">
+    <part name="parameters" element="s0:EditCommandSequenceResponse" />
+  </message>
+  <message name="EditCommandArgumentsSoapIn">
+    <part name="parameters" element="s0:EditCommandArguments" />
+  </message>
+  <message name="EditCommandArgumentsSoapOut">
+    <part name="parameters" element="s0:EditCommandArgumentsResponse" />
+  </message>
+  <message name="EditCommandTimeoutSoapIn">
+    <part name="parameters" element="s0:EditCommandTimeout" />
+  </message>
+  <message name="EditCommandTimeoutSoapOut">
+    <part name="parameters" element="s0:EditCommandTimeoutResponse" />
+  </message>
+  <message name="SwitchCommandNonFatalSoapIn">
+    <part name="parameters" element="s0:SwitchCommandNonFatal" />
+  </message>
+  <message name="SwitchCommandNonFatalSoapOut">
+    <part name="parameters" element="s0:SwitchCommandNonFatalResponse" />
+  </message>
+  <message name="SwitchCommandAlwaysExecuteSoapIn">
+    <part name="parameters" element="s0:SwitchCommandAlwaysExecute" />
+  </message>
+  <message name="SwitchCommandAlwaysExecuteSoapOut">
+    <part name="parameters" element="s0:SwitchCommandAlwaysExecuteResponse" />
+  </message>
+  <message name="SwitchCommandInternalSoapIn">
+    <part name="parameters" element="s0:SwitchCommandInternal" />
+  </message>
+  <message name="SwitchCommandInternalSoapOut">
+    <part name="parameters" element="s0:SwitchCommandInternalResponse" />
+  </message>
+  <message name="DeleteCommandSoapIn">
+    <part name="parameters" element="s0:DeleteCommand" />
+  </message>
+  <message name="DeleteCommandSoapOut">
+    <part name="parameters" element="s0:DeleteCommandResponse" />
+  </message>
+  <message name="AddCommandSoapIn">
+    <part name="parameters" element="s0:AddCommand" />
+  </message>
+  <message name="AddCommandSoapOut">
+    <part name="parameters" element="s0:AddCommandResponse" />
+  </message>
+  <message name="SwitchHostEnabledForLaneSoapIn">
+    <part name="parameters" element="s0:SwitchHostEnabledForLane" />
+  </message>
+  <message name="SwitchHostEnabledForLaneSoapOut">
+    <part name="parameters" element="s0:SwitchHostEnabledForLaneResponse" />
+  </message>
+  <message name="RemoveHostForLaneSoapIn">
+    <part name="parameters" element="s0:RemoveHostForLane" />
+  </message>
+  <message name="RemoveHostForLaneSoapOut">
+    <part name="parameters" element="s0:RemoveHostForLaneResponse" />
+  </message>
+  <message name="AddHostToLaneSoapIn">
+    <part name="parameters" element="s0:AddHostToLane" />
+  </message>
+  <message name="AddHostToLaneSoapOut">
+    <part name="parameters" element="s0:AddHostToLaneResponse" />
+  </message>
+  <message name="AddDependencyToLaneSoapIn">
+    <part name="parameters" element="s0:AddDependencyToLane" />
+  </message>
+  <message name="AddDependencyToLaneSoapOut">
+    <part name="parameters" element="s0:AddDependencyToLaneResponse" />
+  </message>
+  <message name="EditLaneDependencyFilenameSoapIn">
+    <part name="parameters" element="s0:EditLaneDependencyFilename" />
+  </message>
+  <message name="EditLaneDependencyFilenameSoapOut">
+    <part name="parameters" element="s0:EditLaneDependencyFilenameResponse" />
+  </message>
+  <message name="DeleteLaneDependencySoapIn">
+    <part name="parameters" element="s0:DeleteLaneDependency" />
+  </message>
+  <message name="DeleteLaneDependencySoapOut">
+    <part name="parameters" element="s0:DeleteLaneDependencyResponse" />
+  </message>
+  <message name="EditLaneDependencyDownloadsSoapIn">
+    <part name="parameters" element="s0:EditLaneDependencyDownloads" />
+  </message>
+  <message name="EditLaneDependencyDownloadsSoapOut">
+    <part name="parameters" element="s0:EditLaneDependencyDownloadsResponse" />
+  </message>
+  <message name="UnlinkDeletionDirectiveSoapIn">
+    <part name="parameters" element="s0:UnlinkDeletionDirective" />
+  </message>
+  <message name="UnlinkDeletionDirectiveSoapOut">
+    <part name="parameters" element="s0:UnlinkDeletionDirectiveResponse" />
+  </message>
+  <message name="DeleteDeletionDirectiveSoapIn">
+    <part name="parameters" element="s0:DeleteDeletionDirective" />
+  </message>
+  <message name="DeleteDeletionDirectiveSoapOut">
+    <part name="parameters" element="s0:DeleteDeletionDirectiveResponse" />
+  </message>
+  <message name="EnableDeletionDirectiveSoapIn">
+    <part name="parameters" element="s0:EnableDeletionDirective" />
+  </message>
+  <message name="EnableDeletionDirectiveSoapOut">
+    <part name="parameters" element="s0:EnableDeletionDirectiveResponse" />
+  </message>
+  <message name="AddFileDeletionDirectiveSoapIn">
+    <part name="parameters" element="s0:AddFileDeletionDirective" />
+  </message>
+  <message name="AddFileDeletionDirectiveSoapOut">
+    <part name="parameters" element="s0:AddFileDeletionDirectiveResponse" />
+  </message>
+  <message name="AddLaneDeletionDirectiveSoapIn">
+    <part name="parameters" element="s0:AddLaneDeletionDirective" />
+  </message>
+  <message name="AddLaneDeletionDirectiveSoapOut">
+    <part name="parameters" element="s0:AddLaneDeletionDirectiveResponse" />
+  </message>
+  <message name="FindLaneDeletionDirectiveSoapIn">
+    <part name="parameters" element="s0:FindLaneDeletionDirective" />
+  </message>
+  <message name="FindLaneDeletionDirectiveSoapOut">
+    <part name="parameters" element="s0:FindLaneDeletionDirectiveResponse" />
+  </message>
+  <message name="GetLaneSoapIn">
+    <part name="parameters" element="s0:GetLane" />
+  </message>
+  <message name="GetLaneSoapOut">
+    <part name="parameters" element="s0:GetLaneResponse" />
+  </message>
+  <message name="GetHostForEditSoapIn">
+    <part name="parameters" element="s0:GetHostForEdit" />
+  </message>
+  <message name="GetHostForEditSoapOut">
+    <part name="parameters" element="s0:GetHostForEditResponse" />
+  </message>
+  <message name="AddMasterHostSoapIn">
+    <part name="parameters" element="s0:AddMasterHost" />
+  </message>
+  <message name="AddMasterHostSoapOut">
+    <part name="parameters" element="s0:AddMasterHostResponse" />
+  </message>
+  <message name="RemoveMasterHostSoapIn">
+    <part name="parameters" element="s0:RemoveMasterHost" />
+  </message>
+  <message name="RemoveMasterHostSoapOut">
+    <part name="parameters" element="s0:RemoveMasterHostResponse" />
+  </message>
+  <message name="GetLaneForEditSoapIn">
+    <part name="parameters" element="s0:GetLaneForEdit" />
+  </message>
+  <message name="GetLaneForEditSoapOut">
+    <part name="parameters" element="s0:GetLaneForEditResponse" />
+  </message>
+  <message name="FindRevisionSoapIn">
+    <part name="parameters" element="s0:FindRevision" />
+  </message>
+  <message name="FindRevisionSoapOut">
+    <part name="parameters" element="s0:FindRevisionResponse" />
+  </message>
+  <message name="FindLaneSoapIn">
+    <part name="parameters" element="s0:FindLane" />
+  </message>
+  <message name="FindLaneSoapOut">
+    <part name="parameters" element="s0:FindLaneResponse" />
+  </message>
+  <message name="EditLaneSoapIn">
+    <part name="parameters" element="s0:EditLane" />
+  </message>
+  <message name="EditLaneSoapOut">
+    <part name="parameters" element="s0:EditLaneResponse" />
+  </message>
+  <message name="EditHostSoapIn">
+    <part name="parameters" element="s0:EditHost" />
+  </message>
+  <message name="EditHostSoapOut">
+    <part name="parameters" element="s0:EditHostResponse" />
+  </message>
+  <message name="GetViewLaneDataSoapIn">
+    <part name="parameters" element="s0:GetViewLaneData" />
+  </message>
+  <message name="GetViewLaneDataSoapOut">
+    <part name="parameters" element="s0:GetViewLaneDataResponse" />
+  </message>
+  <message name="GetFrontPageDataSoapIn">
+    <part name="parameters" element="s0:GetFrontPageData" />
+  </message>
+  <message name="GetFrontPageDataSoapOut">
+    <part name="parameters" element="s0:GetFrontPageDataResponse" />
+  </message>
+  <message name="GetLanesSoapIn">
+    <part name="parameters" element="s0:GetLanes" />
+  </message>
+  <message name="GetLanesSoapOut">
+    <part name="parameters" element="s0:GetLanesResponse" />
+  </message>
+  <message name="GetHostsSoapIn">
+    <part name="parameters" element="s0:GetHosts" />
+  </message>
+  <message name="GetHostsSoapOut">
+    <part name="parameters" element="s0:GetHostsResponse" />
+  </message>
+  <message name="CloneLaneSoapIn">
+    <part name="parameters" element="s0:CloneLane" />
+  </message>
+  <message name="CloneLaneSoapOut">
+    <part name="parameters" element="s0:CloneLaneResponse" />
+  </message>
+  <message name="DeleteLaneSoapIn">
+    <part name="parameters" element="s0:DeleteLane" />
+  </message>
+  <message name="DeleteLaneSoapOut">
+    <part name="parameters" element="s0:DeleteLaneResponse" />
+  </message>
+  <message name="AddLaneSoapIn">
+    <part name="parameters" element="s0:AddLane" />
+  </message>
+  <message name="AddLaneSoapOut">
+    <part name="parameters" element="s0:AddLaneResponse" />
+  </message>
+  <message name="DeleteHostSoapIn">
+    <part name="parameters" element="s0:DeleteHost" />
+  </message>
+  <message name="DeleteHostSoapOut">
+    <part name="parameters" element="s0:DeleteHostResponse" />
+  </message>
+  <message name="AddHostSoapIn">
+    <part name="parameters" element="s0:AddHost" />
+  </message>
+  <message name="AddHostSoapOut">
+    <part name="parameters" element="s0:AddHostResponse" />
+  </message>
+  <message name="ClearRevisionSoapIn">
+    <part name="parameters" element="s0:ClearRevision" />
+  </message>
+  <message name="ClearRevisionSoapOut">
+    <part name="parameters" element="s0:ClearRevisionResponse" />
+  </message>
+  <message name="RescheduleRevisionSoapIn">
+    <part name="parameters" element="s0:RescheduleRevision" />
+  </message>
+  <message name="RescheduleRevisionSoapOut">
+    <part name="parameters" element="s0:RescheduleRevisionResponse" />
+  </message>
+  <message name="ClearWorkSoapIn">
+    <part name="parameters" element="s0:ClearWork" />
+  </message>
+  <message name="ClearWorkSoapOut">
+    <part name="parameters" element="s0:ClearWorkResponse" />
+  </message>
+  <message name="AbortWorkSoapIn">
+    <part name="parameters" element="s0:AbortWork" />
+  </message>
+  <message name="AbortWorkSoapOut">
+    <part name="parameters" element="s0:AbortWorkResponse" />
+  </message>
+  <message name="PauseWorkSoapIn">
+    <part name="parameters" element="s0:PauseWork" />
+  </message>
+  <message name="PauseWorkSoapOut">
+    <part name="parameters" element="s0:PauseWorkResponse" />
+  </message>
+  <message name="ResumeWorkSoapIn">
+    <part name="parameters" element="s0:ResumeWork" />
+  </message>
+  <message name="ResumeWorkSoapOut">
+    <part name="parameters" element="s0:ResumeWorkResponse" />
+  </message>
+  <message name="GetViewTableDataSoapIn">
+    <part name="parameters" element="s0:GetViewTableData" />
+  </message>
+  <message name="GetViewTableDataSoapOut">
+    <part name="parameters" element="s0:GetViewTableDataResponse" />
+  </message>
+  <message name="GetViewWorkTableDataSoapIn">
+    <part name="parameters" element="s0:GetViewWorkTableData" />
+  </message>
+  <message name="GetViewWorkTableDataSoapOut">
+    <part name="parameters" element="s0:GetViewWorkTableDataResponse" />
+  </message>
+  <message name="GetLaneFileForEditSoapIn">
+    <part name="parameters" element="s0:GetLaneFileForEdit" />
+  </message>
+  <message name="GetLaneFileForEditSoapOut">
+    <part name="parameters" element="s0:GetLaneFileForEditResponse" />
+  </message>
+  <message name="EditLaneFileSoapIn">
+    <part name="parameters" element="s0:EditLaneFile" />
+  </message>
+  <message name="EditLaneFileSoapOut">
+    <part name="parameters" element="s0:EditLaneFileResponse" />
+  </message>
+  <message name="GetViewLaneFileHistoryDataSoapIn">
+    <part name="parameters" element="s0:GetViewLaneFileHistoryData" />
+  </message>
+  <message name="GetViewLaneFileHistoryDataSoapOut">
+    <part name="parameters" element="s0:GetViewLaneFileHistoryDataResponse" />
+  </message>
+  <message name="GetUsersSoapIn">
+    <part name="parameters" element="s0:GetUsers" />
+  </message>
+  <message name="GetUsersSoapOut">
+    <part name="parameters" element="s0:GetUsersResponse" />
+  </message>
+  <message name="AddEnvironmentVariableSoapIn">
+    <part name="parameters" element="s0:AddEnvironmentVariable" />
+  </message>
+  <message name="AddEnvironmentVariableSoapOut">
+    <part name="parameters" element="s0:AddEnvironmentVariableResponse" />
+  </message>
+  <message name="EditEnvironmentVariableSoapIn">
+    <part name="parameters" element="s0:EditEnvironmentVariable" />
+  </message>
+  <message name="EditEnvironmentVariableSoapOut">
+    <part name="parameters" element="s0:EditEnvironmentVariableResponse" />
+  </message>
+  <message name="DeleteEnvironmentVariableSoapIn">
+    <part name="parameters" element="s0:DeleteEnvironmentVariable" />
+  </message>
+  <message name="DeleteEnvironmentVariableSoapOut">
+    <part name="parameters" element="s0:DeleteEnvironmentVariableResponse" />
+  </message>
+  <message name="UploadFileSoapIn">
+    <part name="parameters" element="s0:UploadFile" />
+  </message>
+  <message name="UploadFileSoapOut">
+    <part name="parameters" element="s0:UploadFileResponse" />
+  </message>
+  <message name="GetWorkStateSoapIn">
+    <part name="parameters" element="s0:GetWorkState" />
+  </message>
+  <message name="GetWorkStateSoapOut">
+    <part name="parameters" element="s0:GetWorkStateResponse" />
+  </message>
+  <message name="ReportBuildStateSoapIn">
+    <part name="parameters" element="s0:ReportBuildState" />
+  </message>
+  <message name="ReportBuildStateSoapOut">
+    <part name="parameters" element="s0:ReportBuildStateResponse" />
+  </message>
+  <message name="GetBuildInfoSoapIn">
+    <part name="parameters" element="s0:GetBuildInfo" />
+  </message>
+  <message name="GetBuildInfoSoapOut">
+    <part name="parameters" element="s0:GetBuildInfoResponse" />
+  </message>
+  <message name="GetRolesHttpGetIn">
+    <part name="user" type="s:string" />
+  </message>
+  <message name="GetRolesHttpGetOut">
+    <part name="Body" element="s0:ArrayOfString" />
+  </message>
+  <message name="GetRolesHttpPostIn">
+    <part name="user" type="s:string" />
+  </message>
+  <message name="GetRolesHttpPostOut">
+    <part name="Body" element="s0:ArrayOfString" />
+  </message>
+  <portType name="WebServicesSoap">
+    <operation name="GetRoles">
+      <input message="s0:GetRolesSoapIn" />
+      <output message="s0:GetRolesSoapOut" />
+    </operation>
+    <operation name="Login">
+      <input message="s0:LoginSoapIn" />
+      <output message="s0:LoginSoapOut" />
+    </operation>
+    <operation name="CreateLanefile">
+      <input message="s0:CreateLanefileSoapIn" />
+      <output message="s0:CreateLanefileSoapOut" />
+    </operation>
+    <operation name="AttachFileToLane">
+      <input message="s0:AttachFileToLaneSoapIn" />
+      <output message="s0:AttachFileToLaneSoapOut" />
+    </operation>
+    <operation name="DeattachFileFromLane">
+      <input message="s0:DeattachFileFromLaneSoapIn" />
+      <output message="s0:DeattachFileFromLaneSoapOut" />
+    </operation>
+    <operation name="EditCommandFilename">
+      <input message="s0:EditCommandFilenameSoapIn" />
+      <output message="s0:EditCommandFilenameSoapOut" />
+    </operation>
+    <operation name="EditCommandSequence">
+      <input message="s0:EditCommandSequenceSoapIn" />
+      <output message="s0:EditCommandSequenceSoapOut" />
+    </operation>
+    <operation name="EditCommandArguments">
+      <input message="s0:EditCommandArgumentsSoapIn" />
+      <output message="s0:EditCommandArgumentsSoapOut" />
+    </operation>
+    <operation name="EditCommandTimeout">
+      <input message="s0:EditCommandTimeoutSoapIn" />
+      <output message="s0:EditCommandTimeoutSoapOut" />
+    </operation>
+    <operation name="SwitchCommandNonFatal">
+      <input message="s0:SwitchCommandNonFatalSoapIn" />
+      <output message="s0:SwitchCommandNonFatalSoapOut" />
+    </operation>
+    <operation name="SwitchCommandAlwaysExecute">
+      <input message="s0:SwitchCommandAlwaysExecuteSoapIn" />
+      <output message="s0:SwitchCommandAlwaysExecuteSoapOut" />
+    </operation>
+    <operation name="SwitchCommandInternal">
+      <input message="s0:SwitchCommandInternalSoapIn" />
+      <output message="s0:SwitchCommandInternalSoapOut" />
+    </operation>
+    <operation name="DeleteCommand">
+      <input message="s0:DeleteCommandSoapIn" />
+      <output message="s0:DeleteCommandSoapOut" />
+    </operation>
+    <operation name="AddCommand">
+      <input message="s0:AddCommandSoapIn" />
+      <output message="s0:AddCommandSoapOut" />
+    </operation>
+    <operation name="SwitchHostEnabledForLane">
+      <input message="s0:SwitchHostEnabledForLaneSoapIn" />
+      <output message="s0:SwitchHostEnabledForLaneSoapOut" />
+    </operation>
+    <operation name="RemoveHostForLane">
+      <input message="s0:RemoveHostForLaneSoapIn" />
+      <output message="s0:RemoveHostForLaneSoapOut" />
+    </operation>
+    <operation name="AddHostToLane">
+      <input message="s0:AddHostToLaneSoapIn" />
+      <output message="s0:AddHostToLaneSoapOut" />
+    </operation>
+    <operation name="AddDependencyToLane">
+      <input message="s0:AddDependencyToLaneSoapIn" />
+      <output message="s0:AddDependencyToLaneSoapOut" />
+    </operation>
+    <operation name="EditLaneDependencyFilename">
+      <input message="s0:EditLaneDependencyFilenameSoapIn" />
+      <output message="s0:EditLaneDependencyFilenameSoapOut" />
+    </operation>
+    <operation name="DeleteLaneDependency">
+      <input message="s0:DeleteLaneDependencySoapIn" />
+      <output message="s0:DeleteLaneDependencySoapOut" />
+    </operation>
+    <operation name="EditLaneDependencyDownloads">
+      <input message="s0:EditLaneDependencyDownloadsSoapIn" />
+      <output message="s0:EditLaneDependencyDownloadsSoapOut" />
+    </operation>
+    <operation name="UnlinkDeletionDirective">
+      <input message="s0:UnlinkDeletionDirectiveSoapIn" />
+      <output message="s0:UnlinkDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="DeleteDeletionDirective">
+      <input message="s0:DeleteDeletionDirectiveSoapIn" />
+      <output message="s0:DeleteDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="EnableDeletionDirective">
+      <input message="s0:EnableDeletionDirectiveSoapIn" />
+      <output message="s0:EnableDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="AddFileDeletionDirective">
+      <input message="s0:AddFileDeletionDirectiveSoapIn" />
+      <output message="s0:AddFileDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="AddLaneDeletionDirective">
+      <input message="s0:AddLaneDeletionDirectiveSoapIn" />
+      <output message="s0:AddLaneDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="FindLaneDeletionDirective">
+      <input message="s0:FindLaneDeletionDirectiveSoapIn" />
+      <output message="s0:FindLaneDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="GetLane">
+      <input message="s0:GetLaneSoapIn" />
+      <output message="s0:GetLaneSoapOut" />
+    </operation>
+    <operation name="GetHostForEdit">
+      <input message="s0:GetHostForEditSoapIn" />
+      <output message="s0:GetHostForEditSoapOut" />
+    </operation>
+    <operation name="AddMasterHost">
+      <input message="s0:AddMasterHostSoapIn" />
+      <output message="s0:AddMasterHostSoapOut" />
+    </operation>
+    <operation name="RemoveMasterHost">
+      <input message="s0:RemoveMasterHostSoapIn" />
+      <output message="s0:RemoveMasterHostSoapOut" />
+    </operation>
+    <operation name="GetLaneForEdit">
+      <input message="s0:GetLaneForEditSoapIn" />
+      <output message="s0:GetLaneForEditSoapOut" />
+    </operation>
+    <operation name="FindRevision">
+      <input message="s0:FindRevisionSoapIn" />
+      <output message="s0:FindRevisionSoapOut" />
+    </operation>
+    <operation name="FindLane">
+      <input message="s0:FindLaneSoapIn" />
+      <output message="s0:FindLaneSoapOut" />
+    </operation>
+    <operation name="EditLane">
+      <input message="s0:EditLaneSoapIn" />
+      <output message="s0:EditLaneSoapOut" />
+    </operation>
+    <operation name="EditHost">
+      <input message="s0:EditHostSoapIn" />
+      <output message="s0:EditHostSoapOut" />
+    </operation>
+    <operation name="GetViewLaneData">
+      <input message="s0:GetViewLaneDataSoapIn" />
+      <output message="s0:GetViewLaneDataSoapOut" />
+    </operation>
+    <operation name="GetFrontPageData">
+      <input message="s0:GetFrontPageDataSoapIn" />
+      <output message="s0:GetFrontPageDataSoapOut" />
+    </operation>
+    <operation name="GetLanes">
+      <input message="s0:GetLanesSoapIn" />
+      <output message="s0:GetLanesSoapOut" />
+    </operation>
+    <operation name="GetHosts">
+      <input message="s0:GetHostsSoapIn" />
+      <output message="s0:GetHostsSoapOut" />
+    </operation>
+    <operation name="CloneLane">
+      <input message="s0:CloneLaneSoapIn" />
+      <output message="s0:CloneLaneSoapOut" />
+    </operation>
+    <operation name="DeleteLane">
+      <input message="s0:DeleteLaneSoapIn" />
+      <output message="s0:DeleteLaneSoapOut" />
+    </operation>
+    <operation name="AddLane">
+      <input message="s0:AddLaneSoapIn" />
+      <output message="s0:AddLaneSoapOut" />
+    </operation>
+    <operation name="DeleteHost">
+      <input message="s0:DeleteHostSoapIn" />
+      <output message="s0:DeleteHostSoapOut" />
+    </operation>
+    <operation name="AddHost">
+      <input message="s0:AddHostSoapIn" />
+      <output message="s0:AddHostSoapOut" />
+    </operation>
+    <operation name="ClearRevision">
+      <input message="s0:ClearRevisionSoapIn" />
+      <output message="s0:ClearRevisionSoapOut" />
+    </operation>
+    <operation name="RescheduleRevision">
+      <input message="s0:RescheduleRevisionSoapIn" />
+      <output message="s0:RescheduleRevisionSoapOut" />
+    </operation>
+    <operation name="ClearWork">
+      <input message="s0:ClearWorkSoapIn" />
+      <output message="s0:ClearWorkSoapOut" />
+    </operation>
+    <operation name="AbortWork">
+      <input message="s0:AbortWorkSoapIn" />
+      <output message="s0:AbortWorkSoapOut" />
+    </operation>
+    <operation name="PauseWork">
+      <input message="s0:PauseWorkSoapIn" />
+      <output message="s0:PauseWorkSoapOut" />
+    </operation>
+    <operation name="ResumeWork">
+      <input message="s0:ResumeWorkSoapIn" />
+      <output message="s0:ResumeWorkSoapOut" />
+    </operation>
+    <operation name="GetViewTableData">
+      <input message="s0:GetViewTableDataSoapIn" />
+      <output message="s0:GetViewTableDataSoapOut" />
+    </operation>
+    <operation name="GetViewWorkTableData">
+      <input message="s0:GetViewWorkTableDataSoapIn" />
+      <output message="s0:GetViewWorkTableDataSoapOut" />
+    </operation>
+    <operation name="GetLaneFileForEdit">
+      <input message="s0:GetLaneFileForEditSoapIn" />
+      <output message="s0:GetLaneFileForEditSoapOut" />
+    </operation>
+    <operation name="EditLaneFile">
+      <input message="s0:EditLaneFileSoapIn" />
+      <output message="s0:EditLaneFileSoapOut" />
+    </operation>
+    <operation name="GetViewLaneFileHistoryData">
+      <input message="s0:GetViewLaneFileHistoryDataSoapIn" />
+      <output message="s0:GetViewLaneFileHistoryDataSoapOut" />
+    </operation>
+    <operation name="GetUsers">
+      <input message="s0:GetUsersSoapIn" />
+      <output message="s0:GetUsersSoapOut" />
+    </operation>
+    <operation name="AddEnvironmentVariable">
+      <input message="s0:AddEnvironmentVariableSoapIn" />
+      <output message="s0:AddEnvironmentVariableSoapOut" />
+    </operation>
+    <operation name="EditEnvironmentVariable">
+      <input message="s0:EditEnvironmentVariableSoapIn" />
+      <output message="s0:EditEnvironmentVariableSoapOut" />
+    </operation>
+    <operation name="DeleteEnvironmentVariable">
+      <input message="s0:DeleteEnvironmentVariableSoapIn" />
+      <output message="s0:DeleteEnvironmentVariableSoapOut" />
+    </operation>
+    <operation name="UploadFile">
+      <input message="s0:UploadFileSoapIn" />
+      <output message="s0:UploadFileSoapOut" />
+    </operation>
+    <operation name="GetWorkState">
+      <input message="s0:GetWorkStateSoapIn" />
+      <output message="s0:GetWorkStateSoapOut" />
+    </operation>
+    <operation name="ReportBuildState">
+      <input message="s0:ReportBuildStateSoapIn" />
+      <output message="s0:ReportBuildStateSoapOut" />
+    </operation>
+    <operation name="GetBuildInfo">
+      <input message="s0:GetBuildInfoSoapIn" />
+      <output message="s0:GetBuildInfoSoapOut" />
+    </operation>
+  </portType>
+  <portType name="WebServicesSoap12">
+    <operation name="GetRoles">
+      <input message="s0:GetRolesSoapIn" />
+      <output message="s0:GetRolesSoapOut" />
+    </operation>
+    <operation name="Login">
+      <input message="s0:LoginSoapIn" />
+      <output message="s0:LoginSoapOut" />
+    </operation>
+    <operation name="CreateLanefile">
+      <input message="s0:CreateLanefileSoapIn" />
+      <output message="s0:CreateLanefileSoapOut" />
+    </operation>
+    <operation name="AttachFileToLane">
+      <input message="s0:AttachFileToLaneSoapIn" />
+      <output message="s0:AttachFileToLaneSoapOut" />
+    </operation>
+    <operation name="DeattachFileFromLane">
+      <input message="s0:DeattachFileFromLaneSoapIn" />
+      <output message="s0:DeattachFileFromLaneSoapOut" />
+    </operation>
+    <operation name="EditCommandFilename">
+      <input message="s0:EditCommandFilenameSoapIn" />
+      <output message="s0:EditCommandFilenameSoapOut" />
+    </operation>
+    <operation name="EditCommandSequence">
+      <input message="s0:EditCommandSequenceSoapIn" />
+      <output message="s0:EditCommandSequenceSoapOut" />
+    </operation>
+    <operation name="EditCommandArguments">
+      <input message="s0:EditCommandArgumentsSoapIn" />
+      <output message="s0:EditCommandArgumentsSoapOut" />
+    </operation>
+    <operation name="EditCommandTimeout">
+      <input message="s0:EditCommandTimeoutSoapIn" />
+      <output message="s0:EditCommandTimeoutSoapOut" />
+    </operation>
+    <operation name="SwitchCommandNonFatal">
+      <input message="s0:SwitchCommandNonFatalSoapIn" />
+      <output message="s0:SwitchCommandNonFatalSoapOut" />
+    </operation>
+    <operation name="SwitchCommandAlwaysExecute">
+      <input message="s0:SwitchCommandAlwaysExecuteSoapIn" />
+      <output message="s0:SwitchCommandAlwaysExecuteSoapOut" />
+    </operation>
+    <operation name="SwitchCommandInternal">
+      <input message="s0:SwitchCommandInternalSoapIn" />
+      <output message="s0:SwitchCommandInternalSoapOut" />
+    </operation>
+    <operation name="DeleteCommand">
+      <input message="s0:DeleteCommandSoapIn" />
+      <output message="s0:DeleteCommandSoapOut" />
+    </operation>
+    <operation name="AddCommand">
+      <input message="s0:AddCommandSoapIn" />
+      <output message="s0:AddCommandSoapOut" />
+    </operation>
+    <operation name="SwitchHostEnabledForLane">
+      <input message="s0:SwitchHostEnabledForLaneSoapIn" />
+      <output message="s0:SwitchHostEnabledForLaneSoapOut" />
+    </operation>
+    <operation name="RemoveHostForLane">
+      <input message="s0:RemoveHostForLaneSoapIn" />
+      <output message="s0:RemoveHostForLaneSoapOut" />
+    </operation>
+    <operation name="AddHostToLane">
+      <input message="s0:AddHostToLaneSoapIn" />
+      <output message="s0:AddHostToLaneSoapOut" />
+    </operation>
+    <operation name="AddDependencyToLane">
+      <input message="s0:AddDependencyToLaneSoapIn" />
+      <output message="s0:AddDependencyToLaneSoapOut" />
+    </operation>
+    <operation name="EditLaneDependencyFilename">
+      <input message="s0:EditLaneDependencyFilenameSoapIn" />
+      <output message="s0:EditLaneDependencyFilenameSoapOut" />
+    </operation>
+    <operation name="DeleteLaneDependency">
+      <input message="s0:DeleteLaneDependencySoapIn" />
+      <output message="s0:DeleteLaneDependencySoapOut" />
+    </operation>
+    <operation name="EditLaneDependencyDownloads">
+      <input message="s0:EditLaneDependencyDownloadsSoapIn" />
+      <output message="s0:EditLaneDependencyDownloadsSoapOut" />
+    </operation>
+    <operation name="UnlinkDeletionDirective">
+      <input message="s0:UnlinkDeletionDirectiveSoapIn" />
+      <output message="s0:UnlinkDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="DeleteDeletionDirective">
+      <input message="s0:DeleteDeletionDirectiveSoapIn" />
+      <output message="s0:DeleteDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="EnableDeletionDirective">
+      <input message="s0:EnableDeletionDirectiveSoapIn" />
+      <output message="s0:EnableDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="AddFileDeletionDirective">
+      <input message="s0:AddFileDeletionDirectiveSoapIn" />
+      <output message="s0:AddFileDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="AddLaneDeletionDirective">
+      <input message="s0:AddLaneDeletionDirectiveSoapIn" />
+      <output message="s0:AddLaneDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="FindLaneDeletionDirective">
+      <input message="s0:FindLaneDeletionDirectiveSoapIn" />
+      <output message="s0:FindLaneDeletionDirectiveSoapOut" />
+    </operation>
+    <operation name="GetLane">
+      <input message="s0:GetLaneSoapIn" />
+      <output message="s0:GetLaneSoapOut" />
+    </operation>
+    <operation name="GetHostForEdit">
+      <input message="s0:GetHostForEditSoapIn" />
+      <output message="s0:GetHostForEditSoapOut" />
+    </operation>
+    <operation name="AddMasterHost">
+      <input message="s0:AddMasterHostSoapIn" />
+      <output message="s0:AddMasterHostSoapOut" />
+    </operation>
+    <operation name="RemoveMasterHost">
+      <input message="s0:RemoveMasterHostSoapIn" />
+      <output message="s0:RemoveMasterHostSoapOut" />
+    </operation>
+    <operation name="GetLaneForEdit">
+      <input message="s0:GetLaneForEditSoapIn" />
+      <output message="s0:GetLaneForEditSoapOut" />
+    </operation>
+    <operation name="FindRevision">
+      <input message="s0:FindRevisionSoapIn" />
+      <output message="s0:FindRevisionSoapOut" />
+    </operation>
+    <operation name="FindLane">
+      <input message="s0:FindLaneSoapIn" />
+      <output message="s0:FindLaneSoapOut" />
+    </operation>
+    <operation name="EditLane">
+      <input message="s0:EditLaneSoapIn" />
+      <output message="s0:EditLaneSoapOut" />
+    </operation>
+    <operation name="EditHost">
+      <input message="s0:EditHostSoapIn" />
+      <output message="s0:EditHostSoapOut" />
+    </operation>
+    <operation name="GetViewLaneData">
+      <input message="s0:GetViewLaneDataSoapIn" />
+      <output message="s0:GetViewLaneDataSoapOut" />
+    </operation>
+    <operation name="GetFrontPageData">
+      <input message="s0:GetFrontPageDataSoapIn" />
+      <output message="s0:GetFrontPageDataSoapOut" />
+    </operation>
+    <operation name="GetLanes">
+      <input message="s0:GetLanesSoapIn" />
+      <output message="s0:GetLanesSoapOut" />
+    </operation>
+    <operation name="GetHosts">
+      <input message="s0:GetHostsSoapIn" />
+      <output message="s0:GetHostsSoapOut" />
+    </operation>
+    <operation name="CloneLane">
+      <input message="s0:CloneLaneSoapIn" />
+      <output message="s0:CloneLaneSoapOut" />
+    </operation>
+    <operation name="DeleteLane">
+      <input message="s0:DeleteLaneSoapIn" />
+      <output message="s0:DeleteLaneSoapOut" />
+    </operation>
+    <operation name="AddLane">
+      <input message="s0:AddLaneSoapIn" />
+      <output message="s0:AddLaneSoapOut" />
+    </operation>
+    <operation name="DeleteHost">
+      <input message="s0:DeleteHostSoapIn" />
+      <output message="s0:DeleteHostSoapOut" />
+    </operation>
+    <operation name="AddHost">
+      <input message="s0:AddHostSoapIn" />
+      <output message="s0:AddHostSoapOut" />
+    </operation>
+    <operation name="ClearRevision">
+      <input message="s0:ClearRevisionSoapIn" />
+      <output message="s0:ClearRevisionSoapOut" />
+    </operation>
+    <operation name="RescheduleRevision">
+      <input message="s0:RescheduleRevisionSoapIn" />
+      <output message="s0:RescheduleRevisionSoapOut" />
+    </operation>
+    <operation name="ClearWork">
+      <input message="s0:ClearWorkSoapIn" />
+      <output message="s0:ClearWorkSoapOut" />
+    </operation>
+    <operation name="AbortWork">
+      <input message="s0:AbortWorkSoapIn" />
+      <output message="s0:AbortWorkSoapOut" />
+    </operation>
+    <operation name="PauseWork">
+      <input message="s0:PauseWorkSoapIn" />
+      <output message="s0:PauseWorkSoapOut" />
+    </operation>
+    <operation name="ResumeWork">
+      <input message="s0:ResumeWorkSoapIn" />
+      <output message="s0:ResumeWorkSoapOut" />
+    </operation>
+    <operation name="GetViewTableData">
+      <input message="s0:GetViewTableDataSoapIn" />
+      <output message="s0:GetViewTableDataSoapOut" />
+    </operation>
+    <operation name="GetViewWorkTableData">
+      <input message="s0:GetViewWorkTableDataSoapIn" />
+      <output message="s0:GetViewWorkTableDataSoapOut" />
+    </operation>
+    <operation name="GetLaneFileForEdit">
+      <input message="s0:GetLaneFileForEditSoapIn" />
+      <output message="s0:GetLaneFileForEditSoapOut" />
+    </operation>
+    <operation name="EditLaneFile">
+      <input message="s0:EditLaneFileSoapIn" />
+      <output message="s0:EditLaneFileSoapOut" />
+    </operation>
+    <operation name="GetViewLaneFileHistoryData">
+      <input message="s0:GetViewLaneFileHistoryDataSoapIn" />
+      <output message="s0:GetViewLaneFileHistoryDataSoapOut" />
+    </operation>
+    <operation name="GetUsers">
+      <input message="s0:GetUsersSoapIn" />
+      <output message="s0:GetUsersSoapOut" />
+    </operation>
+    <operation name="AddEnvironmentVariable">
+      <input message="s0:AddEnvironmentVariableSoapIn" />
+      <output message="s0:AddEnvironmentVariableSoapOut" />
+    </operation>
+    <operation name="EditEnvironmentVariable">
+      <input message="s0:EditEnvironmentVariableSoapIn" />
+      <output message="s0:EditEnvironmentVariableSoapOut" />
+    </operation>
+    <operation name="DeleteEnvironmentVariable">
+      <input message="s0:DeleteEnvironmentVariableSoapIn" />
+      <output message="s0:DeleteEnvironmentVariableSoapOut" />
+    </operation>
+    <operation name="UploadFile">
+      <input message="s0:UploadFileSoapIn" />
+      <output message="s0:UploadFileSoapOut" />
+    </operation>
+    <operation name="GetWorkState">
+      <input message="s0:GetWorkStateSoapIn" />
+      <output message="s0:GetWorkStateSoapOut" />
+    </operation>
+    <operation name="ReportBuildState">
+      <input message="s0:ReportBuildStateSoapIn" />
+      <output message="s0:ReportBuildStateSoapOut" />
+    </operation>
+    <operation name="GetBuildInfo">
+      <input message="s0:GetBuildInfoSoapIn" />
+      <output message="s0:GetBuildInfoSoapOut" />
+    </operation>
+  </portType>
+  <portType name="WebServicesHttpGet">
+    <operation name="GetRoles">
+      <input message="s0:GetRolesHttpGetIn" />
+      <output message="s0:GetRolesHttpGetOut" />
+    </operation>
+  </portType>
+  <portType name="WebServicesHttpPost">
+    <operation name="GetRoles">
+      <input message="s0:GetRolesHttpPostIn" />
+      <output message="s0:GetRolesHttpPostOut" />
+    </operation>
+  </portType>
+  <binding name="WebServicesSoap" type="s0:WebServicesSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="GetRoles">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetRoles" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="Login">
+      <soap:operation soapAction="http://monkeywrench.novell.com/Login" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="CreateLanefile">
+      <soap:operation soapAction="http://monkeywrench.novell.com/CreateLanefile" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AttachFileToLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AttachFileToLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeattachFileFromLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeattachFileFromLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandFilename">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditCommandFilename" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandSequence">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditCommandSequence" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandArguments">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditCommandArguments" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandTimeout">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditCommandTimeout" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchCommandNonFatal">
+      <soap:operation soapAction="http://monkeywrench.novell.com/SwitchCommandNonFatal" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchCommandAlwaysExecute">
+      <soap:operation soapAction="http://monkeywrench.novell.com/SwitchCommandAlwaysExecute" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchCommandInternal">
+      <soap:operation soapAction="http://monkeywrench.novell.com/SwitchCommandInternal" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteCommand">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteCommand" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddCommand">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddCommand" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchHostEnabledForLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/SwitchHostEnabledForLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveHostForLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/RemoveHostForLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddHostToLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddHostToLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddDependencyToLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddDependencyToLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditLaneDependencyFilename">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditLaneDependencyFilename" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteLaneDependency">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteLaneDependency" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditLaneDependencyDownloads">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditLaneDependencyDownloads" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="UnlinkDeletionDirective">
+      <soap:operation soapAction="http://monkeywrench.novell.com/UnlinkDeletionDirective" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteDeletionDirective">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteDeletionDirective" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EnableDeletionDirective">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EnableDeletionDirective" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddFileDeletionDirective">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddFileDeletionDirective" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddLaneDeletionDirective">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddLaneDeletionDirective" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindLaneDeletionDirective">
+      <soap:operation soapAction="http://monkeywrench.novell.com/FindLaneDeletionDirective" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetHostForEdit">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetHostForEdit" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddMasterHost">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddMasterHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveMasterHost">
+      <soap:operation soapAction="http://monkeywrench.novell.com/RemoveMasterHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLaneForEdit">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetLaneForEdit" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindRevision">
+      <soap:operation soapAction="http://monkeywrench.novell.com/FindRevision" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/FindLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditHost">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewLaneData">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetViewLaneData" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetFrontPageData">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLanes">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetLanes" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetHosts">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetHosts" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="CloneLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/CloneLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteHost">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddHost">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ClearRevision">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ClearRevision" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RescheduleRevision">
+      <soap:operation soapAction="http://monkeywrench.novell.com/RescheduleRevision" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ClearWork">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ClearWork" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AbortWork">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AbortWork" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="PauseWork">
+      <soap:operation soapAction="http://monkeywrench.novell.com/PauseWork" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ResumeWork">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ResumeWork" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewTableData">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetViewTableData" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewWorkTableData">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetViewWorkTableData" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLaneFileForEdit">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetLaneFileForEdit" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditLaneFile">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditLaneFile" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewLaneFileHistoryData">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetViewLaneFileHistoryData" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetUsers">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetUsers" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddEnvironmentVariable">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddEnvironmentVariable" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditEnvironmentVariable">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditEnvironmentVariable" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteEnvironmentVariable">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteEnvironmentVariable" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="UploadFile">
+      <soap:operation soapAction="http://monkeywrench.novell.com/UploadFile" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetWorkState">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetWorkState" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ReportBuildState">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ReportBuildState" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetBuildInfo">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetBuildInfo" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+  </binding>
+  <binding name="WebServicesSoap12" type="s0:WebServicesSoap12">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="GetRoles">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetRoles" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="Login">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/Login" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="CreateLanefile">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/CreateLanefile" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AttachFileToLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AttachFileToLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeattachFileFromLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeattachFileFromLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandFilename">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditCommandFilename" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandSequence">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditCommandSequence" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandArguments">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditCommandArguments" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandTimeout">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditCommandTimeout" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchCommandNonFatal">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/SwitchCommandNonFatal" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchCommandAlwaysExecute">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/SwitchCommandAlwaysExecute" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchCommandInternal">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/SwitchCommandInternal" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteCommand">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteCommand" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddCommand">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddCommand" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchHostEnabledForLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/SwitchHostEnabledForLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveHostForLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/RemoveHostForLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddHostToLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddHostToLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddDependencyToLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddDependencyToLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditLaneDependencyFilename">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditLaneDependencyFilename" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteLaneDependency">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteLaneDependency" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditLaneDependencyDownloads">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditLaneDependencyDownloads" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="UnlinkDeletionDirective">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/UnlinkDeletionDirective" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteDeletionDirective">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteDeletionDirective" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EnableDeletionDirective">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EnableDeletionDirective" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddFileDeletionDirective">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddFileDeletionDirective" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddLaneDeletionDirective">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddLaneDeletionDirective" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindLaneDeletionDirective">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/FindLaneDeletionDirective" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetHostForEdit">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetHostForEdit" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddMasterHost">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddMasterHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveMasterHost">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/RemoveMasterHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLaneForEdit">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetLaneForEdit" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindRevision">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/FindRevision" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/FindLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditHost">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewLaneData">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetViewLaneData" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetFrontPageData">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLanes">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetLanes" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetHosts">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetHosts" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="CloneLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/CloneLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteHost">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddHost">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ClearRevision">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ClearRevision" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RescheduleRevision">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/RescheduleRevision" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ClearWork">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ClearWork" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AbortWork">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AbortWork" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="PauseWork">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/PauseWork" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ResumeWork">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ResumeWork" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewTableData">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetViewTableData" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewWorkTableData">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetViewWorkTableData" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLaneFileForEdit">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetLaneFileForEdit" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditLaneFile">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditLaneFile" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewLaneFileHistoryData">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetViewLaneFileHistoryData" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetUsers">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetUsers" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddEnvironmentVariable">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddEnvironmentVariable" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditEnvironmentVariable">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditEnvironmentVariable" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteEnvironmentVariable">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteEnvironmentVariable" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="UploadFile">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/UploadFile" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetWorkState">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetWorkState" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ReportBuildState">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ReportBuildState" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetBuildInfo">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetBuildInfo" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+  </binding>
+  <binding name="WebServicesHttpGet" type="s0:WebServicesHttpGet">
+    <http:binding verb="GET" />
+    <operation name="GetRoles">
+      <http:operation location="/GetRoles" />
+      <input>
+        <http:urlEncoded />
+      </input>
+      <output>
+        <mime:mimeXml part="Body" />
+      </output>
+    </operation>
+  </binding>
+  <binding name="WebServicesHttpPost" type="s0:WebServicesHttpPost">
+    <http:binding verb="POST" />
+    <operation name="GetRoles">
+      <http:operation location="/GetRoles" />
+      <input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </input>
+      <output>
+        <mime:mimeXml part="Body" />
+      </output>
+    </operation>
+  </binding>
+  <service name="WebServices">
+    <port name="WebServicesSoap" binding="s0:WebServicesSoap">
+      <soap:address location="http://localhost:8123/WebServices/WebServices.asmx" />
+    </port>
+    <port name="WebServicesSoap12" binding="s0:WebServicesSoap12">
+      <soap12:address location="http://localhost:8123/WebServices/WebServices.asmx" />
+    </port>
+    <port name="WebServicesHttpGet" binding="s0:WebServicesHttpGet">
+      <http:address location="http://localhost:8123/WebServices/WebServices.asmx" />
+    </port>
+    <port name="WebServicesHttpPost" binding="s0:WebServicesHttpPost">
+      <http:address location="http://localhost:8123/WebServices/WebServices.asmx" />
+    </port>
+  </service>
+</definitions>

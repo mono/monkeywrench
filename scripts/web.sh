@@ -8,11 +8,10 @@ pushd .
 
 cd `dirname $0`
 
-source config.sh
+make -C .. all
+ROOT=`readlink -f $PWD/..`
 
-make database
-
-MONO_OPTIONS=--debug xsp2 --port 8123 --root $BUILDER_CONFIG/web  --nonstop >> /tmp/xsp2.log 2>&1
+MONO_OPTIONS=--debug xsp2 --port 8123 --root $ROOT --applications /WebServices:$ROOT/MonkeyWrench.Web.WebService/,/:$ROOT/MonkeyWrench.Web.UI --nonstop >> /tmp/xsp2.log 2>&1
 
 popd
 
