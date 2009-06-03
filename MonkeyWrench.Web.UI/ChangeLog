@@ -1,3 +1,8 @@
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* GetFile.aspx.cs: Don't use WriteFile, deleting the file
+	right after breaks apache.
+
 2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ViewWorkTable.aspx.designer.cs: Updated.

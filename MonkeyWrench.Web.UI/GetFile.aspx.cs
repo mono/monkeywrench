@@ -37,7 +37,19 @@ public partial class GetFile : System.Web.UI.Page
 				Response.AppendHeader ("Content-Disposition", web.ResponseHeaders ["Content-Disposition"]);
 				Response.AppendHeader ("Content-Encoding", web.ResponseHeaders ["Content-Encoding"]);
 
-				Response.WriteFile (tmpfile);
+				byte [] buffer = new byte [1024];
+				int read;
+				using (FileStream fs = new FileStream (tmpfile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					using (StreamReader reader = new StreamReader (fs)) {
+						while ((read = fs.Read (buffer, 0, buffer.Length)) != 0) {
+							Response.OutputStream.Write (buffer, 0, read);
+						}
+					}
+				}
+				// This would be the best I guess, but I get intermittent failures with 
+				// " [error] command failed: failed to send file (file data)" 
+				// in apache's error log
+				// Response.WriteFile (tmpfile);
 				Response.Flush ();
 				Response.Close ();
 			}
