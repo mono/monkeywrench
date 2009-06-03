@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel='stylesheet' href='../build.css' type='text/css' />
+    <title>Builder Documentation</title>
+</head>
+<body>
+    <h1>
+        <a href='index.html'>Builder Documentation</a>
+    </h1>
+       
+    <p>
+        &nbsp;</p>
+    <p>
+        * Database.</p>
+    <p>
+        * Scheduler.</p>
+    <p>
+        * Builder.</p>
+    <p>
+        &nbsp;</p>
+    <p>
+        The scheduler runs every 5 minutes on the database server and:</p>
+    <p>
+        * Checks source control for new revisions.</p>
+    <p>
+        * For each new revision, loops through all hosts and schedules work to the 
+        database.</p>
+    <p>
+        &nbsp;</p>
+    <p>
+        The builder runs every minute on the client and:</p>
+    <p>
+        * Exits if another builder is already running.</p>
+    <p>
+        * Checks database for work, if so, goes ahead and executes that.</p>
+    <p>
+        &nbsp;</p>
+    <p>
+        Work</p>
+    <p>
+        * Consists of a command to execute. Every lane has a list of of files, the 
+        command would typically be to execute any of those files.</p>
+    <p>
+        * Two special flags can be set:
+    </p>
+    <ul>
+        <li>Always execute: should be executed even if any previous work failed (typical 
+            usage would be for cleanup).&nbsp; </li>
+        <li>Nonfatal: doesn&#39;t prevent any subsequent work from being executed (typical usage 
+            would be for tests).</li>
+    </ul>
+       
+</body>
+</html>

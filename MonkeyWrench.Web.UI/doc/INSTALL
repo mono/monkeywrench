@@ -1,0 +1,27 @@
+Install OpenSUSE 11.0
+- Gnome
+
+Packages to add (zypper):
+- subversion
+- make
+- autoconf
+- automake
+- libtool
+- gcc-c++
+- glib2-devel
+- gtk2-devel
+
+- alsa-devel
+- libpulse-devel
+- ffmpeg
+- libffmpeg-devel
+- mozilla-xulrunner190-devel
+- imagemagick-devel
+- libmagick++-devel
+- dbus-1-glib-devel
+- xsp
+
+- postgres?
+
+ms tests:
+install fonts "mv * ~/.fonts && fc-cache ~/.fonts"

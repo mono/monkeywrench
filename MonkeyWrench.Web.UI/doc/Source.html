@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Source code organization</title>
+</head>
+<body>
+    <h1>
+        Source code organization</h1>
+    <h2>
+        Projects</h2>
+    <ul>
+        <li>MonkeyWrench</li>
+        <li>MonkeyWrench.Builder</li>
+        <li>MonkeyWrench.Database</li>
+        <li>MonkeyWrench.DataClasses</li>
+        <li>MonkeyWrench.Scheduler</li>
+        <li>MonkeyWrench.Web.UI</li>
+        <li>MonkeyWrench.Web.WebService</li></ul>
+    <h3>MonkeyWrench</h3>
+    <div>
+        This is a common project for source code relevant all other projects.
+    </div>
+    <h3>MonkeyWrench.Builder</h3>
+    <div>
+        The program executed on the buildbot.
+    </div>
+    <h3>MonkeyWrench.Database</h3>
+    <div>
+        Common source code for all projects/executables accessing the database directly (the scheduler and the web service).
+    </div>
+    <h3>MonkeyWrench.DataClasses</h3>
+    <div>
+        Common source code for database logic.</div>
+    <h3>MonkeyWrench.Scheduler</h3>
+    <div>
+        The program executed on the database server to update the database when new revisions are committed.</div>
+    <h3>MonkeyWrench.Web.UI</h3>
+    <div>
+        The web ui</div>
+    <h3>MonkeyWrench.Web.WebService</h3>
+    <div>
+        The web service</div>
+    <h4>
+        Files</h4>
+    <ul>
+        <li>Download.aspx</li>
+        <li>Download.aspx.cs: </li>
+        auxiliary page to provide http download of files (using a web service to download big files is very inefficient)
+        <li>WebServices.asmx:</li>
+        <li>WebServices.asmx.cs: </li>
+        the web service itself
+        <li>WebServices.wsdl: used to generate WebServices.cs </li>
+        <li>WebServices.cs: the file to include in other projects </li>
+        <li>WsdlGenerator.*: Helper files for generating the WebServices.wsdl file</li>
+    </ul>
+    <h4>
+        Generating WebServices.cs to include in other projects
+    </h4>
+    This process has to be done on Windows (I use custom serialization to not generate proxy classes for our dataclasses, since they're be defined in a referenced library, and I haven&#39;t found out how to do this in Mono).
+    <ul>
+        <li>run web.sh in ../scripts (which will start up xsp2 on 8123)</li>
+        <li>run 'make WebServices.wsdl' (this will fetch the wsdl from xsp2 you just started)</li>
+        <li>Run WsdlGenerator.cmd on Windows, this will produce the WebServices.cs which the other projects include.</li>
+    </ul>
+</body>
+</html>

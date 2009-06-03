@@ -1,0 +1,281 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}</ProjectGuid>
+    <ProjectTypeGuids>{349C5851-65DF-11DA-9384-00065B846F21};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MonkeyWrench.Web.UI</RootNamespace>
+    <AssemblyName>MonkeyWrench.Web.UI</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="doc\Faq.htm" />
+    <Content Include="doc\Howto.html" />
+    <Content Include="doc\index.html" />
+    <Content Include="doc\overview.html" />
+    <Content Include="doc\Source.html" />
+    <Content Include="doc\Todo.html" />
+    <Content Include="EditHost.aspx" />
+    <Content Include="EditHost.js" />
+    <Content Include="EditHosts.aspx" />
+    <Content Include="EditHosts.js" />
+    <Content Include="EditLane.aspx" />
+    <Content Include="EditLane.js" />
+    <Content Include="EditLaneFile.aspx" />
+    <Content Include="EditLanes.aspx" />
+    <Content Include="EditLanes.js" />
+    <Content Include="EnvironmentVariablesEditor.ascx" />
+    <Content Include="GetFile.aspx" />
+    <Content Include="GetRevisionLog.aspx" />
+    <Content Include="Global.asax" />
+    <Content Include="index.aspx" />
+    <Content Include="Login.aspx" />
+    <Content Include="MonkeyWrench.js" />
+    <Content Include="ReportCommit.aspx" />
+    <Content Include="User.aspx" />
+    <Content Include="Users.aspx" />
+    <Content Include="ViewHtmlReport.aspx" />
+    <Content Include="ViewLane.aspx" />
+    <Content Include="ViewLaneFileHistory.aspx" />
+    <Content Include="ViewTable.js" />
+    <Content Include="ViewTable.aspx" />
+    <Content Include="ViewWorkTable.aspx" />
+    <Content Include="build.css" />
+    <Content Include="Master.master" />
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EditHost.aspx.designer.cs">
+      <DependentUpon>EditHost.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditHosts.aspx.designer.cs">
+      <DependentUpon>EditHosts.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditLane.aspx.designer.cs">
+      <DependentUpon>EditLane.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditLaneFile.aspx.designer.cs">
+      <DependentUpon>EditLaneFile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditLanes.aspx.designer.cs">
+      <DependentUpon>EditLanes.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EnvironmentVariablesEditor.ascx.cs">
+      <DependentUpon>EnvironmentVariablesEditor.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EnvironmentVariablesEditor.ascx.designer.cs">
+      <DependentUpon>EnvironmentVariablesEditor.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="GetFile.aspx.designer.cs">
+      <DependentUpon>GetFile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GetRevisionLog.aspx.designer.cs">
+      <DependentUpon>GetRevisionLog.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="index.aspx.designer.cs">
+      <DependentUpon>index.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Master.master.designer.cs">
+      <DependentUpon>Master.master</DependentUpon>
+    </Compile>
+    <Compile Include="Code\Authentication.cs" />
+    <Compile Include="Code\LaneTreeNode.cs" />
+    <Compile Include="Code\Utils.cs" />
+    <Compile Include="EditHost.aspx.cs">
+      <DependentUpon>EditHost.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditHosts.aspx.cs">
+      <DependentUpon>EditHosts.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditLane.aspx.cs">
+      <DependentUpon>EditLane.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditLaneFile.aspx.cs">
+      <DependentUpon>EditLaneFile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditLanes.aspx.cs">
+      <DependentUpon>EditLanes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GetFile.aspx.cs">
+      <DependentUpon>GetFile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GetRevisionLog.aspx.cs">
+      <DependentUpon>GetRevisionLog.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="index.aspx.cs">
+      <DependentUpon>index.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Master.master.cs">
+      <DependentUpon>Master.master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="ReportCommit.aspx.cs">
+      <DependentUpon>ReportCommit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ReportCommit.aspx.designer.cs">
+      <DependentUpon>ReportCommit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="User.aspx.cs">
+      <DependentUpon>User.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="User.aspx.designer.cs">
+      <DependentUpon>User.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Users.aspx.cs">
+      <DependentUpon>Users.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users.aspx.designer.cs">
+      <DependentUpon>Users.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewHtmlReport.aspx.cs">
+      <DependentUpon>ViewHtmlReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewHtmlReport.aspx.designer.cs">
+      <DependentUpon>ViewHtmlReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewLane.aspx.cs">
+      <DependentUpon>ViewLane.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewLane.aspx.designer.cs">
+      <DependentUpon>ViewLane.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewLaneFileHistory.aspx.cs">
+      <DependentUpon>ViewLaneFileHistory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewLaneFileHistory.aspx.designer.cs">
+      <DependentUpon>ViewLaneFileHistory.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewTable.aspx.cs">
+      <DependentUpon>ViewTable.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewTable.aspx.designer.cs">
+      <DependentUpon>ViewTable.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewWorkTable.aspx.cs">
+      <DependentUpon>ViewWorkTable.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewWorkTable.aspx.designer.cs">
+      <DependentUpon>ViewWorkTable.aspx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ChangeLog" />
+    <None Include="doc\INSTALL" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonkeyWrench.DataClasses\MonkeyWrench.DataClasses.csproj">
+      <Project>{A461423E-8232-42D6-AA34-8DEC97F6D8F8}</Project>
+      <Name>MonkeyWrench.DataClasses</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench\MonkeyWrench.csproj">
+      <Project>{EBFBC3BF-10E1-4482-B9BE-A516934C099A}</Project>
+      <Name>MonkeyWrench</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\WebApplications\Microsoft.WebApplication.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349C5851-65DF-11DA-9384-00065B846F21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>1490</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>
+          </IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+    <MonoDevelop>
+      <Properties VerifyCodeBehindFields="true" VerifyCodeBehindEvents="true">
+        <XspParameters Port="8080" Address="127.0.0.1" SslMode="None" SslProtocol="Default" KeyType="None" CertFile="" KeyFile="" PasswordOptions="None" Password="" Verbose="true" />
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>

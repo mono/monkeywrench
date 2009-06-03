@@ -1,0 +1,30 @@
+<%@ Master Language="C#" AutoEventWireup="True" Inherits="Master" CodeBehind="Master.master.cs" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>MonkeyWrench</title>
+    <link rel='stylesheet' href='build.css' type='text/css' />
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8' />
+</head>
+<body>
+    <asp:Table runat="server" CssClass='headertable' ID="tableHeader">
+    </asp:Table>
+    <form id="form1" runat="server">
+    <div>
+        <div id="left-content"  class="left-content">
+            <asp:TreeView ID="treeMain" runat="server" />
+        </div>
+        <div id="right-content" class="right-content" >
+            <asp:ContentPlaceHolder ID="content" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+    </div>
+    </form>
+    <div>
+        <hr />
+        <asp:Table runat="server" CssClass='footertable' ID="tableFooter">
+        </asp:Table>
+    </div>
+</body>
+</html>
