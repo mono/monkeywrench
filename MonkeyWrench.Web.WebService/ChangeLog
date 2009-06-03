@@ -1,5 +1,9 @@
 2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* WebServices.asmx: Fix typo in sql statement.
+
+2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Makefile: Create destination directory before trying 
 	to copy files to it.
 

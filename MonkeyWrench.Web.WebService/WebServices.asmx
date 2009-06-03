@@ -941,7 +941,7 @@ FROM HostLane";
                     cmd.CommandText = @"
 SELECT * 
 FROM WorkView2
-WHERE command_id = @command_id AND master_host_id = @host_id AND lane_id = @lane_id
+WHERE command_id = @command_id AND masterhost_id = @host_id AND lane_id = @lane_id
 ORDER BY revision DESC LIMIT 250;
 ";
                     DB.CreateParameter (cmd, "command_id", response.Command.id);
