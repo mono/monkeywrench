@@ -21,6 +21,7 @@ namespace MonkeyWrench.DataClasses
 	{
 		const string OUTPUT_DIR = "Database";
 		static Dictionary<string, string> col_type_mapping = new Dictionary<string, string> (StringComparer.OrdinalIgnoreCase);
+		static Dictionary<string, bool> col_type_isnull_mapping = new Dictionary<string, bool> (StringComparer.OrdinalIgnoreCase);
 
 		public static void Main (string [] args)
 		{
@@ -218,6 +219,7 @@ namespace MonkeyWrench.DataClasses
 	{{", name);
 				for (int c = 0; c < columns.Count; c++) {
 					string type;
+					bool is_null = false;
 
 					ViewColumns col = columns [c];
 
@@ -247,7 +249,16 @@ namespace MonkeyWrench.DataClasses
 					}
 
 					mtype = col_type_mapping [type];
+					if (col_type_isnull_mapping.ContainsKey (type)) {
+						is_null = col_type_isnull_mapping [type];
+						Console.WriteLine ("{0} isnull:  {1}", type, is_null);
+					}
+
 					all_columns.Add (col.Name);
+
+					if (is_null && !mtype.EndsWith ("?"))
+						mtype += "?";
+
 					Console.WriteLine ("Found mtype {0} for column {1} type {2}", mtype, column, type);
 
 					writer.WriteLine ("\t\tprivate {0} _{1};", mtype, col.Name);
@@ -418,6 +429,7 @@ namespace MonkeyWrench.DataClasses
 						mtype += "?";
 
 					col_type_mapping.Add (table + "." + column, mtype);
+					col_type_isnull_mapping.Add (table + "." + column, is_null);
 
 					columns.Add (column);
 					writer.WriteLine ("\t\tprivate {0} _{1};", mtype, column);

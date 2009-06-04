@@ -33,6 +33,7 @@ all clean publish install:
 	$(MAKE) -C MonkeyWrench $@
 	$(MAKE) -C MonkeyWrench.DataClasses $@
 	$(MAKE) -C MonkeyWrench.Database $@
+	$(MAKE) -C MonkeyWrench.Database.Manager $@
 	$(MAKE) -C MonkeyWrench.Scheduler $@
 	$(MAKE) -C MonkeyWrench.Builder $@
 	$(MAKE) -C MonkeyWrench.Web.UI $@
@@ -53,16 +54,8 @@ web: all
 generate:
 	$(MAKE) -C MonkeyWrench.DataClasses $@
 
-#
-#clean-large-objects: filemanager
-#	mono --debug bin/Builder.FileManager.exe clean-large-objects
-#
-#compress-files: filemanager
-#	mono --debug bin/Builder.FileManager.exe compress-files
-#
-#execute-deletion-directives: filemanager
-#	mono --debug bin/Builder.FileManager.exe execute-deletion-directives
-#
+clean-large-objects compress-files execute-deletion-directives move-files-to-file-system move-files-to-database: all
+	mono --debug class/lib/MonkeyWrench.Database.Manager.exe --$@
 
 zip:
 	echo "Not implemented yet"

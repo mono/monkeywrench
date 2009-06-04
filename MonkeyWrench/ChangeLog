@@ -1,4 +1,11 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* MimeTypes.cs:
+	* FileUtilities.cs:
+	* Configuration.cs: Add support for storing files outside
+	of the database.
+
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Configuration.cs: Moved documentation to html file.
 

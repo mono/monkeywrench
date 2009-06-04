@@ -1299,7 +1299,7 @@ ORDER BY revision DESC LIMIT 250;
                                 foreach (DBWorkFile file in work_files) {
                                     bool download = true;
                                     foreach (string exp in dep.download_files.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries)) {
-                                        if (!System.Text.RegularExpressions.Regex.IsMatch (file.filename, FileManager.GlobToRegExp (exp))) {
+                                        if (!System.Text.RegularExpressions.Regex.IsMatch (file.filename, FileUtilities.GlobToRegExp (exp))) {
                                             download = false;
                                             break;
                                         }

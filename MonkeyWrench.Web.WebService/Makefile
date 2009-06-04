@@ -9,13 +9,13 @@ OUT_DIR = $(TOPDIR)/class/lib
 OUT = $(OUT_DIR)/$(LIBRARY)
 
 BUILDABLE_REFS = \
-	$(OUT_DIR)/Npgsql.dll	\
 	$(OUT_DIR)/MonkeyWrench.dll	\
 	$(OUT_DIR)/MonkeyWrench.DataClasses.dll	\
 	$(OUT_DIR)/MonkeyWrench.Database.dll
 
 REFERENCES = \
 	$(foreach ref,$(BUILDABLE_REFS),-r:$(ref))	\
+	-r:Npgsql.dll	\
 	-r:System.Data.dll	\
 	-r:System.Web.dll	\
 	-r:System.Web.Services.dll
@@ -24,7 +24,7 @@ SOURCES = \
 	$(wildcard *.cs)
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	MONO_PATH=$(OUT_DIR):$(MONO_PATH) gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 all: $(OUT)
 

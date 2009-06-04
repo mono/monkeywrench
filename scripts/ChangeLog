@@ -1,3 +1,8 @@
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* database.sql: Add support for storing files outside of 
+	the database.
+
 2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: Update comment about roles.

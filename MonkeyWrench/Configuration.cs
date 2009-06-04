@@ -31,6 +31,14 @@ namespace MonkeyWrench
 		public static string WebServicePassword;
 		public static string DatabaseHost = "localhost";
 		public static string DatabasePort;
+		public static bool StoreFilesInDB = false;
+
+		//the following are used by the database manager.
+		public static bool CleanLargeObjects;
+		public static bool CompressFiles;
+		public static bool ExecuteDeletionDirectives;
+		public static bool MoveFilesToFileSystem;
+		public static bool MoveFilesToDatabase;
 
 		private static string GetNodeValue (this XmlNode node, string @default)
 		{
@@ -92,6 +100,7 @@ namespace MonkeyWrench
 				WebServicePassword = xml.SelectSingleNode ("/MonkeyWrench/Configuration/WebServicePassword").GetNodeValue (WebServicePassword);
 				DatabaseHost = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabaseHost").GetNodeValue (DatabaseHost);
 				DatabasePort = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabasePort").GetNodeValue (DatabasePort);
+				StoreFilesInDB = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/StoreFilesInDb").GetNodeValue (StoreFilesInDB.ToString ()));
 
 				// override from command line
 
@@ -107,6 +116,14 @@ namespace MonkeyWrench
 					{"webservicepassword", v => WebServicePassword = v},
 					{"databasehost", v => DatabaseHost = v},
 					{"databaseport", v => DatabasePort = v},
+					{"storefilesindb", v => StoreFilesInDB = Boolean.Parse (v)},
+
+					// values for the database manager
+					{"compress-files", v => CompressFiles = true},
+					{"clean-large-objects", v => CleanLargeObjects = true},
+					{"execute-deletion-directives", v => ExecuteDeletionDirectives = true},
+					{"move-files-to-file-system", v => MoveFilesToFileSystem = true},
+					{"move-files-to-database", v => MoveFilesToDatabase = true},
 				};
 				if (help) {
 					ShowHelp (set);
@@ -304,6 +321,15 @@ namespace MonkeyWrench
 		public static string GetSchedulerCommitsDirectory ()
 		{
 			return Path.Combine (DataDirectory, "commits");
+		}
+
+		/// <summary>
+		/// The directory where the database stores the files (as opposed to storing the files in the db itself)
+		/// </summary>
+		/// <returns></returns>
+		public static string GetFilesDirectory ()
+		{
+			return Path.Combine (Path.Combine (DataDirectory, "db"), "files");
 		}
 	}
 }

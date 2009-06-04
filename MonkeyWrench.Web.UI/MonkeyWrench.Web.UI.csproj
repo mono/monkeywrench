@@ -40,6 +40,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="doc\Configuration.html" />
     <Content Include="doc\Faq.htm" />
     <Content Include="doc\Howto.html" />
     <Content Include="doc\index.html" />

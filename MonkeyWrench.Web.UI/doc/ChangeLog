@@ -1,5 +1,11 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Source.html:
+	* Configuration.html: Updated with new documentation for new
+	project.
+
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* index.html:
 	* Configuration.html: Added documentation for the MonkeyWrench.xml
 	 format

@@ -1,3 +1,7 @@
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* SqlToCSharp.cs: Add support for nullable types in views.
+
 2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Utils.cs: Don't hardcode the path to the web service.

@@ -64,7 +64,6 @@
     <Compile Include="Extensions\DBWorkFileView_Extensions.cs" />
     <Compile Include="Extensions\DBWorkFile_Extensions.cs" />
     <Compile Include="Extensions\DBWork_Extensions.cs" />
-    <Compile Include="FileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

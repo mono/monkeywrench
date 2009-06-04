@@ -121,7 +121,7 @@ namespace MonkeyWrench
 			{
 				try {
 					transaction = db.dbcon.BeginTransaction ();
-					obj = db.Manager.Open (file.file_id);
+					obj = db.Manager.Open (file.file_id.Value);
 				} catch {
 					if (transaction != null) {
 						transaction.Rollback ();
@@ -213,11 +213,6 @@ namespace MonkeyWrench
 			return new DBFileStream (DBFile_Extensions.Create (this, file.file_id), this);
 		}
 
-		public int GetSize (DBFile file)
-		{
-			return GetLargeObjectSize (file.file_id);
-		}
-
 		public int GetSize (int file_id)
 		{
 			using (IDbCommand cmd = Connection.CreateCommand ()) {
@@ -252,7 +247,7 @@ namespace MonkeyWrench
 			IDbTransaction transaction = null;
 			LargeObjectManager manager;
 			LargeObject obj;
-			int oid;
+			int? oid;
 			string md5;
 			DBFile result;
 			long filesize;
@@ -283,23 +278,31 @@ namespace MonkeyWrench
 				// the same file might get added to the db before we do it here.
 				// not quite sure how to deal with that except retrying the above if the insert below fails.
 
-				gzFilename = FileManager.GZCompress (Filename);
+				gzFilename = FileUtilities.GZCompress (Filename);
 
 				transaction = Connection.BeginTransaction ();
 
-				manager = new LargeObjectManager (this.dbcon);
-				oid = manager.Create (LargeObjectManager.READWRITE);
-				obj = manager.Open (oid, LargeObjectManager.READWRITE);
+				if (Configuration.StoreFilesInDB) {
+					manager = new LargeObjectManager (this.dbcon);
+					oid = manager.Create (LargeObjectManager.READWRITE);
+					obj = manager.Open (oid.Value, LargeObjectManager.READWRITE);
 
-				using (FileStream st = new FileStream (gzFilename != null ? gzFilename : Filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-					byte [] buffer = new byte [1024];
-					int read = -1;
-					while (read != 0) {
-						read = st.Read (buffer, 0, buffer.Length);
-						obj.Write (buffer, 0, read);
+					using (FileStream st = new FileStream (gzFilename != null ? gzFilename : Filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+						byte [] buffer = new byte [1024];
+						int read = -1;
+						while (read != 0) {
+							read = st.Read (buffer, 0, buffer.Length);
+							obj.Write (buffer, 0, read);
+						}
 					}
+					obj.Close ();
+				} else {
+					oid = null;
+					string fn = FileUtilities.CreateFilename (md5, !string.IsNullOrEmpty (gzFilename), true);
+
+					File.Copy (Filename, fn, true);
+					Logger.Log ("Saved file to: {0}", fn);
 				}
-				obj.Close ();
 
 				result = new DBFile ();
 				result.file_id = oid;
@@ -309,42 +312,47 @@ namespace MonkeyWrench
 				result.hidden = hidden;
 				switch (extension.ToLower ()) {
 				case ".log":
+					result.mime = MimeTypes.LOG;
+					break;
 				case ".txt":
+					result.mime = MimeTypes.TXT;
+					break;
 				case ".html":
+					result.mime = MimeTypes.HTML;
+					break;
 				case ".htm":
-					// TODO: Compress this
-					result.mime = "text/plain";
+					result.mime = MimeTypes.HTM;
 					break;
 				case ".png":
-					result.mime = "image/png";
+					result.mime = MimeTypes.PNG;
 					break;
 				case ".jpg":
-					result.mime = "image/jpeg";
+					result.mime = MimeTypes.JPG;
 					break;
 				case ".bmp":
-					result.mime = "image/bmp";
+					result.mime = MimeTypes.BMP;
 					break;
 				case ".tar":
-					result.mime = "application/x-tar";
+					result.mime = MimeTypes.TAR;
 					break;
 				case ".bz":
-					result.mime = "application/x-bzip";
+					result.mime = MimeTypes.BZ;
 					break;
 				case ".bz2":
-					result.mime = "application/x-bzip2";
+					result.mime = MimeTypes.BZ2;
 					break;
 				case ".zip":
-					result.mime = "application/zip";
+					result.mime = MimeTypes.ZIP; ;
 					break;
 				case ".gz":
-					result.mime = "application/x-gzip";
+					result.mime = MimeTypes.GZ;
 					break;
 				default:
-					result.mime = "application/octet-stream";
+					result.mime = MimeTypes.OCTET_STREAM;
 					break;
 				}
 				if (gzFilename != null)
-					result.compressed_mime = "application/x-gzip";
+					result.compressed_mime = MimeTypes.GZ;
 				result.Save (this);
 
 				transaction.Commit ();

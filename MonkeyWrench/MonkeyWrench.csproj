@@ -35,12 +35,14 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="FileUtilities.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="MimeTypes.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="ProcessHelper.cs" />
   </ItemGroup>

@@ -1,5 +1,10 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DBLaneDeletionDirectiveView_Extensions.cs: Update according
+	to API changes.
+
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DBRevisionWork_Extensions.cs: Only include work for one 
 	sequence value at a time.
 

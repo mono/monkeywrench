@@ -1,3 +1,7 @@
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* MonkeyWrench.sln: Added new project.
+
 2009-06-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* everything: Major rewrite to use a web services instead

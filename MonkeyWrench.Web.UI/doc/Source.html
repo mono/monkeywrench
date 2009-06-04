@@ -12,6 +12,7 @@
         <li>MonkeyWrench</li>
         <li>MonkeyWrench.Builder</li>
         <li>MonkeyWrench.Database</li>
+        <li>MonkeyWrench.Database.Manager</li>
         <li>MonkeyWrench.DataClasses</li>
         <li>MonkeyWrench.Scheduler</li>
         <li>MonkeyWrench.Web.UI</li>
@@ -27,6 +28,15 @@
     <h3>MonkeyWrench.Database</h3>
     <div>
         Common source code for all projects/executables accessing the database directly (the scheduler and the web service).
+    </div>
+    <h3>MonkeyWrench.Database.Manager</h3>
+    <div>
+        This is a database management utility, used to:
+        <ul>
+            <li>Execute retention directives regularily</li>
+            <li>Can move files between file system storage and database storage</li>
+            <li>Database GC</li>
+        </ul>
     </div>
     <h3>MonkeyWrench.DataClasses</h3>
     <div>
@@ -44,11 +54,9 @@
         Files</h4>
     <ul>
         <li>Download.aspx</li>
-        <li>Download.aspx.cs: </li>
-        auxiliary page to provide http download of files (using a web service to download big files is very inefficient)
+        <li>Download.aspx.cs: auxiliary page to provide http download of files (using a web service to download big files is very inefficient) </li>
         <li>WebServices.asmx:</li>
-        <li>WebServices.asmx.cs: </li>
-        the web service itself
+        <li>WebServices.asmx.cs: the web service itself </li>
         <li>WebServices.wsdl: used to generate WebServices.cs </li>
         <li>WebServices.cs: the file to include in other projects </li>
         <li>WsdlGenerator.*: Helper files for generating the WebServices.wsdl file</li>

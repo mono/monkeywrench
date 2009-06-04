@@ -209,7 +209,8 @@ CREATE TABLE File (
 	id              serial     PRIMARY KEY,
 	filename        text       NOT NULL DEFAULT '',   -- filenames can be duplicate
 	md5             text       UNIQUE NOT NULL,       -- having an md5 checksum allows us to use the same record for all equal files 
-	file_id         int        NOT NULL,              -- the large object id (should this be defined as oid instead of int?)
+	file_id         int        NULL DEFAULT NULL,         -- the large object id (should this be defined as oid instead of int?)
+                                                      -- if this is null, the file is stored on the disk (in the db/files sub directory of DataDirectory as specified in MonkeyWrench.xml)
 	mime            text       NOT NULL DEFAULT '',   -- the mime type of the file
 	compressed_mime text       NOT NULL DEFAULT '',   -- if the file is stored compressed, this field is not '', and it specifies the compression algorithm (application/zip, tar, etc). 
 	                                                  -- this allows us to store for instance log files compressed, and the web server can deliver the compressed log file by
@@ -284,7 +285,7 @@ CREATE VIEW LoginView AS
 	WHERE expires > now ();
 	
 CREATE VIEW WorkFileView AS
-	SELECT WorkFile.id, WorkFile.work_id, WorkFile.file_id, WorkFile.filename, WorkFile.hidden, File.mime, File.compressed_mime, Command.internal
+	SELECT WorkFile.id, WorkFile.work_id, WorkFile.file_id, WorkFile.filename, WorkFile.hidden, File.mime, File.compressed_mime, File.md5, Command.internal, File.file_id AS file_file_id
 	FROM WorkFile
 		INNER JOIN File ON WorkFile.file_id = File.id
 		INNER JOIN Work ON WorkFile.work_id = Work.id

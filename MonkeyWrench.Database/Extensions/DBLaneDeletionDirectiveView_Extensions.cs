@@ -66,7 +66,7 @@ namespace MonkeyWrench.Database
 					if (string.IsNullOrEmpty (glob))
 						continue;
 
-					if (System.Text.RegularExpressions.Regex.IsMatch (fn, FileManager.GlobToRegExp (glob)))
+					if (System.Text.RegularExpressions.Regex.IsMatch (fn, FileUtilities.GlobToRegExp (glob)))
 						return true;
 				}
 				return false;

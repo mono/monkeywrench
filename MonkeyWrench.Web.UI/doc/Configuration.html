@@ -31,6 +31,7 @@
         &lt;WebServicePassword /&gt;
         &lt;DatabaseHost /&gt;
         &lt;DatabasePort /&gt;
+        &lt;StoreFilesInDB /&gt;
     &lt;/Configuration&gt;
 &lt;/MonkeyWrench&gt;
 </pre>
@@ -57,6 +58,8 @@
     The host machine of the database. Defaults to 'localhost'.
     <h3>DatabasePort</h3>
     The port to use to connect to the database.
+    <h3>StoreFilesInDB</h3>
+    If files are to be stored in the database or in the file system on the server (in the db/files subdirectory of DataDirectory). Only relevant on the server (and will only have effect for new uploads, files won't be moved either way automatically)
     <h2>Sample configuration</h2>
     This is a sample configuration file for a buildbot:
     <pre>
