@@ -39,7 +39,12 @@ namespace MonkeyWrench.Scheduler
 
 	public static class Updater
 	{
-		public static int Main (string [] args)
+		public static void Main (string [] args)
+		{
+			ProcessHelper.Exit (Main2 (args)); // Work around #499702
+		}
+
+		public static int Main2 (string [] args)
 		{
 			FileStream file_lock = null;
 			List<DBLane> lanes;
