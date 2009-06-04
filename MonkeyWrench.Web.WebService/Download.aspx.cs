@@ -92,24 +92,22 @@ namespace MonkeyWrench.WebServices
 		private void DownloadStream (Stream str, string compressed_mime)
 		{
 			// access must be verified before calling this method (no verification is done here)
-			using (str) {
-				Response.AppendHeader ("Content-Length", str.Length.ToString ());
+			Response.AppendHeader ("Content-Length", str.Length.ToString ());
 
-				if (compressed_mime == MimeTypes.GZ)
-					Response.AppendHeader ("Content-Encoding", "gzip");
+			if (compressed_mime == MimeTypes.GZ)
+				Response.AppendHeader ("Content-Encoding", "gzip");
 
-				byte [] buffer = new byte [1024];
-				int read;
-				int total = 0;
+			byte [] buffer = new byte [1024];
+			int read;
+			int total = 0;
 
+			read = str.Read (buffer, 0, buffer.Length);
+			total += read;
+			while (read > 0) {
+				Response.OutputStream.Write (buffer, 0, read);
 				read = str.Read (buffer, 0, buffer.Length);
 				total += read;
-				while (read > 0) {
-					Response.OutputStream.Write (buffer, 0, read);
-					read = str.Read (buffer, 0, buffer.Length);
-					total += read;
-					Response.Flush ();
-				}
+				Response.Flush ();
 			}
 		}
 
@@ -121,10 +119,9 @@ namespace MonkeyWrench.WebServices
 			if (fullpath == null)
 				throw new HttpException (404, "Could not find the file.");
 
-			if (fullpath.EndsWith (".gz"))
-				Response.AppendHeader ("Content-Encoding", "gzip");
-
-			Response.WriteFile (fullpath);
+			using (FileStream str = new FileStream (fullpath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+				DownloadStream (str, fullpath.EndsWith (".gz") ? MimeTypes.GZ : string.Empty);
+			}
 		}
 
 		private void DownloadFile (DB db, int file_id)
@@ -135,12 +132,12 @@ namespace MonkeyWrench.WebServices
 		private void DownloadFile (DB db, DBFile file)
 		{
 			// access must be verified before calling this method (no verification is done here)
-			Stream str = null;
 			if (file.file_id == null) {
 				DownloadMd5 (file.md5);
 			} else {
-				str = db.Download (file);
-				DownloadStream (str, file.compressed_mime);
+				using (Stream str = db.Download (file)) {
+					DownloadStream (str, file.compressed_mime);
+				}
 			}
 		}
 
@@ -231,7 +228,9 @@ namespace MonkeyWrench.WebServices
 					if (view.file_file_id == null) {
 						DownloadMd5 (view.md5);
 					} else {
-						DownloadStream (db.Download (view), compressed_mime);
+						using (Stream str = db.Download (view)) {
+							DownloadStream (str, compressed_mime);
+						}
 					}
 				} else {
 					DownloadFile (db, file);

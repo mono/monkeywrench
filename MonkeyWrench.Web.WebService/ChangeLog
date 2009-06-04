@@ -1,5 +1,11 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Download.aspx.cs: Don't use WriteFile, manually
+	write the file instead. Fixes an issue with apache since
+	we delete the file just after serving it.
+
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Download.aspx.cs: Add support for downloading revision
 	logs and diffs.
 
