@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 
 using Npgsql;
@@ -102,14 +101,6 @@ namespace MonkeyWrench
 				dbcon.Close ();
 				dbcon = null;
 			}
-		}
-
-		private string MD5BytesToString (byte [] bytes)
-		{
-			StringBuilder result = new StringBuilder (16);
-			for (int i = 0; i < bytes.Length; i++)
-				result.Append (bytes [i].ToString ("x2"));
-			return result.ToString ();
 		}
 
 		private class DBFileStream : Stream
@@ -237,6 +228,22 @@ namespace MonkeyWrench
 			}
 		}
 
+		public DBFile UploadString (string contents, string extension, bool hidden)
+		{
+			string tmpfile = null;
+			try {
+				tmpfile = Path.GetTempFileName ();
+				File.WriteAllText (tmpfile, contents);
+				return Upload (tmpfile, extension, hidden);
+			} finally {
+				try {
+					File.Delete (tmpfile);
+				} catch {
+					// ignore exceptions
+				}
+			}
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -259,10 +266,8 @@ namespace MonkeyWrench
 					throw new Exception ("Max file size is 100 MB");
 
 				// first check if the file is already in the database
-				using (MD5CryptoServiceProvider md5_provider = new MD5CryptoServiceProvider ()) {
-					using (FileStream st = new FileStream (Filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-						md5 = MD5BytesToString (md5_provider.ComputeHash (st));
-					}
+				using (FileStream st = new FileStream (Filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					md5 = FileUtilities.CalculateMD5 (st);
 				}
 
 				using (IDbCommand cmd = Connection.CreateCommand ()) {

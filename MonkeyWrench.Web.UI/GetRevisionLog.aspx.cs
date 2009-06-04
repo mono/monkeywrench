@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.UI;
@@ -31,32 +32,13 @@ public partial class GetRevisionLog : System.Web.UI.Page
 
 	protected void Page_Load (object sender, EventArgs e)
 	{
+		int? revision_id = Utils.TryParseInt32 (Request ["id"]);
 
-		FindRevisionResponse response;
-
-		DBRevision rev;
-
-		response = Master.WebService.FindRevision (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["id"]), null);
-
-		rev = response.Revision;
-
-		StringBuilder s = new StringBuilder ();
-		if (rev != null) {
-			if (!string.IsNullOrEmpty (rev.log)) {
-				s.Append (rev.log);
-			} else {
-				s.Append ("No log yet.");
+		if (revision_id != null) {
+			using (WebClient wc = new WebClient ()) {
+				log.InnerText = wc.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, false, Master.WebServiceLogin));
+				diff.InnerText = wc.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, true, Master.WebServiceLogin));
 			}
-			s.Append ('\n');
-			if (!string.IsNullOrEmpty (rev.diff)) {
-				s.Append (rev.diff);
-			} else {
-				s.Append ("No diff yet.");
-			}
-			s.Append ('\n');
-		} else {
-			s.Append ("Revision not found.");
 		}
-		log.InnerText = s.ToString ();
 	}
 }

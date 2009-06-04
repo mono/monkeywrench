@@ -1,0 +1,5 @@
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* SVNUpdater.cs: Store logs and diffs as files.
+
+

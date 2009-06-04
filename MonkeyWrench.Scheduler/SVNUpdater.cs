@@ -174,8 +174,9 @@ namespace MonkeyWrench.Scheduler
 						r.revision = node.Attributes ["revision"].Value;
 						r.lane_id = lane.id;
 						r.author = node.SelectSingleNode ("author").InnerText;
-						r.log = node.SelectSingleNode ("msg").InnerText;
 						r.date = DateTime.Parse (node.SelectSingleNode ("date").InnerText);
+						r.log_file_id = db.UploadString(node.SelectSingleNode ("msg").InnerText, ".log", false).id;
+
 						r.Save (db.Connection);
 
 						update_steps = true;
@@ -271,7 +272,7 @@ namespace MonkeyWrench.Scheduler
 SELECT Revision.*, Lane.repository, Lane.lane
 FROM Revision 
 INNER JOIN Lane ON Lane.id = Revision.lane_id 
-WHERE Revision.diff is NULL OR Revision.diff = '';";
+WHERE (Revision.diff IS NULL OR Revision.diff = '') AND Revision.diff_file_id IS NULL;";
 							using (IDataReader reader = cmd.ExecuteReader ()) {
 								while (!quit_svn_diff && reader.Read ()) {
 									DBRevision revision = new DBRevision (reader);
@@ -288,7 +289,7 @@ WHERE Revision.diff is NULL OR Revision.diff = '';";
 									if (string.IsNullOrEmpty (diff))
 										diff = "No diff";
 
-									revision.diff = diff;
+									revision.diff_file_id = db_save.UploadString (diff, ".log", false).id;
 									revision.Save (db_save.Connection);
 									Logger.Log ("SVNDiff: Got diff for lane '{0}', revision '{1}'", lane, revision.revision);
 								}

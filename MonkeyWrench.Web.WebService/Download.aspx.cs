@@ -31,14 +31,14 @@ namespace MonkeyWrench.WebServices
 
 			if (!result.EndsWith (Path.DirectorySeparatorChar.ToString ()))
 				result += Path.DirectorySeparatorChar;
-			
+
 			do {
 				result += name [0];
 				name = name.Substring (1);
 
 				if (Directory.Exists (result))
 					result += Path.DirectorySeparatorChar;
-			} while (!string.IsNullOrEmpty (name)) ;
+			} while (!string.IsNullOrEmpty (name));
 
 			if (File.Exists (result))
 				return result;
@@ -58,111 +58,184 @@ namespace MonkeyWrench.WebServices
 			return null;
 		}
 
+
 		protected void Page_Load (object sender, EventArgs e)
 		{
 			try {
-				DBWorkFileView view = null;
-				DBFile file = null;
-				string mime;
-				string filename;
-				string compressed_mime;
 				int workfile_id;
+				int revision_id;
+				bool diff;
 				string md5;
 
 				DateTime start = DateTime.Now;
 
+				int.TryParse (Request ["revision_id"], out revision_id);
 				int.TryParse (Request ["workfile_id"], out workfile_id);
+				bool.TryParse (Request ["diff"], out diff);
 				md5 = Request ["md5"];
 
-				using (DB db = new DB ()) {
-					WebServiceLogin login = new WebServiceLogin ();
-					login.Cookie = Request ["cookie"];
-					login.User = Request ["user"];
-					login.Ip4 = Request ["ip4"];
-
-					if (!string.IsNullOrEmpty (md5)) { // md5 lookup needs admin rights
-						Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator);
-						file = DBFile_Extensions.Find (db, md5);
-
-						if (file == null)
-							throw new HttpException (404, "Could not find the file.");
-
-						mime = file.mime;
-						filename = file.filename;
-						compressed_mime = file.compressed_mime;
-					} else {
-						view = DBWorkFileView_Extensions.Find (db, workfile_id);
-
-						if (view == null)
-							throw new HttpException (404, "Could not find the file.");
-
-						if (view.@internal) // internal files need admin rights
-							Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator);
-
-						mime = view.mime;
-						filename = view.filename;
-						compressed_mime = view.compressed_mime;
-					}
-
-					Response.ContentType = mime;
-					Response.AppendHeader ("Content-Disposition", "filename=" + Path.GetFileName (filename));
-
-					Stream str = null;
-					string file_md5 = null;
-					if (view != null) {
-						if (view.file_file_id == null) {
-							file_md5 = view.md5;
-						} else {
-							str = db.Download (view);
-						}
-					} else {
-						if (file.file_id == null) {
-							file_md5 = file.md5;
-						} else {
-							str = db.Download (file);
-						}
-					}
-
-					if (file_md5 == null && str == null) {
-						throw new HttpException (404, "Could not find the file.");
-					} else if (file_md5 != null) {
-
-						string fullpath = GetFullPath (file_md5);
-
-						if (fullpath == null)
-							throw new HttpException (404, "Could not find the file.");
-
-						if (fullpath.EndsWith (".gz"))
-							Response.AppendHeader ("Content-Encoding", "gzip");
-
-						Response.WriteFile (fullpath);
-					} else {
-
-						if (compressed_mime == "application/x-gzip")
-							Response.AppendHeader ("Content-Encoding", "gzip");
-
-						using (str) {
-							Response.AppendHeader ("Content-Length", str.Length.ToString ());
-
-							byte [] buffer = new byte [1024];
-							int read;
-							int total = 0;
-
-							read = str.Read (buffer, 0, buffer.Length);
-							total += read;
-							while (read > 0) {
-								Response.OutputStream.Write (buffer, 0, read);
-								read = str.Read (buffer, 0, buffer.Length);
-								total += read;
-								Response.Flush ();
-							}
-						}
-					}
+				if (workfile_id != 0 || !string.IsNullOrEmpty (md5)) {
+					DownloadWorkFile (workfile_id, md5);
+				} else if (revision_id != 0) {
+					DownloadRevisionLog (revision_id, diff);
+				} else {
+					throw new HttpException (404, "Nothing to download.");
 				}
+
 			} catch (Exception ex) {
 				Console.WriteLine ("Download failed:");
 				Console.WriteLine (ex);
 				throw;
+			}
+		}
+
+		private void DownloadStream (Stream str, string compressed_mime)
+		{
+			// access must be verified before calling this method (no verification is done here)
+			using (str) {
+				Response.AppendHeader ("Content-Length", str.Length.ToString ());
+
+				if (compressed_mime == MimeTypes.GZ)
+					Response.AppendHeader ("Content-Encoding", "gzip");
+
+				byte [] buffer = new byte [1024];
+				int read;
+				int total = 0;
+
+				read = str.Read (buffer, 0, buffer.Length);
+				total += read;
+				while (read > 0) {
+					Response.OutputStream.Write (buffer, 0, read);
+					read = str.Read (buffer, 0, buffer.Length);
+					total += read;
+					Response.Flush ();
+				}
+			}
+		}
+
+		private void DownloadMd5 (string md5)
+		{
+			// access must be verified before calling this method (no verification is done here)
+			string fullpath = GetFullPath (md5);
+
+			if (fullpath == null)
+				throw new HttpException (404, "Could not find the file.");
+
+			if (fullpath.EndsWith (".gz"))
+				Response.AppendHeader ("Content-Encoding", "gzip");
+
+			Response.WriteFile (fullpath);
+		}
+
+		private void DownloadFile (DB db, int file_id)
+		{
+			// access must be verified before calling this method (no verification is done here)
+			DownloadFile (db, DBFile_Extensions.Create (db, file_id));
+		}
+		private void DownloadFile (DB db, DBFile file)
+		{
+			// access must be verified before calling this method (no verification is done here)
+			Stream str = null;
+			if (file.file_id == null) {
+				DownloadMd5 (file.md5);
+			} else {
+				str = db.Download (file);
+				DownloadStream (str, file.compressed_mime);
+			}
+		}
+
+		private void DownloadRevisionLog (int revision_id, bool diff /* diff or log */)
+		{
+			DBRevision revision;
+
+			using (DB db = new DB ()) {
+				WebServiceLogin login = new WebServiceLogin ();
+				login.Cookie = Request ["cookie"];
+				login.User = Request ["user"];
+				login.Ip4 = Request ["ip4"];
+
+				revision = DBRevision_Extensions.Create (db, revision_id);
+
+				// no access restricion on revision logs/diffs
+
+				Response.ContentType = MimeTypes.TXT;
+
+				if (revision == null) {
+					Response.Write ("Revision not found.");
+				} else {
+					if (diff) {
+						if (revision.diff_file_id.HasValue) {
+							DownloadFile (db, revision.diff_file_id.Value);
+						} else if (!string.IsNullOrEmpty (revision.diff)) {
+							Response.Write (revision.diff);
+						} else {
+							Response.Write ("No diff yet.");
+						}
+					} else {
+						if (revision.log_file_id.HasValue) {
+							DownloadFile (db, revision.log_file_id.Value);
+						} else if (!string.IsNullOrEmpty (revision.log)) {
+							Response.Write (revision.log);
+						} else {
+							Response.Write ("No log yet.");
+						}
+					}
+				}
+			}
+		}
+
+		private void DownloadWorkFile (int workfile_id, string md5)
+		{
+			DBWorkFileView view = null;
+			DBFile file = null;
+			string mime;
+			string filename;
+			string compressed_mime;
+
+			using (DB db = new DB ()) {
+				WebServiceLogin login = new WebServiceLogin ();
+				login.Cookie = Request ["cookie"];
+				login.User = Request ["user"];
+				login.Ip4 = Request ["ip4"];
+
+				if (!string.IsNullOrEmpty (md5)) { // md5 lookup needs admin rights
+					Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator);
+					file = DBFile_Extensions.Find (db, md5);
+
+					if (file == null)
+						throw new HttpException (404, "Could not find the file.");
+
+					mime = file.mime;
+					filename = file.filename;
+					compressed_mime = file.compressed_mime;
+				} else {
+					view = DBWorkFileView_Extensions.Find (db, workfile_id);
+
+					if (view == null)
+						throw new HttpException (404, "Could not find the file.");
+
+					if (view.@internal) // internal files need admin rights
+						Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator);
+
+					mime = view.mime;
+					filename = view.filename;
+					compressed_mime = view.compressed_mime;
+				}
+
+				Response.ContentType = mime;
+				Response.AppendHeader ("Content-Disposition", "filename=" + Path.GetFileName (filename));
+
+				// any access rights verified, serve the file
+
+				if (view != null) {
+					if (view.file_file_id == null) {
+						DownloadMd5 (view.md5);
+					} else {
+						DownloadStream (db.Download (view), compressed_mime);
+					}
+				} else {
+					DownloadFile (db, file);
+				}
 			}
 		}
 	}

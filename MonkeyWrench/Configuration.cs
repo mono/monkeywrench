@@ -108,15 +108,15 @@ namespace MonkeyWrench
 				OptionSet set = new OptionSet ()
 				{
 					{"h|help|?", v => help = true},
-					{"datadirectory", v => DataDirectory = v},
-					{"host", v => Host = v},
-					{"logfile", v => LogFile = v},
-					{"forcefullupdate", v => ForceFullUpdate = Boolean.Parse (v)},
-					{"webserviceurl", v => WebServiceUrl = v},
-					{"webservicepassword", v => WebServicePassword = v},
-					{"databasehost", v => DatabaseHost = v},
-					{"databaseport", v => DatabasePort = v},
-					{"storefilesindb", v => StoreFilesInDB = Boolean.Parse (v)},
+					{"datadirectory=", v => DataDirectory = v},
+					{"host=", v => Host = v},
+					{"logfile=", v => LogFile = v},
+					{"forcefullupdate=", v => ForceFullUpdate = Boolean.Parse (v.Trim ())},
+					{"webserviceurl=", v => WebServiceUrl = v},
+					{"webservicepassword=", v => WebServicePassword = v},
+					{"databasehost=", v => DatabaseHost = v},
+					{"databaseport=", v => DatabasePort = v},
+					{"storefilesindb=", v => StoreFilesInDB = Boolean.Parse (v.Trim ())},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},
@@ -125,17 +125,17 @@ namespace MonkeyWrench
 					{"move-files-to-file-system", v => MoveFilesToFileSystem = true},
 					{"move-files-to-database", v => MoveFilesToDatabase = true},
 				};
-				if (help) {
-					ShowHelp (set);
-					Environment.Exit (0);
-				}
 				List<string> extra = null;
 				try {
 					extra = set.Parse (arguments);
-				} catch (OptionException ex) {
+				} catch (Exception ex) {
 					Console.WriteLine ("Error: {0}", ex.Message);
 					ShowHelp (set);
 					Environment.Exit (1);
+				}
+				if (help) {
+					ShowHelp (set);
+					Environment.Exit (0);
 				}
 				if (extra != null && extra.Count > 0) {
 					Console.WriteLine ("Error: unexpected argument(s): {0}", string.Join (" ", extra.ToArray ()));

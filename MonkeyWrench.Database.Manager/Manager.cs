@@ -455,6 +455,72 @@ AND Work.endtime + interval '{0} days' < now ();
 							}
 						}
 					}
+
+					while (true) {
+						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+							// execute this in chunks to avoid huge data transfers and slowdowns.
+							cmd.CommandText = "SELECT * FROM Revision WHERE (diff_file_id IS NULL AND NOT diff = '') OR (log_file_id IS NULL AND NOT log = '') LIMIT 100";
+							using (IDataReader reader = cmd.ExecuteReader ()) {
+								if (!reader.Read ())
+									break;
+
+								do {
+									DBRevision revision = new DBRevision (reader);
+									byte [] buffer = new byte [1024];
+									string tmpfile = null;
+
+									if (!string.IsNullOrEmpty (revision.diff)) {
+										int length = 0;
+										if (revision.diff_file_id == null) {
+											try {
+												length = revision.diff.Length;
+												tmpfile = Path.GetTempFileName ();
+												File.WriteAllText (tmpfile, revision.diff);
+												DBFile diff = download_db.Upload (tmpfile, ".log", false);
+												revision.diff_file_id = diff.id;
+												revision.diff = null;
+											} finally {
+												try {
+													if (File.Exists (tmpfile))
+														File.Delete (tmpfile);
+												} catch {
+													// ignore exceptions here
+												}
+											}
+											moved_bytes += length;
+											LogWithTime ("MoveFilesToFileSystem: Moved revision {0}'s diff to db/filesystem ({1} bytes, {2} total bytes moved)", revision.id, length, moved_bytes);
+										}
+									}
+
+									if (!string.IsNullOrEmpty (revision.log)) {
+										int length = 0;
+										if (revision.log_file_id == null) {
+											try {
+												length = revision.log.Length;
+												tmpfile = Path.GetTempFileName ();
+												File.WriteAllText (tmpfile, revision.log);
+												DBFile log = download_db.Upload (tmpfile, ".log", false);
+												revision.log_file_id = log.id;
+												revision.log = null;
+											} finally {
+												try {
+													if (File.Exists (tmpfile))
+														File.Delete (tmpfile);
+												} catch {
+													// ignore exceptions here
+												}
+											}
+											moved_bytes += length;
+											LogWithTime ("MoveFilesToFileSystem: Moved revision {0}'s log to db/filesystem ({1} bytes, {2} total bytes moved)", revision.id, length, moved_bytes);
+										}
+										revision.log = null;
+									}
+
+									revision.Save (download_db);
+								} while (reader.Read ());
+							}
+						}
+					}
 				}
 			}
 

@@ -150,8 +150,10 @@ CREATE TABLE Revision (
 	revision text       NOT NULL,
 	author   text       NOT NULL DEFAULT '',
 	date     timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0',
-	log      text       NOT NULL DEFAULT '',
-	diff     text       NOT NULL DEFAULT '',
+	log      text       NOT NULL DEFAULT '', --TODO: delete this field
+	log_file_id int     NULL DEFAULT NULL REFERENCES File (id), -- the file where the log is stored
+	diff     text       NOT NULL DEFAULT '', --TODO: delete this field
+	diff_file_id int    NULL DEFAULT NULL REFERENCES File (id), -- the file where the diff is stored.
 	UNIQUE (lane_id, revision)
 );
 

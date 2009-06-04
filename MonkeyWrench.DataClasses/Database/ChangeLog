@@ -1,5 +1,9 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DBRevision.generated.cs: Regenerated.
+
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DBWorkFileView.generated.cs:
 	* DBFile.generated.cs: Regenerated.
 

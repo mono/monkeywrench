@@ -1,5 +1,9 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* database.sql: Store revision logs and diffs as files.
+
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* database.sql: Add support for storing files outside of 
 	the database.
 

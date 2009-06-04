@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace MonkeyWrench
@@ -178,6 +179,21 @@ namespace MonkeyWrench
 				path += ".gz";
 
 			return path;
+		}
+
+		private static string MD5BytesToString (byte [] bytes)
+		{
+			StringBuilder result = new StringBuilder (16);
+			for (int i = 0; i < bytes.Length; i++)
+				result.Append (bytes [i].ToString ("x2"));
+			return result.ToString ();
+		}
+
+		public static string CalculateMD5 (Stream str)
+		{
+			using (MD5CryptoServiceProvider md5_provider = new MD5CryptoServiceProvider ()) {
+					return MD5BytesToString (md5_provider.ComputeHash (str));
+			}
 		}
 	}
 }

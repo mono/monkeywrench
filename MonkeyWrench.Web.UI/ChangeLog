@@ -1,5 +1,14 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* GetRevisionLog.aspx.designer.cs: Regenerated.
+
+	* GetRevisionLog.aspx.cs: Download logs and diffs from the
+	web service.
+
+	* GetRevisionLog.aspx: Split log and diff in two blocks.
+
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* GetFile.aspx.cs: Don't use WriteFile, deleting the file
 	right after breaks apache.
 

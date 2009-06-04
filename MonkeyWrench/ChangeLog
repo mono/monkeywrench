@@ -1,5 +1,12 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Configuration.cs: Fix command line argument parsing.
+
+	* FileUtilities.cs: Move md5 code here to make it available
+	for all projects.
+
+2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* MimeTypes.cs:
 	* FileUtilities.cs:
 	* Configuration.cs: Add support for storing files outside
