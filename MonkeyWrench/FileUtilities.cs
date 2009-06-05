@@ -68,7 +68,7 @@ namespace MonkeyWrench
 			return null;
 		}
 
-		public static void GZUncompress (string filename)
+		public static bool GZUncompress (string filename)
 		{
 			if (!filename.EndsWith (".gz")) {
 				File.Move (filename, filename + ".gz");
@@ -83,7 +83,9 @@ namespace MonkeyWrench
 				if (!p.WaitForExit (1000 * 60 /* 1 minute */ )) {
 					Logger.Log ("GZUncompress: gunzip didn't finish in one minute, killing it.");
 					p.Kill ();
+					return false;
 				}
+				return p.ExitCode == 0;
 			}
 		}
 

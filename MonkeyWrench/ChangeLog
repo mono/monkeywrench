@@ -1,5 +1,10 @@
 2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* FileUtilities.cs: GZUncompress: return a boolean value
+	indicating success/failure.
+
+2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* FileUtilities.cs: Splitting md5 into 4 character chunks
 	gives 2^16 as the max number of subdirectories. Ext2/3
 	has a limit of 2^15 number of subdirectories, so split in
