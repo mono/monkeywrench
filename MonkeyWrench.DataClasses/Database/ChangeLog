@@ -1,3 +1,8 @@
+2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBEnvironmentVariable.cs: Fix buggy variable
+	 parsing.
+
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBRevision.generated.cs: Regenerated.

@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Text;
 using System.Data;
 using System.Data.Common;
@@ -31,12 +32,12 @@ namespace MonkeyWrench.DataClasses
 		{
 		}
 
-		public void Evaluate (System.Collections.Specialized.StringDictionary vars)
+		public void Evaluate (StringDictionary vars)
 		{
-			vars [name] = Evaluate (value);
+			vars [name] = Evaluate (vars, value);
 		}
 
-		public static string Evaluate (string var)
+		public static string Evaluate (StringDictionary vars, string var)
 		{
 			StringBuilder result;
 			int start, end;
@@ -61,10 +62,10 @@ namespace MonkeyWrench.DataClasses
 
 				result.Append (var.Substring (0, start));
 				string n = var.Substring (start + 2, end - start - 2);
-				result.Append (Environment.GetEnvironmentVariable (n));
+				result.Append (vars [n]);
 				var = var.Substring (end + 1);
 
-				start = var.IndexOf ("$(");
+				start = var.IndexOf ("${");
 			}
 
 			result.Append (var);
