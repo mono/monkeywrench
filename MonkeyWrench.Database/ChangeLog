@@ -1,3 +1,8 @@
+2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DB.cs: When getting work, prefer working on an already
+	started revision.
+
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DB.cs: Refactor md5 code out and add the possibility

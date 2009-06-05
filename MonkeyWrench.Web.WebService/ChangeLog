@@ -1,3 +1,7 @@
+2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.asmx: Fix mixed eol-style and remove a printf.
+
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Download.aspx.cs: Don't use WriteFile, manually

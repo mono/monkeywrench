@@ -1,5 +1,10 @@
 2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Builder.cs: Quick hack to do more than one iteration of
+	builder duty per program invocation.
+
+2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Builder.cs: Need to set BUILD_HOST now that we don't source
 	config.sh anymore.
 

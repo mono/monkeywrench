@@ -1000,6 +1000,8 @@ LIMIT 1
 			DBRevisionWork result = null;
 
 			using (IDbCommand cmd = Connection.CreateCommand ()) {
+				// sorting by RevisionWork.workhost_id ensures that we'll get 
+				// revisionwork which has been started at the top of the list.
 				cmd.CommandText = @"
 SELECT 
 	RevisionWork.*
@@ -1013,7 +1015,7 @@ WHERE
 	AND RevisionWork.lane_id = @lane_id
 	AND RevisionWork.state <> @dependencynotfulfilled
 	AND RevisionWork.completed = false
-ORDER BY Revision.date DESC
+ORDER BY RevisionWork.workhost_id ASC, Revision.date DESC
 LIMIT 1
 ;";
 				DB.CreateParameter (cmd, "host_id", host.id);

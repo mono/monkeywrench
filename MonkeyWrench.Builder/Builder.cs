@@ -58,17 +58,21 @@ namespace MonkeyWrench.Builder
 				WebService = WebServices.Create ();
 				WebService.CreateLogin (Configuration.Host, Configuration.WebServicePassword);
 
-				response = WebService.GetBuildInfo (WebService.WebServiceLogin, Configuration.Host);
+				int counter = 0;
+				do {
+					response = WebService.GetBuildInfo (WebService.WebServiceLogin, Configuration.Host);
 
-				if (!response.Host.enabled) {
-					Logger.Log ("This host is disabled. Exiting.");
-					return 0;
-				}
+					if (!response.Host.enabled) {
+						Logger.Log ("This host is disabled. Exiting.");
+						return 0;
+					}
 
-				Logger.Log ("Builder will now build {0} lists of work items.", response.Work.Count);
+					Logger.Log ("Builder will now build {0} lists of work items.", response.Work.Count);
 
-				foreach (var item in response.Work)
-					Build (item);
+					foreach (var item in response.Work)
+						Build (item);
+
+				} while (counter-- > 20);
 
 				Logger.Log ("Builder finished successfully.");
 

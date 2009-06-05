@@ -1206,7 +1206,7 @@ ORDER BY revision DESC LIMIT 250;
                 GetBuildInfoResponse response = new GetBuildInfoResponse ();
 
                 response.Work = new List<List<BuildInfoEntry>> ();
-                Console.WriteLine ("GetBuildInfo START");
+                
                 using (DB db = new DB ()) {
                     VerifyUserInRole (db, login, Roles.BuildBot);
 
