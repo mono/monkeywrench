@@ -42,7 +42,7 @@ namespace MonkeyWrench.Builder
 			try {
 				if (!Configuration.LoadConfiguration (arguments))
 					return 1;
-
+				
 				if (!Configuration.VerifyBuildBotConfiguration ())
 					return 1;
 
@@ -58,7 +58,7 @@ namespace MonkeyWrench.Builder
 				WebService = WebServices.Create ();
 				WebService.CreateLogin (Configuration.Host, Configuration.WebServicePassword);
 
-				int counter = 0;
+				int counter = 20;
 				do {
 					response = WebService.GetBuildInfo (WebService.WebServiceLogin, Configuration.Host);
 
@@ -72,7 +72,7 @@ namespace MonkeyWrench.Builder
 					foreach (var item in response.Work)
 						Build (item);
 
-				} while (counter-- > 20);
+				} while (counter-- > 0);
 
 				Logger.Log ("Builder finished successfully.");
 

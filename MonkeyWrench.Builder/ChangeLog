@@ -1,5 +1,9 @@
 2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Builder.cs: Put the upper limit in the right place.
+
+2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Builder.cs: Quick hack to do more than one iteration of
 	builder duty per program invocation.
 
