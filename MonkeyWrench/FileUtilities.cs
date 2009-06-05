@@ -165,7 +165,7 @@ namespace MonkeyWrench
 			string path = Configuration.GetFilesDirectory ();
 
 			while (!string.IsNullOrEmpty (file)) {
-				int len = Math.Min (4, file.Length);
+				int len = Math.Min (2, file.Length);
 				path = Path.Combine (path, file.Substring (0, len));
 				file = file.Substring (len);
 			}
