@@ -1,3 +1,9 @@
+2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBLogin_Extensions.cs: Use a static random generator to 
+	try to avoid generating the same random value when requests
+	come in simultaneously.
+
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBLaneDeletionDirectiveView_Extensions.cs: Update according

@@ -23,6 +23,8 @@ namespace MonkeyWrench.Database
 	public static class DBLogin_Extensions
 	{
 
+		static Random random = new Random ();
+
 		/// <summary>
 		/// Returns null if login failed.
 		/// </summary>
@@ -53,7 +55,6 @@ namespace MonkeyWrench.Database
 				}
 			}
 
-			Random random = new Random ();
 			byte [] data = new byte [32];
 			StringBuilder builder = new StringBuilder (data.Length);
 			random.NextBytes (data);
