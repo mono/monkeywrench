@@ -171,7 +171,7 @@ namespace MonkeyWrench
 					case PlatformID.Win32S:
 					case PlatformID.Win32Windows:
 					case PlatformID.WinCE:
-					case PlatformID.Xbox:
+					//case PlatformID.Xbox:
 						Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not find the configuration file 'MonkeyWrench.xml'.");
 						return false;
 					default:
