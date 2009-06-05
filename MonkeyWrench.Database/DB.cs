@@ -305,7 +305,7 @@ namespace MonkeyWrench
 					oid = null;
 					string fn = FileUtilities.CreateFilename (md5, !string.IsNullOrEmpty (gzFilename), true);
 
-					File.Copy (Filename, fn, true);
+					File.Copy (string.IsNullOrEmpty (gzFilename) ? Filename : gzFilename, fn, true);
 					Logger.Log ("Saved file to: {0}", fn);
 				}
 

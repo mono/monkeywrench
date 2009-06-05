@@ -1,5 +1,10 @@
 2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DB.cs: Fix eol-style in UploadString, and when saving
+	files to disk copy the gz compressed file if it exists.
+
+2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DB.cs: When getting work, prefer working on an already
 	started revision.
 
