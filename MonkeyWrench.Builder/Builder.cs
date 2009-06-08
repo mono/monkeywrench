@@ -67,6 +67,9 @@ namespace MonkeyWrench.Builder
 						return 0;
 					}
 
+					if (response.Work.Count == 0)
+						break;
+
 					Logger.Log ("Builder will now build {0} lists of work items.", response.Work.Count);
 
 					foreach (var item in response.Work)

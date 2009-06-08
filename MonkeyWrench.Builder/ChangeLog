@@ -1,3 +1,8 @@
+2009-06-08  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Don't spam the server 20 times a minute if there
+	is nothing to do.
+
 2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Put the upper limit in the right place.
