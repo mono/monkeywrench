@@ -1,3 +1,8 @@
+2009-06-11  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* moonbuilder-clean-tmp.sh: Update with new files
+	created by moonlight.
+
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: Store revision logs and diffs as files.

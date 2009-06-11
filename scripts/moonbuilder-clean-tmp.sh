@@ -1,6 +1,11 @@
 #!/bin/bash -x
 
-find /tmp/AdobeFonts* -ctime +1  | xargs --verbose rm -R
+find /tmp/AdobeFonts* -ctime +0  | xargs --verbose rm -R
+find /tmp/CustomFont* -ctime +0 | xargs --verbose rm -R
+find /tmp/customfont* -ctime +0 | xargs --verbose rm -R
+find /tmp/moonlight* -ctime +0 | xargs --verbose rm -R
+find /tmp/UifxControlsDrts* -ctime +0 | xargs --verbose rm -R
+find /tmp/adobefonts* -ctime +0 | xargs --verbose rm -R
 find /tmp/plugtmp* -ctime +1 | xargs --verbose rm -R
 find /tmp/test-directory-in-zip* -ctime +1 | xargs --verbose rm -R
 find /tmp/ObfuscatedFonts.zip* -ctime +0 | xargs --verbose rm -R
