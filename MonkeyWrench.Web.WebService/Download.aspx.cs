@@ -36,8 +36,14 @@ namespace MonkeyWrench.WebServices
 				result += name [0];
 				name = name.Substring (1);
 
-				if (Directory.Exists (result))
+				if (Directory.Exists (result)) {
 					result += Path.DirectorySeparatorChar;
+					if (File.Exists (Path.Combine (result, md5))) {
+						return Path.Combine (result, md5);
+					} else if (File.Exists (Path.Combine (result, md5) + ".gz")) {
+						return Path.Combine (result, md5) + ".gz";
+					}
+				}
 			} while (!string.IsNullOrEmpty (name));
 
 			if (File.Exists (result))

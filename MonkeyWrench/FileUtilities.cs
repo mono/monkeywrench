@@ -166,12 +166,9 @@ namespace MonkeyWrench
 			string file = md5;
 			string path = Configuration.GetFilesDirectory ();
 
-			while (!string.IsNullOrEmpty (file)) {
-				int len = Math.Min (2, file.Length);
-				path = Path.Combine (path, file.Substring (0, len));
-				file = file.Substring (len);
-			}
-
+			path = Path.Combine (path, md5.Substring (0, 2));
+			path = Path.Combine (path, md5.Substring (2, 2));
+			
 			if (create_directory && !Directory.Exists (path))
 				Directory.CreateDirectory (path);
 

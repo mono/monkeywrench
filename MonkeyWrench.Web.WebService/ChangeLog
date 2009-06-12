@@ -1,3 +1,8 @@
+2009-06-08  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Download.aspx.cs: Find files in any of the subdirectories
+	too.
+
 2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx: Fix mixed eol-style and remove a printf.
