@@ -6,4 +6,5 @@ Builder.Updater.exe.mdb
 Builder.dll
 Builder.dll.mdb
 *.suo
-
+*.dll
+*.user
