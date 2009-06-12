@@ -35,10 +35,8 @@ public partial class GetRevisionLog : System.Web.UI.Page
 		int? revision_id = Utils.TryParseInt32 (Request ["id"]);
 
 		if (revision_id != null) {
-			using (WebClient wc = new WebClient ()) {
-				log.InnerText = wc.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, false, Master.WebServiceLogin));
-				diff.InnerText = wc.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, true, Master.WebServiceLogin));
-			}
+			log.InnerText = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, false, Master.WebServiceLogin));
+			diff.InnerText = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, true, Master.WebServiceLogin));
 		}
 	}
 }

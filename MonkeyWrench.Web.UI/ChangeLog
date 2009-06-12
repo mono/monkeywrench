@@ -1,3 +1,8 @@
+2009-06-09  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* GetRevisionLog.aspx.cs: Use new API to automatically
+	decompress logs and diffs upon download.
+
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* GetRevisionLog.aspx.designer.cs: Regenerated.

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * WebServices.cs
  *
  * Authors:
@@ -78,6 +78,32 @@ namespace MonkeyWrench.Web.WebServices
 			uri += "&revision_id=" + revision_id.ToString ();
 			uri += "&diff=" + (diff ? "true" : "false");
 			return uri;
+		}
+
+		/// <summary>
+		/// This method will uncompress the data too (if required)
+		/// </summary>
+		/// <param name="file"></param>
+		/// <returns></returns>
+		public static string DownloadString (string url)
+		{
+			string tmp = null;
+			try {
+				tmp = Path.GetTempFileName ();
+				using (WebClient wc = new WebClient ()) {
+					wc.DownloadFile (url, tmp);
+
+					if (wc.ResponseHeaders ["Content-Encoding"] == "gzip") {
+						FileUtilities.GZUncompress (tmp);
+					}
+					return File.ReadAllText (tmp);
+				}
+			} finally {
+				try {
+					File.Delete (tmp);
+				} catch {
+				}
+			}
 		}
 
 		public void DownloadFile (DBWorkFile file, string directory)
