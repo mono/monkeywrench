@@ -246,7 +246,7 @@ ORDER BY host ASC, lane ASC;";
 						}
 						lane_count = 1;
 					}
-					lane_row.AppendFormat ("\t<th class='{2}'><a href='ViewTable2.aspx?lane={0}&amp;host={1}'>{0}</a></th>", lane, host, enabled ? "enabled" : "disabled");
+					lane_row.AppendFormat ("\t<th class='{2}'><a href='ViewTable.aspx?lane={0}&amp;host={1}'>{0}</a></th>", lane, host, enabled ? "enabled" : "disabled");
 
 					prevhost = host;
 

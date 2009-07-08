@@ -138,7 +138,7 @@ public partial class ViewTable : System.Web.UI.Page
 
 	private string GeneratePageLink (int hostid, int laneid, int page, int limit)
 	{
-		return string.Format ("&nbsp;<a href='ViewTable2.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", hostid, laneid, page - 1, limit, page);
+		return string.Format ("&nbsp;<a href='ViewTable.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", hostid, laneid, page - 1, limit, page);
 	}
 
 	public string GenerateHeader (DBLane lane, DBHost host, bool horizontal)
@@ -152,7 +152,7 @@ public partial class ViewTable : System.Web.UI.Page
 			format = @"<h2>Build Matrix for '{2}' on '{4}'</h2><br/>";
 		}
 
-		format += @"<a href='ViewTable2.aspx?lane_id={0}&amp;host_id={1}&amp;horizontal={3}'>Reverse x/y axis</a><br/>";
+		format += @"<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}&amp;horizontal={3}'>Reverse x/y axis</a><br/>";
 		if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
 			format += @"<a href='javascript:clearRevisions ()'>Clear selected revisions</a><br/>";
 

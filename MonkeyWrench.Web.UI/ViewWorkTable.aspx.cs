@@ -60,11 +60,11 @@ public partial class ViewWorkTable : System.Web.UI.Page
 	{
 		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			return string.Format (@"
-<h2>Step {4} on lane '{2}' on '{3}' (<a href='ViewTable2.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, command.command);
+<h2>Step {4} on lane '{2}' on '{3}' (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, command.command);
 		} else {
 			return string.Format (@"
 <h2>Step {4} on lane '<a href='EditLane.aspx?lane_id={0}'>{2}</a>' on '<a href='EditHost.aspx?host_id={1}'>{3}</a>' 
-(<a href='ViewTable2.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, command.command);
+(<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, command.command);
 		}
 	}
 
