@@ -1556,6 +1556,25 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="FindLatestWorkFileId">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
+            <xs:element minOccurs="1" maxOccurs="1" name="successful" type="xs:boolean" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindLatestWorkFileIdResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="FindLatestWorkFileIdResult" nillable="true" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="ArrayOfString" nillable="true" type="s0:ArrayOfString" />
     </xs:schema>
   </types>
@@ -1943,6 +1962,12 @@
   <message name="GetBuildInfoSoapOut">
     <part name="parameters" element="s0:GetBuildInfoResponse" />
   </message>
+  <message name="FindLatestWorkFileIdSoapIn">
+    <part name="parameters" element="s0:FindLatestWorkFileId" />
+  </message>
+  <message name="FindLatestWorkFileIdSoapOut">
+    <part name="parameters" element="s0:FindLatestWorkFileIdResponse" />
+  </message>
   <message name="GetRolesHttpGetIn">
     <part name="user" type="s:string" />
   </message>
@@ -2212,6 +2237,10 @@
       <input message="s0:GetBuildInfoSoapIn" />
       <output message="s0:GetBuildInfoSoapOut" />
     </operation>
+    <operation name="FindLatestWorkFileId">
+      <input message="s0:FindLatestWorkFileIdSoapIn" />
+      <output message="s0:FindLatestWorkFileIdSoapOut" />
+    </operation>
   </portType>
   <portType name="WebServicesSoap12">
     <operation name="GetRoles">
@@ -2469,6 +2498,10 @@
     <operation name="GetBuildInfo">
       <input message="s0:GetBuildInfoSoapIn" />
       <output message="s0:GetBuildInfoSoapOut" />
+    </operation>
+    <operation name="FindLatestWorkFileId">
+      <input message="s0:FindLatestWorkFileIdSoapIn" />
+      <output message="s0:FindLatestWorkFileIdSoapOut" />
     </operation>
   </portType>
   <portType name="WebServicesHttpGet">
@@ -3061,6 +3094,15 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="FindLatestWorkFileId">
+      <soap:operation soapAction="http://monkeywrench.novell.com/FindLatestWorkFileId" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
   </binding>
   <binding name="WebServicesSoap12" type="s0:WebServicesSoap12">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -3633,6 +3675,15 @@
     </operation>
     <operation name="GetBuildInfo">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetBuildInfo" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindLatestWorkFileId">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/FindLatestWorkFileId" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

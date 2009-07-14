@@ -1368,5 +1368,49 @@ ORDER BY id;
                 throw;
             }
         }
+
+        /// <summary>
+        /// Finds the latest workfile id for the search data provided
+        /// </summary>
+        /// <param name="login"></param>
+        /// <param name="lane_id"></param>
+        /// <param name="lane"></param>
+        /// <param name="filename">The filename to find</param>
+        /// <param name="completed">Only completed revisions.</param>
+        /// <param name="successful">Only successful (and completed) revisions.</param>
+        [WebMethod]
+        public int? FindLatestWorkFileId (WebServiceLogin login, int? lane_id, string lane, string filename, bool completed, bool successful)
+        {
+            using (DB db = new DB ()) {
+                DBLane l = FindLane (db, lane_id, lane);
+                using (IDbCommand cmd = db.CreateCommand ()) {
+                    cmd.CommandText = @"
+SELECT WorkFile.id
+FROM WorkFile
+INNER JOIN Work ON WorkFile.work_id = Work.id
+INNER JOIN RevisionWork ON RevisionWork.id = Work.revisionwork_id
+INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
+WHERE WorkFile.filename = @filename AND Revision.lane_id = @lane_id AND RevisionWork.revision_id = @revision_id
+";
+                    if (successful)
+                        cmd.CommandText += " AND RevisionWork.result = " + ((int) DBState.Success).ToString () + " ";
+                    if (completed)
+                        cmd.CommandText += " AND RevisionWork.completed = true ";
+
+                    cmd.CommandText += " ORDER BY Revision.date DESC;";
+                    Console.WriteLine (cmd.CommandText);
+
+                    DB.CreateParameter (cmd, "lane_id", l.id);
+                    DB.CreateParameter (cmd, "filename", filename);
+                    
+                    using (IDataReader reader = cmd.ExecuteReader ()) {
+                        if (!reader.Read ())
+                            return null;
+
+                        return reader.GetInt32 (0);
+                    }
+                }
+            }
+        }
     }
 }

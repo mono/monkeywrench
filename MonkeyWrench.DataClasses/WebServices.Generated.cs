@@ -1481,5 +1481,36 @@ namespace MonkeyWrench.Web.WebServices {
             object[] results = this.EndInvoke(asyncResult);
             return ((GetBuildInfoResponse)(results[0]));
         }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/FindLatestWorkFileId", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [return: System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> FindLatestWorkFileId(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id, string lane, string filename, bool completed, bool successful) {
+            object[] results = this.Invoke("FindLatestWorkFileId", new object[] {
+                        login,
+                        lane_id,
+                        lane,
+                        filename,
+                        completed,
+                        successful});
+            return ((System.Nullable<int>)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginFindLatestWorkFileId(WebServiceLogin login, System.Nullable<int> lane_id, string lane, string filename, bool completed, bool successful, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("FindLatestWorkFileId", new object[] {
+                        login,
+                        lane_id,
+                        lane,
+                        filename,
+                        completed,
+                        successful}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public System.Nullable<int> EndFindLatestWorkFileId(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((System.Nullable<int>)(results[0]));
+        }
     }
 }
