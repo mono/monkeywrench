@@ -1,3 +1,9 @@
+2009-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.asmx: FindLatestWorkFileId: Fix compilation,
+	optimize the query slightly by only returning one row and
+	remove the bogus revision_id where clause.
+
 2009-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx: Added FindLatestWorkFileId, support
