@@ -1,0 +1,4 @@
+2009-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* BuildInfoEntry.cs: Added a HostLane field.
+

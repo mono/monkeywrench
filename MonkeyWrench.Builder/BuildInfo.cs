@@ -20,6 +20,7 @@ namespace MonkeyWrench.Builder
 	{
 		public int number;
 		public DBLane lane;
+		public DBHostLane hostlane;
 		public DBHost host;
 		public DBWork work;
 		public DBCommand command;

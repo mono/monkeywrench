@@ -1,3 +1,10 @@
+2009-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* BuildInfo.cs:
+	* Builder.cs: Request multiple work from the server. If work
+	failed for a hostlane, don't do any more work for that hostlane
+	(since we don't know if we're supposed to work on it or not).
+
 2009-06-08  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Don't spam the server 20 times a minute if there
@@ -186,4 +193,3 @@
 
 	* DBWorkView2.cs: Disable warnings about fields accessed using
 	  reflection.
-

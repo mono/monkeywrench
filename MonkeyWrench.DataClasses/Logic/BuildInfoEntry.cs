@@ -20,6 +20,7 @@ namespace MonkeyWrench.DataClasses.Logic
 	public class BuildInfoEntry
 	{
 		public DBLane Lane;
+		public DBHostLane HostLane;
 		public DBRevision Revision;
 		public List<DBWorkFile> FilesToDownload;
 		public List<DBLane> DependentLaneOfFiles; // same # of entries as FilesToDownload, 1-1 correspondence.

@@ -155,7 +155,9 @@
               <xs:element minOccurs="1" maxOccurs="1" name="hidden" type="xs:boolean" />
               <xs:element minOccurs="0" maxOccurs="1" name="mime" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="compressed_mime" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="md5" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="internal" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="file_file_id" nillable="true" type="xs:int" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -317,7 +319,9 @@
               <xs:element minOccurs="0" maxOccurs="1" name="author" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
               <xs:element minOccurs="0" maxOccurs="1" name="log" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="log_file_id" nillable="true" type="xs:int" />
               <xs:element minOccurs="0" maxOccurs="1" name="diff" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="diff_file_id" nillable="true" type="xs:int" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -326,6 +330,7 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
             <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="workhost_id" nillable="true" type="xs:int" />
@@ -333,7 +338,6 @@
               <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="lock_expires" type="xs:dateTime" />
               <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
-              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -680,11 +684,14 @@
       <xs:complexType name="BuildInfoEntry">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
+          <xs:element minOccurs="0" maxOccurs="1" name="HostLane" type="s0:DBHostLane" />
           <xs:element minOccurs="0" maxOccurs="1" name="Revision" type="s0:DBRevision" />
           <xs:element minOccurs="0" maxOccurs="1" name="FilesToDownload" type="s0:ArrayOfDBWorkFile" />
+          <xs:element minOccurs="0" maxOccurs="1" name="DependentLaneOfFiles" type="s0:ArrayOfDBLane" />
           <xs:element minOccurs="0" maxOccurs="1" name="LaneFiles" type="s0:ArrayOfDBLanefile" />
           <xs:element minOccurs="0" maxOccurs="1" name="Work" type="s0:DBWork" />
           <xs:element minOccurs="0" maxOccurs="1" name="Command" type="s0:DBCommand" />
+          <xs:element minOccurs="0" maxOccurs="1" name="EnvironmentVariables" type="s0:ArrayOfDBEnvironmentVariable" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ArrayOfDBWorkFile">
@@ -1556,6 +1563,22 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="GetBuildInfoMultiple">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="multiple_work" type="xs:boolean" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetBuildInfoMultipleResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetBuildInfoMultipleResult" type="s0:GetBuildInfoResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="FindLatestWorkFileId">
         <xs:complexType>
           <xs:sequence>
@@ -1962,6 +1985,12 @@
   <message name="GetBuildInfoSoapOut">
     <part name="parameters" element="s0:GetBuildInfoResponse" />
   </message>
+  <message name="GetBuildInfoMultipleSoapIn">
+    <part name="parameters" element="s0:GetBuildInfoMultiple" />
+  </message>
+  <message name="GetBuildInfoMultipleSoapOut">
+    <part name="parameters" element="s0:GetBuildInfoMultipleResponse" />
+  </message>
   <message name="FindLatestWorkFileIdSoapIn">
     <part name="parameters" element="s0:FindLatestWorkFileId" />
   </message>
@@ -2237,6 +2266,10 @@
       <input message="s0:GetBuildInfoSoapIn" />
       <output message="s0:GetBuildInfoSoapOut" />
     </operation>
+    <operation name="GetBuildInfoMultiple">
+      <input message="s0:GetBuildInfoMultipleSoapIn" />
+      <output message="s0:GetBuildInfoMultipleSoapOut" />
+    </operation>
     <operation name="FindLatestWorkFileId">
       <input message="s0:FindLatestWorkFileIdSoapIn" />
       <output message="s0:FindLatestWorkFileIdSoapOut" />
@@ -2498,6 +2531,10 @@
     <operation name="GetBuildInfo">
       <input message="s0:GetBuildInfoSoapIn" />
       <output message="s0:GetBuildInfoSoapOut" />
+    </operation>
+    <operation name="GetBuildInfoMultiple">
+      <input message="s0:GetBuildInfoMultipleSoapIn" />
+      <output message="s0:GetBuildInfoMultipleSoapOut" />
     </operation>
     <operation name="FindLatestWorkFileId">
       <input message="s0:FindLatestWorkFileIdSoapIn" />
@@ -3094,6 +3131,15 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="GetBuildInfoMultiple">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetBuildInfoMultiple" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="FindLatestWorkFileId">
       <soap:operation soapAction="http://monkeywrench.novell.com/FindLatestWorkFileId" style="document" />
       <input>
@@ -3675,6 +3721,15 @@
     </operation>
     <operation name="GetBuildInfo">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetBuildInfo" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetBuildInfoMultiple">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetBuildInfoMultiple" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

@@ -29,6 +29,7 @@ namespace MonkeyWrench.Builder
 	{
 		private static WebServices WebService;
 		private static GetBuildInfoResponse response;
+		private static List<DBHostLane> failed_hostlanes = new List<DBHostLane> ();
 
 		public static void Main (string [] arguments)
 		{
@@ -42,7 +43,7 @@ namespace MonkeyWrench.Builder
 			try {
 				if (!Configuration.LoadConfiguration (arguments))
 					return 1;
-				
+
 				if (!Configuration.VerifyBuildBotConfiguration ())
 					return 1;
 
@@ -58,24 +59,20 @@ namespace MonkeyWrench.Builder
 				WebService = WebServices.Create ();
 				WebService.CreateLogin (Configuration.Host, Configuration.WebServicePassword);
 
-				int counter = 20;
-				do {
-					response = WebService.GetBuildInfo (WebService.WebServiceLogin, Configuration.Host);
+				response = WebService.GetBuildInfoMultiple (WebService.WebServiceLogin, Configuration.Host, true);
 
-					if (!response.Host.enabled) {
-						Logger.Log ("This host is disabled. Exiting.");
-						return 0;
-					}
+				if (!response.Host.enabled) {
+					Logger.Log ("This host is disabled. Exiting.");
+					return 0;
+				}
 
-					if (response.Work.Count == 0)
-						break;
+				Logger.Log ("Builder will now build {0} lists of work items.", response.Work.Count);
 
-					Logger.Log ("Builder will now build {0} lists of work items.", response.Work.Count);
-
-					foreach (var item in response.Work)
-						Build (item);
-
-				} while (counter-- > 0);
+				for (int i = 0; i < response.Work.Count; i++) {
+					//foreach (var item in response.Work)
+					Logger.Log ("Building list #{0}/{1}", i+ 1, response.Work.Count);
+					Build (response.Work [i]);//item);
+				}
 
 				Logger.Log ("Builder finished successfully.");
 
@@ -154,7 +151,7 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_DATA_LANE"] = Configuration.GetDataLane (info.lane.lane);
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY"] = info.lane.repository;
 							p.StartInfo.EnvironmentVariables ["BUILD_HOST"] = Configuration.Host;
-							
+
 							int r = 0;
 							foreach (string repo in info.lane.repository.Split (',')) {
 								p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY_" + r.ToString ()] = repo;
@@ -184,11 +181,11 @@ namespace MonkeyWrench.Builder
 
 							if (info.environment_variables != null) {
 								// order is important here, we need to loop over the array in the same order get got the variables.
-								for (int e = 0; e < info.environment_variables.Count; e++ ) {
-									info.environment_variables [e].Evaluate (p.StartInfo.EnvironmentVariables);									
+								for (int e = 0; e < info.environment_variables.Count; e++) {
+									info.environment_variables [e].Evaluate (p.StartInfo.EnvironmentVariables);
 								}
 							}
-							
+
 							Thread stdout_thread = new Thread (delegate ()
 							{
 								try {
@@ -326,6 +323,10 @@ namespace MonkeyWrench.Builder
 				throw;
 			} finally {
 				Logger.Log ("{0} Builder finished thread for sequence {0}", info.number);
+
+				if (info.work.State == DBState.Failed && !info.command.nonfatal) {
+					failed_hostlanes.Add (info.hostlane);
+				}
 			}
 		}
 
@@ -350,7 +351,22 @@ namespace MonkeyWrench.Builder
 
 				for (int i = 0; i < list.Count; i++) {
 					BuildInfoEntry entry = list [i];
-					BuildInfo info = new BuildInfo ();
+					BuildInfo info;
+
+					if (failed_hostlanes != null) {
+						foreach (DBHostLane failed in failed_hostlanes) {
+							if (failed.id == entry.HostLane.id) {
+								Logger.Log ("Skipping work, the hostlane {0} has failed work in this run, which has disabled any further work (in this run).", failed.id);
+								entry = null;
+								break;
+							}
+						}
+					}
+
+					if (entry == null)
+						continue;
+
+					info = new BuildInfo ();
 
 					infos.Add (info);
 
@@ -385,6 +401,7 @@ namespace MonkeyWrench.Builder
 					info.host = response.Host;
 					info.work = entry.Work;
 					info.lane = entry.Lane;
+					info.hostlane = entry.HostLane;
 					info.number = i;
 					info.revision = entry.Revision;
 				}

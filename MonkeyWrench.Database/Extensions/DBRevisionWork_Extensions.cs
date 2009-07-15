@@ -232,7 +232,7 @@ WHERE
 		/// Finds pending steps for the current revision
 		/// </summary>
 		/// <returns></returns>
-		public static List<DBWorkView2> GetNextWork (this DBRevisionWork rw, DB db, DBLane lane, DBHost host, DBRevision revision)
+		public static List<DBWorkView2> GetNextWork (this DBRevisionWork rw, DB db, DBLane lane, DBHost host, DBRevision revision, bool multiple_work)
 		{
 			List<DBWorkView2> result = new List<DBWorkView2> (); ;
 
@@ -245,7 +245,7 @@ WHERE
 			if (host == null)
 				throw new ArgumentNullException ("host");
 
-			rw.FilterPendingWork (db, db.GetWork (rw), result);
+			rw.FilterPendingWork (db, db.GetWork (rw), result, multiple_work);
 
 			if (result.Count == 0 && !rw.completed) {
 				rw.completed = true;
@@ -261,7 +261,7 @@ WHERE
 		/// <param name="lane"></param>
 		/// <param name="revision"></param>
 		/// <returns></returns>
-		private static void FilterPendingWork (this DBRevisionWork rw, DB db, List<DBWorkView2> steps, List<DBWorkView2> result)
+		private static void FilterPendingWork (this DBRevisionWork rw, DB db, List<DBWorkView2> steps, List<DBWorkView2> result, bool multiple_work)
 		{
 			bool failed_revision = false;
 
@@ -274,7 +274,7 @@ WHERE
 					}
 
 					// if we already have steps, don't add steps with higher sequence numbers
-					if (result.Count > 0 && result [0].sequence != steps [i].sequence)
+					if (!multiple_work && result.Count > 0 && result [0].sequence != steps [i].sequence)
 						continue;
 
 					result.Add (steps [i]);

@@ -1483,6 +1483,30 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetBuildInfoMultiple", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetBuildInfoResponse GetBuildInfoMultiple(WebServiceLogin login, string host, bool multiple_work) {
+            object[] results = this.Invoke("GetBuildInfoMultiple", new object[] {
+                        login,
+                        host,
+                        multiple_work});
+            return ((GetBuildInfoResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetBuildInfoMultiple(WebServiceLogin login, string host, bool multiple_work, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetBuildInfoMultiple", new object[] {
+                        login,
+                        host,
+                        multiple_work}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetBuildInfoResponse EndGetBuildInfoMultiple(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetBuildInfoResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/FindLatestWorkFileId", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         [return: System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<int> FindLatestWorkFileId(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id, string lane, string filename, bool completed, bool successful) {

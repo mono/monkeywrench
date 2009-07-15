@@ -1,3 +1,8 @@
+2009-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBRevisionWork_Extensions.cs: Add support for returning 
+	all the work for a revisionwork entry.
+
 2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBLogin_Extensions.cs: Use a static random generator to 

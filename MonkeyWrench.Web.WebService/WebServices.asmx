@@ -1198,6 +1198,12 @@ ORDER BY revision DESC LIMIT 250;
         [WebMethod]
         public GetBuildInfoResponse GetBuildInfo (WebServiceLogin login, string host)
         {
+            return GetBuildInfoMultiple (login, host, false);
+        }
+        
+        [WebMethod]
+        public GetBuildInfoResponse GetBuildInfoMultiple (WebServiceLogin login, string host, bool multiple_work)
+        {
             try {
                 List<DBHost> hosts = new List<DBHost> (); // list of hosts to find work for
                 List<DBHostLane> hostlanes = new List<DBHostLane> ();
@@ -1317,7 +1323,7 @@ ORDER BY revision DESC LIMIT 250;
                         }
 
 
-                        List<DBWorkView2> pending_work = revisionwork.GetNextWork (db, lane, masterhost, revision);
+                        List<DBWorkView2> pending_work = revisionwork.GetNextWork (db, lane, masterhost, revision, multiple_work);
 
                         if (pending_work == null || pending_work.Count == 0)
                             continue;
@@ -1346,6 +1352,7 @@ ORDER BY id;
                         foreach (DBWorkView2 work in pending_work) {
                             BuildInfoEntry entry = new BuildInfoEntry ();
                             entry.Lane = lane;
+                            entry.HostLane = hl;
                             entry.Revision = revision;
                             entry.Command = DBCommand_Extensions.Create (db, work.command_id);
                             entry.FilesToDownload = files_to_download;
