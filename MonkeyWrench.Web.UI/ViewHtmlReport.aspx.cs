@@ -26,8 +26,8 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 		string [] find;
 		string [] replace;
 		string line;
-		string name = string.IsNullOrEmpty (md5) ? "md5" : "workfile_id";
-		string value = string.IsNullOrEmpty (md5) ? md5 : workfile_id.ToString ();
+		string name = !string.IsNullOrEmpty (md5) ? "md5" : "workfile_id";
+		string value = !string.IsNullOrEmpty (md5) ? md5 : workfile_id.ToString ();
 
 		find = new string [] { 
 				"img src=\"", 
