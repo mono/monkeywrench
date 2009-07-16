@@ -102,6 +102,7 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 				}
 				Response.End ();
 			}
+			return;
 		}
 
 		string tmp_file = null;
@@ -111,10 +112,13 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 
 				url = Utils.CreateWebServiceDownloadUrl (Request, workfile_id);
 
+				tmp_file = Path.GetTempFileName ();
 				if (!string.IsNullOrEmpty (md5))
 					url += "&md5=" + md5;
 
 				web.DownloadFile (url, tmp_file);
+
+				url += "&filename=" + filename;
 
 				Response.ContentType = web.ResponseHeaders ["Content-Type"];
 				Response.AppendHeader ("Content-Encoding", web.ResponseHeaders ["Content-Encoding"]);
