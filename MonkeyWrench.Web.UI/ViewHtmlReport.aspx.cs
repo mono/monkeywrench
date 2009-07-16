@@ -116,9 +116,9 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 				if (!string.IsNullOrEmpty (md5))
 					url += "&md5=" + md5;
 
-				web.DownloadFile (url, tmp_file);
-
 				url += "&filename=" + filename;
+
+				web.DownloadFile (url, tmp_file);
 
 				Response.ContentType = web.ResponseHeaders ["Content-Type"];
 				Response.AppendHeader ("Content-Encoding", web.ResponseHeaders ["Content-Encoding"]);
