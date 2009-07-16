@@ -61,13 +61,16 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 				}
 			}
 		}
+
+		File.Delete (filename);
+		File.Move (filename + ".out", filename);
 	}
 
 	protected void Page_Load (object sender, EventArgs e)
-	{		
+	{
 		string md5 = Request ["md5"];
 		string filename = Request ["filename"];
-		
+
 		int workfile_id;
 
 		int.TryParse (Request ["workfile_id"], out workfile_id);

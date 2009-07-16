@@ -1,5 +1,9 @@
 2009-07-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewHtmlReport.aspx.cs: Clean up after ourselves.
+
+2009-07-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewHtmlReport.aspx.cs: Don't rewrite javascript code.
 
 2009-07-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
