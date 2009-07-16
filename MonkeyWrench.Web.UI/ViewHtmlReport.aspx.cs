@@ -51,6 +51,8 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 
 							// undo any changes for relative links
 							line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=#", workfile_id), "#");
+							// undo any changes for javascript links
+							line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=javascript", workfile_id), "javascript");
 
 							writer.Write (line);
 							writer.Write ('\n');
