@@ -32,13 +32,12 @@ clean:
 	rm -f $(OUT)*
 	rm -f bin/*.dll bin/*.mdb bin/*.pdb
 
-publish: all
-	mkdir -p bin
-	cp $(OUT)* bin
-	cp -p $(OUT_DIR)/Npgsql.dll* bin
-	cp -p $(OUT_DIR)/MonkeyWrench.dll* bin
-	cp -p $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin
-	cp -p $(OUT_DIR)/MonkeyWrench.Database.dll* bin
+install: all
+	cp -pu $(OUT)* bin
+	cp -pu $(OUT_DIR)/Npgsql.dll* bin
+	cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin
+	cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin
+	cp -pu $(OUT_DIR)/MonkeyWrench.Database.dll* bin
 
 dataclasses:
 	$(MAKE) -C $(TOPDIR)/MonkeyWrench.DataClasses
@@ -46,6 +45,6 @@ dataclasses:
 
 wsdl: WebServices.wsdl
 
-WebServices.wsdl: WebServices.asmx Download.aspx Download.aspx.cs
+WebServices.wsdl: all
 	curl http://localhost:8123/WebServices/WebServices.asmx?wsdl > WebServices.wsdl -m  5
 

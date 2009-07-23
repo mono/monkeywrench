@@ -1,5 +1,9 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Makefile: Make publish and install targets synonyms.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Master.master.cs: Make the login instance, not static.
 
 2009-07-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>

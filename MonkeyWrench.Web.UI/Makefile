@@ -28,13 +28,9 @@ clean:
 	rm -f $(OUT)*
 	rm -f bin/*.mdb bin/*.dll bin/*.pdb
 
-publish: all
-	mkdir -p bin
-	# TODO: rsync to not trigger reloads if nothing has changed
-	cp $(OUT_DIR)/Npgsql.dll* bin/
-	cp $(OUT_DIR)/MonkeyWrench.dll* bin/
-	cp $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
-	cp $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/
-
 install: all
-	@:
+	mkdir -p bin
+	cp -pu $(OUT_DIR)/Npgsql.dll* bin/
+	cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin/
+	cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
+	cp -pu $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/

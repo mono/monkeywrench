@@ -29,7 +29,7 @@ svn:
 	svn pd svn:executable $(SVN_NO_EXEC_FILES)
 	svn ps svn:executable $(SVN_EXEC_FILES)
 	
-all clean publish install:
+all clean install:
 	$(MAKE) -C MonkeyWrench $@
 	$(MAKE) -C MonkeyWrench.DataClasses $@
 	$(MAKE) -C MonkeyWrench.Database $@
@@ -38,6 +38,8 @@ all clean publish install:
 	$(MAKE) -C MonkeyWrench.Builder $@
 	$(MAKE) -C MonkeyWrench.Web.UI $@
 	$(MAKE) -C MonkeyWrench.Web.WebService $@
+
+publish: install
 
 wsdl:
 	$(MAKE) -C MonkeyWrench.Web.WebService $@
