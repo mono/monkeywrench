@@ -1,5 +1,9 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DB.cs: Fix eol.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DB.cs: Add a CreateCommand and BeginTransaction method
 	and remove tne Connection property. Enables setting
 	timeout on all commands in one line.
