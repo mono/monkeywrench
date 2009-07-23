@@ -1,5 +1,10 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DBLogin_Extensions.cs: Try as hard as possible to create
+	a unique cookie.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DBWork_Extensions.cs:
 	* DBLane_Extensions.cs:
 	* DBHost_Extensions.cs:

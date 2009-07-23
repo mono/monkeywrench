@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 using MonkeyWrench.DataClasses;
@@ -23,7 +24,7 @@ namespace MonkeyWrench.Database
 	public static class DBLogin_Extensions
 	{
 
-		static Random random = new Random ();
+		static RandomNumberGenerator random = RandomNumberGenerator.Create ();
 
 		/// <summary>
 		/// Returns null if login failed.
@@ -57,10 +58,11 @@ namespace MonkeyWrench.Database
 
 			byte [] data = new byte [32];
 			StringBuilder builder = new StringBuilder (data.Length);
-			random.NextBytes (data);
+			random.GetBytes (data);
 
 			for (int i = 0; i < data.Length; i++)
 				builder.Append (string.Format ("{0:x}", data [i]));
+			builder.Append (DateTime.Now.Ticks);
 
 			result = new DBLogin ();
 			result.expires = DateTime.Now.AddDays (1);
