@@ -209,6 +209,12 @@ namespace MonkeyWrench.Web.WebServices
 					Logger.Log ("Could not compress the file {0}: {1}, uploading uncompressed.", filename, ex.Message);
 				}
 
+				long length = new FileInfo (file_to_upload).Length;
+				if (length > 1024 * 1024 * 100) {
+					Logger.Log ("Not uploading {0} ({2}): filesize is > 100MB (it is: {1} MB)", file_to_upload, length / (1024.0 * 1024.0), filename);
+					return;
+				}
+
 				// try to upload the file
 				ExecuteSafe (string.Format ("upload the file {0}", filename), delegate ()
 				{
