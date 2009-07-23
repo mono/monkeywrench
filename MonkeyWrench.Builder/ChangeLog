@@ -1,5 +1,10 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Builder.cs: If upload of a file throws an exception,
+	continue with the next file instead of aborting everything.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Builder.cs: Use safe remote methods (safe as in will retry
 	for a specified amount of time if connection fails).
 

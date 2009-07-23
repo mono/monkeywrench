@@ -470,7 +470,11 @@ namespace MonkeyWrench.Builder
 							try {
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								string filename = line.Trim ();
-								WebService.UploadFileSafe (work, filename, cmd.Contains ("Hidden"));
+								try {
+									WebService.UploadFileSafe (work, filename, cmd.Contains ("Hidden"));
+								} catch (Exception ex) {
+									Logger.Log ("Error while uploading file {0}: '{1}'. Skipping upload of this file", filename, ex.Message);
+								}
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
 							}
@@ -480,7 +484,11 @@ namespace MonkeyWrench.Builder
 							try {
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								foreach (string file in Directory.GetFiles (line.Trim ())) {
-									WebService.UploadFileSafe (work, file, cmd.Contains ("Hidden"));
+									try {
+										WebService.UploadFileSafe (work, file, cmd.Contains ("Hidden"));
+									} catch (Exception ex) {
+										Logger.Log ("Error while uploading file {0}: '{1}'. Skipping upload of this file", file, ex.Message);
+									}
 								}
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
