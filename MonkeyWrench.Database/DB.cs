@@ -80,9 +80,18 @@ namespace MonkeyWrench
 
 				dbcon.Open ();
 
-				DateTime db_now = (DateTime) ExecuteScalar ("SELECT now();");
+				object db_now_obj = ExecuteScalar ("SELECT now();");
+				DateTime db_now;
 				DateTime machine_now = DateTime.Now;
 				const string format = "yyyy/MM/dd HH:mm:ss.ffff";
+
+				if (db_now_obj is DateTime) {
+					db_now = (DateTime) db_now_obj;
+				} else {
+					Logger.Log ("now () function return value of type: {0}", db_now_obj == null ? "null" : db_now_obj.GetType ().FullName);
+					db_now = machine_now;
+				}
+
 				db_time_difference = db_now - machine_now;
 
 				Logger.Log ("DB now: {0}, current machine's now: {1}, adjusted now: {3}, diff: {2} ms", db_now.ToString (format), machine_now.ToString (format), db_time_difference.TotalMilliseconds, Now.ToString (format));

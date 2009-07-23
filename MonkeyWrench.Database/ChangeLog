@@ -1,3 +1,9 @@
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DB.cs: For some reason selecting the current date
+	in the database doesn't always return the same type.
+	Handle this gracefully.
+
 2009-06-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DB.cs: Fix eol-style in UploadString, and when saving
