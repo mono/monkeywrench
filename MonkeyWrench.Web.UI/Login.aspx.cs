@@ -65,8 +65,8 @@ public partial class Login : System.Web.UI.Page
 				Response.Cookies ["cookie"].Expires = DateTime.Now.AddDays (1);
 				FormsAuthentication.RedirectFromLoginPage (response.User, true);
 			}
-		} catch (Exception ex) {
-			lblMessage.Text = ex.Message;
+		} catch (Exception) {
+			lblMessage.Text = "Invalid user/password.";
 			txtPassword.Text = "";
 		}
 	}

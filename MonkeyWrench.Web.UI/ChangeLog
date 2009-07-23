@@ -1,5 +1,10 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Login.aspx.cs: Assume all errors are because of invalid
+	user/pass.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* GetFile.aspx.cs:
 	* ViewHtmlReport.aspx.cs: If an error occurred while downloading
 	something, redirect to the login page.
