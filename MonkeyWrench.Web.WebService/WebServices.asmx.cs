@@ -1120,7 +1120,7 @@ ORDER BY revision DESC LIMIT 250;
                 if (work.starttime > new DateTime (2000, 1, 1) && work.endtime < work.starttime) {
                     // the issue here is that the server interprets the datetime as local time, while it's always as utc.
                     try {
-                        using (IDbCommand cmd = db.CreateCommand ()) {
+                        using (IDbCommand cmd = db.Connection.CreateCommand ()) {
                             cmd.CommandText = "SELECT starttime FROM Work WHERE id = " + work.id;
                             work.starttime = (DateTime) cmd.ExecuteScalar ();
                         }
