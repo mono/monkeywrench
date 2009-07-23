@@ -22,7 +22,7 @@ using MonkeyWrench.Web.WebServices;
 
 public partial class Master : System.Web.UI.MasterPage
 {
-	private static WebServiceLogin web_service_login;
+	private WebServiceLogin web_service_login;
 
 	public WebServices WebService
 	{
