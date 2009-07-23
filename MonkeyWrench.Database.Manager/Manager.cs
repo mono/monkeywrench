@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Manager.cs
  *
  * Authors:
