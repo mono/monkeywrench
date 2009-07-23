@@ -33,6 +33,7 @@ clean:
 	rm -f bin/*.dll bin/*.mdb bin/*.pdb
 
 install: all
+	mkdir -p bin
 	cp -pu $(OUT)* bin
 	cp -pu $(OUT_DIR)/Npgsql.dll* bin
 	cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin
