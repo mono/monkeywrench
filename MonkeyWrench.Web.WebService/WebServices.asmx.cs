@@ -1117,6 +1117,17 @@ ORDER BY revision DESC LIMIT 250;
             using (DB db = new DB ()) {
                 VerifyUserInRole (db, login, Roles.BuildBot);
                 Console.WriteLine ("ReportBuildState, state: {0}, start time: {1}, end time: {2}", work.State, work.starttime, work.endtime);
+                if (work.starttime > new DateTime (2000, 1, 1) && work.endtime < work.starttime) {
+                    // the issue here is that the server interprets the datetime as local time, while it's always as utc.
+                    try {
+                        using (IDbCommand cmd = db.CreateCommand ()) {
+                            cmd.CommandText = "SELECT starttime FROM Work WHERE id = " + work.id;
+                            work.starttime = (DateTime) cmd.ExecuteScalar ();
+                        }
+                    } catch (Exception ex) {
+                        Console.WriteLine ("ReportBuildState: Exception while fixing timezone data: {0}", ex.Message);
+                    }
+                }
                 work.Save (db);
                 work.Reload (db);
                 Console.WriteLine ("ReportBuildState, state: {0}, start time: {1}, end time: {2} SAVED", work.State, work.starttime, work.endtime);
