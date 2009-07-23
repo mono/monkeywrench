@@ -36,8 +36,8 @@ namespace MonkeyWrench.Database
 		{
 			Console.WriteLine ("Query {0} {1} {2} {3}", lane, host, limit, page);
 			List<DBRevisionWorkView> result = new List<DBRevisionWorkView> ();
-			using (IDbTransaction transaction = db.Connection.BeginTransaction ()) {
-				using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbTransaction transaction = db.BeginTransaction ()) {
+				using (IDbCommand cmd = db.CreateCommand ()) {
 					// copy&paste from CustomTypes.sql
 					cmd.CommandText = @"
 SELECT RevisionWork.id, Revision.revision 

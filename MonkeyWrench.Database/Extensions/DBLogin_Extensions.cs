@@ -39,7 +39,7 @@ namespace MonkeyWrench.Database
 
 			Console.WriteLine ("DBLogin.Login ('{0}', '{1}', '{2}')", login, password, ip4);
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				// TODO: Encrypt passwords somehow, not store as plaintext.
 				cmd.CommandText = "SELECT id FROM Person WHERE login = @login AND password = @password;";
 				DB.CreateParameter (cmd, "login", login);
@@ -75,7 +75,7 @@ namespace MonkeyWrench.Database
 
 		public static void Logout (DB db, string cookie)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "DELETE FROM Login WHERE cookie = @cookie;";
 				DB.CreateParameter (cmd, "cookie", cookie);
 				cmd.ExecuteNonQuery ();

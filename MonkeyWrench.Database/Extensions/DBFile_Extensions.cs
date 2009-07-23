@@ -42,7 +42,7 @@ namespace MonkeyWrench.Database
 
 		public static DBFile Find (DB db, string md5)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM File WHERE md5 = @md5;";
 				DB.CreateParameter (cmd, "md5", md5);
 				using (IDataReader reader = cmd.ExecuteReader ()) {

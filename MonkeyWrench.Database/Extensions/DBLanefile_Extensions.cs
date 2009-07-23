@@ -32,7 +32,7 @@ namespace MonkeyWrench.Database
 			if (me.contents != null && me.contents.Length != 0)
 				return me.contents;
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT contents FROM DBLanefile WHERE id = " + me.id.ToString ();
 				me.contents = (string) cmd.ExecuteScalar ();
 				return me.contents;
@@ -54,7 +54,7 @@ namespace MonkeyWrench.Database
 		{
 			List<DBLane> result = new List<DBLane> ();
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM Lane WHERE Lane.id IN (SELECT DISTINCT lane_id FROM Lanefiles WHERE lanefile_id = @lanefile_id);";
 				DB.CreateParameter (cmd, "lanefile_id", lanefile.id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {

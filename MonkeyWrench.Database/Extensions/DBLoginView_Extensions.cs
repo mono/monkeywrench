@@ -26,7 +26,7 @@ namespace MonkeyWrench.Database
 		{
 			DBLoginView result;
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM LoginView WHERE cookie = @cookie AND login = @person AND ip4 = @ip4 AND ip4 <> '';";
 				DB.CreateParameter (cmd, "cookie", cookie);
 				DB.CreateParameter (cmd, "person", person);

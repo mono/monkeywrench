@@ -27,7 +27,7 @@ namespace MonkeyWrench.Database
 		{
 			List<DBLaneDeletionDirectiveView> result = new List<DBLaneDeletionDirectiveView> ();
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"SELECT * FROM LaneDeletionDirectiveView WHERE lane_id = @lane_id";
 				DB.CreateParameter (cmd, "lane_id", lane.id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -41,7 +41,7 @@ namespace MonkeyWrench.Database
 
 		public static DBLaneDeletionDirectiveView Find (DB db, int file_deletion_directive_id, int lane_id)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"SELECT * From LaneDeletionDirectiveView WHERE lane_id = @lane_id AND file_deletion_directive_id = @file_deletion_directive_id;";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				DB.CreateParameter (cmd, "file_deletion_directive_id", file_deletion_directive_id);

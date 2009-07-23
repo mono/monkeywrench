@@ -25,7 +25,7 @@ using MonkeyWrench.DataClasses;
 
 namespace MonkeyWrench
 {
-	public class DB : IDisposable
+	public class DB : IDisposable, IDB
 	{
 		NpgsqlConnection dbcon;
 		LargeObjectManager manager;
@@ -41,10 +41,16 @@ namespace MonkeyWrench
 			}
 		}
 
-
-		public IDbConnection Connection
+		public IDbCommand CreateCommand ()
 		{
-			get { return dbcon; }
+			NpgsqlCommand result = dbcon.CreateCommand ();
+			result.CommandTimeout = 120; // seconds
+			return result;
+		}
+
+		public IDbTransaction BeginTransaction ()
+		{
+			return dbcon.BeginTransaction ();
 		}
 
 		public DB ()
@@ -215,7 +221,7 @@ namespace MonkeyWrench
 
 		public int GetSize (int file_id)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				object o = ExecuteScalar ("SELECT file_id FROM File where File.id = " + file_id.ToString ());
 
 				if (!(o is int))
@@ -228,7 +234,7 @@ namespace MonkeyWrench
 		public int GetLargeObjectSize (int oid)
 		{
 			Console.WriteLine ("GetLargeObjectSize ({0})", oid);
-			using (IDbTransaction transaction = Connection.BeginTransaction ()) {
+			using (IDbTransaction transaction = BeginTransaction ()) {
 				int result;
 				LargeObject obj = Manager.Open (oid);
 				result = obj.Size ();
@@ -279,7 +285,7 @@ namespace MonkeyWrench
 					md5 = FileUtilities.CalculateMD5 (st);
 				}
 
-				using (IDbCommand cmd = Connection.CreateCommand ()) {
+				using (IDbCommand cmd = CreateCommand ()) {
 					cmd.CommandText = "SELECT * FROM File WHERE md5 = '" + md5 + "'";
 					using (IDataReader reader = cmd.ExecuteReader ()) {
 						if (reader.Read ())
@@ -294,7 +300,7 @@ namespace MonkeyWrench
 
 				gzFilename = FileUtilities.GZCompress (Filename);
 
-				transaction = Connection.BeginTransaction ();
+				transaction = BeginTransaction ();
 
 				if (Configuration.StoreFilesInDB) {
 					manager = new LargeObjectManager (this.dbcon);
@@ -389,7 +395,7 @@ namespace MonkeyWrench
 
 		public object ExecuteScalar (string sql)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = sql;
 				return cmd.ExecuteScalar ();
 			}
@@ -404,7 +410,7 @@ namespace MonkeyWrench
 				throw new Exception (string.Format ("The lane '{0}' already exists.", new_name));
 
 			try {
-				using (IDbTransaction transaction = Connection.BeginTransaction ()) {
+				using (IDbTransaction transaction = BeginTransaction ()) {
 					result = new DBLane ();
 					result.lane = new_name;
 					result.max_revision = master.max_revision;
@@ -466,7 +472,7 @@ namespace MonkeyWrench
 		public DBLane LookupLane (string lane, bool throwOnError)
 		{
 			DBLane result = null;
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM Lane WHERE lane = @lane";
 				DB.CreateParameter (cmd, "lane", lane);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -499,7 +505,7 @@ namespace MonkeyWrench
 		public DBHost LookupHost (string host, bool throwOnError)
 		{
 			DBHost result = null;
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM Host WHERE host = @host";
 				DB.CreateParameter (cmd, "host", host);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -527,7 +533,7 @@ namespace MonkeyWrench
 		{
 			List<DBLane> result = new List<DBLane> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM Lane ORDER BY lane";
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
@@ -543,7 +549,7 @@ namespace MonkeyWrench
 		{
 			List<DBHost> result = new List<DBHost> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM Host ORDER BY host";
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
@@ -559,7 +565,7 @@ namespace MonkeyWrench
 		{
 			List<DBHostLane> result = new List<DBHostLane> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM HostLane ORDER BY host_id, lane_id";
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
@@ -575,7 +581,7 @@ namespace MonkeyWrench
 		{
 			List<DBHost> result = new List<DBHost> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT *, HostLane.lane_id AS lane_id FROM Host INNER JOIN HostLane ON Host.id = HostLane.host_id WHERE lane_id = @lane_id";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -592,7 +598,7 @@ namespace MonkeyWrench
 		{
 			List<DBLane> result = new List<DBLane> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT *, HostLane.host_id AS host_id, HostLane.enabled AS lane_enabled FROM Lane INNER JOIN HostLane ON Lane.id = HostLane.lane_id WHERE host_id = @host_id ";
 				if (only_enabled)
 					cmd.CommandText += " AND HostLane.enabled = true;";
@@ -614,7 +620,7 @@ namespace MonkeyWrench
 		{
 			List<string> result = new List<string> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT DISTINCT lane FROM Revision";
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ())
@@ -629,7 +635,7 @@ namespace MonkeyWrench
 		{
 			List<DBCommand> result = new List<DBCommand> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM Command WHERE lane_id = @lane_id ORDER BY sequence ASC";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -664,7 +670,7 @@ namespace MonkeyWrench
 			Dictionary<string, DBRevision> result = new Dictionary<string, DBRevision> ();
 			DBRevision rev;
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @lane_id";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -684,7 +690,7 @@ namespace MonkeyWrench
 			List<DBRevision> result = new List<DBRevision> ();
 			DBRevision rev;
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				//cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @lane_id AND NOT EXISTS (SELECT 1 FROM Work WHERE lane_id = @lane_id AND host_id = @host_id AND revision_id = revision.id) ORDER BY date DESC";
 				cmd.CommandText = @"
 SELECT Revision.*, C 
@@ -718,7 +724,7 @@ ORDER BY Revision.date DESC;
 			List<DBRevision> result = new List<DBRevision> ();
 			DBRevision rev;
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT Revision.*, CAST (revision as int) AS r FROM Revision WHERE lane_id = @lane_id ORDER BY r DESC";
 				if (limit > 0)
 					cmd.CommandText += " LIMIT " + limit.ToString ();
@@ -739,7 +745,7 @@ ORDER BY Revision.date DESC;
 		{
 			List<int> result = new List<int> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT DISTINCT CAST (revision as int) FROM revisions WHERE lane = @lane ORDER BY revision DESC";
 				if (limit > 0)
 					cmd.CommandText += " LIMIT " + limit.ToString ();
@@ -755,7 +761,7 @@ ORDER BY Revision.date DESC;
 
 		public void ClearAllWork (int lane_id, int host_id)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "UPDATE Work SET state = 0, summary = '' " +
 						"WHERE lane_id = @lane_id " +
 							"AND host_id = @host_id;";
@@ -767,7 +773,7 @@ ORDER BY Revision.date DESC;
 
 		public void ClearWork (int lane_id, int revision_id, int host_id)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = @"
 UPDATE 
 	Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
@@ -799,8 +805,8 @@ WHERE
 		/// <param name="revision_id"></param>
 		public void DeleteFiles (int host_id, int lane_id, int revision_id)
 		{
-			using (IDbTransaction transaction = Connection.BeginTransaction ()) {
-				using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbTransaction transaction = BeginTransaction ()) {
+				using (IDbCommand cmd = CreateCommand ()) {
 					cmd.CommandText = @"
 SELECT WorkFile.id AS id
 	INTO TEMP WorkFile_delete_tmpfile 
@@ -828,7 +834,7 @@ WHERE id IN (select * from WorkFile_delete_tmpfile);
 
 		public void DeleteAllWork (int lane_id, int host_id)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "DELETE FROM Work WHERE lane_id = @lane_id AND host_id = @host_id;";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				DB.CreateParameter (cmd, "host_id", host_id);
@@ -839,7 +845,7 @@ WHERE id IN (select * from WorkFile_delete_tmpfile);
 
 		public void DeleteWork (int lane_id, int revision_id, int host_id)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				//				cmd.CommandText = "DELETE FROM Work WHERE lane_id = @lane_id AND revision_id = @revision_id AND host_id = @host_id;";
 				cmd.CommandText = @"
 DELETE FROM Work 
@@ -860,7 +866,7 @@ WHERE Work.revisionwork_id =
 
 		public DBRevision GetRevision (string lane, int revision)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * from revisions where lane = @lane AND revision = @revision";
 				DB.CreateParameter (cmd, "lane", lane);
 				DB.CreateParameter (cmd, "revision", revision.ToString ());
@@ -879,7 +885,7 @@ WHERE Work.revisionwork_id =
 
 		public int GetLastRevision (string lane)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				DBLane l = LookupLane (lane);
 				cmd.CommandText = "SELECT max (CAST (revision AS int)) FROM Revision WHERE lane_id = @lane_id";
 				DB.CreateParameter (cmd, "lane_id", l.id);
@@ -898,7 +904,7 @@ WHERE Work.revisionwork_id =
 		{
 			List<DBWorkView2> result = new List<DBWorkView2> ();
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM WorkView2 WHERE revisionwork_id = @revisionwork_id ORDER BY sequence";
 				DB.CreateParameter (cmd, "revisionwork_id", revisionwork.id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -911,7 +917,7 @@ WHERE Work.revisionwork_id =
 
 		public bool HasWork (int lane_id, int revision_id, int host_id)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT Count (*) FROM Work WHERE lane_id = @lane_id AND revision_id = @revision_id AND host_id = @host_id";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				DB.CreateParameter (cmd, "revision_id", revision_id);
@@ -924,7 +930,7 @@ WHERE Work.revisionwork_id =
 		{
 			DBWork result = null;
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM steps WHERE lane = @lane AND (state = 0 OR state = 1) ORDER BY revision DESC, sequence LIMIT 1";
 				DB.CreateParameter (cmd, "lane", lane);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -943,7 +949,7 @@ WHERE Work.revisionwork_id =
 		public DBHostLane GetHostLane (int host_id, int lane_id)
 		{
 			DBHostLane result;
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM HostLane WHERE lane_id = @lane_id AND host_id = @host_id;";
 				DB.CreateParameter (cmd, "host_id", host_id);
 				DB.CreateParameter (cmd, "lane_id", lane_id);
@@ -965,7 +971,7 @@ WHERE Work.revisionwork_id =
 		/// <returns></returns>
 		public bool IsLatestRevisionWork (DBRevisionWork current)
 		{
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				cmd.CommandText = @"
 SELECT 
 	RevisionWork.id
@@ -1008,7 +1014,7 @@ LIMIT 1
 		{
 			DBRevisionWork result = null;
 
-			using (IDbCommand cmd = Connection.CreateCommand ()) {
+			using (IDbCommand cmd = CreateCommand ()) {
 				// sorting by RevisionWork.workhost_id ensures that we'll get 
 				// revisionwork which has been started at the top of the list.
 				cmd.CommandText = @"

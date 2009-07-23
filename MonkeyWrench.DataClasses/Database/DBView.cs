@@ -29,12 +29,12 @@ namespace MonkeyWrench.DataClasses
 		{
 		}
 
-		public override void Save (System.Data.IDbConnection connection)
+		public override void Save (IDB db)
 		{
 			throw new Exception ("Can't save a View");
 		}
 
-		public override void Delete (System.Data.IDbConnection connection)
+		public override void Delete (IDB db)
 		{
 			throw new Exception ("Can't delete a View");
 		}

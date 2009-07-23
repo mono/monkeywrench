@@ -32,7 +32,7 @@ namespace MonkeyWrench.Database
 		{
 			object result;
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT Count(*) FROM RevisionWork WHERE lane_id = @lane_id AND host_id = @host_id;";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				DB.CreateParameter (cmd, "host_id", host_id);
@@ -54,7 +54,7 @@ namespace MonkeyWrench.Database
 		{
 			List<DBWorkFile> result = new List<DBWorkFile> ();
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
 SELECT 
 	WorkFile.* 
@@ -133,7 +133,7 @@ WHERE
 			List<DBState> states = new List<DBState> ();
 			List<bool> nonfatal = new List<bool> ();
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT state, Command.nonfatal FROM Work INNER JOIN Command ON Work.command_id = Command.id WHERE revisionwork_id = @revisionwork_id ORDER BY sequence";
 				DB.CreateParameter (cmd, "revisionwork_id", id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -219,7 +219,7 @@ WHERE
 
 		private static void SaveState (DB db, int id, DBState state, bool completed)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "UPDATE RevisionWork SET state = @state, completed = @completed WHERE id = @id;";
 				DB.CreateParameter (cmd, "state", (int) state);
 				DB.CreateParameter (cmd, "completed", completed);
@@ -293,7 +293,7 @@ WHERE
 		{
 			DBRevisionWork result;
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM RevisionWork WHERE lane_id = @lane_id AND revision_id = @revision_id ";
 				if (host != null) {
 					cmd.CommandText += " AND host_id = @host_id;";
@@ -323,7 +323,7 @@ WHERE
 		public static bool SetWorkHost (this DBRevisionWork rw, DB db, DBHost host)
 		{
 			object result;
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
 UPDATE RevisionWork SET workhost_id = @workhost_id WHERE id = @id AND workhost_id IS NULL;
 SELECT workhost_id FROM RevisionWork where id = @id AND workhost_id = @workhost_id;

@@ -44,22 +44,22 @@ namespace MonkeyWrench.DataClasses
 			LoadInternal (reader);
 		}
 
-		public virtual void Save (IDbConnection connection)
+		public virtual void Save (IDB db)
 		{
-			SaveInternal (connection);
+			SaveInternal (db);
 		}
 
-		public virtual void Delete (IDbConnection connection)
+		public virtual void Delete (IDB db)
 		{
-			DeleteInternal (connection);
+			DeleteInternal (db);
 		}
 
-		public void Reload (IDbConnection connection)
+		public void Reload (IDB db)
 		{
 			if (id <= 0)
 				throw new ArgumentException ("There's no id to reload from.");
 
-			using (IDbCommand cmd = connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM " + Table + " WHERE id = " + id.ToString ();
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					if (!reader.Read ())
@@ -105,12 +105,12 @@ namespace MonkeyWrench.DataClasses
 		/// A default Save implementation using reflection
 		/// </summary>
 		/// <param name="connection"></param>
-		protected void SaveInternal (IDbConnection connection)
+		protected void SaveInternal (IDB db)
 		{
 			string sql;
 			string [] fields = Fields;
 
-			using (IDbCommand cmd = connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				if (id == 0) {
 					sql = "INSERT INTO " + Table + "(";
 					sql += string.Join (", ", fields);
@@ -170,20 +170,20 @@ namespace MonkeyWrench.DataClasses
 		/// A default Delete implementation
 		/// </summary>
 		/// <param name="connection"></param>
-		public static void DeleteInternal (IDbConnection connection, int id, string Table)
+		public static void DeleteInternal (IDB db, int id, string Table)
 		{
 			if (id <= 0)
 				throw new Exception (Table + " doesn't have an id.");
 
-			using (IDbCommand cmd = connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "DELETE FROM " + Table + " WHERE id = " + id.ToString ();
 				cmd.ExecuteNonQuery ();
 			}
 		}
 
-		public void DeleteInternal (IDbConnection connection)
+		public void DeleteInternal (IDB db)
 		{
-			DeleteInternal (connection, id, Table);
+			DeleteInternal (db, id, Table);
 		}
 
 		public static void CreateParameter (IDbCommand cmd, string name, object value)

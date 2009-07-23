@@ -1,5 +1,12 @@
 2009-06-08  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* IDB.cs: Added.
+
+	* Makefile:
+	* MonkeyWrench.csproj: Updated.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* FileUtilities: Tweaking the md5 -> path generation once
 	more, only create two top level directories and put
 	files in there.

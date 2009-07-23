@@ -151,7 +151,7 @@ namespace MonkeyWrench.Scheduler
 			Logger.Log ("AddRevisionWork ({0} (id: {1}), {2} (id: {3}))", lane.lane, lane.id, host.host, host.id);
 
 			try {
-				using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
 SELECT Lane.id AS lid, Revision.id AS rid, Host.id AS hid
 FROM Host, Lane
@@ -250,7 +250,7 @@ WHERE
 						int revisionwork_id;
 						bool pending_dependencies;
 
-						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+						using (IDbCommand cmd = db.CreateCommand ()) {
 							cmd.CommandText = "SELECT add_revisionwork (@lane_id, @host_id, @revision_id);";
 							DB.CreateParameter (cmd, "lane_id", lane.id);
 							DB.CreateParameter (cmd, "host_id", host.id);
@@ -258,7 +258,7 @@ WHERE
 							revisionwork_id = (int) cmd.ExecuteScalar ();
 						}
 
-						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+						using (IDbCommand cmd = db.CreateCommand ()) {
 							cmd.CommandText = "SELECT state FROM RevisionWork WHERE id = @id;";
 							DB.CreateParameter (cmd, "id", revisionwork_id);
 							pending_dependencies = (int) DBState.DependencyNotFulfilled == (int) cmd.ExecuteScalar ();
@@ -272,7 +272,7 @@ WHERE
 						foreach (DBCommand command in commands) {
 							work = null;
 							if (pending_dependencies) {
-								using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+								using (IDbCommand cmd = db.CreateCommand ()) {
 									cmd.CommandText = "SELECT * FROM Work WHERE revisionwork_id = @revisionwork_id AND command_id = @command_id;";
 									DB.CreateParameter (cmd, "revisionwork_id", revisionwork_id);
 									DB.CreateParameter (cmd, "command_id", command.id);
@@ -289,7 +289,7 @@ WHERE
 								work.revisionwork_id = revisionwork_id;
 							}
 							work.State = dependencies_satisfied ? DBState.NotDone : DBState.DependencyNotFulfilled;
-							work.Save (db.Connection);
+							work.Save (db);
 							Logger.Log ("Saved revision {0}, host {2}, command {1}", revision.revision, command.command, host.host);
 						}
 

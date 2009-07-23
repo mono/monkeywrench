@@ -28,7 +28,7 @@ namespace MonkeyWrench.Database
 			List<DBEnvironmentVariable> result = null;
 
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM EnvironmentVariable WHERE 1 = 1 ";
 
 				if (lane_id.HasValue) {

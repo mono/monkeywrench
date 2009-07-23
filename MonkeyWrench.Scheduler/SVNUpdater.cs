@@ -177,7 +177,7 @@ namespace MonkeyWrench.Scheduler
 						r.date = DateTime.Parse (node.SelectSingleNode ("date").InnerText);
 						r.log_file_id = db.UploadString(node.SelectSingleNode ("msg").InnerText, ".log", false).id;
 
-						r.Save (db.Connection);
+						r.Save (db);
 
 						update_steps = true;
 						Logger.Log ("SVN: Saved revision '{0}' for lane '{1}'", r.revision, lane.lane);
@@ -267,7 +267,7 @@ namespace MonkeyWrench.Scheduler
 				Logger.Log ("SVNDiff: Thread started.");
 				using (DB db = new DB (true)) {
 					using (DB db_save = new DB (true)) {
-						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+						using (IDbCommand cmd = db.CreateCommand ()) {
 							cmd.CommandText = @"
 SELECT Revision.*, Lane.repository, Lane.lane
 FROM Revision 
@@ -290,7 +290,7 @@ WHERE (Revision.diff IS NULL OR Revision.diff = '') AND Revision.diff_file_id IS
 										diff = "No diff";
 
 									revision.diff_file_id = db_save.UploadString (diff, ".log", false).id;
-									revision.Save (db_save.Connection);
+									revision.Save (db_save);
 									Logger.Log ("SVNDiff: Got diff for lane '{0}', revision '{1}'", lane, revision.revision);
 								}
 							}

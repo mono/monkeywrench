@@ -24,7 +24,7 @@ namespace MonkeyWrench.Database
 	{
 		public static DBWorkFileView Find (DB db, int workfile_id)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM WorkFileView WHERE id = @id;";
 				DB.CreateParameter (cmd, "id", workfile_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -43,7 +43,7 @@ namespace MonkeyWrench.Database
 			if (lane == null)
 				throw new ArgumentNullException ("lane");
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
 	SELECT 
 		WorkFile.id, WorkFile.work_id, WorkFile.file_id, WorkFile.filename, WorkFile.hidden, 

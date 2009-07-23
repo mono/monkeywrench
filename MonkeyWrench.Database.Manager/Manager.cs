@@ -69,7 +69,7 @@ namespace MonkeyWrench.Database.Manager
 			using (DB db = new DB (true)) {
 				using (DB db_save = new DB (true)) {
 					//using (IDbTransaction transaction = db_save.Connection.BeginTransaction ()) {
-					using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+					using (IDbCommand cmd = db.CreateCommand ()) {
 						cmd.CommandText = @"
 SELECT File.*
 FROM File
@@ -108,7 +108,7 @@ LIMIT 10
 									destlength = new FileInfo (tmpfilegz).Length;
 									Console.WriteLine ("Success, compressed size: {0} ({1}%)", destlength, 100 * (double) destlength / (double) srclength);
 
-									using (IDbTransaction transaction = db_save.Connection.BeginTransaction ()) {
+									using (IDbTransaction transaction = db_save.BeginTransaction ()) {
 										// Upload the compressed file. 
 										// Npgsql doesn't seem to have a way to truncate a large object,
 										// so we just create a new large object and delete the old one.
@@ -183,7 +183,7 @@ LIMIT 10
 						for (int start = min_lo; start < max_lo; start += (page_size + 1)) {
 							Console.WriteLine ("Checking: {0} <= loid <= {1}", start, start + page_size);
 
-							using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+							using (IDbCommand cmd = db.CreateCommand ()) {
 								cmd.CommandText = @"
 SELECT 
 	pg_largeobject.loid, 
@@ -208,7 +208,7 @@ ORDER BY loid;
 								DB.CreateParameter (cmd, "start", start.ToString ());
 								DB.CreateParameter (cmd, "end", (start + page_size).ToString ());
 
-								using (IDbTransaction transaction = db_obj.Connection.BeginTransaction ()) {
+								using (IDbTransaction transaction = db_obj.BeginTransaction ()) {
 									using (IDataReader reader = cmd.ExecuteReader ()) {
 										int prev_loid = -1;
 										int workfile_count = 0;
@@ -362,7 +362,7 @@ AND Work.endtime + interval '{0} days' < now ();
 							continue;
 						}
 
-						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+						using (IDbCommand cmd = db.CreateCommand ()) {
 							cmd.CommandText = sql;
 							DB.CreateParameter (cmd, "lane_id", lane.id);
 							using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -423,7 +423,7 @@ AND Work.endtime + interval '{0} days' < now ();
 			using (DB db = new DB ()) {
 				using (DB download_db = new DB ()) {
 					while (true) {
-						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+						using (IDbCommand cmd = db.CreateCommand ()) {
 							// execute this in chunks to avoid huge data transfers and slowdowns.
 							cmd.CommandText = "SELECT * FROM File WHERE NOT file_id IS NULL LIMIT 100";
 							using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -443,7 +443,7 @@ AND Work.endtime + interval '{0} days' < now ();
 										}
 									}
 
-									IDbTransaction transaction = download_db.Connection.BeginTransaction ();
+									IDbTransaction transaction = download_db.BeginTransaction ();
 									download_db.Manager.Delete (oid);
 									file.file_id = null;
 									file.Save (download_db);
@@ -457,7 +457,7 @@ AND Work.endtime + interval '{0} days' < now ();
 					}
 
 					while (true) {
-						using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+						using (IDbCommand cmd = db.CreateCommand ()) {
 							// execute this in chunks to avoid huge data transfers and slowdowns.
 							cmd.CommandText = "SELECT * FROM Revision WHERE (diff_file_id IS NULL AND NOT diff = '') OR (log_file_id IS NULL AND NOT log = '') LIMIT 100";
 							using (IDataReader reader = cmd.ExecuteReader ()) {

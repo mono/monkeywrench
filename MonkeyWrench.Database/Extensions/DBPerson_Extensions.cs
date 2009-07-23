@@ -31,7 +31,7 @@ namespace MonkeyWrench.Database
 		{
 			List<DBPerson> result = new List<DBPerson> ();
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM Person";
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {

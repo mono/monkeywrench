@@ -24,7 +24,7 @@ namespace MonkeyWrench.Database
 	{
 		public static T Create<T> (DB db, T record, string Table, int id) where T : DBRecord
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM " + Table + " WHERE id = " + id.ToString ();
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					if (!reader.Read ())
@@ -40,22 +40,22 @@ namespace MonkeyWrench.Database
 
 		public static void Save ( this DBRecord me, DB db)
 		{
-			me.Save (db.Connection);
+			me.Save (db);
 		}
 
 		public static void Delete (this DBRecord me, DB db)
 		{
-			me.Delete (db.Connection);
+			me.Delete (db);
 		}
 
-		public static void Delete (DB db, int id, string Table)
+		public static void Delete (IDB db, int id, string Table)
 		{
-			DBRecord.DeleteInternal (db.Connection, id, Table);
+			DBRecord.DeleteInternal (db, id, Table);
 		}
 
-		public static void Reload (this DBRecord me, DB db)
+		public static void Reload (this DBRecord me, IDB db)
 		{
-			me.Reload (db.Connection);
+			me.Reload (db);
 		}
 
 	}

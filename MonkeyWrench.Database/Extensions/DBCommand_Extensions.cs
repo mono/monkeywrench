@@ -34,7 +34,7 @@ namespace MonkeyWrench.Database
 			if (command == null)
 				throw new Exception ("Invalid id.");
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText =
 					"DELETE FROM WorkFile WHERE EXISTS (SELECT * FROM Work WHERE Work.lane_id = @lane_id AND Work.command_id = @id AND Work.id = WorkFile.work_id); " +
 					"DELETE FROM Work WHERE Work.lane_id = @lane_id AND Work.command_id = @id; " +

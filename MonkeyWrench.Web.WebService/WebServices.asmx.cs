@@ -50,7 +50,7 @@ namespace MonkeyWrench.WebServices
         public string [] GetRoles (string user)
         {
             using (DB db = new DB ()) {
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = "SELECT roles FROM Person WHERE login = @user;";
                     DB.CreateParameter (cmd, "user", user);
                     string result = cmd.ExecuteScalar () as string;
@@ -90,7 +90,7 @@ namespace MonkeyWrench.WebServices
                 file.name = filename;
                 file.contents = "#!/bin/bash -ex\n\n#Your commands here\n";
                 file.mime = "text/plain";
-                file.Save (db.Connection);
+                file.Save (db);
 
                 DBLanefiles lanefile = new DBLanefiles ();
                 lanefile.lane_id = lane_id;
@@ -118,7 +118,7 @@ namespace MonkeyWrench.WebServices
         {
             using (DB db = new DB ()) {
                 VerifyUserInRole (db, login, Roles.Administrator);
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = "DELETE FROM Lanefiles WHERE lane_id = @lane_id AND lanefile_id = @lanefile_id;";
                     DB.CreateParameter (cmd, "lane_id", lane_id);
                     DB.CreateParameter (cmd, "lanefile_id", lanefile_id);
@@ -438,7 +438,7 @@ namespace MonkeyWrench.WebServices
             using (DB db = new DB ()) {
                 VerifyUserInRole (db, login, Roles.Administrator);
 
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = "DELETE FROM MasterHost WHERE host_id = @host_id AND master_host_id = @masterhost_id;";
                     DB.CreateParameter (cmd, "host_id", host_id);
                     DB.CreateParameter (cmd, "masterhost_id", masterhost_id);
@@ -466,7 +466,7 @@ namespace MonkeyWrench.WebServices
                 response.Lanes = db.GetAllLanes ();
 
                 response.ExistingFiles = new List<DBLanefile> ();
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = @"
 SELECT Lanefile.*
 FROM Lanefile
@@ -491,7 +491,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
             if ((lane_id == null || lane_id.Value <= 0) && string.IsNullOrEmpty (lane))
                 return null;
 
-            using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+            using (IDbCommand cmd = db.CreateCommand ()) {
 
                 if (!lane_id.HasValue) {
                     cmd.CommandText = "SELECT * FROM Lane WHERE lane = @lane;";
@@ -515,7 +515,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
             if ((host_id == null || host_id.Value <= 0) && string.IsNullOrEmpty (host))
                 return null;
 
-            using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+            using (IDbCommand cmd = db.CreateCommand ()) {
 
                 if (!host_id.HasValue) {
                     cmd.CommandText = "SELECT * FROM Host WHERE host = @host;";
@@ -539,7 +539,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
             if ((revision_id == null || revision_id.Value <= 0) && string.IsNullOrEmpty (revision))
                 return null;
 
-            using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+            using (IDbCommand cmd = db.CreateCommand ()) {
 
                 if (!revision_id.HasValue) {
                     cmd.CommandText = "SELECT * FROM Revision WHERE revision = @revision;";
@@ -563,7 +563,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
             if ((command_id == null || command_id.Value <= 0) && string.IsNullOrEmpty (command))
                 return null;
 
-            using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+            using (IDbCommand cmd = db.CreateCommand ()) {
 
                 if (!command_id.HasValue) {
                     cmd.CommandText = "SELECT * FROM Command WHERE command = @command";
@@ -676,7 +676,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 
                 response.Lane = FindLane (db, lane_id, lane);
 
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = DBLane.TableName;
                     cmd.CommandType = CommandType.TableDirect;
                     using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -685,7 +685,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
                     }
                 }
 
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = DBHost.TableName;
                     cmd.CommandType = CommandType.TableDirect;
                     using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -694,7 +694,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
                     }
                 }
 
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = @"
 SELECT HostLane.*
 FROM HostLane";
@@ -710,7 +710,7 @@ FROM HostLane";
 
                 foreach (DBHostLane hl in HostLanes) {
                     RevisionWork = new List<DBRevisionWorkView2> ();
-                    using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                    using (IDbCommand cmd = db.CreateCommand ()) {
                         cmd.CommandText = @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE R.host_id = @host_id AND R.lane_id = @lane_id LIMIT @limit";
                         DB.CreateParameter (cmd, "host_id", hl.host_id);
                         DB.CreateParameter (cmd, "lane_id", hl.lane_id);
@@ -930,7 +930,7 @@ FROM HostLane";
                 response.Lane = FindLane (db, lane_id, lane);
                 response.Command = FindCommand (db, response.Lane, command_id, command);
                 response.WorkViews = new List<DBWorkView2> ();
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = @"
 SELECT * 
 FROM WorkView2
@@ -1002,7 +1002,7 @@ ORDER BY revision DESC LIMIT 250;
 
                 response.Lanefiles = new List<DBLanefile> ();
 
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = "SELECT * FROM LaneFile WHERE original_id = @lanefile_id;";
                     DB.CreateParameter (cmd, "lanefile_id", lanefile_id);
                     using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -1120,7 +1120,7 @@ ORDER BY revision DESC LIMIT 250;
                 if (work.starttime > new DateTime (2000, 1, 1) && work.endtime < work.starttime) {
                     // the issue here is that the server interprets the datetime as local time, while it's always as utc.
                     try {
-                        using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                        using (IDbCommand cmd = db.CreateCommand ()) {
                             cmd.CommandText = "SELECT starttime FROM Work WHERE id = " + work.id;
                             work.starttime = (DateTime) cmd.ExecuteScalar ();
                         }
@@ -1146,7 +1146,7 @@ ORDER BY revision DESC LIMIT 250;
         {
             List<DBHost> result = null;
 
-            using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+            using (IDbCommand cmd = db.CreateCommand ()) {
                 cmd.CommandText = "SELECT Host.* FROM Host INNER JOIN MasterHost ON MasterHost.host_id = Host.id WHERE MasterHost.master_host_id = @host_id";
                 DB.CreateParameter (cmd, "host_id", host.id);
                 using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -1165,7 +1165,7 @@ ORDER BY revision DESC LIMIT 250;
         {
             List<DBHost> result = null;
 
-            using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+            using (IDbCommand cmd = db.CreateCommand ()) {
                 cmd.CommandText = "SELECT Host.* FROM Host INNER JOIN MasterHost ON MasterHost.master_host_id = Host.id WHERE MasterHost.host_id = @host_id";
                 DB.CreateParameter (cmd, "host_id", host.id);
                 using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -1184,7 +1184,7 @@ ORDER BY revision DESC LIMIT 250;
         {
             List<DBMasterHost> result = null;
 
-            using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+            using (IDbCommand cmd = db.CreateCommand ()) {
                 cmd.CommandText = "SELECT * FROM MasterHost WHERE host_id = @host_id";
                 DB.CreateParameter (cmd, "host_id", host.id);
                 using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -1234,7 +1234,7 @@ ORDER BY revision DESC LIMIT 250;
                     }
 
                     // find the enabled hostlane combinations for these hosts
-                    using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                    using (IDbCommand cmd = db.CreateCommand ()) {
                         cmd.CommandText = "SELECT * FROM HostLane WHERE enabled = TRUE AND (";
                         for (int i = 0; i < hosts.Count; i++) {
                             if (i > 0)
@@ -1333,7 +1333,7 @@ ORDER BY revision DESC LIMIT 250;
                             continue;
 
                         List<DBEnvironmentVariable> environment_variables = null;
-                        using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                        using (IDbCommand cmd = db.CreateCommand ()) {
                             cmd.CommandText = @"
 SELECT * 
 FROM EnvironmentVariable 
@@ -1394,7 +1394,7 @@ ORDER BY id;
         {
             using (DB db = new DB ()) {
                 DBLane l = FindLane (db, lane_id, lane);
-                using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+                using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = @"
 SELECT WorkFile.id
 FROM WorkFile

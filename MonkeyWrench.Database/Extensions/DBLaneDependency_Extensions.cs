@@ -38,7 +38,7 @@ namespace MonkeyWrench.Database
 		{
 			List<DBLaneDependency> result = null;
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM LaneDependency WHERE lane_id = @lane_id;";
 				DB.CreateParameter (cmd, "lane_id", lane.id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -55,7 +55,7 @@ namespace MonkeyWrench.Database
 
 		public static bool IsSuccess (this DBLaneDependency me, DB db, string revision)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
 SELECT RevisionWork.id
 FROM RevisionWork 

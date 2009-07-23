@@ -77,7 +77,7 @@ namespace MonkeyWrench.Database
 
 		public static void AddFile (this DBWork me, DB db, DBFile file, string path, string filename, bool hidden)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "INSERT INTO WorkFile (work_id, file_id, hidden, filename) VALUES (@work_id, @file_id, @hidden, @filename);";
 				DB.CreateParameter (cmd, "work_id", me.id);
 				DB.CreateParameter (cmd, "file_id", file.id);
@@ -89,7 +89,7 @@ namespace MonkeyWrench.Database
 
 		public static void RemoveFile (this DBWork me, DB db, DBFile file)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "DELETE FROM WorkFile WHERE work_id = @work_id AND file_id = @file_id;";
 				DB.CreateParameter (cmd, "work_id", me.id);
 				DB.CreateParameter (cmd, "file_id", file.id);
@@ -102,7 +102,7 @@ namespace MonkeyWrench.Database
 			if (id <= 0)
 				throw new Exception ("Invalid id.");
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText =
 					"DELETE FROM WorkFile WHERE work_id = @id; " +
 					"DELETE FROM Work WHERE id = @id; ";
@@ -120,7 +120,7 @@ namespace MonkeyWrench.Database
 		{
 			DBFile result = null;
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText =
 @"
 SELECT File.id, File.md5, File.file_id, File.mime, File.compressed_mime, File.size, File.file_id, File.hidden OR WorkFile.hidden AS hidden,
@@ -157,7 +157,7 @@ SELECT File.id, File.md5, File.file_id, File.mime, File.compressed_mime, File.si
 		{
 			List<DBWorkFileView> result = new List<DBWorkFileView> ();
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM WorkFileView WHERE work_id = @work_id;";
 				DB.CreateParameter (cmd, "work_id", work_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -185,7 +185,7 @@ SELECT File.id, File.md5, File.file_id, File.mime, File.compressed_mime, File.si
 
 		public static void SetState (DB db, int id, DBState old_state, DBState new_state)
 		{
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "UPDATE Work SET state = @new_state WHERE state = @old_state AND id = @id;";
 				DB.CreateParameter (cmd, "id", id);
 				DB.CreateParameter (cmd, "old_state", (int) old_state);

@@ -11,7 +11,8 @@ BUILDABLE_REFS = \
 	$(OUT_DIR)/Npgsql.dll
 
 REFERENCES = \
-	$(foreach ref,$(BUILDABLE_REFS),-r:$(ref))
+	$(foreach ref,$(BUILDABLE_REFS),-r:$(ref))	\
+	-r:System.Data.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
 	gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)

@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="FileUtilities.cs" />
+    <Compile Include="IDB.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MimeTypes.cs" />
     <Compile Include="Options.cs" />

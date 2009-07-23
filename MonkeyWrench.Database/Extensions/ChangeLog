@@ -1,3 +1,24 @@
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBWork_Extensions.cs:
+	* DBLane_Extensions.cs:
+	* DBHost_Extensions.cs:
+	* DBFile_Extensions.cs:
+	* DBLogin_Extensions.cs:
+	* DBRecord_Extensions.cs:
+	* DBPerson_Extensions.cs:
+	* DBCommand_Extensions.cs:
+	* DBLanefile_Extensions.cs:
+	* DBLoginView_Extensions.cs:
+	* DBWorkFileView_Extensions.cs:
+	* DBRevisionWork_Extensions.cs:
+	* DBLaneDependency_Extensions.cs:
+	* DBRevisionWorkView_Extensions.cs:
+	* DBEnvironmentVariable_Extensions.cs:
+	* DBFileDeletionDirective_Extensions.cs:
+	* DBLaneDeletionDirectiveView_Extensions.cs: Update according
+	to DB API changes.
+
 2009-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBRevisionWork_Extensions.cs: Add support for returning 

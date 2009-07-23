@@ -27,7 +27,7 @@ namespace MonkeyWrench.Database
 		{
 			List<DBFileDeletionDirective> result = new List<DBFileDeletionDirective> ();
 
-			using (IDbCommand cmd = db.Connection.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM FileDeletionDirective";
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
