@@ -114,6 +114,8 @@ namespace MonkeyWrench.Scheduler
 			int current_revision;
 			string log;
 			bool skip_lane;
+			XmlNode n;
+			XmlAttribute attrib;
 
 			Logger.Log ("SVN: Updating '{0}'", lane.lane);
 
@@ -171,19 +173,41 @@ namespace MonkeyWrench.Scheduler
 						}
 
 						r = new DBRevision ();
-						r.revision = node.Attributes ["revision"].Value;
+						attrib = node.Attributes ["revision"];
+						if (attrib == null || string.IsNullOrEmpty (attrib.Value)) {
+							Logger.Log ("SVN: An entry without revision in {0}, skipping entry", repository);
+							continue;
+						}
+						r.revision = attrib.Value;
 						r.lane_id = lane.id;
 
-						XmlNode author = node.SelectSingleNode ("author");
-						if (author == null) {
-							r.author = "?";
-							Console.WriteLine ("Invalid author in revision: {0}", r.revision);
+						n = node.SelectSingleNode ("author");
+						if (n != null) {
+							r.author = n.InnerText;
 						} else {
-							r.author = author.InnerText;
+							Logger.Log ("SVN: No author specified in r{0} in {1}", r.revision, repository);
+							r.author = "?";
 						}
-
-						r.date = DateTime.Parse (node.SelectSingleNode ("date").InnerText);
-						r.log_file_id = db.UploadString(node.SelectSingleNode ("msg").InnerText, ".log", false).id;
+						n = node.SelectSingleNode ("date");
+						if (n != null) {
+							DateTime dt;
+							if (DateTime.TryParse (n.InnerText, out dt)) {
+								r.date = dt;
+							} else {
+								Logger.Log ("SVN: Could not parse the date '{0}' in r{1} in {2}", n.InnerText, r.revision, repository);
+								r.date = DateTime.MinValue;
+							}
+						} else {
+							Logger.Log ("SVN: No date specified in r{0} in {1}", r.revision, repository);
+							r.date = DateTime.MinValue;
+						}
+						n = node.SelectSingleNode ("msg");
+						if (n != null) {
+							r.log_file_id = db.UploadString (n.InnerText, ".log", false).id;
+						} else {
+							Logger.Log ("SVN: No msg specified in r{0} in {1}", r.revision, repository);
+							r.log_file_id = null;
+						}
 
 						r.Save (db);
 
