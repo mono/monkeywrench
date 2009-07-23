@@ -33,6 +33,7 @@
         &lt;DatabasePort /&gt;
         &lt;StoreFilesInDB /&gt;
         &lt;ConnectionRetryDuration /&gt;
+        &lt;LockingAlgorithm /&gt;
     &lt;/Configuration&gt;
 &lt;/MonkeyWrench&gt;
 </pre>
@@ -63,7 +64,16 @@
     If files are to be stored in the database or in the file system on the server (in the db/files subdirectory of DataDirectory). Only relevant on the server (and will only have effect for new uploads, files won't be moved either way automatically)
     <h3>ConnectionRetryDuration</h3>
     If a connection to the server fails, the number of minutes the buildbot should keep trying before failing. Defaults to 1440 minutes (24 hours).
-    <h2>Sample configuration</h2>
+    <h3>LockingAlgorithm</h3>
+    The locking algorithm to ensure only one process is running at the same time (used by buildbot and scheduler executables). Possible values (case doesn't matter):
+    <ul>
+        <li>File: A file is created on disk with a read/write lock (managed).</li>
+        <li>Semaphore (default): A managed semaphore.</li>
+        <li>Mutex: A managed mutex.</li>
+        <li>FileExistence: A file is created on disk, and the mere presence of the file indicates that another process has a lock. This is not recommended unless all the other options fail, since if the process crashes or is killed, the lock won't get unlocked until somebody manually deletes the file. The file is created in the temporary directory with a descriptive name.</li>
+    </ul>
+    <h2>
+        Sample configuration</h2>
     This is a sample configuration file for a buildbot:
     <pre>
 &lt;MonkeyWrench Version=&quot;2&quot;&gt; 
@@ -75,6 +85,5 @@
     &lt;/Configuration&gt;
 &lt;/MonkeyWrench&gt;
     </pre>
-    
 </body>
 </html>

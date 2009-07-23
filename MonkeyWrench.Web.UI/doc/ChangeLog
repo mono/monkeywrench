@@ -1,5 +1,9 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Configuration.html: Added information about LockingAlgorithm.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Configuration.html: Added information about RetryConnectionTimeout.
 
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>

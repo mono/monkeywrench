@@ -33,6 +33,7 @@ namespace MonkeyWrench
 		public static string DatabasePort;
 		public static bool StoreFilesInDB = false;
 		public static int ConnectionRetryDuration = 1440;
+		public static string LockingAlgorithm = "semaphore";
 
 		//the following are used by the database manager.
 		public static bool CleanLargeObjects;
@@ -103,6 +104,7 @@ namespace MonkeyWrench
 				DatabasePort = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabasePort").GetNodeValue (DatabasePort);
 				StoreFilesInDB = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/StoreFilesInDb").GetNodeValue (StoreFilesInDB.ToString ()));
 				ConnectionRetryDuration = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/ConnectionRetryDuration").GetNodeValue (ConnectionRetryDuration.ToString ()));
+				LockingAlgorithm = xml.SelectSingleNode ("MonkeyWrench/Configuration/LockingAlgorithm").GetNodeValue (LockingAlgorithm);
 
 				// override from command line
 
@@ -120,6 +122,7 @@ namespace MonkeyWrench
 					{"databaseport=", v => DatabasePort = v},
 					{"storefilesindb=", v => StoreFilesInDB = Boolean.Parse (v.Trim ())},
 					{"connectionretryduration=", v => ConnectionRetryDuration = int.Parse (v.Trim ())},
+					{"lockingalgorithm=", v => LockingAlgorithm = v},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},

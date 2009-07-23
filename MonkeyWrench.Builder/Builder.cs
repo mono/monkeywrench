@@ -38,7 +38,7 @@ namespace MonkeyWrench.Builder
 
 		private static int Main2 (string [] arguments)
 		{
-			FileStream file_lock = null;
+			Lock process_lock;
 
 			try {
 				if (!Configuration.LoadConfiguration (arguments))
@@ -47,15 +47,18 @@ namespace MonkeyWrench.Builder
 				if (!Configuration.VerifyBuildBotConfiguration ())
 					return 1;
 
-				try {
-					string lock_file = string.Format (Path.Combine (Path.GetTempPath (), Configuration.ApplicationName + ".lock"));
-					file_lock = File.Open (lock_file, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-					Logger.Log ("Builder lock aquired successfully.");
-				} catch (IOException ex) {
-					Logger.Log ("Could not aquire builder lock: {0}", ex.Message);
+				process_lock = Lock.Create ("MonkeyWrench.Builder");
+				if (process_lock == null) {
+					Logger.Log ("Builder could not acquire lock. Exiting");
 					return 1;
 				}
+				Logger.Log ("Builder lock aquired successfully.");
+			} catch (Exception ex) {
+				Logger.Log ("Could not aquire lock: {0}", ex.Message);
+				return 1;
+			}
 
+			try {
 				WebService = WebServices.Create ();
 				WebService.CreateLogin (Configuration.Host, Configuration.WebServicePassword);
 
@@ -81,12 +84,7 @@ namespace MonkeyWrench.Builder
 				Logger.Log ("An exception occurred: {0}", ex.ToString ());
 				return 1;
 			} finally {
-				// This is strictly not required, given that the OS will release the file once this process
-				// exists. We still need to access the file_lock somehow here, given that otherwise the gc
-				// might determine that the object should be freed at any moment, causing the lock to get freed
-				// too early.
-				if (file_lock != null)
-					file_lock.Close ();
+				process_lock.Unlock ();
 			}
 		}
 
