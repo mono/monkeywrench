@@ -16,6 +16,7 @@ using System.IO;
 using System.Web;
 using System.Net;
 
+using MonkeyWrench;
 using MonkeyWrench.Web.WebServices;
 
 public partial class GetFile : System.Web.UI.Page
@@ -53,6 +54,9 @@ public partial class GetFile : System.Web.UI.Page
 				Response.Flush ();
 				Response.Close ();
 			}
+		} catch (Exception ex) {
+			Logger.Log ("GetFile: Exception while downloading file: {0} (redirecting to login page)", ex.Message);
+			Response.Redirect ("Login.aspx");
 		} finally {
 			try {
 				File.Delete (tmpfile);

@@ -17,6 +17,7 @@ using System.Net;
 using System.Web;
 using System.Web.UI;
 
+using MonkeyWrench;
 using MonkeyWrench.Web.WebServices;
 
 public partial class ViewHtmlReport : System.Web.UI.Page
@@ -94,6 +95,9 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 				}
 
 				Response.TransmitFile (tmp_html_filename);
+			} catch (HttpException ex) {
+				Logger.Log ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex.Message);
+				Response.Redirect ("Login.asxp");
 			} finally {
 				try {
 					File.Delete (tmp_html_filename);
