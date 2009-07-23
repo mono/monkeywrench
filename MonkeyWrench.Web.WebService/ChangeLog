@@ -1,3 +1,8 @@
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.asmx:
+	* WebServices.asmx.cs: Move code to cs file.
+
 2009-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx: Add support for returning work for an
