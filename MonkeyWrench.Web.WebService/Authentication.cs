@@ -38,12 +38,12 @@ namespace MonkeyWrench.WebServices
 		public static void Authenticate (HttpContext Context, DB db, WebServiceLogin login, WebServiceResponse response)
 		{
 			string ip = Context.Request.UserHostAddress;
-			DBLoginView view;
+			DBLoginView view = null;
 
 			Console.WriteLine ("WebService.Authenticate (Ip4: {0}, UserHostAddress: {1}, User: {2}, Cookie: {3}, Password: {4}", login.Ip4, Context.Request.UserHostAddress, login.User, login.Cookie, login.Password);
 
 			// Check if credentials were passed in
-			if (string.IsNullOrEmpty (login.User) || (string.IsNullOrEmpty (login.Password) && string.IsNullOrEmpty (login.Cookie))) {
+			if (login == null || string.IsNullOrEmpty (login.User) || (string.IsNullOrEmpty (login.Password) && string.IsNullOrEmpty (login.Cookie))) {
 				Console.WriteLine ("No credentials.");
 				return;
 			}
@@ -56,7 +56,8 @@ namespace MonkeyWrench.WebServices
 
 			if (!string.IsNullOrEmpty (login.Password)) {
 				DBLogin result = DBLogin_Extensions.Login (db, login.User, login.Password, ip);
-				view = DBLoginView_Extensions.VerifyLogin (db, login.User, result.cookie, ip);
+				if (result != null)
+					view = DBLoginView_Extensions.VerifyLogin (db, login.User, result.cookie, ip);
 			} else {
 				view = DBLoginView_Extensions.VerifyLogin (db, login.User, login.Cookie, ip);
 				Console.WriteLine ("Verifying login, cookie: {0} user: {1} ip: {2}", login.Cookie, login.User, ip);
