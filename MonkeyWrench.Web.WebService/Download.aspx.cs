@@ -191,8 +191,8 @@ namespace MonkeyWrench.WebServices
 		{
 			DBWorkFileView view = null;
 			DBFile file = null;
-			string mime;
 			string filename;
+			string mime;
 			string compressed_mime;
 
 			using (DB db = new DB ()) {
@@ -200,6 +200,8 @@ namespace MonkeyWrench.WebServices
 				login.Cookie = Request ["cookie"];
 				login.User = Request ["user"];
 				login.Ip4 = Request ["ip4"];
+
+				filename = Request ["filename"];
 
 				if (!string.IsNullOrEmpty (md5)) { // md5 lookup needs admin rights
 					Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator);
@@ -220,9 +222,21 @@ namespace MonkeyWrench.WebServices
 					if (view.@internal) // internal files need admin rights
 						Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator);
 
-					mime = view.mime;
-					filename = view.filename;
-					compressed_mime = view.compressed_mime;
+					if (!string.IsNullOrEmpty (filename)) {
+						file = DBWork_Extensions.GetFile (db, view.work_id, filename, false);
+						if (file == null)
+							throw new HttpException (404, string.Format ("Could not find the filename '{0}'", filename));
+
+						mime = file.mime;
+						compressed_mime = file.compressed_mime;
+						md5 = file.md5;
+
+						view = null;
+					} else {
+						mime = view.mime;
+						filename = view.filename;
+						compressed_mime = view.compressed_mime;
+					}
 				}
 
 				Response.ContentType = mime;
