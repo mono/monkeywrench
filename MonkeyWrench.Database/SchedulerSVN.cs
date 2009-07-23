@@ -1,5 +1,5 @@
-﻿/*
- * SVNUpdater.cs
+/*
+ * SchedulerSVN.cs
  *
  * Authors:
  *   Rolf Bjarne Kvinge (RKvinge@novell.com)
@@ -24,8 +24,10 @@ using MonkeyWrench.DataClasses;
 
 namespace MonkeyWrench.Scheduler
 {
-	class SVNUpdater : IUpdater
+	class SVNUpdater : IScheduler
 	{
+		private bool forcefullupdate;
+
 		private static bool quit_svn_diff = false;
 		private static Thread diff_thread;
 
@@ -76,7 +78,7 @@ namespace MonkeyWrench.Scheduler
 		{
 			min_revision = 0;
 
-			if (Configuration.ForceFullUpdate)
+			if (Configuration.ForceFullUpdate || forcefullupdate)
 				return true;
 
 			if (paths == null || paths.Count == 0)
@@ -102,7 +104,7 @@ namespace MonkeyWrench.Scheduler
 			return true;
 		}
 
-		public bool UpdateRevisionsInDB (DB db, DBLane lane, List<DBHost> hosts, List<DBHostLane> hostlanes)
+		public bool UpdateRevisionsInDB (DB db, bool forcefullupdate, DBLane lane, List<DBHost> hosts, List<DBHostLane> hostlanes)
 		{
 			string revision;
 			XmlDocument svn_log;
@@ -118,6 +120,8 @@ namespace MonkeyWrench.Scheduler
 			XmlAttribute attrib;
 
 			Logger.Log ("SVN: Updating '{0}'", lane.lane);
+
+			this.forcefullupdate = forcefullupdate;
 
 			try {
 				// Skip lanes which aren't configured/enabled on any host completely.

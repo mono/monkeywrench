@@ -1,5 +1,13 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* SVNUpdater.cs:
+	* Updater.cs: Moved most of the code to MonkeyWrench.Database
+	and the web service, call the web service instead.
+
+	* MonkeyWrench.Scheduler.csproj: Updated.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* SVNUpdater.cs: Don't crash if we get an invalid
 	author from the svn server.
 

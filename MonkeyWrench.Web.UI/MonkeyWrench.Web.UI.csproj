@@ -32,6 +32,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Web.Services" />
@@ -40,6 +42,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Admin.aspx" />
     <Content Include="doc\Configuration.html" />
     <Content Include="doc\Faq.htm" />
     <Content Include="doc\Howto.html" />
@@ -77,6 +80,13 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin.aspx.cs">
+      <DependentUpon>Admin.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin.aspx.designer.cs">
+      <DependentUpon>Admin.aspx</DependentUpon>
+    </Compile>
     <Compile Include="EditHost.aspx.designer.cs">
       <DependentUpon>EditHost.aspx</DependentUpon>
     </Compile>

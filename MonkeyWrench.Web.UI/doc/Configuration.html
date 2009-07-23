@@ -34,6 +34,8 @@
         &lt;StoreFilesInDB /&gt;
         &lt;ConnectionRetryDuration /&gt;
         &lt;LockingAlgorithm /&gt;
+        &lt;SchedulerAccount /&gt;
+        &lt;SchedulerPassowrd /&gt;
     &lt;/Configuration&gt;
 &lt;/MonkeyWrench&gt;
 </pre>
@@ -72,6 +74,8 @@
         <li>Mutex: A managed mutex.</li>
         <li>FileExistence: A file is created on disk, and the mere presence of the file indicates that another process has a lock. This is not recommended unless all the other options fail, since if the process crashes or is killed, the lock won't get unlocked until somebody manually deletes the file. The file is created in the temporary directory with a descriptive name.</li>
     </ul>
+    <h3>SchedulerAccount and SchedulerPassword</h3>
+    The credentials the scheduler program should use to connect to the web service. This user must be an Administrator. The default for SchedulerAccount is 'scheduler', while SchedulerPassword doesn't have a default.
     <h2>
         Sample configuration</h2>
     This is a sample configuration file for a buildbot:

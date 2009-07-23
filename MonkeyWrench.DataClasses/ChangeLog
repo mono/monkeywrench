@@ -1,5 +1,9 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* WebServices.Generated.cs: Regenerated.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* WebServices.cs: Add a check to not upload files > 100MB.
 
 2009-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>

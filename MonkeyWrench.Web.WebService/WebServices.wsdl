@@ -166,7 +166,6 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBView">
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
@@ -174,6 +173,7 @@
               <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
               <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -330,7 +330,6 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="workhost_id" nillable="true" type="xs:int" />
@@ -338,6 +337,7 @@
               <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="lock_expires" type="xs:dateTime" />
               <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -1613,6 +1613,17 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="ExecuteScheduler">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="forcefullupdate" type="xs:boolean" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ExecuteSchedulerResponse">
+        <xs:complexType />
+      </xs:element>
       <xs:element name="ArrayOfString" nillable="true" type="s0:ArrayOfString" />
     </xs:schema>
   </types>
@@ -2018,6 +2029,12 @@
   <message name="FindLatestWorkFileIdSoapOut">
     <part name="parameters" element="s0:FindLatestWorkFileIdResponse" />
   </message>
+  <message name="ExecuteSchedulerSoapIn">
+    <part name="parameters" element="s0:ExecuteScheduler" />
+  </message>
+  <message name="ExecuteSchedulerSoapOut">
+    <part name="parameters" element="s0:ExecuteSchedulerResponse" />
+  </message>
   <message name="GetRolesHttpGetIn">
     <part name="user" type="s:string" />
   </message>
@@ -2299,6 +2316,10 @@
       <input message="s0:FindLatestWorkFileIdSoapIn" />
       <output message="s0:FindLatestWorkFileIdSoapOut" />
     </operation>
+    <operation name="ExecuteScheduler">
+      <input message="s0:ExecuteSchedulerSoapIn" />
+      <output message="s0:ExecuteSchedulerSoapOut" />
+    </operation>
   </portType>
   <portType name="WebServicesSoap12">
     <operation name="GetRoles">
@@ -2568,6 +2589,10 @@
     <operation name="FindLatestWorkFileId">
       <input message="s0:FindLatestWorkFileIdSoapIn" />
       <output message="s0:FindLatestWorkFileIdSoapOut" />
+    </operation>
+    <operation name="ExecuteScheduler">
+      <input message="s0:ExecuteSchedulerSoapIn" />
+      <output message="s0:ExecuteSchedulerSoapOut" />
     </operation>
   </portType>
   <portType name="WebServicesHttpGet">
@@ -3187,6 +3212,15 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="ExecuteScheduler">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ExecuteScheduler" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
   </binding>
   <binding name="WebServicesSoap12" type="s0:WebServicesSoap12">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -3786,6 +3820,15 @@
     </operation>
     <operation name="FindLatestWorkFileId">
       <soap12:operation soapAction="http://monkeywrench.novell.com/FindLatestWorkFileId" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ExecuteScheduler">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ExecuteScheduler" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

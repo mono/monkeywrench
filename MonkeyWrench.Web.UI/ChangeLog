@@ -1,5 +1,12 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Admin.aspx[.cs]: Added support for starting the scheduler
+	from the web page.
+
+	* MonkeyWrench.Web.UI.csproj: Updated.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Login.aspx.cs: Assume all errors are because of invalid
 	user/pass.
 

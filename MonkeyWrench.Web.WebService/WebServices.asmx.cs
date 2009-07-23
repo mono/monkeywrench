@@ -1429,5 +1429,18 @@ WHERE WorkFile.filename = @filename AND Revision.lane_id = @lane_id
                 }
             }
         }
+         #region Adminstration methods
+
+         [WebMethod]
+         public void ExecuteScheduler (WebServiceLogin login, bool forcefullupdate)
+         {
+             using (DB db = new DB ()) {
+                 VerifyUserInRole (db, login, Roles.Administrator);
+
+                 MonkeyWrench.Scheduler.Scheduler.ExecuteSchedulerAsync (forcefullupdate);
+             }
+         }
+
+ 		#endregion
     }
 }

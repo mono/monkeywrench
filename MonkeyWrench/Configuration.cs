@@ -34,6 +34,8 @@ namespace MonkeyWrench
 		public static bool StoreFilesInDB = false;
 		public static int ConnectionRetryDuration = 1440;
 		public static string LockingAlgorithm = "semaphore";
+		public static string SchedulerAccount = "scheduler";
+		public static string SchedulerPassword;
 
 		//the following are used by the database manager.
 		public static bool CleanLargeObjects;
@@ -105,6 +107,8 @@ namespace MonkeyWrench
 				StoreFilesInDB = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/StoreFilesInDb").GetNodeValue (StoreFilesInDB.ToString ()));
 				ConnectionRetryDuration = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/ConnectionRetryDuration").GetNodeValue (ConnectionRetryDuration.ToString ()));
 				LockingAlgorithm = xml.SelectSingleNode ("MonkeyWrench/Configuration/LockingAlgorithm").GetNodeValue (LockingAlgorithm);
+				SchedulerAccount = xml.SelectSingleNode ("MonkeyWrench/Configuration/SchedulerAccount").GetNodeValue (SchedulerAccount);
+				SchedulerPassword = xml.SelectSingleNode ("MonkeyWrench/Configuration/SchedulerPassword").GetNodeValue (SchedulerPassword);
 
 				// override from command line
 
@@ -123,6 +127,8 @@ namespace MonkeyWrench
 					{"storefilesindb=", v => StoreFilesInDB = Boolean.Parse (v.Trim ())},
 					{"connectionretryduration=", v => ConnectionRetryDuration = int.Parse (v.Trim ())},
 					{"lockingalgorithm=", v => LockingAlgorithm = v},
+					{"scheduleraccount=", v => SchedulerAccount = v},
+					{"schedulerpassword=", v => SchedulerPassword = v},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},

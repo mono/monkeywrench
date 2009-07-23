@@ -1564,5 +1564,25 @@ namespace MonkeyWrench.Web.WebServices {
             object[] results = this.EndInvoke(asyncResult);
             return ((System.Nullable<int>)(results[0]));
         }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/ExecuteScheduler", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void ExecuteScheduler(WebServiceLogin login, bool forcefullupdate) {
+            this.Invoke("ExecuteScheduler", new object[] {
+                        login,
+                        forcefullupdate});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginExecuteScheduler(WebServiceLogin login, bool forcefullupdate, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("ExecuteScheduler", new object[] {
+                        login,
+                        forcefullupdate}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndExecuteScheduler(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
     }
 }

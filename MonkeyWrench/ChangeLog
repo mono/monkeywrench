@@ -1,5 +1,12 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* MonkeyWrench.csproj: Updated.
+
+	* Configuration.cs: Added support for SchedulerAccount and
+	SchedulerPassword.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Lock.cs: Added customizable locking algorithm.
 
 	* Configuration.cs: Added configuration for LockingAlgorithm.

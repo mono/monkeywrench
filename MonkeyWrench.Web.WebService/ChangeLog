@@ -2,6 +2,12 @@
 
 	* WebServices.wsdl: Regenerated.
 
+	* WebServices.asmx: Added ExecuteScheduler.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.wsdl: Regenerated.
+
 	* WebServices.asmx: Add support for uploading compressed files.
 
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>

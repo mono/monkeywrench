@@ -1,5 +1,13 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* SchedulerSVN.cs:
+	* Scheduler.cs: Moved here from 
+	MonkeyWrench.Database.Manager.
+
+	* MonkeyWrench.Database.csproj: Updated.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* SchedulerSVN.cs: Do input validation of xml log
 	from svn server. Fixes #516126.
 

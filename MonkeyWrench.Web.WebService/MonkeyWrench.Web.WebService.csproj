@@ -75,6 +75,7 @@
     </Compile>
     <Compile Include="WebServices.asmx.cs">
       <DependentUpon>WebServices.asmx</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>

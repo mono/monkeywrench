@@ -72,6 +72,7 @@ public partial class Master : System.Web.UI.MasterPage
 		if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='EditHosts.aspx'>Edit Hosts</a>"));
 			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='EditLanes.aspx'>Edit Lanes</a>"));
+			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='Admin.aspx'>Administration</a>"));
 		}
 		tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='doc/index.html'>Documentation</a>"));
 	}
