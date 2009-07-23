@@ -1391,6 +1391,34 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/UploadCompressedFile", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void UploadCompressedFile(WebServiceLogin login, DBWork work, string filename, [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary")] byte[] contents, bool hidden, string compressed_mime) {
+            this.Invoke("UploadCompressedFile", new object[] {
+                        login,
+                        work,
+                        filename,
+                        contents,
+                        hidden,
+                        compressed_mime});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginUploadCompressedFile(WebServiceLogin login, DBWork work, string filename, byte[] contents, bool hidden, string compressed_mime, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("UploadCompressedFile", new object[] {
+                        login,
+                        work,
+                        filename,
+                        contents,
+                        hidden,
+                        compressed_mime}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndUploadCompressedFile(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/UploadFile", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void UploadFile(WebServiceLogin login, DBWork work, string filename, [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary")] byte[] contents, bool hidden) {
             this.Invoke("UploadFile", new object[] {

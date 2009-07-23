@@ -1065,7 +1065,7 @@ ORDER BY revision DESC LIMIT 250;
         }
 
         [WebMethod]
-        public void UploadFile (WebServiceLogin login, DBWork work, string filename, byte [] contents, bool hidden)
+        public void UploadCompressedFile (WebServiceLogin login, DBWork work, string filename, byte [] contents, bool hidden, string compressed_mime)
         {
             using (DB db = new DB ()) {
                 VerifyUserInRole (db, login, Roles.BuildBot);
@@ -1074,7 +1074,7 @@ ORDER BY revision DESC LIMIT 250;
                 try {
                     tmp = Path.GetTempFileName ();
                     File.WriteAllBytes (tmp, contents);
-                    work.AddFile (db, tmp, filename, hidden);
+                    work.AddFile (db, tmp, filename, hidden, compressed_mime);
                 } finally {
                     if (!string.IsNullOrEmpty (tmp)) {
                         try {
@@ -1085,6 +1085,12 @@ ORDER BY revision DESC LIMIT 250;
                     }
                 }
             }
+        }
+        
+        [WebMethod]
+        public void UploadFile (WebServiceLogin login, DBWork work, string filename, byte [] contents, bool hidden)
+        {
+            UploadCompressedFile (login, work, filename, contents, hidden, null);
         }
 
         /// <summary>

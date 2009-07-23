@@ -11,6 +11,12 @@
 	* WebServices.cs: Add a method to download a string and
 	decompress it if necessary.
 
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+	* WebServices.cs: Added safe remote methods (safe as in
+	it'll retry if the connection to the remote server fails).
+
+	* WebServices.Generated.cs: Regenerated.
+
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.cs: Add support for downloading revision

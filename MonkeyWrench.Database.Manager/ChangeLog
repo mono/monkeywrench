@@ -6,6 +6,10 @@
 
 	* Manager.cs: Update according to DB API changes.
 
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Manager.cs: Update according to DB API changes.
+
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Makefile:

@@ -176,9 +176,9 @@ SELECT File.id, File.md5, File.file_id, File.mime, File.compressed_mime, File.si
 			return GetFiles (db, me.id);
 		}
 
-		public static DBFile AddFile (this DBWork me, DB db, string path, string filename, bool hidden)
+		public static DBFile AddFile (this DBWork me, DB db, string path, string filename, bool hidden, string compressed_mime)
 		{
-			DBFile result = db.Upload (path, Path.GetExtension (filename), hidden);
+			DBFile result = db.Upload (path, Path.GetExtension (filename), hidden, compressed_mime);
 			me.AddFile (db, result, path, filename, hidden);
 			return result;
 		}

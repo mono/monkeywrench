@@ -476,7 +476,7 @@ AND Work.endtime + interval '{0} days' < now ();
 												length = revision.diff.Length;
 												tmpfile = Path.GetTempFileName ();
 												File.WriteAllText (tmpfile, revision.diff);
-												DBFile diff = download_db.Upload (tmpfile, ".log", false);
+												DBFile diff = download_db.Upload (tmpfile, ".log", false, null);
 												revision.diff_file_id = diff.id;
 												revision.diff = null;
 											} finally {
@@ -499,7 +499,7 @@ AND Work.endtime + interval '{0} days' < now ();
 												length = revision.log.Length;
 												tmpfile = Path.GetTempFileName ();
 												File.WriteAllText (tmpfile, revision.log);
-												DBFile log = download_db.Upload (tmpfile, ".log", false);
+												DBFile log = download_db.Upload (tmpfile, ".log", false, null);
 												revision.log_file_id = log.id;
 												revision.log = null;
 											} finally {

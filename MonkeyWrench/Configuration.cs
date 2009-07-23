@@ -32,6 +32,7 @@ namespace MonkeyWrench
 		public static string DatabaseHost = "localhost";
 		public static string DatabasePort;
 		public static bool StoreFilesInDB = false;
+		public static int ConnectionRetryDuration = 1440;
 
 		//the following are used by the database manager.
 		public static bool CleanLargeObjects;
@@ -101,6 +102,7 @@ namespace MonkeyWrench
 				DatabaseHost = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabaseHost").GetNodeValue (DatabaseHost);
 				DatabasePort = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabasePort").GetNodeValue (DatabasePort);
 				StoreFilesInDB = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/StoreFilesInDb").GetNodeValue (StoreFilesInDB.ToString ()));
+				ConnectionRetryDuration = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/ConnectionRetryDuration").GetNodeValue (ConnectionRetryDuration.ToString ()));
 
 				// override from command line
 
@@ -117,6 +119,7 @@ namespace MonkeyWrench
 					{"databasehost=", v => DatabaseHost = v},
 					{"databaseport=", v => DatabasePort = v},
 					{"storefilesindb=", v => StoreFilesInDB = Boolean.Parse (v.Trim ())},
+					{"connectionretryduration=", v => ConnectionRetryDuration = int.Parse (v.Trim ())},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},

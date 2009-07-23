@@ -1,3 +1,8 @@
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.cs: Add support for retrying connections
+	to remote server.
+
 2009-06-08  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* IDB.cs: Added.

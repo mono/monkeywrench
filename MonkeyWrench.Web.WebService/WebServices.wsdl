@@ -1504,6 +1504,21 @@
       <xs:element name="DeleteEnvironmentVariableResponse">
         <xs:complexType />
       </xs:element>
+      <xs:element name="UploadCompressedFile">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="work" type="s0:DBWork" />
+            <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="contents" type="xs:base64Binary" />
+            <xs:element minOccurs="1" maxOccurs="1" name="hidden" type="xs:boolean" />
+            <xs:element minOccurs="0" maxOccurs="1" name="compressed_mime" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UploadCompressedFileResponse">
+        <xs:complexType />
+      </xs:element>
       <xs:element name="UploadFile">
         <xs:complexType>
           <xs:sequence>
@@ -1961,6 +1976,12 @@
   <message name="DeleteEnvironmentVariableSoapOut">
     <part name="parameters" element="s0:DeleteEnvironmentVariableResponse" />
   </message>
+  <message name="UploadCompressedFileSoapIn">
+    <part name="parameters" element="s0:UploadCompressedFile" />
+  </message>
+  <message name="UploadCompressedFileSoapOut">
+    <part name="parameters" element="s0:UploadCompressedFileResponse" />
+  </message>
   <message name="UploadFileSoapIn">
     <part name="parameters" element="s0:UploadFile" />
   </message>
@@ -2250,6 +2271,10 @@
       <input message="s0:DeleteEnvironmentVariableSoapIn" />
       <output message="s0:DeleteEnvironmentVariableSoapOut" />
     </operation>
+    <operation name="UploadCompressedFile">
+      <input message="s0:UploadCompressedFileSoapIn" />
+      <output message="s0:UploadCompressedFileSoapOut" />
+    </operation>
     <operation name="UploadFile">
       <input message="s0:UploadFileSoapIn" />
       <output message="s0:UploadFileSoapOut" />
@@ -2515,6 +2540,10 @@
     <operation name="DeleteEnvironmentVariable">
       <input message="s0:DeleteEnvironmentVariableSoapIn" />
       <output message="s0:DeleteEnvironmentVariableSoapOut" />
+    </operation>
+    <operation name="UploadCompressedFile">
+      <input message="s0:UploadCompressedFileSoapIn" />
+      <output message="s0:UploadCompressedFileSoapOut" />
     </operation>
     <operation name="UploadFile">
       <input message="s0:UploadFileSoapIn" />
@@ -3088,6 +3117,15 @@
     </operation>
     <operation name="DeleteEnvironmentVariable">
       <soap:operation soapAction="http://monkeywrench.novell.com/DeleteEnvironmentVariable" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="UploadCompressedFile">
+      <soap:operation soapAction="http://monkeywrench.novell.com/UploadCompressedFile" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -3685,6 +3723,15 @@
     </operation>
     <operation name="DeleteEnvironmentVariable">
       <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteEnvironmentVariable" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="UploadCompressedFile">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/UploadCompressedFile" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

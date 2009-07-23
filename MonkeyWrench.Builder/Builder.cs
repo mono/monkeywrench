@@ -131,7 +131,7 @@ namespace MonkeyWrench.Builder
 				info.work.starttime = DBRecord.DatabaseNow;
 				info.work.State = result;
 				info.work.host_id = info.host.id;
-				info.work = WebService.ReportBuildState (WebService.WebServiceLogin, info.work).Work;
+				info.work = WebService.ReportBuildStateSafe (info.work).Work;
 
 				using (Process p = new Process ()) {
 					using (FileStream fs = new FileStream (log_file, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)) {
@@ -228,7 +228,7 @@ namespace MonkeyWrench.Builder
 									break;
 
 								// Check if step has been aborted.
-								info.work.State = WebService.GetWorkState (WebService.WebServiceLogin, info.work);
+								info.work.State = WebService.GetWorkStateSafe (info.work);
 								if (info.work.State == DBState.Aborted) {
 									result = DBState.Aborted;
 									try {
@@ -296,10 +296,10 @@ namespace MonkeyWrench.Builder
 				using (TextReader reader = new StreamReader (new FileStream (log_file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
 					info.work.CalculateSummary (reader);
 				info.work.endtime = DBRecord.DatabaseNow;
-				response = WebService.ReportBuildState (WebService.WebServiceLogin, info.work);
+				response = WebService.ReportBuildStateSafe (info.work);
 				info.work = response.Work;
 
-				WebService.UploadFile (WebService.WebServiceLogin, info.work, Path.GetFileName (log_file), File.ReadAllBytes (log_file), false);
+				WebService.UploadFileSafe (info.work, log_file, false);
 
 				CheckLog (log_file, info.work);
 
@@ -318,7 +318,7 @@ namespace MonkeyWrench.Builder
 			} catch (Exception ex) {
 				info.work.State = DBState.Failed;
 				info.work.summary = ex.Message;
-				info.work = WebService.ReportBuildState (WebService.WebServiceLogin, info.work).Work;
+				info.work = WebService.ReportBuildStateSafe (info.work).Work;
 				Logger.Log ("{3} Revision {0}, got exception '{1}': \n{2}", info.revision.revision, ex.Message, ex.StackTrace, info.number);
 				throw;
 			} finally {
@@ -370,12 +370,15 @@ namespace MonkeyWrench.Builder
 
 					infos.Add (info);
 
+					info.lane = entry.Lane;
+					info.revision = entry.Revision;
+
 					// download dependent files
 					if (entry.FilesToDownload != null) {
 						for (int f = 0; f < entry.FilesToDownload.Count; f++) {
 							DBWorkFile file = entry.FilesToDownload [f];
 							DBLane dependent_lane = entry.DependentLaneOfFiles [f];
-							WebService.DownloadFile (file, Configuration.GetDependentDownloadDirectory (info.lane.lane, dependent_lane.lane, info.revision.revision));
+							WebService.DownloadFileSafe (file, Configuration.GetDependentDownloadDirectory (info.lane.lane, dependent_lane.lane, info.revision.revision));
 						}
 					}
 
@@ -466,7 +469,8 @@ namespace MonkeyWrench.Builder
 						case "AddHiddenFile":
 							try {
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
-								WebService.UploadFile (WebService.WebServiceLogin, work, Path.GetFileName (line.Trim ()), File.ReadAllBytes (line.Trim ()), cmd.Contains ("Hidden"));
+								string filename = line.Trim ();
+								WebService.UploadFileSafe (work, filename, cmd.Contains ("Hidden"));
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
 							}
@@ -476,7 +480,7 @@ namespace MonkeyWrench.Builder
 							try {
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								foreach (string file in Directory.GetFiles (line.Trim ())) {
-									WebService.UploadFile (WebService.WebServiceLogin, work, Path.GetFileName (file), File.ReadAllBytes (file), cmd.Contains ("Hidden"));
+									WebService.UploadFileSafe (work, file, cmd.Contains ("Hidden"));
 								}
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);

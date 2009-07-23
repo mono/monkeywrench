@@ -1,5 +1,9 @@
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DB.cs: Add support for uploading compressed files.
+
+2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DB.cs: Fix eol.
 
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>

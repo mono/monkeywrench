@@ -249,7 +249,7 @@ namespace MonkeyWrench
 			try {
 				tmpfile = Path.GetTempFileName ();
 				File.WriteAllText (tmpfile, contents);
-				return Upload (tmpfile, extension, hidden);
+				return Upload (tmpfile, extension, hidden, null);
 			} finally {
 				try {
 					File.Delete (tmpfile);
@@ -264,7 +264,7 @@ namespace MonkeyWrench
 		/// </summary>
 		/// <param name="Filename"></param>
 		/// <returns></returns>
-		public DBFile Upload (string Filename, string extension, bool hidden)
+		public DBFile Upload (string Filename, string extension, bool hidden, string compressed_mime)
 		{
 			IDbTransaction transaction = null;
 			LargeObjectManager manager;
@@ -293,12 +293,19 @@ namespace MonkeyWrench
 					}
 				}
 
+				Console.WriteLine ("Uploading {0} {1} with compressed mime: {2}", Filename, md5, compressed_mime);
+
 				// The file is not in the database
 				// Note: there is a race condition here,
 				// the same file might get added to the db before we do it here.
 				// not quite sure how to deal with that except retrying the above if the insert below fails.
 
-				gzFilename = FileUtilities.GZCompress (Filename);
+				if (compressed_mime == MimeTypes.GZ) {
+					gzFilename = Filename;
+				} else {
+					gzFilename = FileUtilities.GZCompress (Filename);
+					compressed_mime = MimeTypes.GZ;
+				}
 
 				transaction = BeginTransaction ();
 
@@ -371,8 +378,7 @@ namespace MonkeyWrench
 					result.mime = MimeTypes.OCTET_STREAM;
 					break;
 				}
-				if (gzFilename != null)
-					result.compressed_mime = MimeTypes.GZ;
+				result.compressed_mime = compressed_mime;
 				result.Save (this);
 
 				transaction.Commit ();
