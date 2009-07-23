@@ -1024,7 +1024,7 @@ WHERE
 	AND RevisionWork.lane_id = @lane_id
 	AND RevisionWork.state <> @dependencynotfulfilled
 	AND RevisionWork.completed = false
-ORDER BY RevisionWork.workhost_id ASC, Revision.date DESC
+ORDER BY RevisionWork.workhost_id IS NULL ASC, Revision.date DESC
 LIMIT 1
 ;";
 				DB.CreateParameter (cmd, "host_id", host.id);
