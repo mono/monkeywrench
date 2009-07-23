@@ -173,7 +173,15 @@ namespace MonkeyWrench.Scheduler
 						r = new DBRevision ();
 						r.revision = node.Attributes ["revision"].Value;
 						r.lane_id = lane.id;
-						r.author = node.SelectSingleNode ("author").InnerText;
+
+						XmlNode author = node.SelectSingleNode ("author");
+						if (author == null) {
+							r.author = "?";
+							Console.WriteLine ("Invalid author in revision: {0}", r.revision);
+						} else {
+							r.author = author.InnerText;
+						}
+
 						r.date = DateTime.Parse (node.SelectSingleNode ("date").InnerText);
 						r.log_file_id = db.UploadString(node.SelectSingleNode ("msg").InnerText, ".log", false).id;
 
