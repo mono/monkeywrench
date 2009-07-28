@@ -50,8 +50,8 @@ namespace MonkeyWrench.WebServices
 				}
 
 			} catch (Exception ex) {
-				Console.WriteLine ("Download failed:");
-				Console.WriteLine (ex);
+				Console.Error.WriteLine ("Download failed:");
+				Console.Error.WriteLine (ex);
 				throw;
 			}
 		}
