@@ -48,7 +48,7 @@ namespace MonkeyWrench.Web.WebServices
 
 		public string CreateWebServiceDownloadUrl (int workfile_id)
 		{
-			return CreateWebServiceDownloadUrl (workfile_id, WebServiceLogin);
+			return CreateWebServiceDownloadUrl (workfile_id, WebServiceLogin, false);
 		}
 
 		public string CreateWebServiceDownloadRevisionUrl (int revision_id, bool diff)
@@ -56,14 +56,16 @@ namespace MonkeyWrench.Web.WebServices
 			return CreateWebServiceDownloadRevisionUrl (revision_id, diff, WebServiceLogin);
 		}
 
-		public static string CreateWebServiceDownloadUrl (int workfile_id, WebServiceLogin login)
+		public static string CreateWebServiceDownloadUrl (int workfile_id, WebServiceLogin login, bool redirect)
 		{
 			string uri = CreatePage ("Download.aspx");
 			uri += "?";
-			uri += "cookie=" + login.Cookie;
-			uri += "&ip4=" + login.Ip4;
-			uri += "&user=" + login.User;
-			uri += "&workfile_id=" + workfile_id.ToString ();
+			uri += "workfile_id=" + workfile_id.ToString ();
+			if (!redirect) {
+				uri += "&cookie=" + login.Cookie;
+				uri += "&ip4=" + login.Ip4;
+				uri += "&user=" + login.User;
+			}
 			return uri;
 
 		}

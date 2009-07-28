@@ -198,9 +198,9 @@ public static class Utils
 		return web_service_login;
 	}
 
-	public static string CreateWebServiceDownloadUrl (HttpRequest Request, int workfile_id)
+	public static string CreateWebServiceDownloadUrl (HttpRequest Request, int workfile_id, bool redirect)
 	{
-		return WebServices.CreateWebServiceDownloadUrl (workfile_id, Utils.CreateWebServiceLogin (Request));
+		return WebServices.CreateWebServiceDownloadUrl (workfile_id, Utils.CreateWebServiceLogin (Request), redirect);
 	}
 
 	public static bool IsInRole (string role)

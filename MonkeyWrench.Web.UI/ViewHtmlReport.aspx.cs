@@ -86,7 +86,7 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 				tmp_html_filename = Path.GetTempFileName ();
 
 				using (WebClient web = new WebClient ()) {
-					web.DownloadFile (Utils.CreateWebServiceDownloadUrl (Request, workfile_id), tmp_html_filename);
+					web.DownloadFile (Utils.CreateWebServiceDownloadUrl (Request, workfile_id, false), tmp_html_filename);
 
 					if (web.ResponseHeaders ["Content-Encoding"] == "gzip")
 						MonkeyWrench.FileUtilities.GZUncompress (tmp_html_filename);
@@ -109,32 +109,10 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 			return;
 		}
 
-		string tmp_file = null;
-		try {
-			using (WebClient web = new WebClient ()) {
-				string url;
-
-				url = Utils.CreateWebServiceDownloadUrl (Request, workfile_id);
-
-				tmp_file = Path.GetTempFileName ();
-				if (!string.IsNullOrEmpty (md5))
-					url += "&md5=" + md5;
-
-				url += "&filename=" + filename;
-
-				web.DownloadFile (url, tmp_file);
-
-				Response.ContentType = web.ResponseHeaders ["Content-Type"];
-				Response.AppendHeader ("Content-Encoding", web.ResponseHeaders ["Content-Encoding"]);
-				Response.TransmitFile (tmp_file);
-			}
-		} finally {
-			try {
-				File.Delete (tmp_file);
-			} catch {
-			}
-			Response.End ();
-		}
-
+		string url = Utils.CreateWebServiceDownloadUrl (Request, workfile_id, true);
+		if (!string.IsNullOrEmpty (md5))
+			url += "&md5=" + md5;
+		url += "&filename=" + HttpUtility.UrlEncode (filename);
+		Response.Redirect (url);
 	}
 }

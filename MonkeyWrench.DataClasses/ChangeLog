@@ -1,3 +1,8 @@
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.cs: Add the possibility to get a redirect
+	url which doesn't propagate credentials.
+
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.Generated.cs: Regenerated.

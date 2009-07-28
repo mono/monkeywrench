@@ -1,3 +1,11 @@
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ViewHtmlReport.aspx.cs: Update according to CreateWebServiceDownloadUrl
+	changes, and don't download and resend when we can just redirect.
+
+	* GetFile.aspx.cs: Redirect instead of downloading
+	and resending.
+
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Admin.aspx[.cs]: Added support for starting the scheduler
