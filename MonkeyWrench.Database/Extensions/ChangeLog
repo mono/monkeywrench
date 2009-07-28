@@ -1,5 +1,9 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DBFile_Extensions.cs: Delete: delete the file on disk too.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DBFile_Extensions.cs: Moved GetFullPath from the web service
 	assembly here.
 

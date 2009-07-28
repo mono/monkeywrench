@@ -1,5 +1,10 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Manager.cs: Move ExecuteDeletionDirectives to
+	the MonkeyWrench.Database assembly.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Manager.cs: Remove some dead code.
 
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>

@@ -34,10 +34,17 @@ namespace MonkeyWrench.Database
 		/// <param name="db"></param>
 		/// <param name="id">File.id</param>
 		/// <param name="file_id">File.file_id</param>
-		public static void Delete (DB db, int id, int file_id)
+		public static void Delete (DB db, int id, int? file_id, string md5)
 		{
 			DBRecord_Extensions.Delete (db, id, DBFile.TableName);
-			db.Manager.Delete (file_id);
+			if (file_id.HasValue)
+				db.Manager.Delete (file_id.Value);
+			if (!string.IsNullOrEmpty (md5)) {
+				string fullpath = GetFullPath (md5);
+				if (!string.IsNullOrEmpty (fullpath) && File.Exists (fullpath)) {
+					File.Delete (fullpath);
+				}
+			}
 		}
 
 

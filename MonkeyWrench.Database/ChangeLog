@@ -1,5 +1,12 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DeletionDirectives.cs: Moved ExecuteDeletionDirectives
+	here.
+
+	* MonkeyWrench.Database.csproj: Updated.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DB.cs: Add a CreateCommand overload that specifies
 	a timeout.
 

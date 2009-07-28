@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DB.cs" />
+    <Compile Include="DeletionDirectives.cs" />
     <Compile Include="Extensions\DBCommand_Extensions.cs" />
     <Compile Include="Extensions\DBEnvironmentVariable_Extensions.cs" />
     <Compile Include="Extensions\DBFileDeletionDirective_Extensions.cs" />
