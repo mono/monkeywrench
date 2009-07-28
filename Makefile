@@ -41,7 +41,7 @@ all clean install:
 
 publish: install
 
-wsdl:
+wsdl: publish
 	$(MAKE) -C MonkeyWrench.Web.WebService $@
 
 build: all
