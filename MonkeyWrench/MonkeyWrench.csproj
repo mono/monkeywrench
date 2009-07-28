@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Async.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="FileUtilities.cs" />
     <Compile Include="IDB.cs" />

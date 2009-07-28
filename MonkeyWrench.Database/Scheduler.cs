@@ -54,21 +54,10 @@ namespace MonkeyWrench.Scheduler
 
 		public static void ExecuteSchedulerAsync (bool forcefullupdate)
 		{
-			ThreadPool.QueueUserWorkItem (delegate (object o)
+			Async.Execute (delegate (object o) 
 			{
-				try {
-					ExecuteScheduler (forcefullupdate);
-				} catch (Exception ex) {
-					// This is really exceptional, so don't try any fancy logging.
-					// Leaking an exception here will cause the entire process to die.
-					try {
-						Console.WriteLine ("Exception during ExecuteScheduler: {0}", ex);
-					} catch {
-						// ignore completely.
-					}
-				}
-			}
-			);
+				ExecuteScheduler (forcefullupdate); 
+			});
 		}
 
 		public static bool ExecuteScheduler (bool forcefullupdate)

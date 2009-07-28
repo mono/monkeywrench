@@ -1,3 +1,10 @@
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Async.cs: Added. Executes commands on the threadpool
+	safely.
+
+	* MonkeyWrench.csproj: Updated.
+
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* MonkeyWrench.csproj: Updated.
@@ -65,4 +72,3 @@
 2009-06-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Configuration.cs: Moved documentation to html file.
-
