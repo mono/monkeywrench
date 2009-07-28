@@ -1,5 +1,11 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Download.aspx.cs: When getting login data, check both
+	cookies (set if we were redirected to from the web ui)
+	and url (set if the web ui is downloading).
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* WebServices.asmx.cs: Add a ExecuteDeletionDirectives
 	method.
 
