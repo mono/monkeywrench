@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel='stylesheet' href='../build.css' type='text/css' />
+    <title>MonkeyWrench Documentation - Edit lane</title>
+</head>
+<body>
+    <h1>
+        Edit lane</h1>
+    <h2 id="id_DeletionDirectives">
+        Retention directives</h2>
+    <div>
+        Retention directives can be used to delete files according to some criteria. By default files are kept forever. All directives are executed regularily.
+        <ul>
+            <li>Directive: the name of the directive.</li>
+            <li>Filename: the name of the file(s) to delete.</li>
+            <li>Glob mode: how to match the filename specified in the directive against the name of the actual file.
+                <ul>
+                    <li>ShellGlob: a semi-colon separated list of shell globs.</li>
+                    <li>RegExp: a regexp.</li>
+                    <li>Exact: the match must be exact (even casing must match)</li></ul>
+            </li>
+            <li>Condition: which condition must match to delete the file
+                <ul>
+                    <li>AfterXDays:</li>
+                    <li>AfterXBuiltRevisions:</li>
+                </ul>
+            </li>
+            <li>X: the number to insert into the above Condition.</li>
+        </ul>
+    </div>
+</body>
+</html>

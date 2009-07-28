@@ -64,7 +64,7 @@
         <br />
         <asp:Table runat="server" ID="tblDeletionDirective" CssClass="commands">
             <asp:TableHeaderRow>
-                <asp:TableHeaderCell ColumnSpan="7">Deletion directives</asp:TableHeaderCell></asp:TableHeaderRow>
+                <asp:TableHeaderCell ColumnSpan="7"><a href="doc/EditLaneHelp.html#id_DeletionDirectives" target="_blank">Retention directives</a></asp:TableHeaderCell></asp:TableHeaderRow>
             <asp:TableHeaderRow>
                 <asp:TableHeaderCell>Directive</asp:TableHeaderCell>
                 <asp:TableHeaderCell>Filename</asp:TableHeaderCell>

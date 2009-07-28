@@ -1,5 +1,11 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* EditLane.aspx: Add some help for deletion directives.
+
+	* MonkeyWrench.Web.UI.csproj: Updated.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Admin.aspx: Add support for running deletion directives
 	manually.
 

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Content Include="Admin.aspx" />
     <Content Include="doc\Configuration.html" />
+    <Content Include="doc\EditLaneHelp.html" />
     <Content Include="doc\Faq.htm" />
     <Content Include="doc\Howto.html" />
     <Content Include="doc\index.html" />
