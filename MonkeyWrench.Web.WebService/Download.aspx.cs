@@ -24,46 +24,7 @@ namespace MonkeyWrench.WebServices
 {
 	public partial class Download : System.Web.UI.Page
 	{
-		private static string GetFullPath (string md5)
-		{
-			string result = Configuration.GetFilesDirectory ();
-			string name = md5;
-
-			if (!result.EndsWith (Path.DirectorySeparatorChar.ToString ()))
-				result += Path.DirectorySeparatorChar;
-
-			do {
-				result += name [0];
-				name = name.Substring (1);
-
-				if (Directory.Exists (result)) {
-					result += Path.DirectorySeparatorChar;
-					if (File.Exists (Path.Combine (result, md5))) {
-						return Path.Combine (result, md5);
-					} else if (File.Exists (Path.Combine (result, md5) + ".gz")) {
-						return Path.Combine (result, md5) + ".gz";
-					}
-				}
-			} while (!string.IsNullOrEmpty (name));
-
-			if (File.Exists (result))
-				return result;
-
-			if (File.Exists (result + ".gz"))
-				return result + ".gz";
-
-			// we now have the directory of the file
-			result = Path.Combine (result, md5);
-
-			if (File.Exists (result))
-				return result;
-
-			if (File.Exists (result + ".gz"))
-				return result + ".gz";
-
-			return null;
-		}
-
+		
 
 		protected void Page_Load (object sender, EventArgs e)
 		{
@@ -120,7 +81,7 @@ namespace MonkeyWrench.WebServices
 		private void DownloadMd5 (string md5)
 		{
 			// access must be verified before calling this method (no verification is done here)
-			string fullpath = GetFullPath (md5);
+			string fullpath = DBFile_Extensions.GetFullPath (md5);
 
 			if (fullpath == null)
 				throw new HttpException (404, "Could not find the file.");

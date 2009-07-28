@@ -1,4 +1,4 @@
-﻿/*
+/*
  * DBFile_Extensions.cs
  *
  * Authors:
@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.IO;
 using System.Text;
 
 using MonkeyWrench.DataClasses;
@@ -53,5 +54,46 @@ namespace MonkeyWrench.Database
 
 			return null;
 		}
+
+		public static string GetFullPath (string md5)
+		{
+			string result = Configuration.GetFilesDirectory ();
+			string name = md5;
+
+			if (!result.EndsWith (Path.DirectorySeparatorChar.ToString ()))
+				result += Path.DirectorySeparatorChar;
+
+			do {
+				result += name [0];
+				name = name.Substring (1);
+
+				if (Directory.Exists (result)) {
+					result += Path.DirectorySeparatorChar;
+					if (File.Exists (Path.Combine (result, md5))) {
+						return Path.Combine (result, md5);
+					} else if (File.Exists (Path.Combine (result, md5) + ".gz")) {
+						return Path.Combine (result, md5) + ".gz";
+					}
+				}
+			} while (!string.IsNullOrEmpty (name));
+
+			if (File.Exists (result))
+				return result;
+
+			if (File.Exists (result + ".gz"))
+				return result + ".gz";
+
+			// we now have the directory of the file
+			result = Path.Combine (result, md5);
+
+			if (File.Exists (result))
+				return result;
+
+			if (File.Exists (result + ".gz"))
+				return result + ".gz";
+
+			return null;
+		}
+
 	}
 }
