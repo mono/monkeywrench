@@ -36,9 +36,6 @@ namespace MonkeyWrench.Database.Manager
 				if (!Configuration.LoadConfiguration (args))
 					return 1;
 
-				if (Configuration.CleanLargeObjects)
-					result += DeleteUnusedLargeObjects ();
-
 				if (Configuration.CompressFiles)
 					result += CompressFiles ();
 
@@ -68,7 +65,6 @@ namespace MonkeyWrench.Database.Manager
 
 			using (DB db = new DB (true)) {
 				using (DB db_save = new DB (true)) {
-					//using (IDbTransaction transaction = db_save.Connection.BeginTransaction ()) {
 					using (IDbCommand cmd = db.CreateCommand ()) {
 						cmd.CommandText = @"
 SELECT File.*
@@ -159,146 +155,6 @@ LIMIT 10
 
 			Console.WriteLine ("Saved {0} bytes.", saved_space);
 
-			return 0;
-		}
-
-		public static int DeleteUnusedLargeObjects ()
-		{
-			long bytes_deleted = 0;
-			long bytes_in_db = 0;
-			long bytes_of_files = 0;
-			int files_deleted = 0;
-			int largeobjects_deleted = 0;
-
-			try {
-				Console.WriteLine ("DeleteUnusedLargeObjects ()");
-				using (DB db = new DB (true)) {
-					using (DB db_obj = new DB (true)) {
-						int min_lo = (int) (long) db.ExecuteScalar ("SELECT min (loid) FROM pg_largeobject;");
-						int max_lo = (int) (long) db.ExecuteScalar ("SELECT max (loid) FROM pg_largeobject;");
-						int page_size = 1000;
-
-						Console.WriteLine ("Min id: {0}, max id: {1}", min_lo, max_lo);
-
-						for (int start = min_lo; start < max_lo; start += (page_size + 1)) {
-							Console.WriteLine ("Checking: {0} <= loid <= {1}", start, start + page_size);
-
-							using (IDbCommand cmd = db.CreateCommand ()) {
-								cmd.CommandText = @"
-SELECT 
-	pg_largeobject.loid, 
-	File.filename AS file_filename, File.size, File.file_id,
-	WorkFile.id AS workfile_id, WorkFile.filename AS workfile_filename,
-	RevisionWork.state, 
-	Revision.revision,
-	Lane.lane,
-	Host.host
-FROM pg_largeobject 
-LEFT JOIN File ON File.file_id = pg_largeobject.loid 
-LEFT JOIN WorkFile ON File.id = WorkFile.file_id 
-LEFT JOIN Work ON WorkFile.work_id = Work.id
-LEFT JOIN RevisionWork ON RevisionWork.id = Work.revisionwork_id
-LEFT JOIN Revision ON RevisionWork.revision_id = Revision.id
-LEFT JOIN Lane ON Lane.id = RevisionWork.lane_id
-LEFT JOIN Host ON RevisionWork.host_id = Host.id
-WHERE loid >= @start AND loid <= @end AND pageno = 0
-ORDER BY loid;
-";
-
-								DB.CreateParameter (cmd, "start", start.ToString ());
-								DB.CreateParameter (cmd, "end", (start + page_size).ToString ());
-
-								using (IDbTransaction transaction = db_obj.BeginTransaction ()) {
-									using (IDataReader reader = cmd.ExecuteReader ()) {
-										int prev_loid = -1;
-										int workfile_count = 0;
-										int large_object_size = 0;
-
-										int workfile_id_idx = reader.GetOrdinal ("workfile_id");
-										int workfile_filename_idx = reader.GetOrdinal ("workfile_filename");
-										int loid_idx = reader.GetOrdinal ("loid");
-										int file_filename_idx = reader.GetOrdinal ("file_filename");
-										int size_idx = reader.GetOrdinal ("size");
-										int revision_idx = reader.GetOrdinal ("revision");
-										int lane_idx = reader.GetOrdinal ("lane");
-										int host_idx = reader.GetOrdinal ("host");
-
-										while (reader.Read ()) {
-											int loid = (int) reader.GetInt64 (loid_idx);
-
-											if (prev_loid != -1 && prev_loid != loid) {
-												if (workfile_count == 0) {
-													Console.WriteLine ("- //TODO: Delete file and large object.");
-													bytes_deleted += large_object_size;
-													files_deleted++;
-													largeobjects_deleted++;
-												}
-												Console.WriteLine ("- Total: {0} workfiles.", workfile_count);
-
-												workfile_count = 0;
-
-												prev_loid = -1;
-											}
-
-											if (prev_loid == -1) {
-												prev_loid = loid;
-												large_object_size = 0; // (int) (long) db_obj.ExecuteScalar ("SELECT Sum (length (data)) FROM pg_largeobject WHERE loid = " + loid.ToString ());
-												bytes_in_db += large_object_size;
-												Console.WriteLine ("Found large object with loid: {0} and size: {1} bytes", loid, large_object_size);
-											}
-
-											bool has_file = !reader.IsDBNull (file_filename_idx);
-											bool has_workfile = !reader.IsDBNull (workfile_id_idx);
-
-											if (!has_file) {
-												Console.WriteLine ("- This large object does not have an associated file.");
-												Console.WriteLine ("- // TODO: Delete this large object.");
-												bytes_deleted += large_object_size;
-												largeobjects_deleted++;
-												prev_loid = -1;
-												continue;
-											} else {
-												large_object_size = reader.GetInt32 (size_idx);
-											}
-
-											int size = reader.GetInt32 (size_idx);
-
-											if (workfile_count == 0)
-												Console.WriteLine ("- File.size: {0}", size);
-
-											if (has_workfile) {
-												int workfile_id = reader.GetInt32 (workfile_id_idx);
-												string workfile_filename = reader.GetString (workfile_filename_idx);
-												string revision = reader.GetString (revision_idx);
-												string lane = reader.GetString (lane_idx);
-												string host = reader.GetString (host_idx);
-
-												bytes_of_files += large_object_size;
-												workfile_count++;
-
-												Console.WriteLine ("- WorkFile: id={0}, lane={1}, host={2}, revision={3}, filename={4}",
-													workfile_id, lane, host, revision, workfile_filename);
-
-											}
-										}
-									}
-								}
-							}
-
-
-							Console.WriteLine ("Partial summary ({0}/{1} = {2}%)", start + page_size - min_lo, max_lo - min_lo, 100 * (start + page_size - min_lo) / (double) (max_lo - min_lo));
-							Console.WriteLine ("bytes deleted: {0}, bytes in db (before deleting): {1}, bytes of files: {2}, saved due to md5: {3}, files deleted: {4}, large objects deleted: {5}",
-								bytes_deleted, bytes_in_db, bytes_of_files, bytes_of_files - bytes_in_db, files_deleted, largeobjects_deleted);
-						}
-					}
-				}
-			} catch (Exception ex) {
-				Console.WriteLine (ex.ToString ());
-			} finally {
-				Console.WriteLine ("Summary:");
-				Console.WriteLine ("bytes deleted: {0}, bytes in db (before deleting): {1}, bytes of files: {2}, saved due to md5: {3}, files deleted: {4}, large objects deleted: {5}",
-								bytes_deleted, bytes_in_db, bytes_of_files, bytes_of_files - bytes_in_db, files_deleted, largeobjects_deleted);
-			}
 			return 0;
 		}
 
