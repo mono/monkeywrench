@@ -1,5 +1,11 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewHtmlReport.aspx.cs: Optimize a bit by transmitting data as
+	we transform it, instead of using a temporary file and call
+	TransmitFile. This also fixes an issue with TransmitFile and apache.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewHtmlReport.aspx.cs:
 	* Master.master.cs:
 	* Login.aspx.cs:
