@@ -17,6 +17,7 @@ using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
+using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
@@ -53,7 +54,7 @@ public partial class Login : System.Web.UI.Page
 			login.User = txtUser.Text;
 			login.Password = txtPassword.Text;
 			Console.WriteLine ("Trying to log in with {0}/{1}", login.User, login.Password);
-			login.Ip4 = Utils.GetExternalIP (Context.Request);
+			login.Ip4 = Utilities.GetExternalIP (Context.Request);
 			response = Master.WebService.Login (login);
 			if (response == null) {
 				lblMessage.Text = "Could not log in.";

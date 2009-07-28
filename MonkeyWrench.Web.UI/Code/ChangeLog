@@ -1,5 +1,10 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Utils.cs: Moved some methods to MonkeyWrench.DataClasses
+	assembly.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Utils.cs: Updated according to CreateWebServiceDownloadUrl
 	changes.
 

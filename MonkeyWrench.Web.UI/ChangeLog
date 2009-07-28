@@ -1,5 +1,12 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewHtmlReport.aspx.cs:
+	* Master.master.cs:
+	* Login.aspx.cs:
+	* GetFile.aspx.cs: Updated according to API changes.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Login.aspx.cs: Save the user too in the cookies.
 
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>

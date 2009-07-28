@@ -107,12 +107,6 @@ public static class Utils
 		return result;
 	}
 
-	public static string GetCookie (HttpRequest request, string name)
-	{
-		HttpCookie cookie = request.Cookies [name];
-		return cookie == null ? null : cookie.Value;
-	}
-
 	public static DBLane FindLane (IEnumerable<DBLane> lanes, int id)
 	{
 		foreach (DBLane lane in lanes)
@@ -164,14 +158,6 @@ public static class Utils
 		return IsDescendentLaneOf (lanes, parent, p, iteration + 1);
 	}
 
-	public static string GetExternalIP (HttpRequest request)
-	{
-		if (request.IsLocal)
-			return System.Net.Dns.GetHostEntry (System.Net.Dns.GetHostName ()).AddressList [0].ToString ();
-		else
-			return request.UserHostAddress;
-	}
-
 	private static WebServices web_service;
 
 	public static WebServices WebService
@@ -182,25 +168,6 @@ public static class Utils
 				web_service = WebServices.Create ();
 			return web_service;
 		}
-	}
-
-	public static WebServiceLogin CreateWebServiceLogin (HttpRequest Request)
-	{
-		WebServiceLogin web_service_login;
-		web_service_login = new WebServiceLogin ();
-		web_service_login.Cookie = Utils.GetCookie (Request, "cookie");
-		if (HttpContext.Current.User != null)
-			web_service_login.User = HttpContext.Current.User.Identity.Name;
-		web_service_login.Ip4 = Utils.GetExternalIP (Request);
-		
-		// Console.WriteLine ("Master, Cookie: {0}, User: {1}", web_service_login.Cookie, web_service_login.User);
-
-		return web_service_login;
-	}
-
-	public static string CreateWebServiceDownloadUrl (HttpRequest Request, int workfile_id, bool redirect)
-	{
-		return WebServices.CreateWebServiceDownloadUrl (workfile_id, Utils.CreateWebServiceLogin (Request), redirect);
 	}
 
 	public static bool IsInRole (string role)

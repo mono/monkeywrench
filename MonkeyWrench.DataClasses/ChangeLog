@@ -1,5 +1,13 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Utilities.cs: Added, moved some methods from the
+	MonkeyWrench.Web.UI assembly here.
+
+	* Makefile:
+	* MonkeyWrench.DataClasses.csproj: Ref System.Web.dll too.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* WebServices.Generated.cs: Regenerated.
 
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>

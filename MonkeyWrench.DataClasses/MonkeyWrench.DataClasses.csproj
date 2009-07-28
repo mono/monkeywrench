@@ -36,6 +36,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -119,6 +120,7 @@
     <Compile Include="Logic\WebServiceLogin.cs" />
     <Compile Include="Logic\WebServiceResponse.cs" />
     <Compile Include="SqlToCSharp.cs" />
+    <Compile Include="Utilities.cs" />
     <Compile Include="WebServices.cs" />
     <Compile Include="WebServices.Generated.cs" />
   </ItemGroup>

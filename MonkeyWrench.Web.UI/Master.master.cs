@@ -16,6 +16,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
+using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
@@ -37,7 +38,7 @@ public partial class Master : System.Web.UI.MasterPage
 		get
 		{
 			if (web_service_login == null)
-				web_service_login = Utils.CreateWebServiceLogin (Context.Request);
+				web_service_login = Utilities.CreateWebServiceLogin (Context.Request);
 
 			return web_service_login;
 		}
