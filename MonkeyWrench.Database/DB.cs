@@ -41,10 +41,24 @@ namespace MonkeyWrench
 			}
 		}
 
+		/// <summary>
+		/// Creates a command with a default timeout of 120 seconds.
+		/// </summary>
+		/// <returns></returns>
 		public IDbCommand CreateCommand ()
 		{
+			return CreateCommand (TimeSpan.FromSeconds (120));
+		}
+
+		/// <summary>
+		/// Creates a command with the specified timeout. A timeout of 0 means infinity.
+		/// </summary>
+		/// <param name="Timeout"></param>
+		/// <returns></returns>
+		public IDbCommand CreateCommand (TimeSpan Timeout)
+		{
 			NpgsqlCommand result = dbcon.CreateCommand ();
-			result.CommandTimeout = 120; // seconds
+			result.CommandTimeout = (int) Timeout.TotalSeconds;
 			return result;
 		}
 
