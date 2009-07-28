@@ -1,3 +1,8 @@
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Download.aspx.cs: Use TransmitFile when we have a file
+	to transmit instead of sending the file manually.
+
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.wsdl: Regenerated.

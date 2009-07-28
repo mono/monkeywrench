@@ -125,9 +125,10 @@ namespace MonkeyWrench.WebServices
 			if (fullpath == null)
 				throw new HttpException (404, "Could not find the file.");
 
-			using (FileStream str = new FileStream (fullpath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-				DownloadStream (str, fullpath.EndsWith (".gz") ? MimeTypes.GZ : string.Empty);
-			}
+			if (fullpath.EndsWith (".gz"))
+				Response.AppendHeader ("Content-Encoding", "gzip");
+			
+			Response.TransmitFile (fullpath);
 		}
 
 		private void DownloadFile (DB db, int file_id)
