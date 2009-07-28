@@ -1441,6 +1441,15 @@ WHERE WorkFile.filename = @filename AND Revision.lane_id = @lane_id
              }
          }
 
+		 [WebMethod]
+		 public void ExecuteDeletionDirectives (WebServiceLogin login)
+		 {
+			 using (DB db = new DB ()) {
+				 VerifyUserInRole (db, login, Roles.Administrator);
+
+				 MonkeyWrench.Database.DeletionDirectives.ExecuteAsync ();
+			 }
+		 }
  		#endregion
     }
 }

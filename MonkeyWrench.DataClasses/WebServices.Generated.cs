@@ -1584,5 +1584,23 @@ namespace MonkeyWrench.Web.WebServices {
         public void EndExecuteScheduler(System.IAsyncResult asyncResult) {
             this.EndInvoke(asyncResult);
         }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/ExecuteDeletionDirectives", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void ExecuteDeletionDirectives(WebServiceLogin login) {
+            this.Invoke("ExecuteDeletionDirectives", new object[] {
+                        login});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginExecuteDeletionDirectives(WebServiceLogin login, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("ExecuteDeletionDirectives", new object[] {
+                        login}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndExecuteDeletionDirectives(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
     }
 }

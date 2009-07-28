@@ -1,5 +1,10 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Admin.aspx: Add support for running deletion directives
+	manually.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewHtmlReport.aspx.cs: Update according to CreateWebServiceDownloadUrl
 	changes, and don't download and resend when we can just redirect.
 

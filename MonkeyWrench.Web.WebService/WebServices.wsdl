@@ -1624,6 +1624,16 @@
       <xs:element name="ExecuteSchedulerResponse">
         <xs:complexType />
       </xs:element>
+      <xs:element name="ExecuteDeletionDirectives">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ExecuteDeletionDirectivesResponse">
+        <xs:complexType />
+      </xs:element>
       <xs:element name="ArrayOfString" nillable="true" type="s0:ArrayOfString" />
     </xs:schema>
   </types>
@@ -2035,6 +2045,12 @@
   <message name="ExecuteSchedulerSoapOut">
     <part name="parameters" element="s0:ExecuteSchedulerResponse" />
   </message>
+  <message name="ExecuteDeletionDirectivesSoapIn">
+    <part name="parameters" element="s0:ExecuteDeletionDirectives" />
+  </message>
+  <message name="ExecuteDeletionDirectivesSoapOut">
+    <part name="parameters" element="s0:ExecuteDeletionDirectivesResponse" />
+  </message>
   <message name="GetRolesHttpGetIn">
     <part name="user" type="s:string" />
   </message>
@@ -2320,6 +2336,10 @@
       <input message="s0:ExecuteSchedulerSoapIn" />
       <output message="s0:ExecuteSchedulerSoapOut" />
     </operation>
+    <operation name="ExecuteDeletionDirectives">
+      <input message="s0:ExecuteDeletionDirectivesSoapIn" />
+      <output message="s0:ExecuteDeletionDirectivesSoapOut" />
+    </operation>
   </portType>
   <portType name="WebServicesSoap12">
     <operation name="GetRoles">
@@ -2593,6 +2613,10 @@
     <operation name="ExecuteScheduler">
       <input message="s0:ExecuteSchedulerSoapIn" />
       <output message="s0:ExecuteSchedulerSoapOut" />
+    </operation>
+    <operation name="ExecuteDeletionDirectives">
+      <input message="s0:ExecuteDeletionDirectivesSoapIn" />
+      <output message="s0:ExecuteDeletionDirectivesSoapOut" />
     </operation>
   </portType>
   <portType name="WebServicesHttpGet">
@@ -3221,6 +3245,15 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="ExecuteDeletionDirectives">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ExecuteDeletionDirectives" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
   </binding>
   <binding name="WebServicesSoap12" type="s0:WebServicesSoap12">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -3829,6 +3862,15 @@
     </operation>
     <operation name="ExecuteScheduler">
       <soap12:operation soapAction="http://monkeywrench.novell.com/ExecuteScheduler" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ExecuteDeletionDirectives">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ExecuteDeletionDirectives" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

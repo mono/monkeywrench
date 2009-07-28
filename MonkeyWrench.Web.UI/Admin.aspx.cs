@@ -28,6 +28,7 @@ namespace MonkeyWrench.Web.UI
 		protected void Page_Load (object sender, EventArgs e)
 		{
 			cmdSchedule.Click += new EventHandler(cmdSchedule_Click);
+			cmdExecuteDeletionDirectives.Click += new EventHandler (cmdExecuteDeletionDirectives_Click);
 		}
 
 		private void cmdSchedule_Click (object sender, EventArgs e)
@@ -38,6 +39,17 @@ namespace MonkeyWrench.Web.UI
 				lblSchedule.Text = "Scheduler started. It's run asynchronously, so no updates will be shown here.";
 			} catch  (Exception ex) {
 				lblSchedule.Text = ex.Message;
+			}
+		}
+
+		private void cmdExecuteDeletionDirectives_Click (object sender, EventArgs e)
+		{
+			try {
+				cmdExecuteDeletionDirectives.Enabled = false;
+				Master.WebService.ExecuteDeletionDirectives (Master.WebServiceLogin);
+				lblExecuteDeletionDirectives.Text = "Retention directives executed. They are run asynchronously, so no updates will be shown here.";
+			} catch (Exception ex) {
+				lblExecuteDeletionDirectives.Text = ex.Message;
 			}
 		}
 	}

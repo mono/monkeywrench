@@ -1,5 +1,12 @@
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* WebServices.asmx.cs: Add a ExecuteDeletionDirectives
+	method.
+
+	* WebServices.wsdl: Regenerated.
+
+2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Download.aspx.cs: Move GetFullPath to the
 	MonkeyWrench.Database assembly.
 
