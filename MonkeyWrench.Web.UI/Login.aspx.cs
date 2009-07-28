@@ -63,6 +63,7 @@ public partial class Login : System.Web.UI.Page
 				FormsAuthenticationTicket cookie = new FormsAuthenticationTicket ("cookie", true, 60 * 24);
 				Response.Cookies.Add (new HttpCookie ("cookie", response.Cookie));
 				Response.Cookies ["cookie"].Expires = DateTime.Now.AddDays (1);
+				Response.Cookies.Add (new HttpCookie ("user", login.User));
 				FormsAuthentication.RedirectFromLoginPage (response.User, true);
 			}
 		} catch (Exception) {
