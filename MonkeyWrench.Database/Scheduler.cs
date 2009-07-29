@@ -35,6 +35,8 @@ namespace MonkeyWrench.Scheduler
 		/// <param name="hostlanes"></param>
 		/// <returns></returns>
 		bool UpdateRevisionsInDB (DB db, bool forcefullupdate, DBLane lane, List<DBHost> hosts, List<DBHostLane> hostlanes);
+
+		void AddChangeSets (List<XmlDocument> docs);
 	}
 
 	public static class Scheduler
@@ -60,6 +62,39 @@ namespace MonkeyWrench.Scheduler
 			});
 		}
 
+		public static List<XmlDocument> GetReports (bool forcefullupdate)
+		{
+			List<XmlDocument> result = null;
+			if (!Configuration.ForceFullUpdate && !forcefullupdate) {
+				try {
+					foreach (string file in Directory.GetFiles (Configuration.GetSchedulerCommitsDirectory (), "*.xml")) {
+						string hack = File.ReadAllText (file);
+						if (!hack.Contains ("</directory>"))
+							hack = hack.Replace ("</directory", "</directory>");
+						File.WriteAllText (file, hack);
+						XmlDocument doc = new XmlDocument ();
+						try {
+							Logger.Log ("Updater: got report file '{0}'", file);
+							doc.Load (file);
+							if (result == null)
+								result = new List<XmlDocument> ();
+							result.Add (doc);
+						} catch (Exception ex) {
+							Logger.Log ("Updater: exception while checking commit report '{0}': {1}", file, ex);
+						}
+						try {
+							File.Delete (file); // No need to check this file more than once.
+						} catch {
+							// Ignore any exceptions
+						}
+					}
+				} catch (Exception ex) {
+					Logger.Log ("Updater: exception while checking commit reports: {0}", ex);
+				}
+			}
+			return result;
+		}
+
 		public static bool ExecuteScheduler (bool forcefullupdate)
 		{
 			Lock scheduler_lock = null;
@@ -67,7 +102,8 @@ namespace MonkeyWrench.Scheduler
 
 			List<DBHost> hosts;
 			List<DBHostLane> hostlanes;
-
+			List<XmlDocument> reports;
+			
 			try {
 				scheduler_lock = Lock.Create ("MonkeyWrench.Scheduler");
 				if (scheduler_lock == null) {
@@ -80,31 +116,7 @@ namespace MonkeyWrench.Scheduler
 				SVNUpdater.StartDiffThread ();
 
 				// Check reports
-				if (!Configuration.ForceFullUpdate && !forcefullupdate) {
-					try {
-						foreach (string file in Directory.GetFiles (Configuration.GetSchedulerCommitsDirectory (), "*.xml")) {
-							string hack = File.ReadAllText (file);
-							if (!hack.Contains ("</directory>"))
-								hack = hack.Replace ("</directory", "</directory>");
-							File.WriteAllText (file, hack);
-							XmlDocument doc = new XmlDocument ();
-							try {
-								Logger.Log ("Updater: got report file '{0}'", file);
-								doc.Load (file);
-								SVNUpdater.AddChangeSet (doc);
-							} catch (Exception ex) {
-								Logger.Log ("Updater: exception while checking commit report '{0}': {1}", file, ex);
-							}
-							try {
-								File.Delete (file); // No need to check this file more than once.
-							} catch {
-								// Ignore any exceptions
-							}
-						}
-					} catch (Exception ex) {
-						Logger.Log ("Updater: exception while checking commit reports: {0}", ex);
-					}
-				}
+				reports = GetReports (forcefullupdate);
 
 				using (DB db = new DB (true)) {
 					lanes = db.GetAllLanes ();
@@ -121,7 +133,7 @@ namespace MonkeyWrench.Scheduler
 							Logger.Log ("Unknown source control: {0} for lane {1}", lane.source_control, lane.lane);
 							continue;
 						}
-
+						updater.AddChangeSets (reports);
 						updater.UpdateRevisionsInDB (db, forcefullupdate, lane, hosts, hostlanes);
 						UpdateBuildLogDB (db, lane, hosts, hostlanes);
 					}

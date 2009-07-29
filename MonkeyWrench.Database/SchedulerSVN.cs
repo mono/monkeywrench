@@ -32,10 +32,20 @@ namespace MonkeyWrench.Scheduler
 		private static Thread diff_thread;
 
 		// a tuple, each path and the first revision (in a list of changesets) the path was modified
-		private static List<string> paths;
-		private static List<int> min_revisions;
+		private List<string> paths;
+		private List<int> min_revisions;
 
-		public static void AddChangeSet (XmlDocument doc)
+		public void AddChangeSets (List<XmlDocument> docs)
+		{
+			if (docs == null)
+				return;
+
+			foreach (XmlDocument doc in docs) {
+				AddChangeSet (doc);
+			}
+		}
+
+		public void AddChangeSet (XmlDocument doc)
 		{
 			XmlNode rev = doc.SelectSingleNode ("/monkeywrench/changeset");
 			int revision = int.Parse (rev.Attributes ["revision"].Value);

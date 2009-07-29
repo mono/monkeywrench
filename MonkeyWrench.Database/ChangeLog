@@ -1,3 +1,10 @@
+2009-07-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Scheduler.cs:
+	* SchedulerSVN.cs: Don't use static fields, we leak
+	memory now since we're not a standalone program but
+	executed inside a web app.
+
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Scheduler.cs: Use the new Async class to use
@@ -81,4 +88,3 @@
 
 	* DB.cs: Propagate the extension correctly on file 
 	upload to set the correct mime type.
-
