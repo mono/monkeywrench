@@ -234,5 +234,12 @@ namespace MonkeyWrench.Web.WebServices
 				}
 			}
 		}
+
+		public static void ExecuteSchedulerAsync ()
+		{
+			WebServices WebService = Create ();
+			WebService.CreateLogin (Configuration.SchedulerAccount, Configuration.SchedulerPassword);
+			WebService.ExecuteScheduler (WebService.WebServiceLogin, Configuration.ForceFullUpdate);
+		}
 	}
 }

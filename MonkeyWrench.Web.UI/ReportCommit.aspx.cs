@@ -21,6 +21,7 @@ using System.Web.UI.WebControls;
 
 using MonkeyWrench;
 using MonkeyWrench.DataClasses;
+using MonkeyWrench.Web.WebServices;
 
 public partial class ReportCommit : System.Web.UI.Page
 {
@@ -56,12 +57,8 @@ public partial class ReportCommit : System.Web.UI.Page
 						writer.Write (buffer, 0, read);
 					}
 				}
-				/*
-				using (Process p = new Process ()) {
-					p.StartInfo.FileName = Path.Combine (Configuration.BUILDER_CONFIG, "updater.sh");
-					p.Start ();
-				}
-				 * */
+
+				WebServices.ExecuteSchedulerAsync ();
 			} else {
 				Logger.Log ("ReportCommit.aspx: Didn't get a file called 'xml'");
 			}

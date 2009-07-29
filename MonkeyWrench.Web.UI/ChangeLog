@@ -1,3 +1,8 @@
+2009-07-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ReportCommit.aspx.cs: Instead of executing a process which calls the
+	web service, just call the web service (which is async anyway).
+
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ViewHtmlReport.aspx.cs: Optimize a bit by transmitting data as
