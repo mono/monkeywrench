@@ -82,7 +82,7 @@ namespace MonkeyWrench.Database
 					cmd.CommandText = "";
 					// Don't be this destructive quite yet.
 					// cmd.CommandText += "DELETE FROM Work WHERE lane_id = @id;\n";
-					cmd.CommandText += "DELETE FROM LaneFile WHERE lane_id = @id;\n";
+					cmd.CommandText += "DELETE FROM LaneFiles WHERE lane_id = @id;\n";
 					cmd.CommandText += "DELETE FROM Command WHERE lane_id = @id;\n";
 					cmd.CommandText += "DELETE FROM HostLane WHERE lane_id = @id;\n";
 					cmd.CommandText += "DELETE FROM Lane WHERE id = @id;\n";
