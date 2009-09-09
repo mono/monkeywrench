@@ -408,6 +408,7 @@ namespace MonkeyWrench.WebServices
                 response.Host = FindHost (db, host_id, host);
                 response.Lanes = db.GetAllLanes ();
                 if (response.Host != null) {
+                    response.Person = FindPerson (db, response.Host.host);
                     response.HostLaneViews = response.Host.GetLanes (db);
                     response.Variables = DBEnvironmentVariable_Extensions.Find (db, null, response.Host.id, null);
                     response.MasterHosts = GetMasterHosts (db, response.Host);
@@ -509,6 +510,25 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 
             return null;
         }
+
+		/// <summary>
+		/// Finds the person with the specified login name. Returns null if the person doesn't exist.
+		/// </summary>
+		/// <param name="db"></param>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		private DBPerson FindPerson (DB db, string name)
+		{
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM Person WHERE login = @name";
+				DB.CreateParameter (cmd, "name", name);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					if (reader.Read ())
+						return new DBPerson (reader);
+				}
+			}
+			return null;
+		}
 
         private DBHost FindHost (DB db, int? host_id, string host)
         {
@@ -624,6 +644,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
         }
 
         [WebMethod]
+        [Obsolete]
         public void EditHost (WebServiceLogin login, DBHost host)
         {
             WebServiceResponse response = new WebServiceResponse ();
@@ -632,6 +653,37 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
                 host.Save (db);
             }
         }
+
+		[WebMethod]
+		public void EditHostWithPassword (WebServiceLogin login, DBHost host, string password)
+		{
+			WebServiceLogin response = new WebServiceLogin ();
+			using (DB db = new DB ()) {
+				using (IDbTransaction transaction = db.BeginTransaction ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					host.Save (db);
+
+					// NOTE: it is possible to change the password of an existing account by creating 
+					// a host with the same name and specify the password. Given that admin rights
+					// are required to create/modify hosts, it shouldn't pose a security issue.
+
+					// TODO: if host changed name, delete the old user account.
+					DBPerson person = FindPerson (db, host.host);
+
+					if (person == null) {
+						person = new DBPerson ();
+						person.login = host.host;
+						person.roles = Roles.BuildBot;
+					} else {
+						if (person.roles != Roles.BuildBot)
+							throw new ArgumentException ("The hosts entry in the person table must have its roles set to 'BuildBot'.");
+					}
+					person.password = password;
+					person.Save (db);
+					transaction.Commit ();
+				}
+			}
+		}
 
         [WebMethod]
         public GetViewLaneDataResponse GetViewLaneData (WebServiceLogin login, int? lane_id, string lane, int? host_id, string host, int? revision_id, string revision)

@@ -839,6 +839,28 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditHostWithPassword", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void EditHostWithPassword(WebServiceLogin login, DBHost host, string password) {
+            this.Invoke("EditHostWithPassword", new object[] {
+                        login,
+                        host,
+                        password});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginEditHostWithPassword(WebServiceLogin login, DBHost host, string password, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("EditHostWithPassword", new object[] {
+                        login,
+                        host,
+                        password}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndEditHostWithPassword(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetViewLaneData", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public GetViewLaneDataResponse GetViewLaneData(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id, string lane, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> host_id, string host, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> revision_id, string revision) {
             object[] results = this.Invoke("GetViewLaneData", new object[] {

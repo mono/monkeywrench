@@ -10,72 +10,86 @@
     <div>
         <br />
         <br />
-        <table>
-            <tr>
-                <td>
+        <asp:Table ID="tblData" runat="server">
+            <asp:TableRow>
+                <asp:TableCell>
                     Id:
-                </td>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
                     <asp:TextBox ID="txtID" runat="server" ReadOnly="True" Width="471px"></asp:TextBox>
-                </td>
-            </tr>
-            <tr>
-                <td>
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell>
                     Host:
-                </td>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
                     <asp:TextBox ID="txtHost" runat="server" Width="471px"></asp:TextBox>
-                </td>
-            </tr>
-            <tr>
-                <td>
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell>
+                    Password:
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:TextBox ID="txtPassword" runat="server" Width="471px"></asp:TextBox>
+                </asp:TableCell>
+                <asp:TableCell>
+                    This is the password the host uses to log into the web service.
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell>
                     Queue management:
-                </td>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
                     <asp:DropDownList ID="cmbQueueManagement" runat="server" Width="471px">
                         <asp:ListItem Text="Completely finish a revision before starting a new one" Value="0"></asp:ListItem>
                         <asp:ListItem Text="Execute last revision as soon as possible" Value="1"></asp:ListItem>
                     </asp:DropDownList>
-                </td>
-            </tr>
-            <tr>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
+                    (currently ignored)
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell>
                     Description:
-                </td>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
                     <asp:TextBox ID="txtDescription" runat="server" Width="471px"></asp:TextBox>
-                </td>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
                     (informational purposes only)
-                </td>
-            </tr>
-            <tr>
-                <td>
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell>
                     Architecture:
-                </td>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
                     <asp:TextBox ID="txtArchitecture" runat="server" Width="471px"></asp:TextBox>
-                </td>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
                     (informational purposes only)
-                </td>
-            </tr>
-            <tr>
-                <td>
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell>
                     Enabled
-                </td>
-                <td>
+                </asp:TableCell>
+                <asp:TableCell>
                     <asp:CheckBox ID="chkEnabled" runat="server" />
-                </td>
-            </tr>
-            <tr>
-                <td colspan='2'>
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell ColumnSpan="2">
                     <center>
                         <asp:Button ID="cmdSave" runat="server" Text="Save" OnClick="cmdSave_Click" />
                     </center>
-                </td>
-            </tr>
-        </table>
+                </asp:TableCell>
+            </asp:TableRow>
+        </asp:Table>
         <br />
         Lanes configured for this host:<br />
         <br />
@@ -109,5 +123,7 @@
         <br />
         <ucs:EnvironmentVariablesEditor ID="editorVariables" runat="server"></ucs:EnvironmentVariablesEditor>
         <br />
+        Sample MonkeyWrench.xml configuration file (copy to ~/.config/MonkeyWrench/MonkeyWrench.xml):
+        <asp:Label ID="lblConfiguration" runat="server" ></asp:Label>
     </div>
 </asp:Content>

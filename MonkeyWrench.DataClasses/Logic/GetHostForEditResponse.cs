@@ -20,6 +20,7 @@ namespace MonkeyWrench.DataClasses.Logic
 	public class GetHostForEditResponse: WebServiceResponse
 	{
 		public DBHost Host;
+		public DBPerson Person;
 		public List<DBHostLaneView> HostLaneViews;
 		public List<DBLane> Lanes;
 		public List<DBEnvironmentVariable> Variables;

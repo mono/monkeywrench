@@ -13,6 +13,15 @@
 public partial class EditHost {
     
     /// <summary>
+    /// tblData control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Table tblData;
+    
+    /// <summary>
     /// txtID control.
     /// </summary>
     /// <remarks>
@@ -29,6 +38,15 @@ public partial class EditHost {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.TextBox txtHost;
+    
+    /// <summary>
+    /// txtPassword control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.TextBox txtPassword;
     
     /// <summary>
     /// cmbQueueManagement control.
@@ -128,4 +146,13 @@ public partial class EditHost {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::MonkeyWrench.Web.UI.EnvironmentVariablesEditor editorVariables;
+    
+    /// <summary>
+    /// lblConfiguration control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblConfiguration;
 }

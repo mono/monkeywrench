@@ -1,3 +1,8 @@
+2009-09-09  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* GetHostForEditResponse.cs: Added Person field to enable editing the
+	password of a host.
+
 2009-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* BuildInfoEntry.cs: Added a HostLane field.

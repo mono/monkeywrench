@@ -106,6 +106,22 @@ public partial class EditHost : System.Web.UI.Page
 				txtHost.Text = response.Host.host;
 				chkEnabled.Checked = response.Host.enabled;
 				cmbQueueManagement.SelectedIndex = response.Host.queuemanagement;
+				if (response.Person == null) {
+					string valid_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMOPQRSUVWXYZ123456789\\!\"·$%/()=?^*+,.;:-_+";
+					System.Text.StringBuilder builder = new System.Text.StringBuilder ();
+					Random random = new Random ();
+					for (int i = 0; i < 64; i++)
+						builder.Append ((char) valid_chars [random.Next (valid_chars.Length)]);
+					txtPassword.Text = builder.ToString ();
+
+					TableRow warning = Utils.CreateTableRow ("A password for the host has been generated, please hit Save to save it.");
+					warning.Cells [0].ColumnSpan = 2;
+					warning.Cells [0].ForeColor = System.Drawing.Color.Tomato;
+					warning.Cells [0].HorizontalAlign = HorizontalAlign.Center;
+					tblData.Rows.AddAt (tblData.Rows.Count - 1, warning);
+				} else {
+					txtPassword.Text = response.Person.password;
+				}
 
 			}
 
@@ -161,6 +177,19 @@ public partial class EditHost : System.Web.UI.Page
 					string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host),
 					Utils.CreateLinkButton ("removeSaveHostLinkButton_" + host.id.ToString (), "Remove", "RemoveSlaveHost", host.id.ToString (), OnLinkButtonCommand)));
 			}
+
+			lblConfiguration.Text = string.Format (@"
+<MonkeyWrench Version='2'>
+	<Configuration>
+		<WebServiceUrl>http://{0}/WebServices/</WebServiceUrl>
+		<WebServicePassword>{1}</WebServicePassword>
+		<Host>{2}</Host>
+		<DataDirectory>[FULL PATH TO HOME DIRECTORY, NOT ~]/moonbuilder/data</DataDirectory>
+		<LockingAlgorithm>fileexistence</LockingAlgorithm>
+	</Configuration>
+</MonkeyWrench>
+", Request.Url.Host + (Request.Url.Port != 0 && Request.Url.Port != 80 ? ":" + Request.Url.Port.ToString () : ""), txtPassword.Text, txtHost.Text);
+			lblConfiguration.Text = "<pre>" + HttpUtility.HtmlEncode (lblConfiguration.Text) + "</pre>";
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
 		}
@@ -195,7 +224,7 @@ public partial class EditHost : System.Web.UI.Page
 		host.description = txtDescription.Text;
 		host.queuemanagement = cmbQueueManagement.SelectedIndex;
 		host.enabled = chkEnabled.Checked;
-		Master.WebService.EditHost (Master.WebServiceLogin, host);
+		Master.WebService.EditHostWithPassword (Master.WebServiceLogin, host, txtPassword.Text);
 	}
 
 }

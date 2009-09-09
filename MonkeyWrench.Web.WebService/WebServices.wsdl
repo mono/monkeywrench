@@ -166,6 +166,7 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBView">
             <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
@@ -173,7 +174,6 @@
               <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
               <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
-              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -229,6 +229,18 @@
               <xs:element minOccurs="0" maxOccurs="1" name="architecture" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="queuemanagement" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBPerson">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="login" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="fullname" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="roles" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -330,6 +342,7 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
             <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="workhost_id" nillable="true" type="xs:int" />
@@ -337,7 +350,6 @@
               <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="lock_expires" type="xs:dateTime" />
               <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
-              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -349,18 +361,6 @@
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
-            </xs:sequence>
-          </xs:extension>
-        </xs:complexContent>
-      </xs:complexType>
-      <xs:complexType name="DBPerson">
-        <xs:complexContent mixed="false">
-          <xs:extension base="s0:DBRecord">
-            <xs:sequence>
-              <xs:element minOccurs="0" maxOccurs="1" name="login" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="fullname" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="roles" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -410,6 +410,7 @@
           <xs:extension base="s0:WebServiceResponse">
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Person" type="s0:DBPerson" />
               <xs:element minOccurs="0" maxOccurs="1" name="HostLaneViews" type="s0:ArrayOfDBHostLaneView" />
               <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
               <xs:element minOccurs="0" maxOccurs="1" name="Variables" type="s0:ArrayOfDBEnvironmentVariable" />
@@ -1165,6 +1166,18 @@
       <xs:element name="EditHostResponse">
         <xs:complexType />
       </xs:element>
+      <xs:element name="EditHostWithPassword">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="s0:DBHost" />
+            <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditHostWithPasswordResponse">
+        <xs:complexType />
+      </xs:element>
       <xs:element name="GetViewLaneData">
         <xs:complexType>
           <xs:sequence>
@@ -1853,6 +1866,12 @@
   <message name="EditHostSoapOut">
     <part name="parameters" element="s0:EditHostResponse" />
   </message>
+  <message name="EditHostWithPasswordSoapIn">
+    <part name="parameters" element="s0:EditHostWithPassword" />
+  </message>
+  <message name="EditHostWithPasswordSoapOut">
+    <part name="parameters" element="s0:EditHostWithPasswordResponse" />
+  </message>
   <message name="GetViewLaneDataSoapIn">
     <part name="parameters" element="s0:GetViewLaneData" />
   </message>
@@ -2208,6 +2227,10 @@
       <input message="s0:EditHostSoapIn" />
       <output message="s0:EditHostSoapOut" />
     </operation>
+    <operation name="EditHostWithPassword">
+      <input message="s0:EditHostWithPasswordSoapIn" />
+      <output message="s0:EditHostWithPasswordSoapOut" />
+    </operation>
     <operation name="GetViewLaneData">
       <input message="s0:GetViewLaneDataSoapIn" />
       <output message="s0:GetViewLaneDataSoapOut" />
@@ -2485,6 +2508,10 @@
     <operation name="EditHost">
       <input message="s0:EditHostSoapIn" />
       <output message="s0:EditHostSoapOut" />
+    </operation>
+    <operation name="EditHostWithPassword">
+      <input message="s0:EditHostWithPasswordSoapIn" />
+      <output message="s0:EditHostWithPasswordSoapOut" />
     </operation>
     <operation name="GetViewLaneData">
       <input message="s0:GetViewLaneDataSoapIn" />
@@ -2950,6 +2977,15 @@
     </operation>
     <operation name="EditHost">
       <soap:operation soapAction="http://monkeywrench.novell.com/EditHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditHostWithPassword">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditHostWithPassword" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -3574,6 +3610,15 @@
     </operation>
     <operation name="EditHost">
       <soap12:operation soapAction="http://monkeywrench.novell.com/EditHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditHostWithPassword">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditHostWithPassword" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>
