@@ -1,3 +1,9 @@
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* database.sql: Add a new field, endtime to RevisionWork to be able to
+	sort lanes according to how long time they've been waiting for work
+	to be done.
+
 2009-06-11  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* moonbuilder-clean-tmp.sh: Update with new files

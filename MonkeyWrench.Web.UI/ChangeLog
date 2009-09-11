@@ -1,5 +1,9 @@
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* EditHost.aspx: Updated with new queue management options.
+
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditLane.aspx.cs: Correctly load the parent lane.
 
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>

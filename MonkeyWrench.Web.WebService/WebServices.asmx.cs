@@ -1206,7 +1206,12 @@ ORDER BY revision DESC LIMIT 250;
                 response.Work = work;
                 
                 DBRevisionWork rw = DBRevisionWork_Extensions.Create (db, work.revisionwork_id);
+                bool was_completed = rw.completed;
                 rw.UpdateState (db);
+                if (!was_completed && rw.completed) {
+                    rw.endtime = DBRecord.DatabaseNow;
+                    rw.Save (db);
+                }
                 response.RevisionWorkCompleted = rw.completed;
 
                 return response;
@@ -1323,6 +1328,58 @@ ORDER BY revision DESC LIMIT 250;
                         return response; // nothing to do here
 
                     lanes = db.GetAllLanes ();
+
+					switch (response.Host.QueueManagement) {
+					case DBQueueManagement.OneRevisionWorkAtATime:
+						if (hostlanes.Count > 1) {
+							int latest = -1;
+							DateTime latest_date = DateTime.MaxValue;
+
+							// we need to find the latest revisionwork each hostlane has completed.
+							// we want to work on the hostlane which has waited the longest amount
+							// of time without getting work done.
+
+							for (int i = 0; i < hostlanes.Count; i++) {
+								DBHostLane hl = hostlanes [i];
+								// find the latest completed (this may not be correct, maybe find the latest unstarted?)
+								// revisionwork for this hostlane.
+								using (IDbCommand cmd = db.CreateCommand ()) {
+									cmd.CommandText = @"
+SELECT 	RevisionWork.endtime
+FROM RevisionWork
+WHERE 
+	RevisionWork.host_id = @host_id
+AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
+AND RevisionWork.completed = true
+AND lane_id = @lane_id
+ORDER BY RevisionWork.endtime DESC
+LIMIT 1;
+	";
+
+									DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+									DB.CreateParameter (cmd, "host_id", hl.host_id);
+									DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+
+									object obj = cmd.ExecuteScalar ();
+									if (obj is DateTime) {
+										DateTime dt = (DateTime) obj;
+										if (dt < latest_date) {
+											latest_date = dt;
+											latest = i;
+										}
+									} else {
+										latest_date = DateTime.MinValue;
+										latest = i;
+									}
+								}
+
+							}
+							DBHostLane tmp = hostlanes [latest];
+							hostlanes.Clear ();
+							hostlanes.Add (tmp);
+						}
+						break;
+					}
 
                     foreach (DBHostLane hl in hostlanes) {
                         int counter = 10;

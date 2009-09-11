@@ -19,6 +19,7 @@ namespace MonkeyWrench.DataClasses
 	public enum DBQueueManagement
 	{
 		FinishBeforeNew = 0,
-		ExecuteLatestAsap = 1
+		ExecuteLatestAsap = 1, // currently same as FinishBeforeNew (i.e. ignored)
+		OneRevisionWorkAtATime = 2, //
 	}
 }

@@ -1,5 +1,10 @@
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* WebServices.asmx.cs: Add support for the new queue management option
+	to only build one revisionwork at a time.
+
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* WebServices.asmx.cs: DeleteHost: use DBHost's extension method
 	to delete the host, this way we also delete records in all related
 	tables.

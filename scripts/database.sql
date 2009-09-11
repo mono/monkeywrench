@@ -37,6 +37,8 @@ CREATE TABLE Host (
                                                     --    * there might be a significant delay until the latest revision is built.
                                                     -- 1: start building the latest revision as soon as possible
                                                     --    * if the bot can't keep up with the number of commits, it'll run out of disk space.
+                                                    -- 2: send one revisionwork at a time to the bot, even if several lanes are configured for it,
+                                                    --    and cycle through the configured lanes when selecting revisionwork.
     enabled         boolean    NOT NULL DEFAULT TRUE, -- if this host is enabled.
 );
 
@@ -178,13 +180,15 @@ CREATE TABLE RevisionWork (
 	
 	lock_expires   timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time when this revisionwork's lock (if any) expires
 	completed      boolean    NOT NULL DEFAULT FALSE, -- if this revision has completed it's work
-	
+	endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time this revisionwork finished working
+	-- alter table revisionwork add column endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0';
 	UNIQUE (lane_id, host_id, revision_id)
 );
 CREATE INDEX RevisionWork_revision_id_ix ON RevisionWork (revision_id);
 CREATE INDEX RevisionWork_workhost_id_idx ON RevisionWork (workhost_id);
 CREATE INDEX RevisionWork_host_id_idx ON RevisionWork (host_id);
 CREATE INDEX RevisionWork_lane_id_idx ON RevisionWork (lane_id);
+CREATE INDEX RevisionWork_endtime_idx ON RevisionWork (endtime);
 
 CREATE TABLE Work (
 	id               serial    PRIMARY KEY,

@@ -37,6 +37,7 @@ namespace MonkeyWrench.DataClasses
 		private int _state;
 		private DateTime _lock_expires;
 		private bool _completed;
+		private DateTime _endtime;
 
 		public int @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public int @host_id { get { return _host_id; } set { _host_id = value; } }
@@ -45,6 +46,7 @@ namespace MonkeyWrench.DataClasses
 		public int @state { get { return _state; } set { _state = value; } }
 		public DateTime @lock_expires { get { return _lock_expires; } set { _lock_expires = value; } }
 		public bool @completed { get { return _completed; } set { _completed = value; } }
+		public DateTime @endtime { get { return _endtime; } set { _endtime = value; } }
 
 
 		public override string Table
@@ -57,7 +59,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "lane_id", "host_id", "workhost_id", "revision_id", "state", "lock_expires", "completed" };
+				return new string [] { "lane_id", "host_id", "workhost_id", "revision_id", "state", "lock_expires", "completed", "endtime" };
 			}
 		}
         
