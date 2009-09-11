@@ -60,8 +60,7 @@ public partial class EditLanes : System.Web.UI.Page
 				case "remove":
 					if (!int.TryParse (Request ["lane_id"], out lane_id))
 						break;
-					Master.WebService.DeleteLane (Master.WebServiceLogin, lane_id);
-					Response.Redirect ("EditLanes.aspx");
+					Response.Redirect ("Delete.aspx?lane_id=" + lane_id.ToString ());
 					return;
 				case "add":
 					try {

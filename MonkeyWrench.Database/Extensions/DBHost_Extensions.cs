@@ -72,5 +72,27 @@ namespace MonkeyWrench.Database
 			}
 			return result;
 		}
+
+		public static void Delete (DB db, int host_id)
+		{
+			using (IDbTransaction transaction = db.BeginTransaction ()) {
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
+DELETE FROM RevisionWork WHERE host_id = @id;
+DELETE FROM RevisionWork WHERE workhost_id = @id;
+DELETE FROM HostLane WHERE host_id = @id;
+DELETE FROM EnvironmentVariable WHERE host_id = @id;
+DELETE FROM LaneDependency WHERE dependent_host_id = @id;
+DELETE FROM MasterHost WHERE host_id = @id;
+DELETE FROM MasterHost WHERE master_host_id = @id;
+DELETE FROM Host WHERE id = @id;
+";
+					DB.CreateParameter (cmd, "id", host_id);
+					cmd.ExecuteNonQuery ();
+				}
+				transaction.Commit ();
+			}
+		}
+
 	}
 }

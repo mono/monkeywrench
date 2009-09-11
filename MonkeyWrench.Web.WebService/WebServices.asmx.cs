@@ -880,7 +880,7 @@ FROM HostLane";
         {
             using (DB db = new DB ()) {
                 VerifyUserInRole (db, login, Roles.Administrator);
-                DBRecord_Extensions.Delete (db, host_id, DBHost.TableName);
+                DBHost_Extensions.Delete (db, host_id);
             }
         }
 

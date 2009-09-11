@@ -1,3 +1,16 @@
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* EditLanes.aspx.cs:
+	* EditHosts.aspx.cs: Redirect to the confirmation page instead of
+	deleting.
+
+	* Delete.aspx:
+	* Delete.aspx.cs:
+	* Delete.aspx.designer.cs: Added, confirmation page before doing
+	extensive deletes.
+
+	* MonkeyWrench.Web.UI.csproj: Updated.
+
 2009-09-09  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* EditHost.aspx:

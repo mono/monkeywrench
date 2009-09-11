@@ -79,13 +79,16 @@ namespace MonkeyWrench.Database
 		{
 			using (IDbTransaction transaction = db.BeginTransaction ()) {
 				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = "";
-					// Don't be this destructive quite yet.
-					// cmd.CommandText += "DELETE FROM Work WHERE lane_id = @id;\n";
-					cmd.CommandText += "DELETE FROM LaneFiles WHERE lane_id = @id;\n";
-					cmd.CommandText += "DELETE FROM Command WHERE lane_id = @id;\n";
-					cmd.CommandText += "DELETE FROM HostLane WHERE lane_id = @id;\n";
-					cmd.CommandText += "DELETE FROM Lane WHERE id = @id;\n";
+					cmd.CommandText = @"
+DELETE FROM RevisionWork WHERE lane_id = @id;
+DELETE FROM Revision WHERE lane_id = @id;
+DELETE FROM LaneFiles WHERE lane_id = @id;
+DELETE FROM Command WHERE lane_id = @id;
+DELETE FROM HostLane WHERE lane_id = @id;
+DELETE FROM EnvironmentVariable WHERE lane_id = @id;
+DELETE FROM LaneDeletionDirective WHERE lane_id = @id;
+DELETE FROM Lane WHERE id = @id;
+";
 					DB.CreateParameter (cmd, "id", lane_id);
 					cmd.ExecuteNonQuery ();
 				}

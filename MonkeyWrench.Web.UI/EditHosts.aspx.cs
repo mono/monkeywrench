@@ -46,8 +46,8 @@ public partial class EditHosts : System.Web.UI.Page
 				case "remove":
 					if (!int.TryParse (Request ["host_id"], out host_id))
 						break;
-					Master.WebService.DeleteHost (Master.WebServiceLogin, host_id);
-					Response.Redirect ("EditHosts.aspx");
+
+					Response.Redirect ("Delete.aspx?host_id=" + host_id.ToString ());
 					return;
 				case "add":
 					try {

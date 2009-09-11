@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Admin.aspx" />
+    <Content Include="Delete.aspx" />
     <Content Include="doc\Configuration.html" />
     <Content Include="doc\EditLaneHelp.html" />
     <Content Include="doc\Faq.htm" />
@@ -87,6 +88,13 @@
     </Compile>
     <Compile Include="Admin.aspx.designer.cs">
       <DependentUpon>Admin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Delete.aspx.cs">
+      <DependentUpon>Delete.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Delete.aspx.designer.cs">
+      <DependentUpon>Delete.aspx</DependentUpon>
     </Compile>
     <Compile Include="EditHost.aspx.designer.cs">
       <DependentUpon>EditHost.aspx</DependentUpon>

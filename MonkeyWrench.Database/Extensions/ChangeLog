@@ -1,5 +1,12 @@
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DBLane_Extensions.cs: Fix the Delete method to delete everything
+	necessary.
+
+	* DBHost_Extensions.cs: Add a Delete method.
+
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DBLane_Extensions.cs: Add GetEnvironmentVariables.
 
 2009-09-07  Rolf Bjarne Kvinge  <RKvinge@novell.com>
@@ -71,4 +78,3 @@
 
 	* DBWork_Extensions.cs: Propagate the extension correctly
 	on file upload to set the mime type correctly.
-
