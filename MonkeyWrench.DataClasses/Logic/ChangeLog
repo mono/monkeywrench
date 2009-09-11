@@ -1,3 +1,7 @@
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* FindHostResponse.cs: Added.
+
 2009-09-09  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* GetHostForEditResponse.cs: Added Person field to enable editing the

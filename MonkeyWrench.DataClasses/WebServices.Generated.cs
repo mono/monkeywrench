@@ -751,6 +751,30 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/FindHost", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public FindHostResponse FindHost(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> host_id, string host) {
+            object[] results = this.Invoke("FindHost", new object[] {
+                        login,
+                        host_id,
+                        host});
+            return ((FindHostResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginFindHost(WebServiceLogin login, System.Nullable<int> host_id, string host, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("FindHost", new object[] {
+                        login,
+                        host_id,
+                        host}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public FindHostResponse EndFindHost(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((FindHostResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/FindRevision", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public FindRevisionResponse FindRevision(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> revision_id, string revision) {
             object[] results = this.Invoke("FindRevision", new object[] {

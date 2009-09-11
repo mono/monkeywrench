@@ -485,6 +485,15 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBFileDeletionDirective" nillable="true" type="s0:DBFileDeletionDirective" />
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="FindHostResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="FindRevisionResponse">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
@@ -1109,6 +1118,22 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="GetLaneForEditResult" type="s0:GetLaneForEditResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindHost">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindHostResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="FindHostResult" type="s0:FindHostResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -1842,6 +1867,12 @@
   <message name="GetLaneForEditSoapOut">
     <part name="parameters" element="s0:GetLaneForEditResponse" />
   </message>
+  <message name="FindHostSoapIn">
+    <part name="parameters" element="s0:FindHost" />
+  </message>
+  <message name="FindHostSoapOut">
+    <part name="parameters" element="s0:FindHostResponse" />
+  </message>
   <message name="FindRevisionSoapIn">
     <part name="parameters" element="s0:FindRevision" />
   </message>
@@ -2211,6 +2242,10 @@
       <input message="s0:GetLaneForEditSoapIn" />
       <output message="s0:GetLaneForEditSoapOut" />
     </operation>
+    <operation name="FindHost">
+      <input message="s0:FindHostSoapIn" />
+      <output message="s0:FindHostSoapOut" />
+    </operation>
     <operation name="FindRevision">
       <input message="s0:FindRevisionSoapIn" />
       <output message="s0:FindRevisionSoapOut" />
@@ -2492,6 +2527,10 @@
     <operation name="GetLaneForEdit">
       <input message="s0:GetLaneForEditSoapIn" />
       <output message="s0:GetLaneForEditSoapOut" />
+    </operation>
+    <operation name="FindHost">
+      <input message="s0:FindHostSoapIn" />
+      <output message="s0:FindHostSoapOut" />
     </operation>
     <operation name="FindRevision">
       <input message="s0:FindRevisionSoapIn" />
@@ -2941,6 +2980,15 @@
     </operation>
     <operation name="GetLaneForEdit">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetLaneForEdit" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindHost">
+      <soap:operation soapAction="http://monkeywrench.novell.com/FindHost" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -3574,6 +3622,15 @@
     </operation>
     <operation name="GetLaneForEdit">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetLaneForEdit" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindHost">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/FindHost" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

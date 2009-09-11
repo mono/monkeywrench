@@ -530,6 +530,19 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			return null;
 		}
 
+		[WebMethod]
+		public FindHostResponse FindHost (WebServiceLogin login, int? host_id, string host)
+		{
+			FindHostResponse response = new FindHostResponse ();
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
+
+				response.Host = FindHost (db, host_id, host);
+
+				return response;
+			}
+		}
+
         private DBHost FindHost (DB db, int? host_id, string host)
         {
             if ((host_id == null || host_id.Value <= 0) && string.IsNullOrEmpty (host))

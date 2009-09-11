@@ -99,6 +99,7 @@
     <Compile Include="Database\DBWorkView2.cs" />
     <Compile Include="Database\DBWorkView2.generated.cs" />
     <Compile Include="Logic\BuildInfoEntry.cs" />
+    <Compile Include="Logic\FindHostResponse.cs" />
     <Compile Include="Logic\FindLaneResponse.cs" />
     <Compile Include="Logic\FindRevisionResponse.cs" />
     <Compile Include="Logic\FrontPageResponse.cs" />
