@@ -1,5 +1,9 @@
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* DB.cs: When cloning a lane clone the environment variables too.
+
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* DB.cs: When cloning a lane clone the parent lane too.
 
 2009-07-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>

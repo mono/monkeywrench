@@ -480,6 +480,15 @@ namespace MonkeyWrench
 						clone.Save (this);
 					}
 
+					foreach (DBEnvironmentVariable env in master.GetEnvironmentVariables (this)) {
+						DBEnvironmentVariable clone = new DBEnvironmentVariable ();
+						clone.host_id = env.host_id;
+						clone.lane_id = result.id;
+						clone.name = env.name;
+						clone.value = env.value;
+						clone.Save (this);
+					}
+
 					transaction.Commit ();
 				}
 			} catch {

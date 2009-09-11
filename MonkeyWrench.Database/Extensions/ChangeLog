@@ -1,3 +1,7 @@
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBLane_Extensions.cs: Add GetEnvironmentVariables.
+
 2009-09-07  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBLane_Extensions.cs: Fix typo so that lanes can be deleted.

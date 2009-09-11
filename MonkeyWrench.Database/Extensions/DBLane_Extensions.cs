@@ -120,5 +120,19 @@ namespace MonkeyWrench.Database
 				}
 			}
 		}
+
+		public static List<DBEnvironmentVariable> GetEnvironmentVariables (this DBLane me, DB db)
+		{
+			List<DBEnvironmentVariable> result = new List<DBEnvironmentVariable> ();
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM EnvironmentVariable WHERE lane_id = @lane_id;";
+				DB.CreateParameter (cmd, "lane_id", me.id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ())
+						result.Add (new DBEnvironmentVariable (reader));
+				}
+			}
+			return result;
+		}
 	}
 }
