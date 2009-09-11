@@ -1,5 +1,9 @@
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* EditLane.aspx.cs: Correctly load the parent lane.
+
+2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditLanes.aspx.cs:
 	* EditHosts.aspx.cs: Redirect to the confirmation page instead of
 	deleting.

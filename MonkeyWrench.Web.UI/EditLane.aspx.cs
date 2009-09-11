@@ -93,6 +93,9 @@ public partial class EditLane : System.Web.UI.Page
 						continue; // our descendents can't be our parents too.
 
 					lstParentLane.Items.Add (new ListItem (l.lane, l.id.ToString ()));
+
+					if (lane.parent_lane_id.HasValue && lane.parent_lane_id.Value == l.id)
+						lstParentLane.SelectedIndex = lstParentLane.Items.Count - 1;
 				}
 
 				// find (direct) child lanes
