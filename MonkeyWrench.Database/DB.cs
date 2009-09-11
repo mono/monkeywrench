@@ -437,6 +437,7 @@ namespace MonkeyWrench
 					result.min_revision = master.min_revision;
 					result.repository = master.repository;
 					result.source_control = master.source_control;
+					result.parent_lane_id = master.parent_lane_id;
 					result.Save (this);
 
 					foreach (DBLanefile filemaster in master.GetFiles (this)) {
