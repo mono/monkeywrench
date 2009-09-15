@@ -87,7 +87,7 @@ public partial class Master : System.Web.UI.MasterPage
 		// layout the tree
 		TreeNode tn = new TreeNode ();
 		tn.Text = "All";
-		tn.NavigateUrl = "index.aspx";
+		tn.NavigateUrl = "index.aspx?show_all=true";
 		treeMain.Nodes.Add (tn);
 		root.WriteTree (tn.ChildNodes);
 		treeMain.NodeIndent = 8;

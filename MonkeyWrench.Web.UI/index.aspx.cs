@@ -47,7 +47,45 @@ public partial class index : System.Web.UI.Page
 				limit = 10;
 			Response.Cookies.Add (new HttpCookie ("limit", limit.ToString ()));
 
-			data = Master.WebService.GetFrontPageData (Master.WebServiceLogin, limit, Request ["lane"], Utils.TryParseInt32 (Request ["lane_id"]));
+			string lanes_str = null;
+			string lane_ids_str = null;
+
+			string [] lanes = null;
+			List<int> lane_ids = null;
+
+			if (!string.IsNullOrEmpty (Request ["show_all"])) {
+				// do nothing, default is to show all
+			} else {
+				HttpCookie cookie;
+
+				lanes_str = Request ["lane"];
+				lane_ids_str = Request ["lane_id"];
+
+				if (string.IsNullOrEmpty (lanes_str) && string.IsNullOrEmpty (lane_ids_str)) {
+					if ((cookie = Request.Cookies ["index:lane"]) != null) {
+						lanes_str = HttpUtility.UrlDecode (cookie.Value);
+					}
+					if ((cookie = Request.Cookies ["index:lane_id"]) != null) {
+						lane_ids_str = HttpUtility.UrlDecode (cookie.Value);
+					}
+				}
+
+				if (!string.IsNullOrEmpty (lanes_str))
+					lanes = lanes_str.Split (';');
+				if (!string.IsNullOrEmpty (lane_ids_str)) {
+					lane_ids = new List<int> ();
+					foreach (string str in lane_ids_str.Split (';')) {
+						int? ii = Utils.TryParseInt32 (str);
+						if (ii.HasValue)
+							lane_ids.Add (ii.Value);
+					}
+				}
+
+				Response.Cookies.Set (new HttpCookie ("index:lane", HttpUtility.UrlEncode (lanes_str)));
+				Response.Cookies.Set (new HttpCookie ("index:lane_id", HttpUtility.UrlEncode (lane_ids_str)));
+			}
+
+			data = Master.WebService.GetFrontPageData2 (Master.WebServiceLogin, limit, lanes, lane_ids != null ? lane_ids.ToArray () : null);
 
 			this.buildtable.InnerHtml = GenerateOverview (data);
 
@@ -100,8 +138,16 @@ public partial class index : System.Web.UI.Page
 	private LaneTreeNode BuildTree (FrontPageResponse data)
 	{
 		LaneTreeNode result = LaneTreeNode.BuildTree (data.Lanes, data.HostLanes);
-		if (data.Lane != null)
+		if (data.Lane != null) {
 			result = result.Find (v => v.Lane != null && v.Lane.id == data.Lane.id);
+		} else if (data.SelectedLanes.Count > 1) {
+			for (int i = result.Children.Count - 1; i >= 0; i--) {
+				LaneTreeNode ltn = result.Children [i];
+				if (!data.SelectedLanes.Exists ((DBLane l) => l.id == ltn.Lane.id)) {
+					result.Children.RemoveAt (i);
+				}
+			}
+		}
 		return result;
 	}
 

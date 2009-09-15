@@ -1,10 +1,11 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/Master.master" AutoEventWireup="true" Inherits="index" Codebehind="index.aspx.cs" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/Master.master" AutoEventWireup="true" Inherits="index" Codebehind="index.aspx.cs" EnableViewState="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="content" runat="Server" EnableViewState="False">
     <h3>
         Build matrix</h3>
     <div id="buildtable" runat="server" enableviewstate="False">
     </div>
+    <div enableviewstate="false"><a href="SelectLanes.aspx">Select lanes</a></div>
     <h3>
         Legend</h3>
     <div>

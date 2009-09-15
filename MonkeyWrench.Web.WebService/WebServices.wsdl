@@ -350,6 +350,7 @@
               <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="lock_expires" type="xs:dateTime" />
               <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="endtime" type="xs:dateTime" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -548,6 +549,7 @@
           <xs:extension base="s0:WebServiceResponse">
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="SelectedLanes" type="s0:ArrayOfDBLane" />
               <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
               <xs:element minOccurs="0" maxOccurs="1" name="Hosts" type="s0:ArrayOfDBHost" />
               <xs:element minOccurs="0" maxOccurs="1" name="HostLanes" type="s0:ArrayOfDBHostLane" />
@@ -1240,6 +1242,28 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:complexType name="ArrayOfInt1">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="int" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="GetFrontPageData2">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="limit" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lanes" type="s0:ArrayOfString" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane_ids" type="s0:ArrayOfInt1" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetFrontPageData2Response">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetFrontPageData2Result" type="s0:FrontPageResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="GetLanes">
         <xs:complexType>
           <xs:sequence>
@@ -1915,6 +1939,12 @@
   <message name="GetFrontPageDataSoapOut">
     <part name="parameters" element="s0:GetFrontPageDataResponse" />
   </message>
+  <message name="GetFrontPageData2SoapIn">
+    <part name="parameters" element="s0:GetFrontPageData2" />
+  </message>
+  <message name="GetFrontPageData2SoapOut">
+    <part name="parameters" element="s0:GetFrontPageData2Response" />
+  </message>
   <message name="GetLanesSoapIn">
     <part name="parameters" element="s0:GetLanes" />
   </message>
@@ -2274,6 +2304,10 @@
       <input message="s0:GetFrontPageDataSoapIn" />
       <output message="s0:GetFrontPageDataSoapOut" />
     </operation>
+    <operation name="GetFrontPageData2">
+      <input message="s0:GetFrontPageData2SoapIn" />
+      <output message="s0:GetFrontPageData2SoapOut" />
+    </operation>
     <operation name="GetLanes">
       <input message="s0:GetLanesSoapIn" />
       <output message="s0:GetLanesSoapOut" />
@@ -2559,6 +2593,10 @@
     <operation name="GetFrontPageData">
       <input message="s0:GetFrontPageDataSoapIn" />
       <output message="s0:GetFrontPageDataSoapOut" />
+    </operation>
+    <operation name="GetFrontPageData2">
+      <input message="s0:GetFrontPageData2SoapIn" />
+      <output message="s0:GetFrontPageData2SoapOut" />
     </operation>
     <operation name="GetLanes">
       <input message="s0:GetLanesSoapIn" />
@@ -3052,6 +3090,15 @@
     </operation>
     <operation name="GetFrontPageData">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetFrontPageData2">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData2" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -3694,6 +3741,15 @@
     </operation>
     <operation name="GetFrontPageData">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetFrontPageData2">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData2" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

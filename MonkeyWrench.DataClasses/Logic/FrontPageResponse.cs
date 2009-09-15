@@ -21,8 +21,19 @@ namespace MonkeyWrench.DataClasses.Logic
 {
 	public class FrontPageResponse : WebServiceResponse
 	{
+		[Obsolete]
 		public DBLane Lane;
+		/// <summary>
+		/// A list of the lanes to show.
+		/// </summary>
+		public List<DBLane> SelectedLanes;
+		/// <summary>
+		/// All Lanes
+		/// </summary>
 		public List<DBLane> Lanes;
+		/// <summary>
+		/// All Hosts
+		/// </summary>
 		public List<DBHost> Hosts;
 		public List<DBHostLane> HostLanes;
 

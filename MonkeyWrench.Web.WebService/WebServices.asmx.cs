@@ -487,6 +487,17 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
             }
         }
 
+		private DBLane FindLane (List<DBLane> lanes, int? lane_id, string lane)
+		{
+			if (lane_id.HasValue) {
+				return lanes.Find ((DBLane l) => l.id == lane_id.Value);
+			} else if (string.IsNullOrEmpty (lane)) {
+				return null;
+			} else {
+				return lanes.Find ((DBLane l) => l.lane == lane);
+			}
+		}
+
         private DBLane FindLane (DB db, int? lane_id, string lane)
         {
             if ((lane_id == null || lane_id.Value <= 0) && string.IsNullOrEmpty (lane))
@@ -725,8 +736,19 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
         }
 
 
+		[WebMethod]
+		public FrontPageResponse GetFrontPageData (WebServiceLogin login, int limit, string lane, int? lane_id)
+		{
+			if (lane_id.HasValue) {
+				return GetFrontPageData2 (login, limit, new string [] { lane }, new int [] { lane_id.Value});
+			} else {
+				return GetFrontPageData2 (login, limit, new string [] { lane }, null);
+			}
+		}
+
+		// for some unknown reason we receive all elements in int? [] arrays with HasValue = false:
         [WebMethod]
-        public FrontPageResponse GetFrontPageData (WebServiceLogin login, int limit, string lane, int? lane_id)
+        public FrontPageResponse GetFrontPageData2 (WebServiceLogin login, int limit, string [] lanes, int [] lane_ids)
         {
             FrontPageResponse response = new FrontPageResponse ();
             List<DBLane> Lanes = new List<DBLane> ();
@@ -738,8 +760,6 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 
             using (DB db = new DB ()) {
                 Authenticate (db, login, response);
-
-                response.Lane = FindLane (db, lane_id, lane);
 
                 using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = DBLane.TableName;
@@ -758,6 +778,32 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
                             Hosts.Add (new DBHost (reader));
                     }
                 }
+
+				// get a list of the lanes to show
+				// note that the logic here is slightly different from the usual "string lane, int? lane_id" logic in other methods,
+				// where we only use the string parameter if the id parameter isn't provided, here we add everything we can to the 
+				// list of selected lanes, so if you provide both a string and an id parameter both are used (assuming they correspond
+				// with different lanes of course).
+				response.SelectedLanes = Lanes.FindAll (delegate (DBLane l)
+				{
+					if (lane_ids != null) {
+						for (int i = 0; i < lane_ids.Length; i++) {
+							if (lane_ids [i] == l.id)
+								return true;
+						}
+					}
+					if (lanes != null) {
+						for (int i = 0; i < lanes.Length; i++) {
+							if (!string.IsNullOrEmpty (lanes [i]) && lanes [i] == l.lane)
+								return true;
+						}
+					}
+					return false;
+				});
+
+				// backwards compat
+				if (response.SelectedLanes.Count == 1)
+					response.Lane = response.SelectedLanes [0];
 
                 using (IDbCommand cmd = db.CreateCommand ()) {
                     cmd.CommandText = @"

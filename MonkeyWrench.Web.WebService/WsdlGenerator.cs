@@ -12,7 +12,7 @@ namespace MonkeyWrench.Web.WebServices
 		public override string ImportSchemaType (string name, string ns, XmlSchemaObject context, XmlSchemas schemas, XmlSchemaImporter importer, CodeCompileUnit compileUnit, CodeNamespace mainNamespace, CodeGenerationOptions options, CodeDomProvider codeProvider)
 		{
 			if (ns == "http://monkeywrench.novell.com/") {
-				if (name != "ArrayOfString") {
+				if (name != "ArrayOfString" && name != "ArrayOfInt1") {
 					mainNamespace.Imports.Add (new CodeNamespaceImport ("MonkeyWrench.DataClasses"));
 					mainNamespace.Imports.Add (new CodeNamespaceImport ("MonkeyWrench.DataClasses.Logic"));
 					return name;

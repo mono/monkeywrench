@@ -1,3 +1,7 @@
+2009-09-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* FrontPageResponse.cs: Add a SelectedLanes field.
+
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* FindHostResponse.cs: Added.

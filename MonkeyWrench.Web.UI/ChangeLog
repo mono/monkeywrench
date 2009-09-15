@@ -1,5 +1,20 @@
 2009-09-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* index.aspx:
+	* index.aspx.cs:
+	* index.aspx.designer.cs: Implement selection of multiple lanes instead
+	of only one lane, and persist the selected lanes with cookies.
+
+	* Master.master.cs: Now that we store the selected lanes in the cookies
+	we need a way to show all the lanes - update the 'All' link.
+
+	* SelectLanes.aspx:
+	* SelectLanes.aspx.cs:
+	* SelectLanes.aspx.designer.cs: Added. Used to select the lanes to show
+	on the front page.
+
+2009-09-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* index.aspx.cs: Remove some dead code.
 
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>

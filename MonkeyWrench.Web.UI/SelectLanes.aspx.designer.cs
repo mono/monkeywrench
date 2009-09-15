@@ -10,32 +10,23 @@
 
 
 
-public partial class index {
+public partial class SelectLanes {
     
     /// <summary>
-    /// buildtable control.
+    /// tblLanes control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.HtmlControls.HtmlGenericControl buildtable;
+    protected global::System.Web.UI.WebControls.Table tblLanes;
     
     /// <summary>
-    /// adminlinksheader control.
+    /// cmdOK control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.HtmlControls.HtmlGenericControl adminlinksheader;
-    
-    /// <summary>
-    /// adminlinks control.
-    /// </summary>
-    /// <remarks>
-    /// Auto-generated field.
-    /// To modify move field declaration from designer file to code-behind file.
-    /// </remarks>
-    protected global::System.Web.UI.HtmlControls.HtmlGenericControl adminlinks;
+    protected global::System.Web.UI.WebControls.Button cmdOK;
 }
