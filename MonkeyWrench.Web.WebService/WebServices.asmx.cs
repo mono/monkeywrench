@@ -1337,10 +1337,37 @@ ORDER BY revision DESC LIMIT 250;
 
 							// we need to find the latest revisionwork each hostlane has completed.
 							// we want to work on the hostlane which has waited the longest amount
-							// of time without getting work done.
+							// of time without getting work done (but which has pending work to do).
 
 							for (int i = 0; i < hostlanes.Count; i++) {
 								DBHostLane hl = hostlanes [i];
+								// check if this hostlane has pending work.
+								// this would ideally be included in the query below, but I'm not sure
+								// how to do that while still distinguising the case where nothing has
+								// been done ever for a hostlane.
+								using (IDbCommand cmd = db.CreateCommand ()) {
+									cmd.CommandText = @"
+SELECT RevisionWork.id
+FROM RevisionWork
+WHERE
+        RevisionWork.host_id = @host_id
+AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
+AND RevisionWork.completed = false
+AND lane_id = @lane_id
+LIMIT 1;
+        ";
+									DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+									DB.CreateParameter (cmd, "host_id", hl.host_id);
+									DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+
+									object obj = cmd.ExecuteScalar ();
+									if (obj == DBNull.Value || obj == null) {
+										// there is nothing to do for this hostlane
+										continue;
+									}
+
+								}
+
 								// find the latest completed (this may not be correct, maybe find the latest unstarted?)
 								// revisionwork for this hostlane.
 								using (IDbCommand cmd = db.CreateCommand ()) {
@@ -1368,15 +1395,20 @@ LIMIT 1;
 											latest = i;
 										}
 									} else {
+										// nothing has ever been done for this hostlane.
 										latest_date = DateTime.MinValue;
 										latest = i;
 									}
 								}
 
 							}
-							DBHostLane tmp = hostlanes [latest];
-							hostlanes.Clear ();
-							hostlanes.Add (tmp);
+							if (latest >= 0) {
+								DBHostLane tmp = hostlanes [latest];
+								hostlanes.Clear ();
+								hostlanes.Add (tmp);
+							} else {
+								hostlanes.Clear (); // there is nothing to do at all
+							}
 						}
 						break;
 					}

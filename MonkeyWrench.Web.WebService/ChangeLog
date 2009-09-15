@@ -1,3 +1,9 @@
+2009-09-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.asmx.cs: Fix new queue management logic to detect when
+	there is nothing to do for a hostlane, in which case it should try
+	other hostlanes.
+
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx.cs: Add support for the new queue management option
