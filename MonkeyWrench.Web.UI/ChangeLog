@@ -1,3 +1,7 @@
+2009-09-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* index.aspx.cs: Remove some dead code.
+
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* EditHost.aspx: Updated with new queue management options.
