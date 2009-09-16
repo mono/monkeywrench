@@ -54,7 +54,7 @@ namespace MonkeyWrench
 
 	internal class LinuxProcessHelper : IProcessHelper
 	{
-		[System.Runtime.InteropServices.DllImport ("libc.so.6")]
+		[System.Runtime.InteropServices.DllImport ("libc")]
 		private static extern void exit (int exitcode);
 
 		public void Exit (int exitcode)
