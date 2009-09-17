@@ -1650,6 +1650,21 @@ WHERE WorkFile.filename = @filename AND Revision.lane_id = @lane_id
 				 MonkeyWrench.Database.DeletionDirectives.ExecuteAsync ();
 			 }
 		 }
+
+		 [WebMethod]
+		 public GetAdminInfoResponse GetAdminInfo (WebServiceLogin login)
+		 {
+			 GetAdminInfoResponse response = new GetAdminInfoResponse ();
+
+			 using (DB db = new DB ()) {
+				 VerifyUserInRole (db, login, Roles.Administrator);
+
+				 response.IsSchedulerExecuting = MonkeyWrench.Scheduler.Scheduler.IsExecuting;
+				 response.IsDeletionDirectivesExecuting = MonkeyWrench.Database.DeletionDirectives.IsExecuting;
+			 }
+
+			 return response;
+		 }
  		#endregion
     }
 }

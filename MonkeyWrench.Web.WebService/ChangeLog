@@ -1,3 +1,10 @@
+2009-09-17  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.asmx.cs: Add a method to get the current status of the
+	scheduler/deletion directives command.
+
+	* WebServices.wsdl: Regenerated.
+
 2009-09-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx.cs: Add a GetFrontPageData that can handle multiple

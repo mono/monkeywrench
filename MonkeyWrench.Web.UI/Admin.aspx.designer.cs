@@ -8,45 +8,61 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MonkeyWrench.Web.UI {
+
+
+public partial class Admin {
     
+    /// <summary>
+    /// lblSchedulerStatus control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblSchedulerStatus;
     
-    public partial class Admin {
-        
-        /// <summary>
-        /// cmdSchedule control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button cmdSchedule;
-        
-        /// <summary>
-        /// lblSchedule control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblSchedule;
-        
-        /// <summary>
-        /// cmdExecuteDeletionDirectives control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button cmdExecuteDeletionDirectives;
-        
-        /// <summary>
-        /// lblExecuteDeletionDirectives control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblExecuteDeletionDirectives;
-    }
+    /// <summary>
+    /// cmdSchedule control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button cmdSchedule;
+    
+    /// <summary>
+    /// lblSchedule control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblSchedule;
+    
+    /// <summary>
+    /// lblDeletionDirectiveStatus control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblDeletionDirectiveStatus;
+    
+    /// <summary>
+    /// cmdExecuteDeletionDirectives control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button cmdExecuteDeletionDirectives;
+    
+    /// <summary>
+    /// lblExecuteDeletionDirectives control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblExecuteDeletionDirectives;
 }

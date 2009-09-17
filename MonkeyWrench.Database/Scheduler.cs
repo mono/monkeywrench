@@ -41,6 +41,13 @@ namespace MonkeyWrench.Scheduler
 
 	public static class Scheduler
 	{
+		private static bool is_executing;
+
+		public static bool IsExecuting
+		{
+			get { return is_executing; }
+		}
+	
 		public static void Main (string [] args)
 		{
 			ProcessHelper.Exit (Main2 (args)); // Work around #499702
@@ -112,6 +119,8 @@ namespace MonkeyWrench.Scheduler
 				}
 
 				Logger.Log ("Scheduler lock aquired successfully.");
+				
+				is_executing = true;
 
 				SVNUpdater.StartDiffThread ();
 
@@ -152,6 +161,7 @@ namespace MonkeyWrench.Scheduler
 			} finally {
 				if (scheduler_lock != null)
 					scheduler_lock.Unlock ();
+				is_executing = false;
 			}
 		}
 

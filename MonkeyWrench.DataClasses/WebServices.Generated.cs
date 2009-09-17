@@ -1674,5 +1674,25 @@ namespace MonkeyWrench.Web.WebServices {
         public void EndExecuteDeletionDirectives(System.IAsyncResult asyncResult) {
             this.EndInvoke(asyncResult);
         }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetAdminInfo", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetAdminInfoResponse GetAdminInfo(WebServiceLogin login) {
+            object[] results = this.Invoke("GetAdminInfo", new object[] {
+                        login});
+            return ((GetAdminInfoResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetAdminInfo(WebServiceLogin login, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetAdminInfo", new object[] {
+                        login}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetAdminInfoResponse EndGetAdminInfo(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetAdminInfoResponse)(results[0]));
+        }
     }
 }

@@ -716,6 +716,16 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBMasterHost" nillable="true" type="s0:DBMasterHost" />
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="GetAdminInfoResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="IsSchedulerExecuting" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="IsDeletionDirectivesExecuting" type="xs:boolean" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:element name="LoginResponse">
         <xs:complexType>
           <xs:sequence>
@@ -1696,6 +1706,20 @@
       <xs:element name="ExecuteDeletionDirectivesResponse">
         <xs:complexType />
       </xs:element>
+      <xs:element name="GetAdminInfo">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetAdminInfoResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetAdminInfoResult" type="s0:GetAdminInfoResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="ArrayOfString" nillable="true" type="s0:ArrayOfString" />
     </xs:schema>
   </types>
@@ -2131,6 +2155,12 @@
   <message name="ExecuteDeletionDirectivesSoapOut">
     <part name="parameters" element="s0:ExecuteDeletionDirectivesResponse" />
   </message>
+  <message name="GetAdminInfoSoapIn">
+    <part name="parameters" element="s0:GetAdminInfo" />
+  </message>
+  <message name="GetAdminInfoSoapOut">
+    <part name="parameters" element="s0:GetAdminInfoResponse" />
+  </message>
   <message name="GetRolesHttpGetIn">
     <part name="user" type="s:string" />
   </message>
@@ -2432,6 +2462,10 @@
       <input message="s0:ExecuteDeletionDirectivesSoapIn" />
       <output message="s0:ExecuteDeletionDirectivesSoapOut" />
     </operation>
+    <operation name="GetAdminInfo">
+      <input message="s0:GetAdminInfoSoapIn" />
+      <output message="s0:GetAdminInfoSoapOut" />
+    </operation>
   </portType>
   <portType name="WebServicesSoap12">
     <operation name="GetRoles">
@@ -2721,6 +2755,10 @@
     <operation name="ExecuteDeletionDirectives">
       <input message="s0:ExecuteDeletionDirectivesSoapIn" />
       <output message="s0:ExecuteDeletionDirectivesSoapOut" />
+    </operation>
+    <operation name="GetAdminInfo">
+      <input message="s0:GetAdminInfoSoapIn" />
+      <output message="s0:GetAdminInfoSoapOut" />
     </operation>
   </portType>
   <portType name="WebServicesHttpGet">
@@ -3385,6 +3423,15 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="GetAdminInfo">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetAdminInfo" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
   </binding>
   <binding name="WebServicesSoap12" type="s0:WebServicesSoap12">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -4029,6 +4076,15 @@
     </operation>
     <operation name="ExecuteDeletionDirectives">
       <soap12:operation soapAction="http://monkeywrench.novell.com/ExecuteDeletionDirectives" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetAdminInfo">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetAdminInfo" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

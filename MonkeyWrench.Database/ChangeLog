@@ -1,3 +1,11 @@
+2009-09-17  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Scheduler.cs: Add a static field indicating whether we're executing
+	or not.
+
+	* DeletionDirectives.cs: Surround code in a try block and have a static
+	field indicating whether we're executing or not.
+
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DB.cs: When cloning a lane clone the environment variables too.
