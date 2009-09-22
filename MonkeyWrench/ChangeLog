@@ -1,3 +1,13 @@
+2009-09-22  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ProcessHelper.cs:
+	* ProcessHelperMac.cs:
+	* ProcessHelperLinux.cs:
+	* ProcessHelperWindows.cs: Split platform specific code into
+	their own files. Implement Windows and Mac specific code.
+
+	* MonkeyWrench.csproj: Updated.
+
 2009-09-16  Andrew Jorgensen  <ajorgensen@novell.com>
 
 	* ProcessHelper.cs: libc is in etc/mono/config

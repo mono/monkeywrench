@@ -14,6 +14,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace MonkeyWrench
@@ -34,8 +36,25 @@ namespace MonkeyWrench
 
 		private static IProcessHelper GetHelper ()
 		{
-			if (helper == null)
-				helper = new LinuxProcessHelper ();
+			if (helper == null) {
+				switch (Environment.OSVersion.Platform) {
+				case PlatformID.Win32NT:
+				case PlatformID.Win32S:
+				case PlatformID.Win32Windows:
+				case PlatformID.WinCE:
+					// case PlatformID.Xbox:
+					helper = new ProcessHelperWindows ();
+					break;
+				case PlatformID.MacOSX:
+					helper = new ProcessHelperMac ();
+					break;
+				case PlatformID.Unix:
+				case (PlatformID) 128:
+				default:
+					helper = new ProcessHelperLinux ();
+					break;
+				}
+			}
 			return helper;
 		}
 
@@ -46,42 +65,48 @@ namespace MonkeyWrench
 		}
 	}
 
-	internal interface IProcessHelper
+	internal abstract class IProcessHelper
 	{
-		void KillTree (Process p);
-		void Exit (int exitcode);
-	}
+		protected abstract List<int> GetChildren (int pid);
 
-	internal class LinuxProcessHelper : IProcessHelper
-	{
-		[System.Runtime.InteropServices.DllImport ("libc")]
-		private static extern void exit (int exitcode);
-
-		public void Exit (int exitcode)
+		/// <summary>
+		/// Default Exit implementation (calls Environment.Exit)
+		/// </summary>
+		/// <param name="exitcode"></param>
+		public virtual void Exit (int exitcode)
 		{
-			exit (exitcode);
+			Environment.Exit (exitcode);
 		}
 
-		public void KillTree (Process p)
+		/// <summary>
+		/// Default KillTree implementation.
+		/// </summary>
+		/// <param name="p"></param>
+		public virtual void KillTree (Process p)
 		{
 			List<int> processes = new List<int> ();
 			FindChildren (p.Id, processes);
-
-			using (Process kill = new Process ()) {
-				kill.StartInfo.FileName = "kill";
-				kill.StartInfo.Arguments = "-9 ";
-				foreach (int pid in processes) {
-					kill.StartInfo.Arguments += pid.ToString () + " ";
-				}
-				kill.StartInfo.UseShellExecute = false;
-				kill.Start ();
-			}
-
-			if (!p.WaitForExit (1000 * 15 /* 15 seconds */))
-				throw new ApplicationException (string.Format ("The killed process {0} didn't exit.", p.Id));
+			Kill (processes);
 		}
 
-		private void FindChildren (int pid, List<int> result)
+		/// <summary>
+		/// Default Kill implementation.
+		/// </summary>
+		/// <param name="pid"></param>
+		protected virtual internal void Kill (int pid)
+		{
+			using (Process p = Process.GetProcessById (pid)) {
+				p.Kill ();
+			}
+		}
+		protected virtual internal void Kill (IEnumerable<int> pids)
+		{
+			foreach (int pid in pids) {
+				Kill (pid);
+			}
+		}
+
+		protected void FindChildren (int pid, List<int> result)
 		{
 			List<int> children = GetChildren (pid);
 			if (children != null) {
@@ -91,31 +116,5 @@ namespace MonkeyWrench
 			result.Add (pid);
 		}
 
-		private List<int> GetChildren (int pid)
-		{
-			string children;
-
-			using (Process pgrep = new Process ()) {
-				pgrep.StartInfo.FileName = "pgrep";
-				pgrep.StartInfo.Arguments = "-P " + pid;
-				pgrep.StartInfo.UseShellExecute = false;
-				pgrep.StartInfo.RedirectStandardOutput = true;
-				pgrep.Start ();
-				children = pgrep.StandardOutput.ReadToEnd ();
-
-				if (!pgrep.WaitForExit (1000))
-					throw new ApplicationException (string.Format ("pgrep didn't finish in a reasonable amount of time (1 second)."));
-
-				if (pgrep.ExitCode == 0 && !string.IsNullOrEmpty (children.Trim ())) {
-					List<int> result = new List<int> ();
-					foreach (string line in children.Split (new char [] { '\n', '\r', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)) {
-						result.Add (int.Parse (line));
-					}
-					return result;
-				}
-			}
-
-			return null;
-		}
 	}
 }
