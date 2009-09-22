@@ -1,5 +1,11 @@
 2009-09-22  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ProcessHelperMac.cs:
+	* ProcessHelperLinux.cs: Add a ps implementation to get all child
+	processes, and use kill to kill processes on mac too.
+
+2009-09-22  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ProcessHelper.cs:
 	* ProcessHelperMac.cs:
 	* ProcessHelperLinux.cs:

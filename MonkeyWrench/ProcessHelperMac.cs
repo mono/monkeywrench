@@ -21,8 +21,13 @@ namespace MonkeyWrench
 	{
 		protected override List<int> GetChildren (int pid)
 		{
-			// assume the linux implementation (using pgrep) also work on the mac
-			return ProcessHelperLinux.GetChildrenImpl (pid);
+			// there's no pgrep on the mac, use ps
+			return ProcessHelperLinux.GetChildrenImplPS (pid);
+		}
+
+		protected internal override void Kill (IEnumerable<int> pids)
+		{
+			ProcessHelperLinux.KillImpl (pids);
 		}
 	}
 }

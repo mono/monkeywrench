@@ -36,6 +36,20 @@ namespace MonkeyWrench
 
 		protected internal override void Kill (IEnumerable<int> pids)
 		{
+			KillImpl (pids);
+		}
+
+		protected override List<int> GetChildren (int pid)
+		{
+			return ProcessHelperLinux.GetChildrenImplPgrep (pid);
+		}
+
+		/// <summary>
+		/// Implementation using kill
+		/// </summary>
+		/// <param name="pids"></param>
+		internal static void KillImpl (IEnumerable<int> pids)
+		{
 			using (Process kill = new Process ()) {
 				kill.StartInfo.FileName = "kill";
 				kill.StartInfo.Arguments = "-9 ";
@@ -48,15 +62,60 @@ namespace MonkeyWrench
 				if (!kill.WaitForExit (1000 * 15 /* 15 seconds */))
 					throw new ApplicationException (string.Format ("The 'kill' process didn't exit in 15 seconds."));
 			}
-
 		}
 
-		protected override List<int> GetChildren (int pid)
+		/// <summary>
+		/// Implementation using ps
+		/// </summary>
+		/// <param name="pid"></param>
+		/// <returns></returns>
+		internal static List<int> GetChildrenImplPS (int pid)
 		{
-			return ProcessHelperLinux.GetChildrenImpl (pid);
+			string stdout;
+
+			using (Process ps = new Process ()) {
+				ps.StartInfo.FileName = "ps";
+				ps.StartInfo.Arguments = "-eo ppid,pid";
+				ps.StartInfo.UseShellExecute = false;
+				ps.StartInfo.RedirectStandardOutput = true;
+				ps.Start ();
+				stdout = ps.StandardOutput.ReadToEnd ();
+
+				if (!ps.WaitForExit (1000))
+					throw new ApplicationException (string.Format ("ps didn't finish in a reasonable amount of time (1 second)."));
+
+				if (ps.ExitCode == 0 && !string.IsNullOrEmpty (stdout.Trim ())) {
+					List<int> result = null;
+					foreach (string line in stdout.Split (new char [] { '\n', '\r', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)) {
+						string l = line.Trim ();
+						int space = l.IndexOf (' ');
+						if (space > 0) {
+							string parent = l.Substring (0, space);
+							string process = l.Substring (space + 1);
+							int parent_id, process_id;
+
+							if (int.TryParse (parent, out parent_id) && int.TryParse (process, out process_id)) {
+								if (parent_id == pid) {
+									if (result == null)
+										result = new List<int> ();
+									result.Add (process_id);
+								}
+							}
+						}
+					}
+					return result;
+				}
+			}
+
+			return null;
 		}
 
-		internal static List<int> GetChildrenImpl (int pid)
+		/// <summary>
+		/// Implementation using pgrep
+		/// </summary>
+		/// <param name="pid"></param>
+		/// <returns></returns>
+		internal static List<int> GetChildrenImplPgrep (int pid)
 		{
 			string children;
 
