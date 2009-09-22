@@ -37,19 +37,14 @@ namespace MonkeyWrench
 		private static IProcessHelper GetHelper ()
 		{
 			if (helper == null) {
-				switch (Environment.OSVersion.Platform) {
-				case PlatformID.Win32NT:
-				case PlatformID.Win32S:
-				case PlatformID.Win32Windows:
-				case PlatformID.WinCE:
-					// case PlatformID.Xbox:
+				switch (Configuration.GetPlatform ()) {
+				case Platform.Windows:
 					helper = new ProcessHelperWindows ();
 					break;
-				case PlatformID.MacOSX:
+				case Platform.Mac:
 					helper = new ProcessHelperMac ();
 					break;
-				case PlatformID.Unix:
-				case (PlatformID) 128:
+				case Platform.Linux:
 				default:
 					helper = new ProcessHelperLinux ();
 					break;
@@ -67,7 +62,30 @@ namespace MonkeyWrench
 
 	internal abstract class IProcessHelper
 	{
-		protected abstract List<int> GetChildren (int pid);
+		protected virtual List<int> GetChildren (int pid)
+		{
+			if (string.IsNullOrEmpty (Configuration.ChildProcessAlgorithm)) {
+				switch (Configuration.GetPlatform ()) {
+				case Platform.Windows:
+					return ProcessHelperWindows.GetChildrenImplWin32 (pid);
+				case Platform.Mac:
+					return GetChildrenImplPS (pid);
+				case Platform.Linux:
+				default:
+					return GetChildrenImplPgrep (pid);
+				}
+			} else {
+				switch (Configuration.ChildProcessAlgorithm.ToLowerInvariant ()) {
+				case "win32":
+					return ProcessHelperWindows.GetChildrenImplWin32 (pid);
+				case "pgrep":
+					return GetChildrenImplPgrep (pid);
+				case "ps":
+				default:
+					return GetChildrenImplPS (pid);
+				}
+			}
+		}
 
 		/// <summary>
 		/// Default Exit implementation (calls Environment.Exit)
@@ -116,5 +134,82 @@ namespace MonkeyWrench
 			result.Add (pid);
 		}
 
+		/// <summary>
+		/// Implementation using ps
+		/// </summary>
+		/// <param name="pid"></param>
+		/// <returns></returns>
+		internal static List<int> GetChildrenImplPS (int pid)
+		{
+			string stdout;
+
+			using (Process ps = new Process ()) {
+				ps.StartInfo.FileName = "ps";
+				ps.StartInfo.Arguments = "-eo ppid,pid";
+				ps.StartInfo.UseShellExecute = false;
+				ps.StartInfo.RedirectStandardOutput = true;
+				ps.Start ();
+				stdout = ps.StandardOutput.ReadToEnd ();
+
+				if (!ps.WaitForExit (1000))
+					throw new ApplicationException (string.Format ("ps didn't finish in a reasonable amount of time (1 second)."));
+
+				if (ps.ExitCode == 0 && !string.IsNullOrEmpty (stdout.Trim ())) {
+					List<int> result = null;
+					foreach (string line in stdout.Split (new char [] { '\n', '\r', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)) {
+						string l = line.Trim ();
+						int space = l.IndexOf (' ');
+						if (space > 0) {
+							string parent = l.Substring (0, space);
+							string process = l.Substring (space + 1);
+							int parent_id, process_id;
+
+							if (int.TryParse (parent, out parent_id) && int.TryParse (process, out process_id)) {
+								if (parent_id == pid) {
+									if (result == null)
+										result = new List<int> ();
+									result.Add (process_id);
+								}
+							}
+						}
+					}
+					return result;
+				}
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Implementation using pgrep
+		/// </summary>
+		/// <param name="pid"></param>
+		/// <returns></returns>
+		internal static List<int> GetChildrenImplPgrep (int pid)
+		{
+			string children;
+
+			using (Process pgrep = new Process ()) {
+				pgrep.StartInfo.FileName = "pgrep";
+				pgrep.StartInfo.Arguments = "-P " + pid;
+				pgrep.StartInfo.UseShellExecute = false;
+				pgrep.StartInfo.RedirectStandardOutput = true;
+				pgrep.Start ();
+				children = pgrep.StandardOutput.ReadToEnd ();
+
+				if (!pgrep.WaitForExit (1000))
+					throw new ApplicationException (string.Format ("pgrep didn't finish in a reasonable amount of time (1 second)."));
+
+				if (pgrep.ExitCode == 0 && !string.IsNullOrEmpty (children.Trim ())) {
+					List<int> result = new List<int> ();
+					foreach (string line in children.Split (new char [] { '\n', '\r', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)) {
+						result.Add (int.Parse (line));
+					}
+					return result;
+				}
+			}
+
+			return null;
+		}
 	}
 }

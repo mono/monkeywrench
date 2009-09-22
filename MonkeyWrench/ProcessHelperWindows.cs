@@ -20,7 +20,7 @@ namespace MonkeyWrench
 {
 	internal class ProcessHelperWindows : IProcessHelper
 	{
-		protected override List<int> GetChildren (int pid)
+		internal static List<int> GetChildrenImplWin32 (int pid)
 		{
 			List<int> result = null;
 

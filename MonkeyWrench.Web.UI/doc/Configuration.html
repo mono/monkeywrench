@@ -76,6 +76,21 @@
     </ul>
     <h3>SchedulerAccount and SchedulerPassword</h3>
     The credentials the scheduler program should use to connect to the web service. This user must be an Administrator. The default for SchedulerAccount is 'scheduler', while SchedulerPassword doesn't have a default.
+    <h3>Platform</h3>
+    The platform the buildbot is executing on. Possible values (case doesn't matter):
+    <ul>
+        <li>Empty string: Determine automatically (using PlatformID, which may fail some times)</li>
+        <li>Mac</li>
+        <li>Linux</li>
+        <li>Windows</li>
+    </ul>
+    <h3>ChildProcessAlgorithm</h3>How child processes can be calculated from a parent process id. Possible values (case doesn't matter):
+    <ul>
+    <li>Empty string: Determine using the current platform (windows: win32, linux: pgrep, mac: ps)</li>
+    <li>pgrep</li>
+    <li>ps</li>
+    <li>win32: use win32 api</li>
+    </ul>
     <h2>
         Sample configuration</h2>
     This is a sample configuration file for a buildbot:

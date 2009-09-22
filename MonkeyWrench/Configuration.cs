@@ -36,6 +36,8 @@ namespace MonkeyWrench
 		public static string LockingAlgorithm = "semaphore";
 		public static string SchedulerAccount = "scheduler";
 		public static string SchedulerPassword;
+		public static string ChildProcessAlgorithm = "pgrep";
+		public static string Platform = ""; // detect automatically
 
 		//the following are used by the database manager.
 		public static bool CleanLargeObjects;
@@ -109,6 +111,8 @@ namespace MonkeyWrench
 				LockingAlgorithm = xml.SelectSingleNode ("MonkeyWrench/Configuration/LockingAlgorithm").GetNodeValue (LockingAlgorithm);
 				SchedulerAccount = xml.SelectSingleNode ("MonkeyWrench/Configuration/SchedulerAccount").GetNodeValue (SchedulerAccount);
 				SchedulerPassword = xml.SelectSingleNode ("MonkeyWrench/Configuration/SchedulerPassword").GetNodeValue (SchedulerPassword);
+				ChildProcessAlgorithm = xml.SelectSingleNode ("MonkeyWrench/Configuration/ChildProcessAlgorithm").GetNodeValue (ChildProcessAlgorithm);
+				Platform = xml.SelectSingleNode ("MonkeyWrench/Configuration/Platform").GetNodeValue (Platform);
 
 				// override from command line
 
@@ -129,6 +133,8 @@ namespace MonkeyWrench
 					{"lockingalgorithm=", v => LockingAlgorithm = v},
 					{"scheduleraccount=", v => SchedulerAccount = v},
 					{"schedulerpassword=", v => SchedulerPassword = v},
+					{"childprocessalgorithm=", v => ChildProcessAlgorithm = v},
+					{"platform=", v => Platform = v},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},
@@ -342,6 +348,39 @@ namespace MonkeyWrench
 		public static string GetFilesDirectory ()
 		{
 			return Path.Combine (Path.Combine (DataDirectory, "db"), "files");
+		}
+
+		/// <summary>
+		/// The platform we're currently executing on.
+		/// </summary>
+		/// <returns></returns>
+		public static Platform GetPlatform ()
+		{
+			if (string.IsNullOrEmpty (Platform)) {
+				switch (Environment.OSVersion.Platform) {
+				case PlatformID.Win32NT:
+				case PlatformID.Win32S:
+				case PlatformID.Win32Windows:
+				case PlatformID.WinCE:
+					return MonkeyWrench.Platform.Windows;
+				case PlatformID.MacOSX:
+					return MonkeyWrench.Platform.Mac;
+				case PlatformID.Unix:
+				case (PlatformID) 128:
+				default:
+					return MonkeyWrench.Platform.Linux;
+				}
+			} else {
+				switch (Platform.ToLowerInvariant ()) {
+				case "windows":
+					return MonkeyWrench.Platform.Windows;
+				case "mac":
+					return MonkeyWrench.Platform.Mac;
+				case "linux":
+				default:
+					return MonkeyWrench.Platform.Linux;
+				}
+			}
 		}
 	}
 }

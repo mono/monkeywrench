@@ -47,6 +47,7 @@
     <Compile Include="Logger.cs" />
     <Compile Include="MimeTypes.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="Platform.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="ProcessHelperLinux.cs" />
     <Compile Include="ProcessHelperMac.cs" />
