@@ -1,3 +1,8 @@
+2009-09-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ProcessHelper.cs: When splitting stdout into lines don't split on
+	neither tabs nor spaces.
+
 2009-09-22  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Platform.cs: Added.

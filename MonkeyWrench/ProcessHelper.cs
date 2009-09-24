@@ -156,7 +156,7 @@ namespace MonkeyWrench
 
 				if (ps.ExitCode == 0 && !string.IsNullOrEmpty (stdout.Trim ())) {
 					List<int> result = null;
-					foreach (string line in stdout.Split (new char [] { '\n', '\r', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)) {
+					foreach (string line in stdout.Split (new char [] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)) {
 						string l = line.Trim ();
 						int space = l.IndexOf (' ');
 						if (space > 0) {
