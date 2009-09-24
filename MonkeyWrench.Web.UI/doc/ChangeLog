@@ -1,3 +1,8 @@
+2009-09-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.html: Add note about not being able to auto-detect
+	macs.
+
 2009-09-22  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Configuration.html: Added information about ChildProcessAlgorithm
