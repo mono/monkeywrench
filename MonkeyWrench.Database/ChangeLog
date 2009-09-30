@@ -1,3 +1,7 @@
+2009-09-30  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DB.cs: When cloning a lane clone the timeout for the commands too.
+
 2009-09-17  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Scheduler.cs: Add a static field indicating whether we're executing

@@ -469,6 +469,7 @@ namespace MonkeyWrench
 						clone.filename = cmdmaster.filename;
 						clone.nonfatal = cmdmaster.nonfatal;
 						clone.sequence = cmdmaster.sequence;
+						clone.timeout = cmdmaster.timeout;
 						clone.Save (this);
 					}
 
