@@ -52,6 +52,8 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 					line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=#", workfile_id), "#");
 					// undo any changes for javascript links
 					line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=javascript", workfile_id), "javascript");
+					// undo any changes for external links
+					line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=http://www", workfile_id), "http://www");
 
 					writer.Write (line);
 					writer.Write ('\n');
