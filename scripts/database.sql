@@ -39,7 +39,7 @@ CREATE TABLE Host (
                                                     --    * if the bot can't keep up with the number of commits, it'll run out of disk space.
                                                     -- 2: send one revisionwork at a time to the bot, even if several lanes are configured for it,
                                                     --    and cycle through the configured lanes when selecting revisionwork.
-    enabled         boolean    NOT NULL DEFAULT TRUE, -- if this host is enabled.
+    enabled         boolean    NOT NULL DEFAULT TRUE -- if this host is enabled.
 );
 
 -- host/master host relationships
@@ -146,6 +146,25 @@ CREATE TABLE Lanefiles (
 	lane_id        int        NOT NULL REFERENCES Lane (id)
 );
 
+--
+-- Do NOT put any cascade delete clauses on the File table.
+-- we try to delete File, and we rely on an exception being thrown if the File is being used somewhere.
+CREATE TABLE File (
+	id              serial     PRIMARY KEY,
+	filename        text       NOT NULL DEFAULT '',   -- filenames can be duplicate
+	md5             text       UNIQUE NOT NULL,       -- having an md5 checksum allows us to use the same record for all equal files
+	file_id         int        NULL DEFAULT NULL,         -- the large object id (should this be defined as oid instead of int?)
+                                                      -- if this is null, the file is stored on the disk (in the db/files sub directory of DataDirectory as specified in MonkeyWrench.xml)
+	mime            text       NOT NULL DEFAULT '',   -- the mime type of the file
+	compressed_mime text       NOT NULL DEFAULT '',   -- if the file is stored compressed, this field is not '', and it specifies the compression algorithm (application/zip, tar, etc).
+	                                                  -- this allows us to store for instance log files compressed, and the web server can deliver the compressed log file by
+	                                                  -- adding the proper http response header.
+	                                                  -- the md5 sum is calculated off the uncompressed file.
+	size            int        NOT NULL DEFAULT 0,    -- filesize. int32 since I don't think we ever want to store files > 2GB in the database.
+	hidden          boolean    NOT NULL DEFAULT FALSE --
+);
+CREATE INDEX file_idx_file_id_key ON File (file_id);
+
 CREATE TABLE Revision (
 	id       serial     PRIMARY KEY,
 	lane_id  int        NOT NULL REFERENCES Lane(id),
@@ -207,25 +226,6 @@ CREATE TABLE Work (
 	summary          text      NOT NULL DEFAULT '',                      -- a one line summary of the log
 	revisionwork_id  int       REFERENCES RevisionWork (id) ON DELETE CASCADE -- make NOT NULL after successful move
 );
-
---
--- Do NOT put any cascade delete clauses on the File table.
--- we try to delete File, and we rely on an exception being thrown if the File is being used somewhere.
-CREATE TABLE File (
-	id              serial     PRIMARY KEY,
-	filename        text       NOT NULL DEFAULT '',   -- filenames can be duplicate
-	md5             text       UNIQUE NOT NULL,       -- having an md5 checksum allows us to use the same record for all equal files 
-	file_id         int        NULL DEFAULT NULL,         -- the large object id (should this be defined as oid instead of int?)
-                                                      -- if this is null, the file is stored on the disk (in the db/files sub directory of DataDirectory as specified in MonkeyWrench.xml)
-	mime            text       NOT NULL DEFAULT '',   -- the mime type of the file
-	compressed_mime text       NOT NULL DEFAULT '',   -- if the file is stored compressed, this field is not '', and it specifies the compression algorithm (application/zip, tar, etc). 
-	                                                  -- this allows us to store for instance log files compressed, and the web server can deliver the compressed log file by
-	                                                  -- adding the proper http response header. 
-	                                                  -- the md5 sum is calculated off the uncompressed file.
-	size            int        NOT NULL DEFAULT 0,    -- filesize. int32 since I don't think we ever want to store files > 2GB in the database.
-	hidden          boolean    NOT NULL DEFAULT FALSE -- 
-);
-CREATE INDEX file_idx_file_id_key ON File (file_id);
 
 CREATE TABLE WorkFile (
 	id             serial     PRIMARY KEY,
