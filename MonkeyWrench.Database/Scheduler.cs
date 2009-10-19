@@ -24,21 +24,6 @@ using MonkeyWrench.DataClasses;
 
 namespace MonkeyWrench.Scheduler
 {
-	public interface IScheduler
-	{
-		/// <summary>
-		/// This method must return true if a revision was added to the database.
-		/// </summary>
-		/// <param name="db"></param>
-		/// <param name="lane"></param>
-		/// <param name="hosts"></param>
-		/// <param name="hostlanes"></param>
-		/// <returns></returns>
-		bool UpdateRevisionsInDB (DB db, bool forcefullupdate, DBLane lane, List<DBHost> hosts, List<DBHostLane> hostlanes);
-
-		void AddChangeSets (List<XmlDocument> docs);
-	}
-
 	public static class Scheduler
 	{
 		private static bool is_executing;
@@ -133,17 +118,20 @@ namespace MonkeyWrench.Scheduler
 					hostlanes = db.GetAllHostLanes ();
 					Logger.Log ("Updater will now update {0} lanes.", lanes.Count);
 					foreach (DBLane lane in lanes) {
-						IScheduler updater;
+						SchedulerBase updater;
 						switch (lane.source_control) {
 						case "svn":
-							updater = new SVNUpdater ();
+							updater = new SVNUpdater (forcefullupdate);
+							break;
+						case "git":
+							updater = new GITUpdater (forcefullupdate);
 							break;
 						default:
 							Logger.Log ("Unknown source control: {0} for lane {1}", lane.source_control, lane.lane);
 							continue;
 						}
 						updater.AddChangeSets (reports);
-						updater.UpdateRevisionsInDB (db, forcefullupdate, lane, hosts, hostlanes);
+						updater.UpdateRevisionsInDB (db, lane, hosts, hostlanes);
 						UpdateBuildLogDB (db, lane, hosts, hostlanes);
 					}
 				}

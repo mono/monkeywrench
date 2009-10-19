@@ -8,12 +8,14 @@
 # start: starts the db. if the database doesn't exist, it is created.
 # stop: stops the db. if the database doesn't exist, this option does nothing.
 # create: creates the db (and starts it). if the database already exists, an error is returned.
+# dropdata: drops all the data from the db (it really drops the entire database and recreates it)
 # delete: stops the db and deletes all files. if the database doesn't exist, this option does nothing.
 #
 
 # derive some paths from the config sourced above
-export BUILDER_DATA_DB=`getcfgvar.pl /MonkeyWrench/Configuration/DatabaseDirectory`
-export BUILDER_DATA_PORT=`getcfgvar.pl /MonkeyWrench/Configuration/DatabasePort`
+SCRIPT_DIR=`dirname $0`
+export BUILDER_DATA_DB=`$SCRIPT_DIR/getcfgvar.pl /MonkeyWrench/Configuration/DatabaseDirectory`
+export BUILDER_DATA_PORT=`$SCRIPT_DIR/getcfgvar.pl /MonkeyWrench/Configuration/DatabasePort`
 export BUILDER_DATA_DB_DATA=$BUILDER_DATA_DB/data
 export BUILDER_DATA_DB_LOGS=$BUILDER_DATA_DB/logs
 
@@ -23,7 +25,7 @@ export PGDATA=$BUILDER_DATA_DB_DATA
 
 # verify variables
 if [[ "x$1" == "x" || "x$2" != "x" ]]; then
-	echo "Syntax: $0 [start|stop|create|delete|pgsql]"
+	echo "Syntax: $0 [start|stop|create|dropdata|delete|pgsql]"
 	exit 1
 fi
 
@@ -68,11 +70,20 @@ case "$1" in
 			CMD=delete
 		fi
 		;;
+	dropdata)
+		if [[ "x$EXISTS" == "x0" ]]; then
+			#the database doesn't exist, do nothing
+			echo "The database doesn't exist, there is nothing to drop"
+			exit 0
+		else
+			CMD=dropdata
+		fi
+		;;
 	psql)
 		CMD=psql
 		;;
 	*)
-		echo "Invalid option: $1 (must be either start, stop, create or delete)"
+		echo "Invalid option: $1 (must be either start, stop, create, dropdata, delete or psql)"
 		exit 1
 		;;
 esac
@@ -80,7 +91,7 @@ esac
 # do the work
 case "$CMD" in
 	stop)
-		pg_ctl stop
+		pg_ctl stop -m fast
 		;;
 	delete)
 		# try to stop the database first, this may fail if the database has already been stopped
@@ -94,17 +105,23 @@ case "$CMD" in
 		mkdir -p $BUILDER_DATA_DB_LOGS
 		initdb
 		# start the db
-		pg_ctl -l $BUILDER_DATA_DB_LOGS/logfile start
+		pg_ctl -w -l $BUILDER_DATA_DB_LOGS/logfile start
 		# wait a bit for the db to finish starting up
-		sleep 2
+		sleep 1
 		# create the user 'builder' owner is the user 'builder'
 		createuser -s -d -r -e builder
 		# create the database
-		psql --user builder --db template1 --file database.sql
+		psql --user builder --db template1 --file $SCRIPT_DIR/database.sql
+		;;
+	dropdata)
+		# drop the database
+		echo "DROP DATABASE IF EXISTS builder;" | psql --user builder --db template1
+		# recreate it
+		psql --user builder --db template1 --file $SCRIPT_DIR/database.sql
 		;;
 	start)
 		# start the database
-		pg_ctl -l $BUILDER_DATA_DB_LOGS/logfile start
+		PGDATA=$PGDATA pg_ctl -l $BUILDER_DATA_DB_LOGS/logfile start
 		;;
 	psql)
 		psql --user builder --db builder

@@ -103,6 +103,7 @@
     <Compile Include="Logic\FindLaneResponse.cs" />
     <Compile Include="Logic\FindRevisionResponse.cs" />
     <Compile Include="Logic\FrontPageResponse.cs" />
+    <Compile Include="Logic\GetAdminInfoResponse.cs" />
     <Compile Include="Logic\GetBuildInfoResponse.cs" />
     <Compile Include="Logic\GetHostForEditResponse.cs" />
     <Compile Include="Logic\GetHostsResponse.cs" />

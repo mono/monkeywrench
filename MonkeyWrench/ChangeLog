@@ -1,3 +1,7 @@
+2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.cs: Add GIT support.
+
 2009-09-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ProcessHelper.cs: When splitting stdout into lines don't split on

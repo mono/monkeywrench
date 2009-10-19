@@ -1,3 +1,14 @@
+2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* SchedulerBase.cs:
+	* SchedulerGIT.cs:
+	* SchedulerSVN.cs:
+	* Scheduler.cs: Implement GIT support.
+	* MonkeyWrench.Database.csproj: Updated with new files.
+
+	* DB.cs: Add ExecuteNonQuery and fix file download when the file
+	isn't in the database.
+
 2009-09-30  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DB.cs: When cloning a lane clone the timeout for the commands too.

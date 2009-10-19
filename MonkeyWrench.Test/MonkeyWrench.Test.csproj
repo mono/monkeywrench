@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3737EDC2-5785-424C-92BC-7013B931AF21}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MonkeyWrench.Test</RootNamespace>
+    <AssemblyName>MonkeyWrench.Test</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="GitTest.cs" />
+    <Compile Include="Helpers.cs" />
+    <Compile Include="Runner.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SvnTest.cs" />
+    <Compile Include="VCTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonkeyWrench.Builder\MonkeyWrench.Builder.csproj">
+      <Project>{8E126CCA-C7B2-4108-99F0-1F675C23A69B}</Project>
+      <Name>MonkeyWrench.Builder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench.Database.Manager\MonkeyWrench.Database.Manager.csproj">
+      <Project>{71ACDF37-9696-42B8-B15A-5178C0C8F0E1}</Project>
+      <Name>MonkeyWrench.Database.Manager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench.Database\MonkeyWrench.Database.csproj">
+      <Project>{1C38937B-F45F-4EB1-B4D1-893FF684C525}</Project>
+      <Name>MonkeyWrench.Database</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench.DataClasses\MonkeyWrench.DataClasses.csproj">
+      <Project>{A461423E-8232-42D6-AA34-8DEC97F6D8F8}</Project>
+      <Name>MonkeyWrench.DataClasses</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench.Scheduler\MonkeyWrench.Scheduler.csproj">
+      <Project>{D78E8A6F-2A80-4F3C-8F4F-42C1043ED5E2}</Project>
+      <Name>MonkeyWrench.Scheduler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench.Web.UI\MonkeyWrench.Web.UI.csproj">
+      <Project>{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}</Project>
+      <Name>MonkeyWrench.Web.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench.Web.WebService\MonkeyWrench.Web.WebService.csproj">
+      <Project>{86D06788-14A7-4962-88F0-FB58B7D34FF1}</Project>
+      <Name>MonkeyWrench.Web.WebService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench\MonkeyWrench.csproj">
+      <Project>{EBFBC3BF-10E1-4482-B9BE-A516934C099A}</Project>
+      <Name>MonkeyWrench</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

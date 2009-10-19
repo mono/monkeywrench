@@ -1,3 +1,8 @@
+2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* MonkeyWrench.sln: Added new project.
+	* Makefile: add some convenience targets.
+
 2009-07-28  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Makefile: publish before running wsdl.
@@ -29,4 +34,3 @@
 	* Builder.sln:
 	* Builder.csproj: Add changelog/commit message instructions
 	  for MonoDevelop.
-

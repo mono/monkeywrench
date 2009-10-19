@@ -24,229 +24,126 @@ using MonkeyWrench.DataClasses;
 
 namespace MonkeyWrench.Scheduler
 {
-	class SVNUpdater : IScheduler
+	class SVNUpdater : SchedulerBase
 	{
-		private bool forcefullupdate;
-
 		private static bool quit_svn_diff = false;
 		private static Thread diff_thread;
-
-		// a tuple, each path and the first revision (in a list of changesets) the path was modified
-		private List<string> paths;
-		private List<int> min_revisions;
-
-		public void AddChangeSets (List<XmlDocument> docs)
+		
+		public SVNUpdater (bool ForceFullUpdate)
+			: base (ForceFullUpdate)
 		{
-			if (docs == null)
-				return;
-
-			foreach (XmlDocument doc in docs) {
-				AddChangeSet (doc);
-			}
 		}
 
-		public void AddChangeSet (XmlDocument doc)
+		public override string Type
 		{
-			XmlNode rev = doc.SelectSingleNode ("/monkeywrench/changeset");
-			int revision = int.Parse (rev.Attributes ["revision"].Value);
-			string root = rev.Attributes ["root"].Value;
-			string sc = rev.Attributes ["sourcecontrol"].Value;
-
-			if (sc != "svn")
-				return;
-
-			if (paths == null) {
-				paths = new List<string> ();
-				min_revisions = new List<int> ();
-			}
-
-			foreach (XmlNode node in doc.SelectNodes ("/monkeywrench/changeset/directories/directory")) {
-				Logger.Log ("SVN: Checking changeset directory: '{0}'", node.InnerText);
-				string dir = root + "/" + node.InnerText;
-				int existing_rev;
-				int existing_index = paths.IndexOf (dir);
-
-				if (existing_index > 0) {
-					existing_rev = min_revisions [existing_index];
-					if (existing_rev > revision)
-						continue;
-				}
-				Logger.Log ("SVN: Added changeset for r{1} with path: {0}", dir, revision);
-				paths.Add (dir);
-				min_revisions.Add (revision);
-			}
+			get { return "SVN"; }
 		}
 
-		/// <summary>
-		/// Checks if a lane has any reported commits.
-		/// If so, min_revision will be the first reported commit (otherwise min_revision will be 0).
-		/// </summary>
-		/// <param name="lane"></param>
-		/// <param name="min_revision"></param>
-		/// <returns></returns>
-		private bool HasCommits (DBLane lane, out int min_revision)
+		protected override int CompareRevisions (string repository, string a, string b)
 		{
-			min_revision = 0;
-
-			if (Configuration.ForceFullUpdate || forcefullupdate)
-				return true;
-
-			if (paths == null || paths.Count == 0)
-				return false;
-
-			min_revision = int.MaxValue;
-			foreach (string repo in lane.repository.Split (';')) {
-				Uri uri = new Uri (repo);
-				string dir = uri.Host + uri.LocalPath;
-				for (int i = 0; i < paths.Count; i++) {
-					if (paths [i].StartsWith (dir)) {
-						min_revision = Math.Min (min_revision, min_revisions [i]);
-						Logger.Log ("SVN: A commit report shows that {0} (lane: {2}) was changed in r{1}", paths [i], min_revision, repo);
-					}
-				}
-			}
-
-			if (min_revision == int.MaxValue) {
-				min_revision = 0;
-				return false;
-			}
-
-			return true;
+			int aa = int.Parse (a);
+			int bb = int.Parse (b);
+			return aa == bb ? 0 : ((aa < bb) ? -1 : 1);
 		}
 
-		public bool UpdateRevisionsInDB (DB db, bool forcefullupdate, DBLane lane, List<DBHost> hosts, List<DBHostLane> hostlanes)
+		protected override bool UpdateRevisionsInDBInternal (DB db, DBLane lane, string repository,Dictionary<string, DBRevision> revisions, List<DBHost> hosts, List<DBHostLane> hostlanes, string min_revision)
 		{
 			string revision;
 			XmlDocument svn_log;
-			Dictionary<string, DBRevision> revisions;
 			bool update_steps = false;
 			DBRevision r;
-			int min_revision = 0;
-			int max_revision = int.MaxValue;
+			int min_revision_int = string.IsNullOrEmpty (min_revision) ? 0 : int.Parse (min_revision);
+			int max_revision_int = int.MaxValue;
 			int current_revision;
 			string log;
-			bool skip_lane;
 			XmlNode n;
 			XmlAttribute attrib;
 
-			Logger.Log ("SVN: Updating '{0}'", lane.lane);
+			Log ("Updating '{0}'", lane.lane);
 
-			this.forcefullupdate = forcefullupdate;
+			if (min_revision_int == 0 && !string.IsNullOrEmpty (lane.min_revision))
+				min_revision_int = int.Parse (lane.min_revision);
+			if (!string.IsNullOrEmpty (lane.max_revision))
+				max_revision_int = int.Parse (lane.max_revision);
 
-			try {
-				// Skip lanes which aren't configured/enabled on any host completely.
-				skip_lane = true;
-				for (int i = 0; i < hostlanes.Count; i++) {
-					if (hostlanes [i].lane_id == lane.id && hostlanes [i].enabled) {
-						skip_lane = false;
-						break;
-					}
-				}
-				if (skip_lane) {
-					Logger.Log ("SVN: Skipping lane {0}, not enabled or configured on any host.", lane.lane);
-					return false;
-				}
+			log = GetSVNLog (lane, repository, min_revision_int, max_revision_int);
 
-				// check for commit reports
-				if (!HasCommits (lane, out min_revision)) {
-					Logger.Log ("SVN: Skipping lane {0}, no commits.", lane.lane);
-					return false;
-				}
+			if (string.IsNullOrEmpty (log)) {
+				Log ("Didn't get a svn log for '{0}'", repository);
+				return false;
+			}
 
-				revisions = db.GetDBRevisions (lane.id);
+			svn_log = new XmlDocument ();
+			svn_log.PreserveWhitespace = true;
+			svn_log.Load (new StringReader (log));
 
-				foreach (string repository in lane.repository.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
-					if (min_revision == 0 && !string.IsNullOrEmpty (lane.min_revision))
-						min_revision = int.Parse (lane.min_revision);
-					if (!string.IsNullOrEmpty (lane.max_revision))
-						max_revision = int.Parse (lane.max_revision);
+			foreach (XmlNode node in svn_log.SelectNodes ("/log/logentry")) {
+				revision = node.Attributes ["revision"].Value;
 
-					log = GetSVNLog (lane, repository, min_revision, max_revision);
+				if (revisions.ContainsKey (revision))
+					continue;
 
-					if (string.IsNullOrEmpty (log)) {
-						Logger.Log ("SVN: Didn't get a svn log for '{0}'", repository);
+				try {
+					current_revision = int.Parse (revision);
+					if (current_revision < min_revision_int || current_revision > max_revision_int)
 						continue;
-					}
-
-					svn_log = new XmlDocument ();
-					svn_log.PreserveWhitespace = true;
-					svn_log.Load (new StringReader (log));
-
-					foreach (XmlNode node in svn_log.SelectNodes ("/log/logentry")) {
-						revision = node.Attributes ["revision"].Value;
-
-						if (revisions.ContainsKey (revision))
-							continue;
-
-						try {
-							current_revision = int.Parse (revision);
-							if (current_revision < min_revision || current_revision > max_revision)
-								continue;
-						} catch {
-							continue;
-						}
-
-						r = new DBRevision ();
-						attrib = node.Attributes ["revision"];
-						if (attrib == null || string.IsNullOrEmpty (attrib.Value)) {
-							Logger.Log ("SVN: An entry without revision in {0}, skipping entry", repository);
-							continue;
-						}
-						r.revision = attrib.Value;
-						r.lane_id = lane.id;
-
-						n = node.SelectSingleNode ("author");
-						if (n != null) {
-							r.author = n.InnerText;
-						} else {
-							Logger.Log ("SVN: No author specified in r{0} in {1}", r.revision, repository);
-							r.author = "?";
-						}
-						n = node.SelectSingleNode ("date");
-						if (n != null) {
-							DateTime dt;
-							if (DateTime.TryParse (n.InnerText, out dt)) {
-								r.date = dt;
-							} else {
-								Logger.Log ("SVN: Could not parse the date '{0}' in r{1} in {2}", n.InnerText, r.revision, repository);
-								r.date = DateTime.MinValue;
-							}
-						} else {
-							Logger.Log ("SVN: No date specified in r{0} in {1}", r.revision, repository);
-							r.date = DateTime.MinValue;
-						}
-						n = node.SelectSingleNode ("msg");
-						if (n != null) {
-							r.log_file_id = db.UploadString (n.InnerText, ".log", false).id;
-						} else {
-							Logger.Log ("SVN: No msg specified in r{0} in {1}", r.revision, repository);
-							r.log_file_id = null;
-						}
-
-						r.Save (db);
-
-						update_steps = true;
-						Logger.Log ("SVN: Saved revision '{0}' for lane '{1}'", r.revision, lane.lane);
-					}
-
-					svn_log = null;
+				} catch {
+					continue;
 				}
 
-				Logger.Log ("SVN: Updating svn db for lane '{0}'... [Done], update_steps: {1}", lane.lane, update_steps);
-			} catch (Exception ex) {
-				Logger.Log ("SVN: There was an exception while updating db for lane '{0}': {1}", lane.lane, ex.ToString ());
+				r = new DBRevision ();
+				attrib = node.Attributes ["revision"];
+				if (attrib == null || string.IsNullOrEmpty (attrib.Value)) {
+					Log ("An entry without revision in {0}, skipping entry", repository);
+					continue;
+				}
+				r.revision = attrib.Value;
+				r.lane_id = lane.id;
+
+				n = node.SelectSingleNode ("author");
+				if (n != null) {
+					r.author = n.InnerText;
+				} else {
+					Log ("No author specified in r{0} in {1}", r.revision, repository);
+					r.author = "?";
+				}
+				n = node.SelectSingleNode ("date");
+				if (n != null) {
+					DateTime dt;
+					if (DateTime.TryParse (n.InnerText, out dt)) {
+						r.date = dt;
+					} else {
+						Log ("Could not parse the date '{0}' in r{1} in {2}", n.InnerText, r.revision, repository);
+						r.date = DateTime.MinValue;
+					}
+				} else {
+					Log ("No date specified in r{0} in {1}", r.revision, repository);
+					r.date = DateTime.MinValue;
+				}
+				n = node.SelectSingleNode ("msg");
+				if (n != null) {
+					r.log_file_id = db.UploadString (n.InnerText, ".log", false).id;
+				} else {
+					Log ("No msg specified in r{0} in {1}", r.revision, repository);
+					r.log_file_id = null;
+				}
+
+				r.Save (db);
+
+				update_steps = true;
+				Log ("Saved revision '{0}' for lane '{1}'", r.revision, lane.lane);
 			}
 
 			return update_steps;
 		}
 
-		private static string GetSVNLog (DBLane dblane, string repository, int min_revision, int max_revision)
+		private string GetSVNLog (DBLane dblane, string repository, int min_revision, int max_revision)
 		{
 			StringBuilder result = new StringBuilder ();
 			string revs = string.Empty;
 
 			try {
-				Logger.Log ("SVN: Retrieving svn log for '{0}', repository: '{1}', min_revision: {2} max_revision: {3}", dblane.lane, repository, min_revision, max_revision);
+				Log ("Retrieving svn log for '{0}', repository: '{1}', min_revision: {2} max_revision: {3}", dblane.lane, repository, min_revision, max_revision);
 
 				if (min_revision > 0) {
 					revs = " -r " + min_revision.ToString ();
@@ -271,24 +168,24 @@ namespace MonkeyWrench.Scheduler
 
 					// Wait 10 minutes for svn to finish, otherwise abort.
 					if (!p.WaitForExit (1000 * 60 * 10)) {
-						Logger.Log ("Getting svn log took more than 10 minutes, aborting.");
+						Log ("Getting log took more than 10 minutes, aborting.");
 						try {
 							p.Kill ();
 							p.WaitForExit (10000); // Give the process 10 more seconds to completely exit.
 						} catch (Exception ex) {
-							Logger.Log ("Aborting svn log retrieval failed: {0}", ex.ToString ());
+							Log ("Aborting svn log retrieval failed: {0}", ex.ToString ());
 						}
 					}
 
 					if (p.HasExited && p.ExitCode == 0) {
-						Logger.Log ("SVN: Got svn log successfully");
+						Log ("Got svn log successfully");
 						return result.ToString ();
 					} else {
 						return null;
 					}
 				}
 			} catch (Exception ex) {
-				Logger.Log ("SVN: Exception while trying to get svn log: {0}", ex.ToString ());
+				Log ("Exception while trying to get svn log: {0}", ex.ToString ());
 				return null;
 			}
 		}

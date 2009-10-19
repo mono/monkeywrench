@@ -1,3 +1,13 @@
+2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* index.aspx: Remove dead code.
+
+	* index.aspx.cs:
+	* ViewTable.aspx.cs:
+	* EditLane.aspx:
+	* EditLane.aspx.cs:
+	* EditLane.aspx.designer.cs: Add GIT support.
+
 2009-10-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ViewHtmlReport.aspx.cs: Don't transform links to external images.

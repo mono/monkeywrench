@@ -83,7 +83,7 @@ namespace MonkeyWrench
 			return result;
 		}
 
-		static bool LoadConfiguration (string [] arguments, string file)
+		public static bool LoadConfiguration (string [] arguments, string file)
 		{
 			if (string.IsNullOrEmpty (file))
 				return false;
@@ -339,6 +339,16 @@ namespace MonkeyWrench
 		public static string GetSchedulerCommitsDirectory ()
 		{
 			return Path.Combine (DataDirectory, "commits");
+		}
+
+		/// <summary>
+		/// A repository cache directory for the schedulers which may need it (git)
+		/// </summary>
+		/// <param name="repository"></param>
+		/// <returns></returns>
+		public static string GetSchedulerRepositoryCacheDirectory (string repository)
+		{
+			return Path.Combine (Path.Combine (DataDirectory, "SchedulerCache"), repository.Replace (':', '_').Replace ('/', '_').Replace ('\\', '_'));
 		}
 
 		/// <summary>

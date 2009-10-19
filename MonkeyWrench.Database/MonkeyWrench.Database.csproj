@@ -67,6 +67,8 @@
     <Compile Include="Extensions\DBWork_Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scheduler.cs" />
+    <Compile Include="SchedulerBase.cs" />
+    <Compile Include="SchedulerGIT.cs" />
     <Compile Include="SchedulerSVN.cs" />
   </ItemGroup>
   <ItemGroup>

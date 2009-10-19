@@ -1,0 +1,12 @@
+2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* VCTest.cs:
+	* SvnTest.cs:
+	* Runner.cs:
+	* Makefile:
+	* Helpers.cs:
+	* Helpers.cs:
+	* GitTest.cs:
+	* Database.cs:
+	* Attributes.cs:
+	* MonkeyWrench.Test.csproj: Added. Tests with a rudimentary framework.

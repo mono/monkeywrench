@@ -1,3 +1,9 @@
+2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* dbcontrol.sh: Make this script work when the current directory isn't
+	the directory of the script. When starting a database, make it wait
+	until the database has started, and when stopping stop asap.
+
 2009-10-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: Move table declarations around so that we don't
@@ -84,4 +90,3 @@
 
 	* postcommit-svn.sh: Added comment and include the revision in
 	  the xml.
-

@@ -209,8 +209,14 @@ public partial class ViewTable : System.Web.UI.Page
 						// matrix.AppendLine ("</tr>");
 						table.Add (row);
 					}
+
+					string revision = view.revision;
+					long dummy;
+					if (revision.Length > 16 && !long.TryParse (revision, out dummy))
+						revision = revision.Substring (0, 8);
+
 					row = new List<string> ();
-					row.Add (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a></td>", lane.id, host.id, view.revision_id, view.revision, string.Format ("Author: {1} Build start date: {0}", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"), view.author)));
+					row.Add (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a></td>", lane.id, host.id, view.revision_id, revision, string.Format ("Author: {1} Build start date: {0}", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"), view.author)));
 					row.Add (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>{1}</a></td>", view.revision_id, view.author));
 					if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
 						row.Add (string.Format ("<input type=checkbox name='revision_id_{0}' />", view.revision_id));

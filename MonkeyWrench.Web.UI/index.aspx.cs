@@ -224,6 +224,10 @@ public partial class index : System.Web.UI.Page
 						break;
 					}
 
+					long dummy;
+					if (revision.Length > 16 && !long.TryParse (revision, out dummy))
+						revision = revision.Substring (0, 8);
+
 					if (is_working) {
 						row.AppendFormat (
 							@"<td class='{1}'>

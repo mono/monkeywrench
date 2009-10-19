@@ -11,16 +11,6 @@
     <div>
         <table class='buildstatus'>
             <tr>
-                <td class='enabled'>
-                    Enabled lane/host
-                </td>
-                <td class='disabled'>
-                    Disabled lane/host
-                </td>
-            </tr>
-        </table>
-        <table class='buildstatus'>
-            <tr>
                 <td class='success'>
                     Success
                 </td>

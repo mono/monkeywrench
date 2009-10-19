@@ -17,8 +17,15 @@
                 <asp:TableCell>Lane:</asp:TableCell><asp:TableCell>
                     <asp:TextBox ID="txtLane" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>The name of this lane. Must be unique on this server.</asp:TableCell></asp:TableRow>
             <asp:TableRow>
-                <asp:TableCell>Source control:</asp:TableCell><asp:TableCell>
-                    <asp:TextBox ID="txtSourceControl" runat="server" Width="600px">svn</asp:TextBox></asp:TableCell><asp:TableCell>Source control. Leave as 'svn'.</asp:TableCell></asp:TableRow>
+                <asp:TableCell>Source control:</asp:TableCell>
+                <asp:TableCell>
+                    <asp:DropDownList ID="cmbSourceControl" runat="server" Width="600px">
+                        <asp:ListItem Text="svn" Value="svn" Selected="True" />
+                        <asp:ListItem Text="git" Value="git" Selected="True" />
+                    </asp:DropDownList>
+                </asp:TableCell>
+                <asp:TableCell>Source control.</asp:TableCell>
+            </asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>Repository:</asp:TableCell><asp:TableCell>
                     <asp:TextBox ID="txtRepository" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>The repository where the code for this lane is located. The scheduler uses the revisions for this repository to schedule work. Can include multiple repositories separated with commas.</asp:TableCell></asp:TableRow>

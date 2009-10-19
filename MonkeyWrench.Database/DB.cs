@@ -225,7 +225,11 @@ namespace MonkeyWrench
 
 		public Stream Download (DBFile file)
 		{
-			return new DBFileStream (file, this);
+			if (file.file_id.HasValue) {
+				return new DBFileStream (file, this);
+			} else {
+				return new System.IO.Compression.GZipStream (new FileStream (DBFile_Extensions.GetFullPath (file.md5), FileMode.Open, FileAccess.Read), System.IO.Compression.CompressionMode.Decompress);
+			}
 		}
 
 		public Stream Download (DBWorkFileView file)
@@ -307,7 +311,7 @@ namespace MonkeyWrench
 					}
 				}
 
-				Console.WriteLine ("Uploading {0} {1} with compressed mime: {2}", Filename, md5, compressed_mime);
+				//Console.WriteLine ("Uploading {0} {1} with compressed mime: {2}", Filename, md5, compressed_mime);
 
 				// The file is not in the database
 				// Note: there is a race condition here,
@@ -410,6 +414,14 @@ namespace MonkeyWrench
 				} catch {
 					// Ignore any exceptions
 				}
+			}
+		}
+
+		public int ExecuteNonQuery (string sql)
+		{
+			using (IDbCommand cmd = CreateCommand ()) {
+				cmd.CommandText = sql;
+				return cmd.ExecuteNonQuery ();
 			}
 		}
 
