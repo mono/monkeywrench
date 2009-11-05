@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -32,7 +33,7 @@ namespace MonkeyWrench
 		public static string GZCompress (string filename)
 		{
 			if (Environment.OSVersion.Platform != PlatformID.Unix)
-				return null;
+				return null; /* the GZipStream compression method really sucks on MS, we could possibly implement it on mono only */
 
 			string input = filename + ".builder";
 			string gzfilename = input + ".gz";
@@ -70,12 +71,36 @@ namespace MonkeyWrench
 
 		public static bool GZUncompress (string filename)
 		{
+			string infile;
+			string outfile;
+
 			if (!filename.EndsWith (".gz")) {
-				File.Move (filename, filename + ".gz");
-				filename = filename + ".gz";
+				outfile = filename;
+				infile = filename + ".gz";
+				File.Move (outfile, infile);
+				filename = infile;
+			} else {
+				outfile = filename.Substring (0, filename.Length - 3);
+				infile = filename;
 			}
 
 			// Uncompress it
+			if (Configuration.GetPlatform () == Platform.Windows) {
+				// TODO: test this code on !Windows too, and remove the gunzip code below.
+				using (FileStream infs = new FileStream (infile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					using (GZipStream gz = new GZipStream (infs, CompressionMode.Decompress)) {
+						using (FileStream outfs = new FileStream (outfile, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+							byte [] buffer = new byte [1024];
+							int bytes_read;
+							while ((bytes_read = gz.Read (buffer, 0, buffer.Length)) > 0) {
+								outfs.Write (buffer, 0, bytes_read);
+							}
+						}
+					}
+				}
+				return true;
+			}
+
 			using (Process p = new Process ()) {
 				p.StartInfo.FileName = "gunzip";
 				p.StartInfo.Arguments = "--force " + filename; // --force is needed since Path.GetTempFileName creates the file

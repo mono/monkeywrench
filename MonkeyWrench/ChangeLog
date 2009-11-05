@@ -1,5 +1,9 @@
 2009-11-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* FileUtilities.cs: Add a GZipStream decompress implementation.
+
+2009-11-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* FileUtilities.cs: Fix eol.
 
 2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
