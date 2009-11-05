@@ -1,3 +1,8 @@
+2009-11-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.cs: UploadFileAsync: GZCompress can return a null value,
+	(can't compress) in which case upload uncompressed.
+
 2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* MonkeyWrench.DataClasses.csproj: Added new file.

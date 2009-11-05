@@ -203,8 +203,13 @@ namespace MonkeyWrench.Web.WebServices
 				// try to compress the file
 				try {
 					gz = FileUtilities.GZCompress (filename);
-					file_to_upload = gz;
-					compressed_mime = MimeTypes.GZ;
+					if (gz != null) {
+						file_to_upload = gz;
+						compressed_mime = MimeTypes.GZ;
+					} else {
+						file_to_upload = filename;
+						compressed_mime = null;
+					}
 				} catch (Exception ex) {
 					file_to_upload = filename;
 					compressed_mime = null;
