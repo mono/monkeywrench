@@ -1,5 +1,11 @@
 2009-11-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* FileUtilities.cs: When done decompressing using GZipStream, delete
+	the input file (as gunzip does). Also if we move the input file based
+	on the extension, delete any previous file with the same target name.
+
+2009-11-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* FileUtilities.cs: Add a GZipStream decompress implementation.
 
 2009-11-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>

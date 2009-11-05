@@ -54,13 +54,7 @@ namespace MonkeyWrench
 				Console.WriteLine ("GZCompress There was an exception while trying to compress the file '{0}': {1}\n{2}", filename, ex.Message, ex.StackTrace);
 				return null;
 			} finally {
-				try {
-					if (File.Exists (input)) {
-						File.Delete (input);
-					}
-				} catch {
-					// Ignore
-				}
+				TryDeleteFile (input);
 			}
 
 			if (File.Exists (gzfilename))
@@ -77,6 +71,7 @@ namespace MonkeyWrench
 			if (!filename.EndsWith (".gz")) {
 				outfile = filename;
 				infile = filename + ".gz";
+				TryDeleteFile (infile);
 				File.Move (outfile, infile);
 				filename = infile;
 			} else {
@@ -98,6 +93,7 @@ namespace MonkeyWrench
 						}
 					}
 				}
+				TryDeleteFile (infile);
 				return true;
 			}
 
@@ -217,6 +213,19 @@ namespace MonkeyWrench
 		{
 			using (MD5CryptoServiceProvider md5_provider = new MD5CryptoServiceProvider ()) {
 					return MD5BytesToString (md5_provider.ComputeHash (str));
+			}
+		}
+
+		/// <summary>
+		/// Tries to delete a file, does not throw any exceptions.
+		/// </summary>
+		/// <param name="filename"></param>
+		public static void TryDeleteFile (string filename)
+		{
+			try {
+				if (File.Exists (filename))
+					File.Delete (filename);
+			} catch {
 			}
 		}
 	}
