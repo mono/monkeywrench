@@ -1,3 +1,9 @@
+2009-11-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* FileUtilities.cs: If gzunzip didn't finish in time and we fail to
+	kill the gzunzip process, it most likely finished just before we
+	tried to kill it - assume everything is ok.
+
 2009-11-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* FileUtilities.cs: When done decompressing using GZipStream, delete

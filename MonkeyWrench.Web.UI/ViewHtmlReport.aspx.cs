@@ -91,10 +91,14 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 			} catch (HttpException ex) {
 				Logger.Log ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex.Message);
 				Response.Redirect ("Login.asxp");
+			} catch (WebException ex) {
+				Logger.Log ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex.Message);
+				Response.Redirect ("Login.asxp");
 			} finally {
 				try {
 					File.Delete (tmp_html_filename);
-				} catch {
+				} catch (Exception ex) {
+					Console.Error.WriteLine ("ViewHtmlReport.aspx.cs exception: {0}", ex);
 					// Ignore any exceptions.
 				}
 			}

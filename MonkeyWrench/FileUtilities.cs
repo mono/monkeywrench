@@ -103,7 +103,11 @@ namespace MonkeyWrench
 				p.Start ();
 				if (!p.WaitForExit (1000 * 60 /* 1 minute */ )) {
 					Logger.Log ("GZUncompress: gunzip didn't finish in one minute, killing it.");
-					p.Kill ();
+					try {
+						p.Kill ();
+					} catch {
+						return true; // it didn't finish, but we couldn't kill it? Hope everything is ok and just return true.
+					}
 					return false;
 				}
 				return p.ExitCode == 0;
