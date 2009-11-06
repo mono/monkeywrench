@@ -53,7 +53,7 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 					// undo any changes for javascript links
 					line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=javascript", workfile_id), "javascript");
 					// undo any changes for external links
-					line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=http://www", workfile_id), "http://www");
+					line = line.Replace (string.Format ("ViewHtmlReport.aspx?workfile_id={0}&amp;filename=http://", workfile_id), "http://");
 
 					writer.Write (line);
 					writer.Write ('\n');

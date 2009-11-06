@@ -1,3 +1,7 @@
+2009-11-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ViewHtmlReport.aspx.cs: External links doesn't have to contain www.
+
 2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* index.aspx: Remove dead code.
