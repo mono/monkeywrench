@@ -1,5 +1,9 @@
 2009-11-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewHtmlReport.aspx.cs: Fix typo in redirect link.
+
+2009-11-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewHtmlReport.aspx.cs: Add some logging for unexpected exceptions.
 
 2009-11-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
