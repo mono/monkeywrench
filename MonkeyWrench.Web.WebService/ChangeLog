@@ -1,3 +1,7 @@
+2009-11-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.asmx.cs: Reformat with VS to have consistent tabs in here.
+
 2009-10-07  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx.cs: When determining if a hostlane has pending work,
