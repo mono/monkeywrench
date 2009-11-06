@@ -63,8 +63,10 @@ namespace MonkeyWrench.WebServices
 				Console.WriteLine ("Verifying login, cookie: {0} user: {1} ip: {2}", login.Cookie, login.User, ip);
 			}
 
-			if (view == null)
-				throw new ApplicationException ("Invalid user/password.");
+			if (view == null) {
+				Console.WriteLine ("Invalid credentials.");
+				return;
+			}
 
 			LoginResponse login_response = response as LoginResponse;
 			if (login_response != null) {
