@@ -1,5 +1,9 @@
 2009-11-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Configuration.cs: The include dir is named include, not install.
+
+2009-11-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Configuration.cs: Add support for C[PLUS]_INCLUDE_PATH.
 
 2009-11-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>

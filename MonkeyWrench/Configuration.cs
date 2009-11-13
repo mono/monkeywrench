@@ -305,7 +305,7 @@ namespace MonkeyWrench
 		public static string GetCIncludePath (string lane, string revision)
 		{
 			string current = Environment.GetEnvironmentVariable ("C_INCLUDE_PATH");
-			string result = Path.Combine (GetDataInstallDir (lane, revision), "install");
+			string result = Path.Combine (GetDataInstallDir (lane, revision), "include");
 			if (!string.IsNullOrEmpty (current))
 				result += ":" + current;
 			return result;
@@ -314,7 +314,7 @@ namespace MonkeyWrench
 		public static string GetCPlusIncludePath (string lane, string revision)
 		{
 			string current = Environment.GetEnvironmentVariable ("CPLUS_INCLUDE_PATH");
-			string result = Path.Combine (GetDataInstallDir (lane, revision), "install");
+			string result = Path.Combine (GetDataInstallDir (lane, revision), "include");
 			if (!string.IsNullOrEmpty (current))
 				result += ":" + current;
 			return result;
