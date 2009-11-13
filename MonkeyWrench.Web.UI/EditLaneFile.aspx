@@ -1,4 +1,4 @@
-﻿<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" Inherits="EditLaneFile" Codebehind="EditLaneFile.aspx.cs" %>
+<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" Inherits="EditLaneFile" Codebehind="EditLaneFile.aspx.cs" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
     <div>
@@ -27,6 +27,8 @@ BUILD_SCRIPT_DIR:   The directory the script files for the lane are stored befor
 PATH:               BUILD_INSTALL/bin:PATH
 LD_LIBRARY_PATH     BUILD_INSTALL/lib:LD_LIBRARY_PATH
 PKG_CONFIG_PATH     BUILD_INSTALL/lib/pkgconfig:PKG_CONFIG_PATH
+C_INCLUDE_PATH      BUILD_INSTALL/include
+CPLUS_INCLUDE_PATH  BUILD_INSTALL/include
         </pre>
         <h5>Dependencies</h5>
         <pre>Dependencies are downloaded into the directory BUILD_DATA_LANE/BUILD_REVISION/dependencies/[dependent lane]/</pre>

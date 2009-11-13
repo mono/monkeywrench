@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Configuration.cs
  *
  * Authors:
@@ -302,6 +302,24 @@ namespace MonkeyWrench
 			return result;
 		}
 
+		public static string GetCIncludePath (string lane, string revision)
+		{
+			string current = Environment.GetEnvironmentVariable ("C_INCLUDE_PATH");
+			string result = Path.Combine (GetDataInstallDir (lane, revision), "install");
+			if (!string.IsNullOrEmpty (current))
+				result += ":" + current;
+			return result;
+		}
+
+		public static string GetCPlusIncludePath (string lane, string revision)
+		{
+			string current = Environment.GetEnvironmentVariable ("CPLUS_INCLUDE_PATH");
+			string result = Path.Combine (GetDataInstallDir (lane, revision), "install");
+			if (!string.IsNullOrEmpty (current))
+				result += ":" + current;
+			return result;
+		}
+		
 		/// <summary>
 		/// Get the host name of the machine we're running on.
 		/// Either BUILDER_HOST or 'Default'

@@ -161,6 +161,8 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["LD_LIBRARY_PATH"] = Configuration.GetLdLibraryPath (info.lane.lane, info.revision.revision);
 							p.StartInfo.EnvironmentVariables ["PKG_CONFIG_PATH"] = Configuration.GetPkgConfigPath (info.lane.lane, info.revision.revision);
 							p.StartInfo.EnvironmentVariables ["PATH"] = Configuration.GetPath (info.lane.lane, info.revision.revision);
+							p.StartInfo.EnvironmentVariables ["C_INCLUDE_PATH"] = Configuration.GetCIncludePath (info.lane.lane, info.revision.revision);
+							p.StartInfo.EnvironmentVariables ["CPLUS_INCLUDE_PATH"] = Configuration.GetCPlusIncludePath (info.lane.lane, info.revision.revision);
 
 							// We need to remove all paths from environment variables that were
 							// set for this executable to work so that they don't mess with 

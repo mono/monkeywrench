@@ -1,3 +1,7 @@
+2009-11-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Add support for C[PLUS]_INCLUDE_PATH.
+
 2009-07-23  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Updated according to locking changes.
