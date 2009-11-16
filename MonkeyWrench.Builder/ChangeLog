@@ -1,3 +1,8 @@
+2009-11-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Cygwin ends up with an ugly mess of path
+	separators, force them all to unix-style separators.
+
 2009-11-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Add support for C[PLUS]_INCLUDE_PATH.

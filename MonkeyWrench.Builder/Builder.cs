@@ -145,7 +145,7 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_LANE"] = info.lane.lane;
 							p.StartInfo.EnvironmentVariables ["BUILD_COMMAND"] = info.command.command;
 							p.StartInfo.EnvironmentVariables ["BUILD_REVISION"] = info.revision.revision;
-							p.StartInfo.EnvironmentVariables ["BUILD_INSTALL"] = info.BUILDER_DATA_INSTALL_DIR;
+							p.StartInfo.EnvironmentVariables ["BUILD_INSTALL"] = Configuration.CygwinizePath (info.BUILDER_DATA_INSTALL_DIR);
 							p.StartInfo.EnvironmentVariables ["BUILD_DATA_LANE"] = Configuration.GetDataLane (info.lane.lane);
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY"] = info.lane.repository;
 							p.StartInfo.EnvironmentVariables ["BUILD_HOST"] = Configuration.Host;
@@ -158,11 +158,11 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY_SPACE"] = info.lane.repository.Replace (',', ' ');
 							p.StartInfo.EnvironmentVariables ["BUILD_SEQUENCE"] = "0";
 							p.StartInfo.EnvironmentVariables ["BUILD_SCRIPT_DIR"] = info.temp_dir;
-							p.StartInfo.EnvironmentVariables ["LD_LIBRARY_PATH"] = Configuration.GetLdLibraryPath (info.lane.lane, info.revision.revision);
-							p.StartInfo.EnvironmentVariables ["PKG_CONFIG_PATH"] = Configuration.GetPkgConfigPath (info.lane.lane, info.revision.revision);
-							p.StartInfo.EnvironmentVariables ["PATH"] = Configuration.GetPath (info.lane.lane, info.revision.revision);
-							p.StartInfo.EnvironmentVariables ["C_INCLUDE_PATH"] = Configuration.GetCIncludePath (info.lane.lane, info.revision.revision);
-							p.StartInfo.EnvironmentVariables ["CPLUS_INCLUDE_PATH"] = Configuration.GetCPlusIncludePath (info.lane.lane, info.revision.revision);
+							p.StartInfo.EnvironmentVariables ["LD_LIBRARY_PATH"] = Configuration.CygwinizePath (Configuration.GetLdLibraryPath (info.lane.lane, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["PKG_CONFIG_PATH"] = Configuration.CygwinizePath (Configuration.GetPkgConfigPath (info.lane.lane, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["PATH"] = Configuration.CygwinizePath (Configuration.GetPath (info.lane.lane, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["C_INCLUDE_PATH"] = Configuration.CygwinizePath (Configuration.GetCIncludePath (info.lane.lane, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["CPLUS_INCLUDE_PATH"] = Configuration.CygwinizePath (Configuration.GetCPlusIncludePath (info.lane.lane, info.revision.revision));
 
 							// We need to remove all paths from environment variables that were
 							// set for this executable to work so that they don't mess with 

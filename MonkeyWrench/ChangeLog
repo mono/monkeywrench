@@ -1,3 +1,7 @@
+2009-11-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.cs: Add cygwin detection methods.
+
 2009-11-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Configuration.cs: The include dir is named include, not install.

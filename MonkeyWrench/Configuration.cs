@@ -410,5 +410,27 @@ namespace MonkeyWrench
 				}
 			}
 		}
+
+		public static bool IsCygwin 
+		{
+			get { 
+				if (string.Equals ("cygwin", Environment.GetEnvironmentVariable ("OSTYPE")))
+					return true;
+				if (!string.IsNullOrEmpty (Environment.GetEnvironmentVariable ("CYGWIN")))
+					return true;
+				/* the above doesn't seem to be exported from the cygwin shell, so have a last guess about the paths */
+				if (Environment.GetEnvironmentVariable ("PATH").IndexOf ("cygwin") >= 0)
+					return true;
+				return false;
+			}
+		}
+
+		public static string CygwinizePath (string path)
+		{
+			if (!IsCygwin)
+				return path;
+			return path.Replace ('\\', '/');
+		}
+
 	}
 }
