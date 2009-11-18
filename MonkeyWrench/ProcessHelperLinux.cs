@@ -20,7 +20,7 @@ namespace MonkeyWrench
 {
 	internal class ProcessHelperLinux : IProcessHelper
 	{
-		[DllImport ("libc.so.6")]
+		[DllImport ("libc")]
 		private static extern void exit (int exitcode);
 
 		public override void Exit (int exitcode)
