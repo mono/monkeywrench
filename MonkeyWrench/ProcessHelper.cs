@@ -46,7 +46,11 @@ namespace MonkeyWrench
 					break;
 				case Platform.Linux:
 				default:
-					helper = new ProcessHelperLinux ();
+					if (Configuration.IsCygwin) {
+						helper = new ProcessHelperWindows ();
+					} else {
+						helper = new ProcessHelperLinux ();
+					}
 					break;
 				}
 			}

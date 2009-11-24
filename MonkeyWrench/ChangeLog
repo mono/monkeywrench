@@ -1,3 +1,7 @@
+2009-11-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ProcessHelper.cs: For process stuff consider cygwin as Windows.
+
 2009-11-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Configuration.cs: Add cygwin detection methods.
