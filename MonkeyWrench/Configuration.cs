@@ -97,7 +97,7 @@ namespace MonkeyWrench
 			for (int i = 0; i < arguments.Length; i++)
 				Logger.Log ("Arg {0}: '{1}'", i, arguments [i]);
 
-			for (int i = 2; i < arguments.Length; i++) {
+			for (int i = 3; i < arguments.Length; i++) {
 				respawn_arguments += " \"" + arguments [i] + "\" ";
 			}
 			respawn_arguments = respawn_arguments.Trim (' ');

@@ -1,5 +1,10 @@
 2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Configuration.cs: Fix respawn hack to not include the filename
+	in the arguments.
+
+2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Job.cs:
 	* JobWindows.cs:
 	* ProcessHelper.cs:
