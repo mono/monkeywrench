@@ -190,8 +190,11 @@ namespace MonkeyWrench
 					case PlatformID.Win32Windows:
 					case PlatformID.WinCE:
 					//case PlatformID.Xbox:
-						Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not find the configuration file 'MonkeyWrench.xml'.");
-						return false;
+						if (!LoadConfiguration (arguments, Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.MyDocuments), "MonkeyWrench.xml"))) {
+							Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not find the configuration file 'MonkeyWrench.xml'.");
+							return false;
+						}
+						break;
 					default:
 						// if not windows, we assume linux
 						if (!LoadConfiguration (arguments, Path.Combine (Environment.GetEnvironmentVariable ("HOME"), Path.Combine (Path.Combine (".config", "MonkeyWrench"), "MonkeyWrench.xml")))) {

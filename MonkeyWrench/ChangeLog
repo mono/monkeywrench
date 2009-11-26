@@ -1,3 +1,8 @@
+2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.cs: On Windows look in MyDocuments folder too when
+	searching for a MonkeyWrench.xml.
+
 2009-11-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ProcessHelper.cs: For process stuff consider cygwin as Windows.

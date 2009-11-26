@@ -1,3 +1,8 @@
+2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.html: Add information about finding MonkeyWrench.xml
+	on windows (we now look in MyDocuments too).
+
 2009-09-24  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Configuration.html: Add note about not being able to auto-detect
