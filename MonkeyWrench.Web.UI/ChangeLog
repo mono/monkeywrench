@@ -1,3 +1,7 @@
+2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* EditLane.aspx.cs: Fix command edition when the command contain quotes.
+
 2009-11-13  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* EditLaneFile.aspx: Add support for C[PLUS]_INCLUDE_PATH.

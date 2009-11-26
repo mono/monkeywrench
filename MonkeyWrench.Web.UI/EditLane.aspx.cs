@@ -253,7 +253,7 @@ public partial class EditLane : System.Web.UI.Page
 					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={3}&amp;action=switchNonFatal'>{2}</a>", lane.id, (!command.nonfatal).ToString (), command.nonfatal ? "yes" : "no", command.id),
 					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={1}&amp;action=switchInternal'>{2}</a>", lane.id, command.id, (command.@internal ? "yes" : "no")),
 					string.Format ("<a href='javascript:editCommandFilename ({2}, {0}, true, \"{1}\")'>{1}</a>", command.id, command.filename, lane.id),
-					string.Format ("<a href='javascript:editCommandArguments ({2}, {0}, true, \"{1}\")'>{1}</a>", command.id, command.arguments, lane.id),
+					string.Format ("<a href='javascript:editCommandArguments ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.arguments.Replace ("\"", "\\\""), lane.id, command.arguments),
 					string.Format ("<a href='javascript:editCommandTimeout ({2}, {0}, true, \"{1}\")'>{1} minutes</a>", command.id, command.timeout, lane.id),
 					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;action=deletecommand&amp;command_id={1}'>Delete</a>", lane.id, command.id)));
 			}
