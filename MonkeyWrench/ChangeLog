@@ -1,5 +1,19 @@
 2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Job.cs:
+	* JobWindows.cs:
+	* ProcessHelper.cs:
+	* ProcessHelperWindows.cs: Add a new Job class that is an improved
+	version of a Process: it can kill all its descendants too. On Windows
+	implement this using the JobObject Win32 api, on the rest of the archs
+	continue finding process descendants manually.
+
+	* MonkeyWrench.csproj: Add new files.
+
+	* Configuration.cs: Add a respawn hack.
+
+2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Configuration.cs: On Windows look in MyDocuments folder too when
 	searching for a MonkeyWrench.xml.
 

@@ -1,5 +1,10 @@
 2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Configuration.html: Update information about getting child processes
+	to indicate that win32 isn't an available option anymore.
+
+2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Configuration.html: Add information about finding MonkeyWrench.xml
 	on windows (we now look in MyDocuments too).
 

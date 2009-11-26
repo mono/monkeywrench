@@ -83,8 +83,45 @@ namespace MonkeyWrench
 			return result;
 		}
 
+		private static void ExecuteSuspendedProcessHack (string [] arguments)
+		{
+			// this is a hack around the fact that we can't create a suspended process without p/invokes
+			// see comment in JobWindows.Start for a complete explanation
+			if (arguments.Length < 3 || arguments [0] != "/respawn")
+				return;
+
+			string mutex_name = arguments [1];
+			string respawn_filename = arguments [2];
+			string respawn_arguments = string.Empty;
+
+			for (int i = 0; i < arguments.Length; i++)
+				Logger.Log ("Arg {0}: '{1}'", i, arguments [i]);
+
+			for (int i = 2; i < arguments.Length; i++) {
+				respawn_arguments += " \"" + arguments [i] + "\" ";
+			}
+			respawn_arguments = respawn_arguments.Trim (' ');
+
+			System.Threading.Mutex m = System.Threading.Mutex.OpenExisting (mutex_name);
+			Logger.Log ("Respawn process: acquiring mutex...");
+			m.WaitOne (); // wait for the mutex
+			Logger.Log ("Respawn process: mutex acquired, releasing it");
+			m.ReleaseMutex (); // no need to keep it locked
+			using (System.Diagnostics.Process p = new System.Diagnostics.Process ()) {
+				p.StartInfo.FileName = respawn_filename;
+				p.StartInfo.Arguments = respawn_arguments;
+				p.StartInfo.UseShellExecute = false;
+				Logger.Log ("Respawning '{0}' with '{1}'", p.StartInfo.FileName, p.StartInfo.Arguments);
+				p.Start ();
+				p.WaitForExit ();
+				Environment.Exit (p.ExitCode);
+			}
+		}
+
 		public static bool LoadConfiguration (string [] arguments, string file)
 		{
+			ExecuteSuspendedProcessHack (arguments);
+
 			if (string.IsNullOrEmpty (file))
 				return false;
 

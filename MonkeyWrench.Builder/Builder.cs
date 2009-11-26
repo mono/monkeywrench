@@ -131,7 +131,7 @@ namespace MonkeyWrench.Builder
 				info.work.host_id = info.host.id;
 				info.work = WebService.ReportBuildStateSafe (info.work).Work;
 
-				using (Process p = new Process ()) {
+				using (Job p = ProcessHelper.CreateJob ()) {
 					using (FileStream fs = new FileStream (log_file, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)) {
 						using (StreamWriter log = new StreamWriter (fs)) {
 							p.StartInfo.FileName = info.command.filename;
@@ -233,15 +233,15 @@ namespace MonkeyWrench.Builder
 									result = DBState.Aborted;
 									try {
 										exitcode = 255;
-										Logger.Log ("{1} The build step '{0}' has been aborted, killing it.", info.command.command, info.number);
-										p.KillTree ();
-										log.WriteLine ("{1} The build step '{0}' was aborted, killed it.", info.command.command, info.number);
+										Logger.Log ("{1} The build step '{0}' has been aborted, terminating it.", info.command.command, info.number);
+										p.Terminate ();
+										log.WriteLine ("{1} The build step '{0}' was aborted, terminated it.", info.command.command, info.number);
 									} catch (Exception ex) {
 										Logger.Log ("{1} Exception while killing build step: {0}", ex.ToString (), info.number);
 									}
 									break;
 								}
-
+								
 								// Check if step has timedout
 								bool timedout = false;
 								string timeoutReason = null;
@@ -262,10 +262,10 @@ namespace MonkeyWrench.Builder
 									result = DBState.Timeout;
 									exitcode = 255;
 									Logger.Log ("{0} {1}", info.number, timeoutReason);
-									p.KillTree ();
+									p.Terminate ();
 									log.WriteLine (timeoutReason);
 								} catch (Exception ex) {
-									Logger.Log ("{1} Exception while killing build step: {0}", ex.ToString (), info.number);
+									Logger.Log ("{1} Exception while terminating build step: {0}", ex.ToString (), info.number);
 								}
 								break;
 							}

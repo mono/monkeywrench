@@ -62,6 +62,14 @@ namespace MonkeyWrench
 		{
 			GetHelper ().Exit (exitcode);
 		}
+
+		public static Job CreateJob ()
+		{
+			if (Configuration.GetPlatform () == Platform.Windows || Configuration.IsCygwin)
+				return new JobWindows ();
+			
+			return new Job ();
+		}
 	}
 
 	internal abstract class IProcessHelper
@@ -70,8 +78,6 @@ namespace MonkeyWrench
 		{
 			if (string.IsNullOrEmpty (Configuration.ChildProcessAlgorithm)) {
 				switch (Configuration.GetPlatform ()) {
-				case Platform.Windows:
-					return ProcessHelperWindows.GetChildrenImplWin32 (pid);
 				case Platform.Mac:
 					return GetChildrenImplPS (pid);
 				case Platform.Linux:
@@ -80,8 +86,6 @@ namespace MonkeyWrench
 				}
 			} else {
 				switch (Configuration.ChildProcessAlgorithm.ToLowerInvariant ()) {
-				case "win32":
-					return ProcessHelperWindows.GetChildrenImplWin32 (pid);
 				case "pgrep":
 					return GetChildrenImplPgrep (pid);
 				case "ps":

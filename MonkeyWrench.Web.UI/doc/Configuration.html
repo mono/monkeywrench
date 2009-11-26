@@ -87,10 +87,9 @@
     </ul>
     <h3>ChildProcessAlgorithm</h3>How child processes can be calculated from a parent process id. Possible values (case doesn't matter):
     <ul>
-    <li>Empty string: Determine using the current platform (windows: win32, linux: pgrep, mac: ps)</li>
+    <li>Empty string: Determine using the current platform (linux: pgrep, mac: ps, win32: N/A (win32 doesn't need to calculate child processes)</li>
     <li>pgrep</li>
     <li>ps</li>
-    <li>win32: use win32 api</li>
     </ul>
     <h2>
         Sample configuration</h2>

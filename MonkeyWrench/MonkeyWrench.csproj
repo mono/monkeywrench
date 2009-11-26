@@ -43,6 +43,8 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="FileUtilities.cs" />
     <Compile Include="IDB.cs" />
+    <Compile Include="Job.cs" />
+    <Compile Include="JobWindows.cs" />
     <Compile Include="Lock.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MimeTypes.cs" />
