@@ -249,10 +249,10 @@ namespace MonkeyWrench.Builder
 
 								if ((DateTime.Now > local_starttime.AddMinutes (info.command.timeout))) {
 									timedout = true;
-									timeoutReason = string.Format ("The build step '{0}' didn't finish in {1} minutes.", info.command.command, info.command.timeout);
+									timeoutReason = string.Format ("The build step '{0}' didn't finish in {1} minute(s).", info.command.command, info.command.timeout);
 								} else if (last_stamp.AddMinutes (timeout) <= DateTime.Now) {
 									timedout = true;
-									timeoutReason = string.Format ("The build step '{0}' has had no output for {1} minutes.", info.command.command, timeout);
+									timeoutReason = string.Format ("The build step '{0}' has had no output for {1} minute(s).", info.command.command, timeout);
 								}
 
 								if (!timedout)

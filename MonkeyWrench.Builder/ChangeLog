@@ -1,3 +1,7 @@
+2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Slightly improve logging messages.
+
 2009-11-16  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Cygwin ends up with an ugly mess of path
