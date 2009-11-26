@@ -94,13 +94,15 @@ namespace MonkeyWrench
 			string respawn_filename = arguments [2];
 			string respawn_arguments = string.Empty;
 
-			for (int i = 0; i < arguments.Length; i++)
-				Logger.Log ("Arg {0}: '{1}'", i, arguments [i]);
-
 			for (int i = 3; i < arguments.Length; i++) {
-				respawn_arguments += " \"" + arguments [i] + "\" ";
+				if (i > 3)
+					respawn_arguments += " ";
+				if (arguments [i].IndexOf (' ') >= 0) {
+					respawn_arguments += "\"" + arguments [i] + "\"";
+				} else {
+					respawn_arguments += arguments [i];
+				}
 			}
-			respawn_arguments = respawn_arguments.Trim (' ');
 
 			System.Threading.Mutex m = System.Threading.Mutex.OpenExisting (mutex_name);
 			Logger.Log ("Respawn process: acquiring mutex...");

@@ -1,3 +1,12 @@
+2009-11-27  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* JobWindows.cs: If we were executing with mono when respawning,
+	we need to execute the respawned process with mono too, otherwise
+	cygwin complains in funny ways.
+	
+	* Configuration.cs: Log a bit less and improve respawn argument
+	handling.
+
 2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Configuration.cs: Fix respawn hack to not include the filename

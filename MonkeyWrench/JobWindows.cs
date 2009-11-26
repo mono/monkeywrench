@@ -53,6 +53,17 @@ namespace MonkeyWrench
 			
 			p.StartInfo.Arguments = "/respawn " + mutex_name + " \"" + p.StartInfo.FileName + "\" " + p.StartInfo.Arguments;
 			p.StartInfo.FileName = System.Reflection.Assembly.GetEntryAssembly ().Location;
+
+			if (Type.GetType ("Mono.Runtime") != null) {
+				/* 
+				 * If we're executing with mono now, we need to execute again with mono.
+				 * No idea why, but make fails on cygwin otherwise (when invoking a recursive
+				 * make, make claims that it can't find make)
+				 */
+				p.StartInfo.Arguments = "\"" + p.StartInfo.FileName + "\" " + p.StartInfo.Arguments;
+				p.StartInfo.FileName = "mono";
+			}
+
 			p.Start (); // start the child, it'll wait for the suspended_mutex to be released.
 
 			job_handle = CreateJobObject (IntPtr.Zero, null);
