@@ -38,12 +38,22 @@ namespace MonkeyWrench.WebServices
 
 		internal void Authenticate (DB db, WebServiceLogin login, WebServiceResponse response)
 		{
-			Authentication.Authenticate (Context, db, login, response);
+			Authenticate (db, login, response, false);
+		}
+
+		internal void Authenticate (DB db, WebServiceLogin login, WebServiceResponse response, bool @readonly)
+		{
+			Authentication.Authenticate (Context, db, login, response, @readonly);
 		}
 
 		private void VerifyUserInRole (DB db, WebServiceLogin login, string role)
 		{
-			Authentication.VerifyUserInRole (Context, db, login, role);
+			VerifyUserInRole (db, login, role, false);
+		}
+
+		private void VerifyUserInRole (DB db, WebServiceLogin login, string role, bool @readonly)
+		{
+			Authentication.VerifyUserInRole (Context, db, login, role, @readonly);
 		}
 
 		[WebMethod]
@@ -1179,7 +1189,7 @@ ORDER BY revision DESC LIMIT 250;
 		public void UploadCompressedFile (WebServiceLogin login, DBWork work, string filename, byte [] contents, bool hidden, string compressed_mime)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.BuildBot);
+				VerifyUserInRole (db, login, Roles.BuildBot, true);
 
 				string tmp = null;
 				try {
@@ -1214,7 +1224,7 @@ ORDER BY revision DESC LIMIT 250;
 		public DBState GetWorkState (WebServiceLogin login, DBWork work)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.BuildBot);
+				VerifyUserInRole (db, login, Roles.BuildBot, true);
 				work.Reload (db);
 				return work.State;
 			}
@@ -1232,7 +1242,7 @@ ORDER BY revision DESC LIMIT 250;
 			ReportBuildStateResponse response = new ReportBuildStateResponse ();
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.BuildBot);
+				VerifyUserInRole (db, login, Roles.BuildBot, true);
 				Console.WriteLine ("ReportBuildState, state: {0}, start time: {1}, end time: {2}", work.State, work.starttime, work.endtime);
 				if (work.starttime > new DateTime (2000, 1, 1) && work.endtime < work.starttime) {
 					// the issue here is that the server interprets the datetime as local time, while it's always as utc.
@@ -1340,7 +1350,7 @@ ORDER BY revision DESC LIMIT 250;
 				response.Work = new List<List<BuildInfoEntry>> ();
 
 				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.BuildBot);
+					VerifyUserInRole (db, login, Roles.BuildBot, true);
 
 					response.Host = FindHost (db, null, host);
 

@@ -33,12 +33,12 @@ namespace MonkeyWrench.Database
 		/// <param name="user"></param>
 		/// <param name="password"></param>
 		/// <returns></returns>
-		public static DBLogin Login (DB db, string login, string password, string ip4)
+		public static DBLogin Login (DB db, string login, string password, string ip4, bool @readonly)
 		{
 			DBLogin result;
 			int id;
 
-			Console.WriteLine ("DBLogin.Login ('{0}', '{1}', '{2}')", login, password, ip4);
+			Console.WriteLine ("DBLogin.Login ('{0}', '{1}', '{2}'. {3})", login, password, ip4, @readonly);
 
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				// TODO: Encrypt passwords somehow, not store as plaintext.
@@ -56,21 +56,24 @@ namespace MonkeyWrench.Database
 				}
 			}
 
-			byte [] data = new byte [32];
-			StringBuilder builder = new StringBuilder (data.Length);
-			random.GetBytes (data);
-
-			for (int i = 0; i < data.Length; i++)
-				builder.Append (string.Format ("{0:x}", data [i]));
-			builder.Append (DateTime.Now.Ticks);
-
 			result = new DBLogin ();
-			result.expires = DateTime.Now.AddDays (1);
 			result.person_id = id;
 			result.ip4 = ip4;
-			result.cookie = builder.ToString ();
 
-			result.Save (db);
+			if (!@readonly) {
+				byte [] data = new byte [32];
+				StringBuilder builder = new StringBuilder (data.Length);
+				random.GetBytes (data);
+
+				for (int i = 0; i < data.Length; i++)
+					builder.Append (string.Format ("{0:x}", data [i]));
+				builder.Append (DateTime.Now.Ticks);
+
+				result.expires = DateTime.Now.AddDays (1);
+				result.cookie = builder.ToString ();
+
+				result.Save (db);
+			}
 
 			return result;
 		}

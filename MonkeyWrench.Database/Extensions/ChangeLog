@@ -1,3 +1,10 @@
+2009-12-01  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBLogin_Extensions.cs: Login: add support for a readonly mode that
+	doesn't write anything to the database - the returned credentials
+	can't be used to log in again, but it is a faster way of checking
+	for valid credentials.
+
 2009-09-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBLane_Extensions.cs: Fix the Delete method to delete everything

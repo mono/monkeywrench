@@ -186,7 +186,7 @@ namespace MonkeyWrench.WebServices
 				filename = Request ["filename"];
 
 				if (!string.IsNullOrEmpty (md5)) { // md5 lookup needs admin rights
-					Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator);
+					Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator, false);
 					file = DBFile_Extensions.Find (db, md5);
 
 					if (file == null)
@@ -202,7 +202,7 @@ namespace MonkeyWrench.WebServices
 						throw new HttpException (404, "Could not find the file.");
 
 					if (view.@internal) // internal files need admin rights
-						Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator);
+						Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator, false);
 
 					if (!string.IsNullOrEmpty (filename)) {
 						file = DBWork_Extensions.GetFile (db, view.work_id, filename, false);
