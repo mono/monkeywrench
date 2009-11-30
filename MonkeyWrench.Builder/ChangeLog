@@ -1,3 +1,7 @@
+2009-11-30  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Treat TimedOut and Aborted as failed steps too.
+
 2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Updated to use the new Job object.

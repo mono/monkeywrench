@@ -324,7 +324,7 @@ namespace MonkeyWrench.Builder
 			} finally {
 				Logger.Log ("{0} Builder finished thread for sequence {0}", info.number);
 
-				if (info.work.State == DBState.Failed && !info.command.nonfatal) {
+				if ((info.work.State == DBState.Failed || info.work.State == DBState.Aborted || info.work.State == DBState.Timeout) && !info.command.nonfatal) {
 					failed_hostlanes.Add (info.hostlane);
 				}
 			}
