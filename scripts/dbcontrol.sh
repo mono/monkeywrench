@@ -10,6 +10,9 @@
 # create: creates the db (and starts it). if the database already exists, an error is returned.
 # dropdata: drops all the data from the db (it really drops the entire database and recreates it)
 # delete: stops the db and deletes all files. if the database doesn't exist, this option does nothing.
+# backup-configuration: backs up the configuration of the monkeywrench instance (all the tables except: file, revision, revisionwork, work, workfile, login. You loose all work done by all buildbots, but nothing you've done yourself)
+#                       The data will be written to the files backup-configuration/backup-configuration.<table>.sql.
+# restore-configuration: restore what was backed up with backup-configuration. Note that the database must not have any data it in (just created with "dbcontrol.sh create && dbcontrol.sh start")
 #
 
 # derive some paths from the config sourced above
@@ -25,7 +28,7 @@ export PGDATA=$BUILDER_DATA_DB_DATA
 
 # verify variables
 if [[ "x$1" == "x" || "x$2" != "x" ]]; then
-	echo "Syntax: $0 [start|stop|create|dropdata|delete|pgsql]"
+	echo "Syntax: $0 [start|stop|create|dropdata|delete|pgsql|backup-configuration|restore-configuration]"
 	exit 1
 fi
 
@@ -82,11 +85,19 @@ case "$1" in
 	psql)
 		CMD=psql
 		;;
+	backup-configuration)
+		CMD=backup-configuration
+		;;
+	restore-configuration)
+		CMD=restore-configuration
+		;;
 	*)
 		echo "Invalid option: $1 (must be either start, stop, create, dropdata, delete or psql)"
 		exit 1
 		;;
 esac
+
+CONFIGURATION_TABLES="host masterhost lane environmentvariable filedeletiondirective lanedeletiondirective lanedependency command hostlane lanefile lanefiles person"
 
 # do the work
 case "$CMD" in
@@ -125,6 +136,29 @@ case "$CMD" in
 		;;
 	psql)
 		psql --user builder --db builder
+		;;
+	backup-configuration)
+		# -a: only data, -D: add column names to INSERT statements, -d: use INSERT instead of COPY, -F: use postgre custom format
+		cd $SCRIPT_DIR
+		mkdir -p backup-configuration
+		cd backup-configuration
+		for i in $CONFIGURATION_TABLES; do
+			pg_dump -aDd -U builder -t $i builder > backup-configuration.$i.sql 
+		done
+		zip backup-configuration.zip backup-configuration.*.sql
+		N=`date +"%Y-%m-%d"`
+		mv backup-configuration.zip backup-configuration.$N.zip
+		;;
+	restore-configuration)
+		cd $SCRIPT_DIR/backup-configuration
+		# we need to temporarily disable the foreign key the Lanefile table has on one of its own fields, since pg_dump can dump records in any order
+		echo "ALTER TABLE Lanefile DROP CONSTRAINT lanefile_original_id_fkey;" | psql --user builder --db builder
+		# when creating a new database, we automatically add an admin user. Remove that user here.
+		echo "DELETE FROM Person WHERE login = 'admin';" | psql --user builder --db builder
+		for i in $CONFIGURATION_TABLES; do
+			cat backup-configuration.$i.sql | psql --user builder --db builder
+		done
+		echo "ALTER TABLE Lanefile ADD CONSTRAINT lanefile_original_id_fkey FOREIGN KEY (original_id) REFERENCES lanefile (id);"
 		;;
 	*)
 		echo "Invalid command: $CMD"

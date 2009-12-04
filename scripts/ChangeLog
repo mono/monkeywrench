@@ -1,3 +1,7 @@
+2009-12-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* dbcontrol.sh: Add support for backing up configuration tables.
+
 2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* dbcontrol.sh: Make this script work when the current directory isn't
