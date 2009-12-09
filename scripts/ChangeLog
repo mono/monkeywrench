@@ -1,3 +1,7 @@
+2009-12-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* database.sql: Add more indexes.
+
 2009-12-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* dbcontrol.sh: Add support for backing up configuration tables.

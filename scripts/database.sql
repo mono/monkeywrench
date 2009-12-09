@@ -203,11 +203,13 @@ CREATE TABLE RevisionWork (
 	-- alter table revisionwork add column endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0';
 	UNIQUE (lane_id, host_id, revision_id)
 );
-CREATE INDEX RevisionWork_revision_id_ix ON RevisionWork (revision_id);
+CREATE INDEX RevisionWork_revision_id_idx ON RevisionWork (revision_id);
 CREATE INDEX RevisionWork_workhost_id_idx ON RevisionWork (workhost_id);
 CREATE INDEX RevisionWork_host_id_idx ON RevisionWork (host_id);
 CREATE INDEX RevisionWork_lane_id_idx ON RevisionWork (lane_id);
 CREATE INDEX RevisionWork_endtime_idx ON RevisionWork (endtime);
+CREATE INDEX RevisionWork_completed_idx ON RevisionWork (completed);
+CREATE INDEX RevisionWork_state_idx ON RevisionWork (state);
 
 CREATE TABLE Work (
 	id               serial    PRIMARY KEY,
@@ -226,6 +228,7 @@ CREATE TABLE Work (
 	summary          text      NOT NULL DEFAULT '',                      -- a one line summary of the log
 	revisionwork_id  int       REFERENCES RevisionWork (id) ON DELETE CASCADE -- make NOT NULL after successful move
 );
+CREATE INDEX Work_revisionwork_id_idx ON Work (revisionwork_id);
 
 CREATE TABLE WorkFile (
 	id             serial     PRIMARY KEY,
