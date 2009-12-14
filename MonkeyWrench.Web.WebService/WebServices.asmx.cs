@@ -766,7 +766,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			List<DBHostLane> HostLanes = new List<DBHostLane> ();
 			List<DBRevisionWorkView2> RevisionWork;
 
-			limit = Math.Max (limit, 500);
+			limit = Math.Min (limit, 500);
 
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);

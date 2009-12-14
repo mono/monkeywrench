@@ -1,3 +1,8 @@
+2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.asmx.cs: Fix Min/Max confusion (thanks to Jonathan Pobst
+	for finding it).
+
 2009-12-01  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx.cs: Updated authentication methods with new readonly
