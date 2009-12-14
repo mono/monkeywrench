@@ -50,7 +50,7 @@ namespace MonkeyWrench.Database
 		{
 			List<DBLanefile> result = new List<DBLanefile> ();
 			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = "SELECT Lanefile.id, Lanefiles.lane_id, name, mime, contents FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = @lane_id ORDER BY name ASC";
+				cmd.CommandText = "SELECT Lanefile.* FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = @lane_id ORDER BY name ASC";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ())

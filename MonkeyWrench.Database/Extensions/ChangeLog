@@ -1,3 +1,8 @@
+2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBLane_Extensions.cs: Fix sql to not cause a lot of warnings when the
+	data is read into memory due to missing fields.
+
 2009-12-01  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBLogin_Extensions.cs: Login: add support for a readonly mode that
