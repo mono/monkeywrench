@@ -1,3 +1,8 @@
+2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* SchedulerSVN.cs: When fetching revisions, stop when branched. Fixes
+	#552315.
+
 2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* SchedulerBase.cs:

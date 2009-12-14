@@ -156,7 +156,7 @@ namespace MonkeyWrench.Scheduler
 
 				using (Process p = new Process ()) {
 					p.StartInfo.FileName = "svn";
-					p.StartInfo.Arguments = "log --xml --non-interactive " + repository + revs;
+					p.StartInfo.Arguments = "log --stop-on-copy --xml --non-interactive " + repository + revs;
 					p.StartInfo.UseShellExecute = false;
 					p.StartInfo.RedirectStandardOutput = true;
 					p.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e)
