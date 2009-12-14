@@ -1,5 +1,9 @@
 2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Login.aspx.cs: Redirect properly to calling page.
+
+2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* MonkeyWrench.js:
 	* EditLane.aspx.cs:
 	* EnvironmentVariablesEditor.ascx.cs: Implement editing of environment
