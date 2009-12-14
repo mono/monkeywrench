@@ -1,3 +1,7 @@
+2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* EditLane.aspx: More than one listitem can't be selected at the same time.
+
 2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* EditLane.aspx.cs: Fix command edition when the command contain quotes.
