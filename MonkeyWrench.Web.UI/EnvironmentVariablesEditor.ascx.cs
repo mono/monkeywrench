@@ -39,7 +39,7 @@ namespace MonkeyWrench.Web.UI
 					tblVariables.Rows.Count - 1,
 					Utils.CreateTableRow (
 						variable.name,
-						string.Format ("<a href=\"javascript:editEnvironmentVariable ({0}, {1}, '{2}', {3})\">{4}</a>", Lane == null ? 0 : Lane.id, Host == null ? 0 : Host.id, variable.value.Replace ("\'", "\\\'"), variable.id, variable.value),
+						string.Format ("<a href=\"javascript:editEnvironmentVariable ({0}, {1}, '{2}', {3}, '{4}')\">{5}</a>", Lane == null ? 0 : Lane.id, Host == null ? 0 : Host.id, variable.value.Replace ("\'", "\\\'"), variable.id, variable.name, variable.value),
 						Utils.CreateLinkButton (variable.id.ToString (), "Delete", "delete", variable.id.ToString (), EnvironmentVariable_OnCommand)
 						)
 				);

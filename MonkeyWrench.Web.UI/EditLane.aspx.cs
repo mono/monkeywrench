@@ -197,6 +197,22 @@ public partial class EditLane : System.Web.UI.Page
 					if (int.TryParse (Request ["lanedependency_id"], out id))
 						Master.WebService.EditLaneDependencyDownloads (Master.WebServiceLogin, id, Request ["downloads"]);
 					break;
+				case "editEnvironmentVariableValue": {
+					int host_id, lane_id;
+					if (int.TryParse (Request ["host_id"], out host_id))
+						if (int.TryParse (Request ["lane_id"], out lane_id)) {
+							if (int.TryParse (Request ["id"], out id)) {
+								DBEnvironmentVariable ev = new DBEnvironmentVariable ();
+								ev.id = id;
+								ev.host_id = host_id == 0 ? (int?)null : host_id;
+								ev.lane_id = lane_id == 0 ? (int?)null : lane_id;
+								ev.name = Request ["name"];
+								ev.value = Request ["value"];
+								Master.WebService.EditEnvironmentVariable (Master.WebServiceLogin, ev);
+							}
+						}
+					}
+					break;
 				default:
 					break;
 				}

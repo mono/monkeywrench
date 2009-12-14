@@ -1,5 +1,12 @@
 2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* MonkeyWrench.js:
+	* EditLane.aspx.cs:
+	* EnvironmentVariablesEditor.ascx.cs: Implement editing of environment
+	variables.
+
+2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditLane.aspx: More than one listitem can't be selected at the same time.
 
 2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
