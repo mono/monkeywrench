@@ -1,5 +1,9 @@
 2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Login.aspx.cs: Now we need to set the forms auth cookie explicitly.
+
+2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Login.aspx.cs: Redirect properly to calling page.
 
 2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
