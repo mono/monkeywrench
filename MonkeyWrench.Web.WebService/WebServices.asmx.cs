@@ -640,6 +640,52 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 		}
 
 		[WebMethod]
+		public FindRevisionResponse FindRevisionForLane (WebServiceLogin login, int? revision_id, string revision, int? lane_id, string lane)
+		{
+			FindRevisionResponse response = new FindRevisionResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
+				if ((revision_id == null || revision_id.Value <= 0) && string.IsNullOrEmpty (revision))
+					return response;
+
+				if ((lane_id == null || lane_id.Value <= 0) && string.IsNullOrEmpty (lane))
+					return response;
+
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					if (!lane_id.HasValue) {
+						if (!revision_id.HasValue) {
+							cmd.CommandText = "SELECT * FROM Revision INNER JOIN Lane ON Revision.lane_id = Lane.id WHERE Revision.revision = @revision AND Lane.lane = @lane;";
+							DB.CreateParameter (cmd, "revision", revision);
+						} else {
+							cmd.CommandText = "SELECT * FROM Revision INNER JOIN Lane ON Revision.lane_id = Lane.id WHERE id = @id AND Lane.lane = @lane;";
+							DB.CreateParameter (cmd, "id", revision_id.Value);
+						}
+						DB.CreateParameter (cmd, "lane", lane);
+					} else {
+						if (!revision_id.HasValue) {
+							cmd.CommandText = "SELECT * FROM Revision WHERE revision = @revision AND lane_id = @lane_id;";
+							DB.CreateParameter (cmd, "revision", revision);
+						} else {
+							cmd.CommandText = "SELECT * FROM Revision WHERE id = @id AND lane_id = @lane_id;";
+							DB.CreateParameter (cmd, "id", revision_id.Value);
+						}
+						DB.CreateParameter (cmd, "lane_id", lane_id.Value);
+					}
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						if (reader.Read ()) {
+							response.Revision = new DBRevision (reader);
+						}
+					}
+				}
+			}
+
+			return response;
+		}
+
+		[WebMethod]
 		public FindRevisionResponse FindRevision (WebServiceLogin login, int? revision_id, string revision)
 		{
 			FindRevisionResponse response = new FindRevisionResponse ();

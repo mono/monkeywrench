@@ -1149,6 +1149,24 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="FindRevisionForLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindRevisionForLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="FindRevisionForLaneResult" type="s0:FindRevisionResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="FindRevision">
         <xs:complexType>
           <xs:sequence>
@@ -1921,6 +1939,12 @@
   <message name="FindHostSoapOut">
     <part name="parameters" element="s0:FindHostResponse" />
   </message>
+  <message name="FindRevisionForLaneSoapIn">
+    <part name="parameters" element="s0:FindRevisionForLane" />
+  </message>
+  <message name="FindRevisionForLaneSoapOut">
+    <part name="parameters" element="s0:FindRevisionForLaneResponse" />
+  </message>
   <message name="FindRevisionSoapIn">
     <part name="parameters" element="s0:FindRevision" />
   </message>
@@ -2306,6 +2330,10 @@
       <input message="s0:FindHostSoapIn" />
       <output message="s0:FindHostSoapOut" />
     </operation>
+    <operation name="FindRevisionForLane">
+      <input message="s0:FindRevisionForLaneSoapIn" />
+      <output message="s0:FindRevisionForLaneSoapOut" />
+    </operation>
     <operation name="FindRevision">
       <input message="s0:FindRevisionSoapIn" />
       <output message="s0:FindRevisionSoapOut" />
@@ -2599,6 +2627,10 @@
     <operation name="FindHost">
       <input message="s0:FindHostSoapIn" />
       <output message="s0:FindHostSoapOut" />
+    </operation>
+    <operation name="FindRevisionForLane">
+      <input message="s0:FindRevisionForLaneSoapIn" />
+      <output message="s0:FindRevisionForLaneSoapOut" />
     </operation>
     <operation name="FindRevision">
       <input message="s0:FindRevisionSoapIn" />
@@ -3065,6 +3097,15 @@
     </operation>
     <operation name="FindHost">
       <soap:operation soapAction="http://monkeywrench.novell.com/FindHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindRevisionForLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/FindRevisionForLane" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -3725,6 +3766,15 @@
     </operation>
     <operation name="FindHost">
       <soap12:operation soapAction="http://monkeywrench.novell.com/FindHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindRevisionForLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/FindRevisionForLane" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

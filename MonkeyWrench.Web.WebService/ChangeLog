@@ -1,3 +1,9 @@
+2010-01-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.wsdl: Regenerated.
+
+	* WebServices.asmx.cs: Added FindRevisionForLane.
+
 2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx.cs: Fix Min/Max confusion (thanks to Jonathan Pobst
