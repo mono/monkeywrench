@@ -31,7 +31,7 @@ public partial class ReportCommit : System.Web.UI.Page
 			HttpPostedFile xml;
 			xml = Request.Files ["xml"];
 
-			if (Request.UserHostAddress != "130.57.169.27") {
+			if (Request.UserHostAddress != "130.57.169.27" && Request.UserHostAddress != "130.57.21.45") {
 				Logger.Log ("ReportCommit.aspx: {0} tried to send a file, ignored.", Request.UserHostAddress);
 				return;
 			}

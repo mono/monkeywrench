@@ -1,3 +1,8 @@
+2010-02-08  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ReportCommit.aspx.cs: svn server has gotten a new ip. This should
+	really go into the configuration file.
+
 2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Login.aspx.cs: Now we need to set the forms auth cookie explicitly.
