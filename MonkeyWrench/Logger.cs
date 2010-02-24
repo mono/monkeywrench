@@ -31,7 +31,7 @@ namespace MonkeyWrench
 			message = string.Format (format, args);
 			lines = message.Split (new char [] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < lines.Length; i++) {
-				lines [i] = string.Concat ("[", ProcessID.ToString (), " - ", timestamp, "] ", lines [i]);
+				lines [i] = string.Concat ("[", ProcessID.ToString (), " - ", System.Threading.Thread.CurrentThread.ManagedThreadId.ToString (), " - ", timestamp, "] ", lines [i]);
 			}
 			message = string.Join ("\n", lines);
 			return message + "\n";
