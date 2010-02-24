@@ -42,12 +42,12 @@ namespace MonkeyWrench
 		}
 
 		/// <summary>
-		/// Creates a command with a default timeout of 120 seconds.
+		/// Creates a command with a default timeout of 300 seconds.
 		/// </summary>
 		/// <returns></returns>
 		public IDbCommand CreateCommand ()
 		{
-			return CreateCommand (TimeSpan.FromSeconds (120));
+			return CreateCommand (TimeSpan.FromSeconds (300));
 		}
 
 		/// <summary>
