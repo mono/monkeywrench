@@ -1,3 +1,7 @@
+2010-02-25  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* class/lib/Npgsql.dll[.mdb]: Update to 2.0.8.
+
 2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* MonkeyWrench.sln: Added new project.
