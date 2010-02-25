@@ -20,5 +20,6 @@ namespace MonkeyWrench
 		public const string HTML = "text/plain";
 		public const string HTM = "text/plain";
 		public const string OCTET_STREAM = "application/octet-stream";
+		public const string XPI = "application/x-xpinstall";
 	}
 }

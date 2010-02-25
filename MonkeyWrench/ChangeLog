@@ -1,5 +1,9 @@
 2010-02-25  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* MimeTypes.cs: Add support for xpi.
+
+2010-02-25  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Logger.cs: Add thread id to log line.
 
 2009-11-27  Rolf Bjarne Kvinge  <RKvinge@novell.com>

@@ -392,6 +392,9 @@ namespace MonkeyWrench
 				case ".gz":
 					result.mime = MimeTypes.GZ;
 					break;
+				case ".xpi":
+					result.mime = MimeTypes.XPI;
+					break;
 				default:
 					result.mime = MimeTypes.OCTET_STREAM;
 					break;
