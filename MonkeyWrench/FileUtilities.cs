@@ -80,38 +80,19 @@ namespace MonkeyWrench
 			}
 
 			// Uncompress it
-			if (Configuration.GetPlatform () == Platform.Windows) {
-				// TODO: test this code on !Windows too, and remove the gunzip code below.
-				using (FileStream infs = new FileStream (infile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-					using (GZipStream gz = new GZipStream (infs, CompressionMode.Decompress)) {
-						using (FileStream outfs = new FileStream (outfile, FileMode.Create, FileAccess.Write, FileShare.Read)) {
-							byte [] buffer = new byte [1024];
-							int bytes_read;
-							while ((bytes_read = gz.Read (buffer, 0, buffer.Length)) > 0) {
-								outfs.Write (buffer, 0, bytes_read);
-							}
+			using (FileStream infs = new FileStream (infile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+				using (GZipStream gz = new GZipStream (infs, CompressionMode.Decompress)) {
+					using (FileStream outfs = new FileStream (outfile, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+						byte [] buffer = new byte [1024];
+						int bytes_read;
+						while ((bytes_read = gz.Read (buffer, 0, buffer.Length)) > 0) {
+							outfs.Write (buffer, 0, bytes_read);
 						}
 					}
 				}
-				TryDeleteFile (infile);
-				return true;
 			}
-
-			using (Process p = new Process ()) {
-				p.StartInfo.FileName = "gunzip";
-				p.StartInfo.Arguments = "--force " + filename; // --force is needed since Path.GetTempFileName creates the file
-				p.Start ();
-				if (!p.WaitForExit (1000 * 60 /* 1 minute */ )) {
-					Logger.Log ("GZUncompress: gunzip didn't finish in one minute, killing it.");
-					try {
-						p.Kill ();
-					} catch {
-						return true; // it didn't finish, but we couldn't kill it? Hope everything is ok and just return true.
-					}
-					return false;
-				}
-				return p.ExitCode == 0;
-			}
+			TryDeleteFile (infile);
+			return true;
 		}
 
 
