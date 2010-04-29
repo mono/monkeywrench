@@ -152,13 +152,18 @@ SELECT File.id, File.md5, File.file_id, File.mime, File.compressed_mime, File.si
 		/// </summary>
 		/// <param name="db"></param>
 		/// <param name="work_id"></param>
+		/// <param name="include_hidden_files">If hidden files are included in the returned list. Note that any file named 'index.html' is always returned, even if it's hidden and this parameter is false.</param>
 		/// <returns></returns>
-		public static List<DBWorkFileView> GetFiles (DB db, int work_id)
+		public static List<DBWorkFileView> GetFiles (DB db, int work_id, bool include_hidden_files)
 		{
 			List<DBWorkFileView> result = new List<DBWorkFileView> ();
 
 			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = "SELECT * FROM WorkFileView WHERE work_id = @work_id;";
+				if (include_hidden_files) {
+					cmd.CommandText = "SELECT * FROM WorkFileView WHERE work_id = @work_id;";
+				} else {
+					cmd.CommandText = "SELECT * FROM WorkFileView WHERE work_id = @work_id AND (hidden = false OR filename = 'index.html');";
+				}
 				DB.CreateParameter (cmd, "work_id", work_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
@@ -169,6 +174,11 @@ SELECT File.id, File.md5, File.file_id, File.mime, File.compressed_mime, File.si
 			}
 
 			return result;
+		}
+		
+		public static List<DBWorkFileView> GetFiles (DB db, int work_id)
+		{
+			return GetFiles (db, work_id, true);
 		}
 
 		public static List<DBWorkFileView> GetFiles (this DBWork me, DB db)

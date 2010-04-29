@@ -945,6 +945,40 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetViewLaneData2", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetViewLaneDataResponse GetViewLaneData2(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id, string lane, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> host_id, string host, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> revision_id, string revision, bool include_files) {
+            object[] results = this.Invoke("GetViewLaneData2", new object[] {
+                        login,
+                        lane_id,
+                        lane,
+                        host_id,
+                        host,
+                        revision_id,
+                        revision,
+                        include_files});
+            return ((GetViewLaneDataResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetViewLaneData2(WebServiceLogin login, System.Nullable<int> lane_id, string lane, System.Nullable<int> host_id, string host, System.Nullable<int> revision_id, string revision, bool include_files, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetViewLaneData2", new object[] {
+                        login,
+                        lane_id,
+                        lane,
+                        host_id,
+                        host,
+                        revision_id,
+                        revision,
+                        include_files}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetViewLaneDataResponse EndGetViewLaneData2(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetViewLaneDataResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetFrontPageData", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public FrontPageResponse GetFrontPageData(WebServiceLogin login, int limit, string lane, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id) {
             object[] results = this.Invoke("GetFrontPageData", new object[] {

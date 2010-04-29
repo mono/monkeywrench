@@ -768,6 +768,12 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 		[WebMethod]
 		public GetViewLaneDataResponse GetViewLaneData (WebServiceLogin login, int? lane_id, string lane, int? host_id, string host, int? revision_id, string revision)
 		{
+			return GetViewLaneData2 (login, lane_id, lane, host_id, host, revision_id, revision, true);
+		}
+
+		[WebMethod]
+		public GetViewLaneDataResponse GetViewLaneData2 (WebServiceLogin login, int? lane_id, string lane, int? host_id, string host, int? revision_id, string revision, bool include_hidden_files)
+		{
 			GetViewLaneDataResponse response = new GetViewLaneDataResponse ();
 
 			using (DB db = new DB ()) {
@@ -784,7 +790,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 				response.WorkViews = db.GetWork (response.RevisionWork);
 				response.WorkFileViews = new List<List<DBWorkFileView>> ();
 				for (int i = 0; i < response.WorkViews.Count; i++) {
-					response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id));
+					response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id, include_hidden_files));
 				}
 			}
 

@@ -45,10 +45,10 @@ public partial class ViewLane : System.Web.UI.Page
 			int id;
 			GetViewLaneDataResponse response;
 
-			response = Master.WebService.GetViewLaneData (Master.WebServiceLogin,
+			response = Master.WebService.GetViewLaneData2 (Master.WebServiceLogin,
 				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
 				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
-				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"]);
+				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
 
 
 			DBHost host = response.Host;
@@ -89,21 +89,23 @@ public partial class ViewLane : System.Web.UI.Page
 				return;
 			}
 
-			header.InnerHtml = GenerateHeader (lane, host, revision);
+			header.InnerHtml = GenerateHeader (lane, host, revision, "Build of");
 			buildtable.InnerHtml = GenerateLane (response);
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
 		}
 	}
-	public string GenerateHeader (DBLane lane, DBHost host, DBRevision revision)
+
+	public static string GenerateHeader (DBLane lane, DBHost host, DBRevision revision, string description)
 	{
 		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			return string.Format (@"
-<h2>Builds for lane '{2}' on '{3}' (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host);
+<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '{2}' on '{3}' 
+(<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, description, revision.revision, revision.id);
 		} else {
 			return string.Format (@"
-<h2>Builds for lane '<a href='EditLane.aspx?lane_id={0}'>{2}</a>' on '<a href='EditHost.aspx?host_id={1}'>{3}</a>' 
-(<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host);
+<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '<a href='EditLane.aspx?lane_id={0}'>{2}</a>' on '<a href='EditHost.aspx?host_id={1}'>{3}</a>' 
+(<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, description, revision.revision, revision.id);
 		}
 	}
 
@@ -254,7 +256,7 @@ public partial class ViewLane : System.Web.UI.Page
 			}
 
 			if (index_html != null) {
-				matrix.AppendFormat ("<a href='ViewHtmlReport.aspx?workfile_id={0}'>View html report</a>", index_html.id);
+				matrix.AppendFormat ("<a href='ViewHtmlReportEmbedded.aspx?workfile_id={0}&lane_id={1}&host_id={2}&revision_id={3}'>View html report</a>", index_html.id, lane.id, host.id, revision.id);
 			} else {
 				matrix.AppendLine ("-");
 			}

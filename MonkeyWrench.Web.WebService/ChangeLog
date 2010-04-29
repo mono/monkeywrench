@@ -1,3 +1,10 @@
+2010-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.wsdl: Regenerated.
+
+	* WebServices.asmx.cs: GetViewLaneData: Added support for excluding hidden
+	files from the returned data.
+
 2010-01-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.wsdl: Regenerated.

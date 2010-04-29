@@ -1,4 +1,4 @@
-<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" Inherits="EditLaneFile" Codebehind="EditLaneFile.aspx.cs" %>
+<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" ValidateRequest="false" Inherits="EditLaneFile" Codebehind="EditLaneFile.aspx.cs" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
     <div>

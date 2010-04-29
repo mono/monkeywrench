@@ -1,27 +1,29 @@
 <%@ Master Language="C#" AutoEventWireup="True" Inherits="Master" CodeBehind="Master.master.cs" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">
 <head runat="server">
     <title>MonkeyWrench</title>
     <link rel='stylesheet' href='build.css' type='text/css' />
     <meta http-equiv='Content-Type' content='text/html;charset=utf-8' />
 </head>
-<body>
+<body style="height: 100%; ">
     <asp:Table runat="server" CssClass='headertable' ID="tableHeader">
     </asp:Table>
-    <form id="form1" runat="server">
-    <div>
-        <div id="left-content"  class="left-content">
-            <asp:TreeView ID="treeMain" runat="server" />
+    <div style="min-height: 80%;">
+        <form id="form1" runat="server" style="min-height: 100%; ">
+        <div style="min-height: 100%; ">
+            <div id="left-content" class="left-content">
+                <asp:TreeView ID="treeMain" runat="server" />
+            </div>
+            <div id="right-content" class="right-content" style="min-height: 100%;">
+                <asp:ContentPlaceHolder ID="content" runat="server">
+                </asp:ContentPlaceHolder>
+            </div>
         </div>
-        <div id="right-content" class="right-content" >
-            <asp:ContentPlaceHolder ID="content" runat="server">
-            </asp:ContentPlaceHolder>
-        </div>
+        </form>
     </div>
-    </form>
-    <div>
+    <div style="position: absolute; bottom: 0px;">
         <hr />
         <asp:Table runat="server" CssClass='footertable' ID="tableFooter">
         </asp:Table>

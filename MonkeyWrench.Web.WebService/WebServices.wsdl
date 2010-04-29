@@ -525,6 +525,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="RevisionWork" type="s0:DBRevisionWork" />
               <xs:element minOccurs="0" maxOccurs="1" name="WorkViews" type="s0:ArrayOfDBWorkView2" />
               <xs:element minOccurs="0" maxOccurs="1" name="WorkFileViews" type="s0:ArrayOfArrayOfDBWorkFileView" />
+              <xs:element minOccurs="0" maxOccurs="1" name="HasIndexHtml" type="s0:ArrayOfBoolean" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -542,6 +543,11 @@
       <xs:complexType name="ArrayOfDBWorkFileView">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBWorkFileView" nillable="true" type="s0:DBWorkFileView" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfBoolean">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="boolean" type="xs:boolean" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="FrontPageResponse">
@@ -1250,6 +1256,27 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="GetViewLaneDataResult" type="s0:GetViewLaneDataResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetViewLaneData2">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="include_files" type="xs:boolean" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetViewLaneData2Response">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetViewLaneData2Result" type="s0:GetViewLaneDataResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -1981,6 +2008,12 @@
   <message name="GetViewLaneDataSoapOut">
     <part name="parameters" element="s0:GetViewLaneDataResponse" />
   </message>
+  <message name="GetViewLaneData2SoapIn">
+    <part name="parameters" element="s0:GetViewLaneData2" />
+  </message>
+  <message name="GetViewLaneData2SoapOut">
+    <part name="parameters" element="s0:GetViewLaneData2Response" />
+  </message>
   <message name="GetFrontPageDataSoapIn">
     <part name="parameters" element="s0:GetFrontPageData" />
   </message>
@@ -2358,6 +2391,10 @@
       <input message="s0:GetViewLaneDataSoapIn" />
       <output message="s0:GetViewLaneDataSoapOut" />
     </operation>
+    <operation name="GetViewLaneData2">
+      <input message="s0:GetViewLaneData2SoapIn" />
+      <output message="s0:GetViewLaneData2SoapOut" />
+    </operation>
     <operation name="GetFrontPageData">
       <input message="s0:GetFrontPageDataSoapIn" />
       <output message="s0:GetFrontPageDataSoapOut" />
@@ -2655,6 +2692,10 @@
     <operation name="GetViewLaneData">
       <input message="s0:GetViewLaneDataSoapIn" />
       <output message="s0:GetViewLaneDataSoapOut" />
+    </operation>
+    <operation name="GetViewLaneData2">
+      <input message="s0:GetViewLaneData2SoapIn" />
+      <output message="s0:GetViewLaneData2SoapOut" />
     </operation>
     <operation name="GetFrontPageData">
       <input message="s0:GetFrontPageDataSoapIn" />
@@ -3160,6 +3201,15 @@
     </operation>
     <operation name="GetViewLaneData">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetViewLaneData" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewLaneData2">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetViewLaneData2" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -3829,6 +3879,15 @@
     </operation>
     <operation name="GetViewLaneData">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetViewLaneData" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetViewLaneData2">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetViewLaneData2" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

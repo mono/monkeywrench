@@ -1,3 +1,7 @@
+2010-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* DBWork_Extensions.cs: GetFiles: add support for excluding hidden files.
+
 2009-12-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* DBLane_Extensions.cs: Fix sql to not cause a lot of warnings when the

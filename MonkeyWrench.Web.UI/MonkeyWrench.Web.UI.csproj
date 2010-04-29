@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Admin.aspx" />
+    <Content Include="ViewHtmlReportEmbedded.aspx" />
     <Content Include="Delete.aspx" />
     <Content Include="doc\Configuration.html" />
     <Content Include="doc\EditLaneHelp.html" />
@@ -88,6 +89,13 @@
     </Compile>
     <Compile Include="Admin.aspx.designer.cs">
       <DependentUpon>Admin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewHtmlReportEmbedded.aspx.cs">
+      <DependentUpon>ViewHtmlReportEmbedded.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewHtmlReportEmbedded.aspx.designer.cs">
+      <DependentUpon>ViewHtmlReportEmbedded.aspx</DependentUpon>
     </Compile>
     <Compile Include="Delete.aspx.cs">
       <DependentUpon>Delete.aspx</DependentUpon>
