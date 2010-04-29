@@ -2,7 +2,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
 		<div id="header" runat="server"></div>
-		<div style="width:100%;min-height:100%">
-		<iframe id="htmlreport" runat="server" frameborder="0" style="min-height: 100%;width: 100%"></iframe>
+		<div style="width:100%;min-height:100%; height: 100%">
+		<iframe id="htmlreport" runat="server" frameborder="0" style="min-height: 100%; height: 100%; width: 100%"></iframe>
 		</div>
 </asp:Content>

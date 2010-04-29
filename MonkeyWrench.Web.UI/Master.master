@@ -10,13 +10,13 @@
 <body style="height: 100%; ">
     <asp:Table runat="server" CssClass='headertable' ID="tableHeader">
     </asp:Table>
-    <div style="min-height: 80%;">
-        <form id="form1" runat="server" style="min-height: 100%; ">
-        <div style="min-height: 100%; ">
+    <div style="min-height: 80%; height:80%; ">
+        <form id="form1" runat="server" style="min-height: 100%; height:100%; ">
+        <div style="min-height: 100%; height: 100%; ">
             <div id="left-content" class="left-content">
                 <asp:TreeView ID="treeMain" runat="server" />
             </div>
-            <div id="right-content" class="right-content" style="min-height: 100%;">
+            <div id="right-content" class="right-content" style="min-height: 100%; height: 100%;">
                 <asp:ContentPlaceHolder ID="content" runat="server">
                 </asp:ContentPlaceHolder>
             </div>

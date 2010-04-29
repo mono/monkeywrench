@@ -1,5 +1,10 @@
 2010-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Master.master:
+	* ViewHtmlReportEmbedded.aspx: Need to set height too.
+
+2010-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewLane.aspx.cs: Make the html report embedded, and don't get hidden files
 	from the server, we don't need them.
 
