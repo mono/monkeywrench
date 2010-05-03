@@ -213,5 +213,59 @@ namespace MonkeyWrench
 			} catch {
 			}
 		}
+
+		/// <summary>
+		/// Tries to delete a directory recursively. Will try as hard as possible to delete as much as possible,
+		/// i.e. it won't stop if for instance one file can't be deleted.
+		/// </summary>
+		/// <param name="directory"></param>
+		/// <param name="recursive"></param>
+		public static void TryDeleteDirectoryRecursive (string directory)
+		{
+			try {
+				TryDeleteDirectoryRecursive (directory, directory);
+			} catch (Exception ex) {
+				Logger.Log ("TryDeleteDirectoryRecursive ({0}): Could not delete directory recursively: {1}", directory, ex);
+			}
+		}
+
+		private static void TryDeleteDirectoryRecursive (string root, string path)
+		{
+			try {
+				foreach (string dir in Directory.GetDirectories (path)) {
+					if ((File.GetAttributes (dir) & FileAttributes.ReparsePoint) != 0) {
+						continue; /* this is a symlink */
+					}
+
+					TryDeleteDirectoryRecursive (root, dir);
+				}
+			} catch (Exception ex) {
+				Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not recurse into subdirectories: {2}", root, path, ex);
+			}
+
+			foreach (string file in Directory.GetFiles (path)) {
+				try {
+					try {
+						File.Delete (file);
+					} catch (UnauthorizedAccessException ex) {
+						Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Unauthorized access exception while trying to delete the file (will make file readable and try again): {2}: {3}", root, path, file, ex);
+						/* readonly maybe, make file writeable */
+						File.SetAttributes (path, FileAttributes.Normal);
+						/* try again */
+						File.Delete (file);
+					}
+				} catch (Exception ex) {
+					Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not delete the file: {2}: {3}", root, path, file, ex);
+					/* Ignore any exceptions */
+				}
+			}
+
+			try {
+				Directory.Delete (path);
+			} catch (Exception ex) {
+				Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not delete the directory: {2}", root, path, ex);
+				/* Ignore any exceptions */
+			}
+		}
 	}
 }

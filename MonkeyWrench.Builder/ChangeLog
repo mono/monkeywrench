@@ -1,3 +1,7 @@
+2010-05-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Use a more insistent directory deletion method.
+
 2009-11-30  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Treat TimedOut and Aborted as failed steps too.

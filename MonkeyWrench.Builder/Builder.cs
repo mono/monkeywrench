@@ -307,12 +307,7 @@ namespace MonkeyWrench.Builder
 				if (response.RevisionWorkCompleted) {
 					// Cleanup after us.
 					string base_dir = Configuration.GetDataRevisionDir (info.lane.lane, info.revision.revision);
-					try {
-						Directory.Delete (base_dir, true);
-						Logger.Log ("Successfully deleted directory {0}", base_dir);
-					} catch (Exception ex) {
-						Logger.Log ("Couldn't delete directory {0}: {1}\n{2}", base_dir, ex.Message, ex.StackTrace);
-					}
+					FileUtilities.TryDeleteDirectoryRecursive (base_dir);
 				}
 
 				Logger.Log ("{4} Revision {0}, executed step '{1}' in {2} s, ExitCode: {3}, State: {4}", info.revision.revision, info.command.command, info.work.duration, exitcode, info.number, info.work.State);
