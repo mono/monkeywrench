@@ -526,7 +526,6 @@
               <xs:element minOccurs="0" maxOccurs="1" name="RevisionWork" type="s0:DBRevisionWork" />
               <xs:element minOccurs="0" maxOccurs="1" name="WorkViews" type="s0:ArrayOfDBWorkView2" />
               <xs:element minOccurs="0" maxOccurs="1" name="WorkFileViews" type="s0:ArrayOfArrayOfDBWorkFileView" />
-              <xs:element minOccurs="0" maxOccurs="1" name="HasIndexHtml" type="s0:ArrayOfBoolean" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -544,11 +543,6 @@
       <xs:complexType name="ArrayOfDBWorkFileView">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBWorkFileView" nillable="true" type="s0:DBWorkFileView" />
-        </xs:sequence>
-      </xs:complexType>
-      <xs:complexType name="ArrayOfBoolean">
-        <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="unbounded" name="boolean" type="xs:boolean" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="FrontPageResponse">
@@ -1270,7 +1264,7 @@
             <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
             <xs:element minOccurs="1" maxOccurs="1" name="revision_id" nillable="true" type="xs:int" />
             <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
-            <xs:element minOccurs="1" maxOccurs="1" name="include_files" type="xs:boolean" />
+            <xs:element minOccurs="1" maxOccurs="1" name="include_hidden_files" type="xs:boolean" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>

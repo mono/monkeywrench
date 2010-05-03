@@ -946,7 +946,7 @@ namespace MonkeyWrench.Web.WebServices {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetViewLaneData2", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public GetViewLaneDataResponse GetViewLaneData2(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id, string lane, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> host_id, string host, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> revision_id, string revision, bool include_files) {
+        public GetViewLaneDataResponse GetViewLaneData2(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id, string lane, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> host_id, string host, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> revision_id, string revision, bool include_hidden_files) {
             object[] results = this.Invoke("GetViewLaneData2", new object[] {
                         login,
                         lane_id,
@@ -955,12 +955,12 @@ namespace MonkeyWrench.Web.WebServices {
                         host,
                         revision_id,
                         revision,
-                        include_files});
+                        include_hidden_files});
             return ((GetViewLaneDataResponse)(results[0]));
         }
         
         /// <remarks/>
-        public System.IAsyncResult BeginGetViewLaneData2(WebServiceLogin login, System.Nullable<int> lane_id, string lane, System.Nullable<int> host_id, string host, System.Nullable<int> revision_id, string revision, bool include_files, System.AsyncCallback callback, object asyncState) {
+        public System.IAsyncResult BeginGetViewLaneData2(WebServiceLogin login, System.Nullable<int> lane_id, string lane, System.Nullable<int> host_id, string host, System.Nullable<int> revision_id, string revision, bool include_hidden_files, System.AsyncCallback callback, object asyncState) {
             return this.BeginInvoke("GetViewLaneData2", new object[] {
                         login,
                         lane_id,
@@ -969,7 +969,7 @@ namespace MonkeyWrench.Web.WebServices {
                         host,
                         revision_id,
                         revision,
-                        include_files}, callback, asyncState);
+                        include_hidden_files}, callback, asyncState);
         }
         
         /// <remarks/>
