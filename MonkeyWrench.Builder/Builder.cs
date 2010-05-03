@@ -147,6 +147,7 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_REVISION"] = info.revision.revision;
 							p.StartInfo.EnvironmentVariables ["BUILD_INSTALL"] = Configuration.CygwinizePath (info.BUILDER_DATA_INSTALL_DIR);
 							p.StartInfo.EnvironmentVariables ["BUILD_DATA_LANE"] = Configuration.GetDataLane (info.lane.lane);
+							p.StartInfo.EnvironmentVariables ["BUILD_DATA_SOURCE"] = info.BUILDER_DATA_SOURCE_DIR;
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY"] = info.lane.repository;
 							p.StartInfo.EnvironmentVariables ["BUILD_HOST"] = Configuration.Host;
 

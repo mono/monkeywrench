@@ -25,6 +25,7 @@ namespace MonkeyWrench
 	{
 		public static string LogFile = Path.Combine (Path.GetTempPath (), "MonkeyWrench.log");
 		public static string DataDirectory = Path.Combine (Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.Personal), "monkeywrench"), "data");
+		public static string RevDataDirectory;
 		public static string Host;
 		public static string WebServiceUrl;
 		public static bool ForceFullUpdate = true;
@@ -68,6 +69,15 @@ namespace MonkeyWrench
 			} else if (!Directory.Exists (DataDirectory)) {
 				Directory.CreateDirectory (DataDirectory);
 				Logger.Log ("BuildBot configuration warning: DataDirectory ('{0}') did not exist, it was created.", DataDirectory);
+			}
+
+			if (string.IsNullOrEmpty (RevDataDirectory)) {
+				RevDataDirectory = Path.Combine (DataDirectory, "lanes");
+			}
+
+			if (!Directory.Exists (RevDataDirectory)) {
+				Directory.CreateDirectory (RevDataDirectory);
+				Logger.Log ("BuildBot configuration warning: RevDataDirectory ('{0}') did not exist, it was created.", RevDataDirectory);
 			}
 
 			if (string.IsNullOrEmpty (WebServiceUrl)) {
@@ -138,6 +148,9 @@ namespace MonkeyWrench
 				// parse configuration file
 
 				DataDirectory = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DataDirectory").GetNodeValue (DataDirectory);
+				XmlNode node = xml.SelectSingleNode ("/MonkeyWrench/Configuration/RevDataDirectory");
+				if (node != null)
+					RevDataDirectory = node.GetNodeValue (RevDataDirectory);
 				Host = xml.SelectSingleNode ("/MonkeyWrench/Configuration/Host").GetNodeValue (Host);
 				LogFile = xml.SelectSingleNode ("/MonkeyWrench/Configuration/LogFile").GetNodeValue (LogFile);
 				ForceFullUpdate = Boolean.Parse (xml.SelectSingleNode ("/MonkeyWrench/Configuration/ForceFullUpdate").GetNodeValue (ForceFullUpdate.ToString ()));
@@ -160,6 +173,7 @@ namespace MonkeyWrench
 				{
 					{"h|help|?", v => help = true},
 					{"datadirectory=", v => DataDirectory = v},
+					{"revdatadirectory=", v => RevDataDirectory = v},
 					{"host=", v => Host = v},
 					{"logfile=", v => LogFile = v},
 					{"forcefullupdate=", v => ForceFullUpdate = Boolean.Parse (v.Trim ())},
@@ -202,6 +216,9 @@ namespace MonkeyWrench
 
 				if (!string.IsNullOrEmpty (DataDirectory) && !Directory.Exists (DataDirectory))
 					Directory.CreateDirectory (DataDirectory);
+
+				if (!string.IsNullOrEmpty (RevDataDirectory) && !Directory.Exists (RevDataDirectory))
+					Directory.CreateDirectory (RevDataDirectory);
 
 			} catch (Exception ex) {
 				Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not load configuration file from: {0}: {1}", file, ex.Message);
@@ -276,7 +293,7 @@ namespace MonkeyWrench
 		/// <returns></returns>
 		public static string GetDataRevisionDir (string lane, string revision)
 		{
-			return Path.Combine (GetDataLane (lane), revision);
+			return Path.Combine (Path.Combine (RevDataDirectory, lane), revision);
 		}
 
 		/// <summary>
