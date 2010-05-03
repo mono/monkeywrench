@@ -216,8 +216,8 @@ public partial class ViewTable : System.Web.UI.Page
 			header.Insert (1, "Author");
 			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
 				header.Insert (2, "Select");
-			header.Add ("Duration");
 			header.Add ("Host");
+			header.Add ("Duration");
 			result_index = Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator) ? 3 : 2;
 			table.Add (header);
 

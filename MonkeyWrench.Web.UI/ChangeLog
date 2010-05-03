@@ -1,5 +1,9 @@
 2010-05-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewTable.aspx.cs: Make the headers correctly ordered.
+
+2010-05-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewTable.js:
 	* ViewTable.aspx.cs: Make the 'Clear all revisions' link actually work.
 
