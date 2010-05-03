@@ -45,6 +45,31 @@ public partial class ViewTable : System.Web.UI.Page
 			int page = 0;
 			int page_size = 0;
 			bool horizontal;
+			string action;
+
+			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+				action = Request ["action"];
+				if (!string.IsNullOrEmpty (action)) {
+					switch (action) {
+					case "clearrevisions":
+						string revisions = Request ["revisions"];
+						int lane_id;
+						int host_id;
+						int revision_id;
+						if (!int.TryParse (Request ["lane_id"], out lane_id))
+							throw new Exception ("Invalid lane_id");
+						if (!int.TryParse (Request ["host_id"], out host_id))
+							throw new Exception ("Invalid host_id");
+						foreach (string revision in revisions.Split (new char [] {';'}, StringSplitOptions.RemoveEmptyEntries)) {
+							if (!int.TryParse (revision.Replace ("revision_id_", ""), out revision_id))
+								throw new Exception ("Invalid revision_id: " + revision.ToString () + "(revisions: '" + revisions + "')");
+							Master.WebService.ClearRevision (Master.WebServiceLogin, lane_id, host_id, revision_id);
+						}
+						Response.Redirect (string.Format ("ViewTable.aspx?lane_id={0}&host_id={1}", lane_id, host_id));
+						break;
+					}
+				}
+			}
 
 			int.TryParse (Request ["page"], out page);
 			int.TryParse (Request ["page_size"], out page_size);
@@ -154,7 +179,7 @@ public partial class ViewTable : System.Web.UI.Page
 
 		format += @"<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}&amp;horizontal={3}'>Reverse x/y axis</a><br/>";
 		if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-			format += @"<a href='javascript:clearRevisions ()'>Clear selected revisions</a><br/>";
+			format += string.Format (@"<a href='javascript:clearRevisions ({0}, {1})'>Clear selected revisions</a><br/>", lane.id, host.id);
 
 		format += "<br/>";
 

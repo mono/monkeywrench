@@ -1,5 +1,10 @@
 2010-05-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* ViewTable.js:
+	* ViewTable.aspx.cs: Make the 'Clear all revisions' link actually work.
+
+2010-05-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* ViewTable.aspx.cs: Add a Duration column.
 
 2010-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>

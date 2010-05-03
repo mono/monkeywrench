@@ -1,28 +1,20 @@
-﻿function clearRevisions() {
+﻿function clearRevisions(lane_id, host_id) {
     try {
-        var div = document.getElementById("buildtable");
-        var table;
-        var tbody;
-        var tr;
         var td;
         var names = "";
-
-        table = div.firstChild;
-        tbody = table.lastChild;
-        tr = tbody.firstChild;
+        var chk_id = 0;
 
         do {
+            td = document.getElementById("id_revision_chk_" + chk_id);
+            chk_id++;
 
-            td = tr.childNodes[3];
-            tr = tr.nextSibling;
-
-            if (td != null && td.firstChild != null && td.firstChild.localName == "INPUT" && td.firstChild.checked)
-                names += td.firstChild.name + ";";
-
-            if (tr == null)
-                break;
+            if (td == null)
+                break;            
+            
+            if (td.localName == "INPUT" && td.checked)
+                names += td.name + ";";
         } while (true);
-        alert(names);
+        window.location = window.location.pathname + "?lane_id=" + lane_id + "&host_id=" + host_id + "&action=clearrevisions&revisions=" + names;
     } catch (e) {
         alert(e);
     }
