@@ -199,6 +199,7 @@
               <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="starttime" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="endtime" type="xs:dateTime" />
               <xs:element minOccurs="1" maxOccurs="1" name="duration" type="xs:int" />
               <xs:element minOccurs="0" maxOccurs="1" name="logfile" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="summary" type="xs:string" />

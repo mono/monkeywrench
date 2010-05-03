@@ -1,3 +1,7 @@
+2010-05-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* CustomTypes.sql: RevisionWorkView: fetch endtime too.
+
 2010-04-29  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.Generated.cs: Regenerated.

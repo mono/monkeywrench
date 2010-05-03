@@ -48,7 +48,7 @@ SELECT RevisionWork.id, Revision.revision
 	ORDER BY Revision.date DESC LIMIT @limit OFFSET @offset;
 
 	SELECT 
-		Work.id, Work.command_id, Work.state, Work.starttime, Work.duration, Work.logfile, Work.summary, 
+		Work.id, Work.command_id, Work.state, Work.starttime, Work.endtime, Work.duration, Work.logfile, Work.summary, 
 		Host.host, 
 		Lane.lane, 
 		Revision.author, Revision.revision, 

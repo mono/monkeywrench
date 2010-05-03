@@ -1,4 +1,4 @@
-﻿/*
+/*
  *
  * Contact:
  *   Moonlight List (moonlight-list@lists.ximian.com)
@@ -15,7 +15,7 @@
 -- 
 CREATE VIEW RevisionWorkView AS 
 	SELECT 
-		Work.id, Work.command_id, Work.state, Work.starttime, Work.duration, Work.logfile, Work.summary, 
+		Work.id, Work.command_id, Work.state, Work.starttime, Work.endtime, Work.duration, Work.logfile, Work.summary, 
 		Host.host, 
 		Lane.lane, 
 		Revision.author, Revision.revision, 

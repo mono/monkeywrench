@@ -191,11 +191,14 @@ public partial class ViewTable : System.Web.UI.Page
 			header.Insert (1, "Author");
 			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
 				header.Insert (2, "Select");
+			header.Add ("Duration");
 			header.Add ("Host");
 			result_index = Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator) ? 3 : 2;
 			table.Add (header);
 
 			bool failed = false;
+			double duration = 0;
+
 			for (int i = 0; i < views.Count; i++) {
 				DBRevisionWorkView view = views [i];
 				DBState revisionwork_state = (DBState) view.revisionwork_state;
@@ -208,6 +211,7 @@ public partial class ViewTable : System.Web.UI.Page
 					if (i > 0) {
 						// matrix.AppendLine ("</tr>");
 						table.Add (row);
+						row [row.Count - 1] = TimeSpan.FromSeconds (duration).ToString ();
 					}
 
 					string revision = view.revision;
@@ -219,13 +223,18 @@ public partial class ViewTable : System.Web.UI.Page
 					row.Add (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a></td>", lane.id, host.id, view.revision_id, revision, string.Format ("Author: {1} Build start date: {0}", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"), view.author)));
 					row.Add (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>{1}</a></td>", view.revision_id, view.author));
 					if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-						row.Add (string.Format ("<input type=checkbox name='revision_id_{0}' />", view.revision_id));
-					while (row.Count < header.Count - 1)
+						row.Add (string.Format ("<input type=checkbox id='id_revision_chk_{1}' name='revision_id_{0}' />", view.revision_id, i));
+					while (row.Count < header.Count - 2)
 						row.Add ("-");
 					row.Add (view.workhost ?? "");
+					row.Add ("");
 					header_classes.Add (revisionwork_state.ToString ().ToLower ());
 					failed = false;
+					duration = 0;
 				}
+
+				if (view.endtime > view.starttime)
+					duration += (view.endtime - view.starttime).TotalSeconds;
 
 				if (state == DBState.Failed && !view.nonfatal)
 					failed = true;
@@ -260,6 +269,7 @@ public partial class ViewTable : System.Web.UI.Page
 			}
 
 			table.Add (row);
+			row [row.Count - 1] = TimeSpan.FromSeconds (duration).ToString ();
 
 			matrix.AppendLine ("<table class='buildstatus'>");
 			if (horizontal) {
