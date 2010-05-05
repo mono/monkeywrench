@@ -41,7 +41,7 @@ namespace MonkeyWrench.WebServices
 			int person_id;
 			DBLoginView view = null;
 
-			Console.WriteLine ("WebService.Authenticate (Ip4: {0}, UserHostAddress: {1}, User: {2}, Cookie: {3}, Password: {4}", login.Ip4, Context.Request.UserHostAddress, login.User, login.Cookie, login.Password);
+			Console.WriteLine ("WebService.Authenticate (Ip4: {0}, UserHostAddress: {1}, User: {2}, Cookie: {3}, Password: {4}", login == null ? null : login.Ip4, Context.Request.UserHostAddress, login == null ? null : login.User, login == null ? null : login.Cookie, login == null ? null : login.Password);
 
 			// Check if credentials were passed in
 			if (login == null || string.IsNullOrEmpty (login.User) || (string.IsNullOrEmpty (login.Password) && string.IsNullOrEmpty (login.Cookie))) {
