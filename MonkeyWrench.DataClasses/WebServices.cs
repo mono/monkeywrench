@@ -148,12 +148,12 @@ namespace MonkeyWrench.Web.WebServices
 				try {
 					return action ();
 				} catch (Exception ex) {
-					if ((DateTime.Now - start).TotalSeconds < Configuration.ConnectionRetryDuration) {
+					if ((DateTime.Now - start).TotalMinutes < Configuration.ConnectionRetryDuration) {
 						Logger.Log ("Could not {0}: {1}, retrying in 1 minute.", message, ex.Message);
 						System.Threading.Thread.Sleep (TimeSpan.FromMinutes (1));
 						continue;
 					} else {
-						Logger.Log ("Could not {0}: {1}. Reached max retry duration ({2}), won't try again.", message, ex.Message, Configuration.ConnectionRetryDuration);
+						Logger.Log ("Could not {0}: {1}. Reached max retry duration ({2} minutes), won't try again.", message, ex.Message, Configuration.ConnectionRetryDuration);
 						Logger.Log (ex.ToString ());
 						throw;
 					}
