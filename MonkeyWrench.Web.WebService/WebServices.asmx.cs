@@ -1571,7 +1571,10 @@ LIMIT 1;
 
 								dependent_lane = DBLane_Extensions.Create (db, dep.dependent_lane_id);
 								dependent_host = dep.dependent_host_id.HasValue ? DBHost_Extensions.Create (db, dep.dependent_host_id.Value) : null;
-								dep_revwork = DBRevisionWork_Extensions.Find (db, dependent_lane, dependent_host, dependent_lane.FindRevision (db, revision.revision));
+								DBRevision dep_lane_rev = dependent_lane.FindRevision (db, revision.revision);
+								if (dep_lane_rev == null)
+									continue; /* Something bad happened: the lane we're dependent on does not have the same revisions we have */
+								dep_revwork = DBRevisionWork_Extensions.Find (db, dependent_lane, dependent_host, dep_lane_rev);
 
 								work_files = dep_revwork.GetFiles (db);
 

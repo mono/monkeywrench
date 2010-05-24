@@ -1,3 +1,8 @@
+2010-05-25  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* WebServices.asmx.cs: Gracefully handle the case when a lane's revisions do
+	not match with the revisions of the lanes that lane is depending on.
+
 2010-05-05  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Authentication.cs: Authenticate: don't crash with a null login.
