@@ -1,3 +1,7 @@
+2010-06-08  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Properties/AssemblyInfo.cs: Add missing file.
+
 2009-10-19  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* VCTest.cs:
