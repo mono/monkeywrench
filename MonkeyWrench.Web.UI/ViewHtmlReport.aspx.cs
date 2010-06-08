@@ -81,6 +81,7 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 				tmp_html_filename = Path.GetTempFileName ();
 
 				using (WebClient web = new WebClient ()) {
+					web.Headers.Add ("Accept-Encoding", "gzip");
 					web.DownloadFile (Utilities.CreateWebServiceDownloadUrl (Request, workfile_id, false), tmp_html_filename);
 
 					if (web.ResponseHeaders ["Content-Encoding"] == "gzip")

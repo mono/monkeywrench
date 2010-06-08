@@ -1,3 +1,8 @@
+2010-06-08  Andrew Jorgensen  <ajorgensen@novell.com>
+
+	* ViewHtmlReport.aspx.cs: Send Accept-Encoding when
+	  downloading
+
 2010-05-04  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ViewTable.aspx.cs: Make the headers correctly ordered.

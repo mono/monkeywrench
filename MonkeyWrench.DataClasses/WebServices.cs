@@ -93,6 +93,7 @@ namespace MonkeyWrench.Web.WebServices
 			try {
 				tmp = Path.GetTempFileName ();
 				using (WebClient wc = new WebClient ()) {
+					wc.Headers.Add ("Accept-Encoding", "gzip");
 					wc.DownloadFile (url, tmp);
 
 					if (wc.ResponseHeaders ["Content-Encoding"] == "gzip") {
@@ -116,6 +117,7 @@ namespace MonkeyWrench.Web.WebServices
 				Directory.CreateDirectory (directory);
 
 			using (WebClient web = new WebClient ()) {
+				web.Headers.Add ("Accept-Encoding", "gzip");
 				web.DownloadFile (CreateWebServiceDownloadUrl (file.id), filename);
 
 				if (web.ResponseHeaders ["Content-Encoding"] == "gzip")
