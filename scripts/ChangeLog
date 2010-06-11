@@ -1,3 +1,8 @@
+2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
+
+	* database.sql: Add upload_files and working_directory
+	  attributes for a command
+
 2009-12-10  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: Add more indexes.

@@ -136,7 +136,10 @@ namespace MonkeyWrench.Builder
 						using (StreamWriter log = new StreamWriter (fs)) {
 							p.StartInfo.FileName = info.command.filename;
 							p.StartInfo.Arguments = string.Format (info.command.arguments, Path.Combine (info.temp_dir, info.command.command));
-							p.StartInfo.WorkingDirectory = info.BUILDER_DATA_SOURCE_DIR;
+							if (!string.IsNullOrEmpty (info.command.working_directory))
+								p.StartInfo.WorkingDirectory = Path.Combine (info.BUILDER_DATA_SOURCE_DIR, info.command.working_directory);
+							else
+								p.StartInfo.WorkingDirectory = info.BUILDER_DATA_SOURCE_DIR;
 							p.StartInfo.UseShellExecute = false;
 							p.StartInfo.RedirectStandardError = true;
 							p.StartInfo.RedirectStandardOutput = true;
@@ -302,7 +305,23 @@ namespace MonkeyWrench.Builder
 
 				WebService.UploadFileSafe (info.work, log_file, false);
 
+				// Gather files from logged commands and from the upload_files glob
 				CheckLog (log_file, info.work);
+				if (!string.IsNullOrEmpty (info.command.upload_files)) {
+					foreach (string glob in info.command.upload_files.Split(',')) {
+						// TODO: handle globs in directory parts
+						// TODO: allow absolute paths?
+						foreach (string match in Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName(glob)), Path.GetFileName(glob))) {
+							Logger.Log ("Uploading file {0} from glob {1}", match, glob);
+							try {
+								// TODO: allow hidden files also
+								WebService.UploadFileSafe (info.work, match, false);
+							} catch (Exception ex) {
+								Logger.Log ("Error while uploading file {0}: '{1}'. Skipping upload of this file", match, ex.Message);
+							}
+						}
+					}
+				}
 
 				if (response.RevisionWorkCompleted) {
 					// Cleanup after us.

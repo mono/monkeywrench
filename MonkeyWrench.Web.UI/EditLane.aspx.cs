@@ -141,6 +141,14 @@ public partial class EditLane : System.Web.UI.Page
 							Master.WebService.EditCommandTimeout (Master.WebServiceLogin, id, timeout);
 					}
 					break;
+				case "editCommandWorkingDirectory":
+					if (int.TryParse (command_id, out id))
+						Master.WebService.EditCommandWorkingDirectory (Master.WebServiceLogin, id, Request ["working_directory"]);
+					break;
+				case "editCommandUploadFiles":
+					if (int.TryParse (command_id, out id))
+						Master.WebService.EditCommandUploadFiles (Master.WebServiceLogin, id, Request ["upload_files"]);
+					break;
 				case "deletecommand":
 					if (int.TryParse (command_id, out id))
 						Master.WebService.DeleteCommand (Master.WebServiceLogin, id);
@@ -253,8 +261,8 @@ public partial class EditLane : System.Web.UI.Page
 
 
 			tblCommands.Rows.Add (Utils.CreateTableHeaderRow ("Commands"));
-			tblCommands.Rows.Add (Utils.CreateTableHeaderRow ("Sequence", "Command", "Always Execute", "Non Fatal", "Internal", "Executable", "Arguments", "Timeout", ""));
-			tblCommands.Rows [0].Cells [0].ColumnSpan = 8;
+			tblCommands.Rows.Add (Utils.CreateTableHeaderRow ("Sequence", "Command", "Always Execute", "Non Fatal", "Internal", "Executable", "Arguments", "Timeout", "Working Directory", "Upload Files", ""));
+			tblCommands.Rows [0].Cells [0].ColumnSpan = 10;
 
 			foreach (DBCommand command in response.Commands) {
 				string filename = command.command;
@@ -262,6 +270,12 @@ public partial class EditLane : System.Web.UI.Page
 				if (file != null)
 					filename = string.Format ("<a href='EditLaneFile.aspx?lane_id={1}&amp;file_id={0}'>{2}</a>", file.id, lane.id, file.name);
 
+				string working_directory = "<em>modify</em>";
+				if (!string.IsNullOrEmpty(command.working_directory))
+				    working_directory = command.working_directory;
+				string upload_files = "<em>modify</em>";
+				if (!string.IsNullOrEmpty(command.upload_files))
+				    upload_files = command.upload_files;
 				tblCommands.Rows.Add (Utils.CreateTableRow (
 					string.Format ("<a href='javascript:editCommandSequence ({2}, {0}, true, \"{1}\")'>{1}</a>", command.id, command.sequence, lane.id),
 					filename,
@@ -271,6 +285,8 @@ public partial class EditLane : System.Web.UI.Page
 					string.Format ("<a href='javascript:editCommandFilename ({2}, {0}, true, \"{1}\")'>{1}</a>", command.id, command.filename, lane.id),
 					string.Format ("<a href='javascript:editCommandArguments ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.arguments.Replace ("\"", "\\\""), lane.id, command.arguments),
 					string.Format ("<a href='javascript:editCommandTimeout ({2}, {0}, true, \"{1}\")'>{1} minutes</a>", command.id, command.timeout, lane.id),
+				    string.Format ("<a href='javascript:editCommandWorkingDirectory ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.working_directory, lane.id, working_directory),
+					string.Format ("<a href='javascript:editCommandUploadFiles ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.upload_files, lane.id, upload_files),
 					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;action=deletecommand&amp;command_id={1}'>Delete</a>", lane.id, command.id)));
 			}
 			tblCommands.Rows.Add (Utils.CreateTableRow (

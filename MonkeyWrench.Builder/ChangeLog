@@ -1,3 +1,8 @@
+2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
+
+	* Builder.cs: Add upload_files and working_directory
+	  attributes for a command
+
 2010-05-03  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Use a more insistent directory deletion method.

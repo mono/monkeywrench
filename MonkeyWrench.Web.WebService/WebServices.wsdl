@@ -284,6 +284,8 @@
               <xs:element minOccurs="1" maxOccurs="1" name="nonfatal" type="xs:boolean" />
               <xs:element minOccurs="1" maxOccurs="1" name="internal" type="xs:boolean" />
               <xs:element minOccurs="1" maxOccurs="1" name="timeout" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="working_directory" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="upload_files" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -816,6 +818,30 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="EditCommandTimeoutResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditCommandWorkingDirectory">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="working_directory" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditCommandWorkingDirectoryResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditCommandUploadFiles">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="upload_files" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditCommandUploadFilesResponse">
         <xs:complexType />
       </xs:element>
       <xs:element name="SwitchCommandNonFatal">
@@ -1817,6 +1843,18 @@
   <message name="EditCommandTimeoutSoapOut">
     <part name="parameters" element="s0:EditCommandTimeoutResponse" />
   </message>
+  <message name="EditCommandWorkingDirectorySoapIn">
+    <part name="parameters" element="s0:EditCommandWorkingDirectory" />
+  </message>
+  <message name="EditCommandWorkingDirectorySoapOut">
+    <part name="parameters" element="s0:EditCommandWorkingDirectoryResponse" />
+  </message>
+  <message name="EditCommandUploadFilesSoapIn">
+    <part name="parameters" element="s0:EditCommandUploadFiles" />
+  </message>
+  <message name="EditCommandUploadFilesSoapOut">
+    <part name="parameters" element="s0:EditCommandUploadFilesResponse" />
+  </message>
   <message name="SwitchCommandNonFatalSoapIn">
     <part name="parameters" element="s0:SwitchCommandNonFatal" />
   </message>
@@ -2262,6 +2300,14 @@
       <input message="s0:EditCommandTimeoutSoapIn" />
       <output message="s0:EditCommandTimeoutSoapOut" />
     </operation>
+    <operation name="EditCommandWorkingDirectory">
+      <input message="s0:EditCommandWorkingDirectorySoapIn" />
+      <output message="s0:EditCommandWorkingDirectorySoapOut" />
+    </operation>
+    <operation name="EditCommandUploadFiles">
+      <input message="s0:EditCommandUploadFilesSoapIn" />
+      <output message="s0:EditCommandUploadFilesSoapOut" />
+    </operation>
     <operation name="SwitchCommandNonFatal">
       <input message="s0:SwitchCommandNonFatalSoapIn" />
       <output message="s0:SwitchCommandNonFatalSoapOut" />
@@ -2563,6 +2609,14 @@
     <operation name="EditCommandTimeout">
       <input message="s0:EditCommandTimeoutSoapIn" />
       <output message="s0:EditCommandTimeoutSoapOut" />
+    </operation>
+    <operation name="EditCommandWorkingDirectory">
+      <input message="s0:EditCommandWorkingDirectorySoapIn" />
+      <output message="s0:EditCommandWorkingDirectorySoapOut" />
+    </operation>
+    <operation name="EditCommandUploadFiles">
+      <input message="s0:EditCommandUploadFilesSoapIn" />
+      <output message="s0:EditCommandUploadFilesSoapOut" />
     </operation>
     <operation name="SwitchCommandNonFatal">
       <input message="s0:SwitchCommandNonFatalSoapIn" />
@@ -2917,6 +2971,24 @@
     </operation>
     <operation name="EditCommandTimeout">
       <soap:operation soapAction="http://monkeywrench.novell.com/EditCommandTimeout" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandWorkingDirectory">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditCommandWorkingDirectory" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandUploadFiles">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditCommandUploadFiles" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -3595,6 +3667,24 @@
     </operation>
     <operation name="EditCommandTimeout">
       <soap12:operation soapAction="http://monkeywrench.novell.com/EditCommandTimeout" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandWorkingDirectory">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditCommandWorkingDirectory" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommandUploadFiles">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditCommandUploadFiles" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

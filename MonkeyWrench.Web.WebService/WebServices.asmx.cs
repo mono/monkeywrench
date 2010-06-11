@@ -180,7 +180,35 @@ namespace MonkeyWrench.WebServices
 				cmd.Save (db);
 			}
 		}
-
+		
+		[WebMethod]
+		public void EditCommandWorkingDirectory (WebServiceLogin login, int command_id, string working_directory)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				if (working_directory.Equals(".") || working_directory.Equals(""))
+					cmd.working_directory = null;
+				else
+					cmd.working_directory = working_directory;
+				cmd.Save (db);
+			}
+		}
+		
+		[WebMethod]
+		public void EditCommandUploadFiles (WebServiceLogin login, int command_id, string upload_files)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				if (upload_files.Equals(""))
+					cmd.upload_files = null;
+				else
+					cmd.upload_files = upload_files;
+				cmd.Save (db);
+			}
+		}
+		
 		[WebMethod]
 		public void SwitchCommandNonFatal (WebServiceLogin login, int command_id)
 		{

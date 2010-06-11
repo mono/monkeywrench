@@ -229,6 +229,50 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditCommandWorkingDirectory", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void EditCommandWorkingDirectory(WebServiceLogin login, int command_id, string working_directory) {
+            this.Invoke("EditCommandWorkingDirectory", new object[] {
+                        login,
+                        command_id,
+                        working_directory});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginEditCommandWorkingDirectory(WebServiceLogin login, int command_id, string working_directory, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("EditCommandWorkingDirectory", new object[] {
+                        login,
+                        command_id,
+                        working_directory}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndEditCommandWorkingDirectory(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditCommandUploadFiles", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void EditCommandUploadFiles(WebServiceLogin login, int command_id, string upload_files) {
+            this.Invoke("EditCommandUploadFiles", new object[] {
+                        login,
+                        command_id,
+                        upload_files});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginEditCommandUploadFiles(WebServiceLogin login, int command_id, string upload_files, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("EditCommandUploadFiles", new object[] {
+                        login,
+                        command_id,
+                        upload_files}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndEditCommandUploadFiles(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/SwitchCommandNonFatal", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void SwitchCommandNonFatal(WebServiceLogin login, int command_id) {
             this.Invoke("SwitchCommandNonFatal", new object[] {

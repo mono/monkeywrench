@@ -1,3 +1,9 @@
+2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
+
+	* WebServices.wsdl:
+	* WebServices.asmx.cs: Add upload_files and working_directory
+	  attributes for a command
+
 2010-05-25  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* WebServices.asmx.cs: Gracefully handle the case when a lane's revisions do

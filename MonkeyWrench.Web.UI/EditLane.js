@@ -26,8 +26,22 @@ function editCommandSequence(lane_id, command_id, saved, def) {
 
 function editCommandTimeout(lane_id, command_id, saved, def) {
     var timeout = prompt("Set the new timeout (in minutes):", def);
-    if (arguments != null && arguments != "" && arguments != def) {
+    if (timeout != null && timeout != "" && timeout != def) {
         window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=editCommandTimeout&command_id=" + command_id + "&timeout=" + timeout;
+    }
+}
+
+function editCommandWorkingDirectory(lane_id, command_id, saved, def) {
+    var working_directory = prompt("Set the new working directory (absolute or relative):", def);
+    if (working_directory != null && working_directory != def) {
+        window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=editCommandWorkingDirectory&command_id=" + command_id + "&working_directory=" + working_directory;
+    }
+}
+
+function editCommandUploadFiles(lane_id, command_id, saved, def) {
+    var upload_files = prompt("The files to upload (matched as a glob):", def);
+    if (upload_files != null && upload_files != def) {
+        window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=editCommandUploadFiles&command_id=" + command_id + "&upload_files=" + upload_files;
     }
 }
 
