@@ -357,16 +357,16 @@ namespace MonkeyWrench
 				result.hidden = hidden;
 				switch (extension.ToLower ()) {
 				case ".log":
+				case ".stdout":
+				case ".stderr":
 					result.mime = MimeTypes.LOG;
 					break;
 				case ".txt":
 					result.mime = MimeTypes.TXT;
 					break;
+				case ".htm":
 				case ".html":
 					result.mime = MimeTypes.HTML;
-					break;
-				case ".htm":
-					result.mime = MimeTypes.HTM;
 					break;
 				case ".png":
 					result.mime = MimeTypes.PNG;

@@ -17,8 +17,7 @@ namespace MonkeyWrench
 		public const string PNG = "image/png";
 		public const string LOG = "text/plain";
 		public const string TXT = "text/plain";
-		public const string HTML = "text/plain";
-		public const string HTM = "text/plain";
+		public const string HTML = "text/html";
 		public const string OCTET_STREAM = "application/octet-stream";
 		public const string XPI = "application/x-xpinstall";
 	}
