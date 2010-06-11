@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Web;
 
@@ -59,10 +60,20 @@ namespace MonkeyWrench.WebServices
 		private void DownloadStream (Stream str, string compressed_mime)
 		{
 			// access must be verified before calling this method (no verification is done here)
-			Response.AppendHeader ("Content-Length", str.Length.ToString ());
-
-			if (compressed_mime == MimeTypes.GZ)
-				Response.AppendHeader ("Content-Encoding", "gzip");
+			if (compressed_mime == MimeTypes.GZ) {
+				string AcceptEncoding = Request.Headers["Accept-Encoding"];
+				if (!string.IsNullOrEmpty (AcceptEncoding) && AcceptEncoding.Contains ("gzip")) {
+					Response.AppendHeader ("Content-Encoding", "gzip");
+				} else {
+					str = new GZipStream (str, CompressionMode.Decompress);
+				}
+			}
+			
+			try {
+				Response.AppendHeader ("Content-Length", str.Length.ToString ());
+			} catch (NotSupportedException ex)  {
+				// GZipStreams don't usually know their length, just ignore
+			}
 
 			byte [] buffer = new byte [1024];
 			int read;
@@ -86,8 +97,18 @@ namespace MonkeyWrench.WebServices
 			if (fullpath == null)
 				throw new HttpException (404, "Could not find the file.");
 
-			if (fullpath.EndsWith (".gz"))
-				Response.AppendHeader ("Content-Encoding", "gzip");
+			if (fullpath.EndsWith (".gz")) {
+				string AcceptEncoding = Request.Headers["Accept-Encoding"];
+				if (!string.IsNullOrEmpty(AcceptEncoding) && AcceptEncoding.Contains("gzip")) {
+					Response.AppendHeader ("Content-Encoding", "gzip");
+				} else {
+					// need to decompress this stream...
+					using (Stream str = File.OpenRead (fullpath)) {
+						DownloadStream (str, MimeTypes.GZ);
+					}
+					return;
+				}
+			}
 			
 			Response.TransmitFile (fullpath);
 		}

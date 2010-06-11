@@ -1,5 +1,12 @@
 2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
 
+	* Download.aspx.cs: Content-Encoding can only be sent for an
+	  encoding the client has advertised via Accept-Encoding - we
+	  have to decompress gzip content if the client does not
+	  accept gzip. bnc#542960
+
+2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
+
 	* WebServices.wsdl:
 	* WebServices.asmx.cs: Add upload_files and working_directory
 	  attributes for a command
