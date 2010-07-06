@@ -456,7 +456,7 @@ namespace MonkeyWrench.Builder
 			}
 		}
 
-		public static void CheckLog (string log_file, BuildInfo info)
+		static void CheckLog (string log_file, BuildInfo info)
 		{
 			string line, l;
 			string cmd;

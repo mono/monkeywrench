@@ -1,5 +1,9 @@
 2010-07-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Builder.cs: Make it compile too.
+
+2010-07-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Builder.cs: Add support for @Moonbuilder: SetSummary.
 
 2010-07-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
