@@ -312,7 +312,7 @@ namespace MonkeyWrench.Builder
 				WebService.UploadFileSafe (info.work, log_file, false);
 
 				// Gather files from logged commands and from the upload_files glob
-				CheckLog (log_file, info.work);
+				CheckLog (log_file, info);
 				if (!string.IsNullOrEmpty (info.command.upload_files)) {
 					foreach (string glob in info.command.upload_files.Split(',')) {
 						// TODO: handle globs in directory parts
@@ -456,7 +456,7 @@ namespace MonkeyWrench.Builder
 			}
 		}
 
-		public static void CheckLog (string log_file, DBWork work)
+		public static void CheckLog (string log_file, BuildInfo info)
 		{
 			string line, l;
 			string cmd;
@@ -492,7 +492,7 @@ namespace MonkeyWrench.Builder
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								string filename = line.Trim ();
 								try {
-									WebService.UploadFileSafe (work, filename, cmd.Contains ("Hidden"));
+									WebService.UploadFileSafe (info.work, filename, cmd.Contains ("Hidden"));
 								} catch (Exception ex) {
 									Logger.Log ("Error while uploading file {0}: '{1}'. Skipping upload of this file", filename, ex.Message);
 								}
@@ -506,7 +506,7 @@ namespace MonkeyWrench.Builder
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								foreach (string file in Directory.GetFiles (line.Trim ())) {
 									try {
-										WebService.UploadFileSafe (work, file, cmd.Contains ("Hidden"));
+										WebService.UploadFileSafe (info.work, file, cmd.Contains ("Hidden"));
 									} catch (Exception ex) {
 										Logger.Log ("Error while uploading file {0}: '{1}'. Skipping upload of this file", file, ex.Message);
 									}
@@ -514,6 +514,10 @@ namespace MonkeyWrench.Builder
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
 							}
+							break;
+						case "SetSummary":
+							info.work.summary = line;
+							info.work = WebService.ReportBuildStateSafe (info.work).Work;
 							break;
 						default:
 							Logger.Log ("Invalid @MonkeyWrench command: '{0}', entire line: '{1}'", cmd, l);
