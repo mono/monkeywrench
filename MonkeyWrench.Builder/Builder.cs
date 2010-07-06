@@ -276,6 +276,12 @@ namespace MonkeyWrench.Builder
 
 							// Sleep a bit so that the process has enough time to finish
 							System.Threading.Thread.Sleep (1000);
+							if (!stdout_thread.Join (TimeSpan.FromSeconds (15))) {
+								Logger.Log ("Waited 15s for stdout thread to finish, but it didn't");
+							}
+							if (!stderr_thread.Join (TimeSpan.FromSeconds (15))) {
+								Logger.Log ("Waited 15s for stderr thread to finish, but it didn't");
+							}
 
 							if (p.HasExited) {
 								exitcode = p.ExitCode;
