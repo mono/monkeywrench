@@ -154,6 +154,9 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY"] = info.lane.repository;
 							p.StartInfo.EnvironmentVariables ["BUILD_HOST"] = Configuration.Host;
 							p.StartInfo.EnvironmentVariables ["BUILD_WORK_HOST"] = info.host.host;
+							p.StartInfo.EnvironmentVariables ["BUILD_LANE_MAX_REVISION"] = info.lane.max_revision;
+							p.StartInfo.EnvironmentVariables ["BUILD_LANE_MIN_REVISION"] = info.lane.min_revision;
+							p.StartInfo.EnvironmentVariables ["BUILD_LANE_COMMIT_FILTER"] = info.lane.commit_filter;
 
 							int r = 0;
 							foreach (string repo in info.lane.repository.Split (',')) {

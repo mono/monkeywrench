@@ -36,6 +36,7 @@ namespace MonkeyWrench.DataClasses
 		private string _min_revision;
 		private string _max_revision;
 		private int? _parent_lane_id;
+		private string _commit_filter;
 
 		public string @lane { get { return _lane; } set { _lane = value; } }
 		public string @source_control { get { return _source_control; } set { _source_control = value; } }
@@ -43,6 +44,7 @@ namespace MonkeyWrench.DataClasses
 		public string @min_revision { get { return _min_revision; } set { _min_revision = value; } }
 		public string @max_revision { get { return _max_revision; } set { _max_revision = value; } }
 		public int? @parent_lane_id { get { return _parent_lane_id; } set { _parent_lane_id = value; } }
+		public string @commit_filter { get { return _commit_filter; } set { _commit_filter = value; } }
 
 
 		public override string Table
@@ -55,7 +57,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "lane", "source_control", "repository", "min_revision", "max_revision", "parent_lane_id" };
+				return new string [] { "lane", "source_control", "repository", "min_revision", "max_revision", "parent_lane_id", "commit_filter" };
 			}
 		}
         

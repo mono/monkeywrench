@@ -1,5 +1,13 @@
 2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* EditLane.aspx[[.designer].cs]: Add UI to edit the commit_filter field for
+	a lane.
+
+	* EditLaneFile.aspx: Add documentation about new environment variables for the
+	build environment.
+
+2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* EditLaneFile.aspx: Add documentation about BUILD_HOST and BUILD_WORK_HOST.
 	Fixes #520774.
 

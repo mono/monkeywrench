@@ -17,6 +17,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
 
@@ -32,6 +33,7 @@ namespace MonkeyWrench.Scheduler
 			public string author;
 			public string message;
 			public string timestamp;
+			public List<string> files;
 		}
 
 		public GITUpdater (bool ForceFullUpdate)
@@ -161,6 +163,12 @@ namespace MonkeyWrench.Scheduler
 					continue;
 				}
 
+				if (!string.IsNullOrEmpty (lane.commit_filter)) {
+					FetchFiles (entry, repository);
+					if (DoesFilterExclude (entry, lane.commit_filter))
+						continue;
+				}
+
 				r = new DBRevision ();
 				r.revision = revision;
 				r.lane_id = lane.id;
@@ -185,6 +193,106 @@ namespace MonkeyWrench.Scheduler
 			}
 
 			return update_steps;
+		}
+
+		private bool DoesFilterExclude (GitEntry entry, string filter)
+		{
+			string [] expressions;
+			Regex [] regexes;
+			bool include_all = false;
+
+			if (string.IsNullOrEmpty (filter))
+				return false;
+
+			if (filter.StartsWith ("ExcludeAllExcept:")) {
+				include_all = false;
+			} else if (filter.StartsWith ("IncludeAllExcept:")) {
+				include_all = true;
+			} else {
+				Log ("Invalid commit filter: {0}, including all commits.", filter);
+				return false;
+			}
+
+			expressions = filter.Substring (filter.IndexOf (':') + 1).Trim ().Split (';');
+			if (expressions.Length > 0) {
+				regexes = new Regex [expressions.Length];
+				for (int r = 0; r < regexes.Length; r++) {
+					regexes [r] = new Regex (FileUtilities.GlobToRegExp (expressions [r].Trim ()));
+				}
+
+				for (int f = 0; f < entry.files.Count; f++) {
+					for (int r = 0; r < regexes.Length; r++) {
+						if (regexes [r].IsMatch (entry.files [f])) {
+							return include_all;
+						}
+					}
+				}
+			}
+
+			return !include_all;
+		}
+
+		private void FetchFiles (GitEntry entry, string repository)
+		{
+			try {
+				string cache_dir = Configuration.GetSchedulerRepositoryCacheDirectory (repository);
+				StringBuilder stderr_log = new StringBuilder ();
+
+				entry.files = new List<string> ();
+
+				using (Process git = new Process ()) {
+					git.StartInfo.FileName = "git";
+					git.StartInfo.Arguments = "show --name-only --pretty='format:' " + entry.revision;
+					Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
+					git.StartInfo.WorkingDirectory = cache_dir;
+					git.StartInfo.UseShellExecute = false;
+					git.StartInfo.RedirectStandardOutput = true;
+					git.StartInfo.RedirectStandardError = true;
+					git.StartInfo.WorkingDirectory = cache_dir;
+
+					Thread stdout = new Thread (delegate ()
+					{
+						string line;
+						while ((line = git.StandardOutput.ReadLine ()) != null) {
+							if (string.IsNullOrEmpty (line.Trim ()))
+								continue;
+							entry.files.Add (line);
+						}
+					});
+					Thread stderr = new Thread (delegate ()
+					{
+						string line;
+						while (null != (line = git.StandardError.ReadLine ())) {
+							Console.Error.WriteLine (line);
+							stderr_log.AppendLine (line);
+						}
+					});
+					git.Start ();
+					stdout.Start ();
+					stderr.Start ();
+					// Wait 10 minutes for git to finish, otherwise abort.
+					if (!git.WaitForExit (1000 * 60 * 10)) {
+						Log ("Getting files took more than 10 minutes, aborting.");
+						try {
+							git.Kill ();
+							git.WaitForExit (10000); // Give the process 10 more seconds to completely exit.
+						} catch (Exception ex) {
+							Log ("Aborting file retrieval failed: {0}", ex.ToString ());
+						}
+					}
+
+					stdout.Join ((int) TimeSpan.FromMinutes (1).TotalMilliseconds);
+					stderr.Join ((int) TimeSpan.FromMinutes (1).TotalMilliseconds);
+
+					if (git.HasExited && git.ExitCode == 0) {
+						Log ("Got {0} files successfully", entry.files.Count);
+					} else {
+						Log ("Didn't get files, HasExited: {0}, ExitCode: {1}, stderr: {2}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A", stderr_log.ToString ());
+					}
+				}
+			} catch (Exception ex) {
+				Log ("Exception while trying to get files for commit {1} {0}", ex.ToString (), entry.revision);
+			}
 		}
 
 		private List<GitEntry> GetGITLog (DBLane dblane, string repository, string min_revision, string max_revision)

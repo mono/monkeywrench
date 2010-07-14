@@ -79,6 +79,7 @@ public partial class EditLane : System.Web.UI.Page
 			if (!IsPostBack) {
 				cmbSourceControl.Text = lane.source_control;
 				txtRepository.Text = lane.repository;
+				txtCommitFilter.Text = lane.commit_filter;
 				txtMinRevision.Text = lane.min_revision;
 				txtMaxRevision.Text = lane.max_revision;
 				txtLane.Text = lane.lane;
@@ -572,6 +573,7 @@ public partial class EditLane : System.Web.UI.Page
 		lane.max_revision = txtMaxRevision.Text;
 		lane.min_revision = txtMinRevision.Text;
 		lane.repository = txtRepository.Text;
+		lane.commit_filter = txtCommitFilter.Text;
 		lane.source_control = cmbSourceControl.Text;
 		lane.parent_lane_id = (parent_lane_id.HasValue && parent_lane_id.Value != 0) ? parent_lane_id : null;
 		Master.WebService.EditLane (Master.WebServiceLogin, lane);

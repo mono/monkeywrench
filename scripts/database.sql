@@ -61,6 +61,7 @@ CREATE TABLE Lane (
 	min_revision   text       NOT NULL DEFAULT '1',   -- the first revision to do.
 	max_revision   text       NOT NULL DEFAULT '',    -- the last revision to do. '' defaults to all revisions
 	parent_lane_id int        NULL DEFAULT NULL,      -- the parent lane (if any) of this lane
+	commit_filter  text       NOT NULL DEFAULT '',    -- a filter to filter out commits. Syntax not decided yet. An empty filter means include all commits to the repository.
 	UNIQUE (lane)
 );
 

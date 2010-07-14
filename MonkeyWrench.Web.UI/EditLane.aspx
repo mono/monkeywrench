@@ -30,6 +30,11 @@
                 <asp:TableCell>Repository:</asp:TableCell><asp:TableCell>
                     <asp:TextBox ID="txtRepository" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>The repository where the code for this lane is located. The scheduler uses the revisions for this repository to schedule work. Can include multiple repositories separated with commas.</asp:TableCell></asp:TableRow>
             <asp:TableRow>
+                <asp:TableCell>Commit filter:</asp:TableCell><asp:TableCell>
+                    <asp:TextBox ID="txtCommitFilter" runat="server" Width="600px"></asp:TextBox></asp:TableCell>
+                    <asp:TableCell>A filter to filter out commits. An empty filter means include all commits. If not empty, the filter must start with either 'IncludeAllExcept:' or 'ExcludeAllExcept:' and followed by a semi-colon separated list of shell globs.</asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
                 <asp:TableCell>Min revision:</asp:TableCell><asp:TableCell>
                     <asp:TextBox ID="txtMinRevision" runat="server" Width="600px"></asp:TextBox></asp:TableCell><asp:TableCell>Revisions before this one won't get scheduled. Leave blank to include all revisions.</asp:TableCell></asp:TableRow>
             <asp:TableRow>
@@ -37,7 +42,7 @@
                 <asp:TableCell>
                     <asp:TextBox ID="txtMaxRevision" runat="server" Width="600px"></asp:TextBox>
                 </asp:TableCell>
-                <asp:TableCell>Revisions after this one won't get scheduled. Leave blank to include all (future) revisions.</asp:TableCell>
+                <asp:TableCell>Revisions after this one won't get scheduled. Leave blank to include all (future) revisions. Git: If you want to track a branch other than the 'remotes/origin/master', set the revision to the remote branch you want to track.</asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>Parent lane:</asp:TableCell>
