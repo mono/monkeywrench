@@ -1,3 +1,8 @@
+2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* EditLaneFile.aspx: Add documentation about BUILD_HOST and BUILD_WORK_HOST.
+	Fixes #520774.
+
 2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
 
 	* EditLane.js:

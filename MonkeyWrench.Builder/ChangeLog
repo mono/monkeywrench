@@ -1,3 +1,7 @@
+2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Add support for BUILD_WORK_HOST. Fixes #520774.
+
 2010-07-06  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Make it compile too.

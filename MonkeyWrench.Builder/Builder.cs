@@ -153,6 +153,7 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_DATA_SOURCE"] = info.BUILDER_DATA_SOURCE_DIR;
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY"] = info.lane.repository;
 							p.StartInfo.EnvironmentVariables ["BUILD_HOST"] = Configuration.Host;
+							p.StartInfo.EnvironmentVariables ["BUILD_WORK_HOST"] = info.host.host;
 
 							int r = 0;
 							foreach (string repo in info.lane.repository.Split (',')) {

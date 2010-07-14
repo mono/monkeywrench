@@ -15,6 +15,8 @@ BUILD_REPOSITORY:   The svn repository of this lane. (Exactly as configured for 
 BUILD_REPOSITORY_0: Each individial repository of BUILD_REPOSITORY (named _0, _1, etc)
 BUILD_REPOSITORY_SPACE: Same as BUILD_REPOSITORY, just with space instead of comma separating repositories.
 BUILD_DATA_LANE:    The directory where this lane puts its data.
+BUILD_HOST:         The host currently executing.
+BUILD_WORK_HOST:    The host currently being worked for (this is different from BUILD_HOST if BUILD_HOST has master hosts it's working for).
 BUILD_INSTALL:      The install directory (typically BUILD_DATA_LANE/BUILD_REVISION/install)
 BUILD_REVISION:     The revision currently being built.
 BUILD_COMMAND:      The command currently being executed.
