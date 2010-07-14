@@ -56,7 +56,7 @@ CREATE TABLE MasterHost (
 CREATE TABLE Lane (
 	id             serial     PRIMARY KEY,
 	lane           text       UNIQUE NOT NULL,
-	source_control text       NOT NULL DEFAULT 'svn', -- the source control system. only svn supported so far
+	source_control text       NOT NULL DEFAULT 'svn', -- the source control system. only svn or git supported so far
 	repository     text       NOT NULL,               -- the source control repository.
 	min_revision   text       NOT NULL DEFAULT '1',   -- the first revision to do.
 	max_revision   text       NOT NULL DEFAULT '',    -- the last revision to do. '' defaults to all revisions
