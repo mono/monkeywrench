@@ -1,5 +1,10 @@
 2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* SchedulerGIT.cs: Make sure we pass the min revision when fetching the log if
+	we have it.
+
+2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* SchedulerGIT.cs: Implement commit filtering.
 
 2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
