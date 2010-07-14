@@ -1,3 +1,7 @@
+2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Makefile: we want generated files to have linux style eol.
+
 2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
 
 	* WebServices.Generated.cs: Add upload_files and

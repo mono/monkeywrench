@@ -28,7 +28,7 @@ generate: ../scripts/database.sql CustomTypes.sql
 	mono --debug SqlToCSharp.exe tmp
 	rm -f tmp
 	rm SqlToCSharp.exe*
-	unix2dos Database/*.generated.cs
+	dos2unix Database/*.generated.cs
 
 all: $(OUT)
 
