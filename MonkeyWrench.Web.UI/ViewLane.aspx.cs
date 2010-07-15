@@ -66,6 +66,9 @@ public partial class ViewLane : System.Web.UI.Page
 				case "deleterevision":
 					Master.WebService.RescheduleRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
 					break;
+				case "abortrevision":
+					Master.WebService.AbortRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+					break;
 				case "clearstep":
 					if (int.TryParse (Request ["work_id"], out id))
 						Master.WebService.ClearWork (Master.WebServiceLogin, id);
@@ -129,6 +132,7 @@ public partial class ViewLane : System.Web.UI.Page
 		if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>reset work</a>", lane.id, dbr.id, host.id);
 			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision'>delete work</a>", lane.id, dbr.id, host.id);
+			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=abortrevision'>abort work</a>", lane.id, dbr.id, host.id);
 		}
 
 		if (response.WorkHost != null) {
@@ -157,7 +161,6 @@ public partial class ViewLane : System.Web.UI.Page
 		matrix.AppendLine ("\t<th>Result</th>");
 		matrix.AppendLine ("\t<th>Start Time</th>");
 		matrix.AppendLine ("\t<th>Duration</th>");
-		matrix.AppendLine ("\t<th>Actions</th>");
 		matrix.AppendLine ("\t<th>Html report</th>");
 		matrix.AppendLine ("\t<th>Summary</th>");
 		matrix.AppendLine ("\t<th>Files</th>");
@@ -227,22 +230,6 @@ public partial class ViewLane : System.Web.UI.Page
 				matrix.Append ("-");
 			}
 			matrix.AppendLine ("</td>");
-
-			// action
-			StringBuilder action = new StringBuilder ();
-			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-				if (state == DBState.NotDone && !failed) {
-					action.AppendFormat ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={3}&amp;action=pausestep&amp;work_id={2}'>pause</a>", lane.id, host.id, step.id, revision.id);
-				} else if (state == DBState.Paused) {
-					action.AppendFormat ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={3}&amp;action=resumestep&amp;work_id={2}'>resume</a>", lane.id, host.id, step.id, revision.id);
-				} else if (state > DBState.Executing) {
-					action.AppendFormat ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={3}&amp;action=clearstep&amp;work_id={2}'>clear</a>", lane.id, host.id, step.id, revision.id);
-				} else if (state == DBState.Executing) {
-					action.AppendFormat ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={3}&amp;action=abortstep&amp;work_id={2}'>abort</a>", lane.id, host.id, step.id, revision.id);
-				}
-			}
-
-			matrix.AppendFormat (string.Format ("<td>{0}</td>", action.Length == 0 ? "-" : action.ToString ()));
 
 			// html report
 			matrix.AppendLine ("<td>");

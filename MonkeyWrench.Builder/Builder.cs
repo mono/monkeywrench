@@ -124,6 +124,12 @@ namespace MonkeyWrench.Builder
 
 				Logger.Log ("{0} Builder started new thread for sequence {1} step {2}", info.number, info.command.sequence, info.command.command);
 
+				/* Check if step has been aborted already */
+				info.work.State = WebService.GetWorkStateSafe (info.work);
+				if (info.work.State != DBState.NotDone) {
+					Logger.Log ("{0} Builder found that step {1} is not ready to start, it's in a '{2}' state", info.number, info.command.command, info.work.State);
+					return;
+				}
 				result = DBState.Executing;
 
 				info.work.starttime = DBRecord.DatabaseNow;

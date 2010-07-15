@@ -1066,6 +1066,32 @@ FROM HostLane";
 		}
 
 		[WebMethod]
+		public void AbortRevision (WebServiceLogin login, int lane_id, int host_id, int revision_id)
+		{
+			DBRevisionWork rw = null;
+
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
+UPDATE RevisionWork SET state = @state, completed = true WHERE lane_id = @lane_id AND revision_id = @revision_id AND host_id = @host_id;
+UPDATE Work SET state = @state WHERE Work.revisionwork_id = (SELECT RevisionWork.id FROM RevisionWork WHERE lane_id = @lane_id AND revision_id = @revision_id AND host_id = @host_id);";
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+					DB.CreateParameter (cmd, "revision_id", revision_id);
+					DB.CreateParameter (cmd, "host_id", host_id);
+					DB.CreateParameter (cmd, "state", (int) DBState.Aborted);
+					cmd.ExecuteNonQuery ();
+				}
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"SELECT * FROM RevisionWork WHERE lane_id = @lane_id AND revision_id = @revision_id AND host_id = @host_id";
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+					DB.CreateParameter (cmd, "revision_id", revision_id);
+					DB.CreateParameter (cmd, "host_id", host_id);
+				}
+			}
+		}
+
+		[WebMethod]
 		public void ClearWork (WebServiceLogin login, int work_id)
 		{
 			using (DB db = new DB ()) {

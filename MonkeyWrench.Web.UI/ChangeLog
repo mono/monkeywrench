@@ -1,3 +1,8 @@
+2010-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* ViewLane.aspx.cs: Removed the abort/pause/resume step commands, and add an
+	abort revision command.
+
 2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* EditLane.aspx[[.designer].cs]: Add UI to edit the commit_filter field for

@@ -72,6 +72,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="min_revision" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="max_revision" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="parent_lane_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="commit_filter" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -1463,6 +1464,19 @@
       <xs:element name="RescheduleRevisionResponse">
         <xs:complexType />
       </xs:element>
+      <xs:element name="AbortRevision">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AbortRevisionResponse">
+        <xs:complexType />
+      </xs:element>
       <xs:element name="ClearWork">
         <xs:complexType>
           <xs:sequence>
@@ -2113,6 +2127,12 @@
   <message name="RescheduleRevisionSoapOut">
     <part name="parameters" element="s0:RescheduleRevisionResponse" />
   </message>
+  <message name="AbortRevisionSoapIn">
+    <part name="parameters" element="s0:AbortRevision" />
+  </message>
+  <message name="AbortRevisionSoapOut">
+    <part name="parameters" element="s0:AbortRevisionResponse" />
+  </message>
   <message name="ClearWorkSoapIn">
     <part name="parameters" element="s0:ClearWork" />
   </message>
@@ -2480,6 +2500,10 @@
       <input message="s0:RescheduleRevisionSoapIn" />
       <output message="s0:RescheduleRevisionSoapOut" />
     </operation>
+    <operation name="AbortRevision">
+      <input message="s0:AbortRevisionSoapIn" />
+      <output message="s0:AbortRevisionSoapOut" />
+    </operation>
     <operation name="ClearWork">
       <input message="s0:ClearWorkSoapIn" />
       <output message="s0:ClearWorkSoapOut" />
@@ -2789,6 +2813,10 @@
     <operation name="RescheduleRevision">
       <input message="s0:RescheduleRevisionSoapIn" />
       <output message="s0:RescheduleRevisionSoapOut" />
+    </operation>
+    <operation name="AbortRevision">
+      <input message="s0:AbortRevisionSoapIn" />
+      <output message="s0:AbortRevisionSoapOut" />
     </operation>
     <operation name="ClearWork">
       <input message="s0:ClearWorkSoapIn" />
@@ -3376,6 +3404,15 @@
     </operation>
     <operation name="RescheduleRevision">
       <soap:operation soapAction="http://monkeywrench.novell.com/RescheduleRevision" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AbortRevision">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AbortRevision" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -4072,6 +4109,15 @@
     </operation>
     <operation name="RescheduleRevision">
       <soap12:operation soapAction="http://monkeywrench.novell.com/RescheduleRevision" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AbortRevision">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AbortRevision" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

@@ -1273,6 +1273,30 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/AbortRevision", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void AbortRevision(WebServiceLogin login, int lane_id, int host_id, int revision_id) {
+            this.Invoke("AbortRevision", new object[] {
+                        login,
+                        lane_id,
+                        host_id,
+                        revision_id});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginAbortRevision(WebServiceLogin login, int lane_id, int host_id, int revision_id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("AbortRevision", new object[] {
+                        login,
+                        lane_id,
+                        host_id,
+                        revision_id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndAbortRevision(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/ClearWork", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void ClearWork(WebServiceLogin login, int work_id) {
             this.Invoke("ClearWork", new object[] {

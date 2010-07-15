@@ -1,5 +1,10 @@
 2010-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
+	* Builder.cs: Check if we've been aborted before starting to work, so that we
+	don't overwrite any aborted states if we were aborted before starting.
+
+2010-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
 	* Builder.cs: Always check every minute if we've been aborted. With steps that take
 	over a day to complete it takes ages to abort otherwise.
 
