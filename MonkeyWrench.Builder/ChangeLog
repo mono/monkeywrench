@@ -1,3 +1,8 @@
+2010-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Builder.cs: Always check every minute if we've been aborted. With steps that take
+	over a day to complete it takes ages to abort otherwise.
+
 2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Builder.cs: Propagate more information about the lane to the build environment.

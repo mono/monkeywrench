@@ -231,7 +231,7 @@ namespace MonkeyWrench.Builder
 							stderr_thread.Start ();
 							stdout_thread.Start ();
 
-							while (!p.WaitForExit (1000 * info.command.timeout)) {
+							while (!p.WaitForExit (60000 /* 1 minute */)) {
 								if (p.HasExited)
 									break;
 
