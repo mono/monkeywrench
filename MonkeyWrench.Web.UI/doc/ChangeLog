@@ -1,3 +1,7 @@
+2010-07-20  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.html: Add configuration option to allow commit reporter ips.
+
 2009-11-26  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* Configuration.html: Update information about getting child processes

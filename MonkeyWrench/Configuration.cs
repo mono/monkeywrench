@@ -39,6 +39,7 @@ namespace MonkeyWrench
 		public static string SchedulerPassword;
 		public static string ChildProcessAlgorithm = "pgrep";
 		public static string Platform = ""; // detect automatically
+		public static string AllowedCommitReporterIPs = "";
 
 		//the following are used by the database manager.
 		public static bool CleanLargeObjects;
@@ -165,6 +166,7 @@ namespace MonkeyWrench
 				SchedulerPassword = xml.SelectSingleNode ("MonkeyWrench/Configuration/SchedulerPassword").GetNodeValue (SchedulerPassword);
 				ChildProcessAlgorithm = xml.SelectSingleNode ("MonkeyWrench/Configuration/ChildProcessAlgorithm").GetNodeValue (ChildProcessAlgorithm);
 				Platform = xml.SelectSingleNode ("MonkeyWrench/Configuration/Platform").GetNodeValue (Platform);
+				AllowedCommitReporterIPs = xml.SelectSingleNode ("MonkeyWrench/Configuration/AllowedCommitReporterIPs").GetNodeValue (AllowedCommitReporterIPs);
 
 				// override from command line
 
@@ -195,6 +197,7 @@ namespace MonkeyWrench
 					{"execute-deletion-directives", v => ExecuteDeletionDirectives = true},
 					{"move-files-to-file-system", v => MoveFilesToFileSystem = true},
 					{"move-files-to-database", v => MoveFilesToDatabase = true},
+					{"allowed-commit-reporter-ips", v => AllowedCommitReporterIPs = v},
 				};
 				List<string> extra = null;
 				try {

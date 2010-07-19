@@ -1,3 +1,7 @@
+2010-07-20  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Configuration.cs: Add configuration option to allow commit reporter ips.
+
 2010-06-11  Andrew Jorgensen  <ajorgensen@novell.com>
 
 	* MimeTypes.cs: Consolidated HTM and HTML and fixed the type
