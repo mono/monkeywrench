@@ -81,7 +81,7 @@ namespace MonkeyWrench.Scheduler
 					if (existing_rev > revision)
 						continue;
 				}
-				Logger.Log ("GIT: Added changeset for {1} with path: {0}", dir, revision);
+				Logger.Log ("GIT: Added changeset for {1} with path: '{0}'", dir, revision);
 				paths.Add (dir);
 				min_revisions.Add (revision);
 			}

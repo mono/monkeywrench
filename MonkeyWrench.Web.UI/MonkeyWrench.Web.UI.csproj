@@ -35,6 +35,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Extensions.Design, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Core">
@@ -43,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Admin.aspx" />
+    <Content Include="ReportGitHubCommit.aspx" />
     <Content Include="ViewHtmlReportEmbedded.aspx" />
     <Content Include="Delete.aspx" />
     <Content Include="doc\Configuration.html" />
@@ -89,6 +92,13 @@
     </Compile>
     <Compile Include="Admin.aspx.designer.cs">
       <DependentUpon>Admin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ReportGitHubCommit.aspx.cs">
+      <DependentUpon>ReportGitHubCommit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ReportGitHubCommit.aspx.designer.cs">
+      <DependentUpon>ReportGitHubCommit.aspx</DependentUpon>
     </Compile>
     <Compile Include="ViewHtmlReportEmbedded.aspx.cs">
       <DependentUpon>ViewHtmlReportEmbedded.aspx</DependentUpon>

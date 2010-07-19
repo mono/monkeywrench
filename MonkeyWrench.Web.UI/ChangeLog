@@ -1,3 +1,10 @@
+2010-07-20  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* Makefile:
+	* MonkeyWrench.Web.UI.csproj:
+	* ReportGitHubCommit.aspx[[.designer].cs]: Add support for github's POST
+	commit notification.
+
 2010-07-15  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* ViewLane.aspx.cs: Removed the abort/pause/resume step commands, and add an

@@ -18,6 +18,7 @@ REFERENCES = \
 	-r:System.Data.dll	\
 	-r:System.Web.dll	\
 	-r:System.Drawing.dll	\
+	-r:System.Web.Extensions.dll \
 	-r:System.Web.Services.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
