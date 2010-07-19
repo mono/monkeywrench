@@ -7,7 +7,7 @@
 # The xml file has the following format:
 #
 # <monkeywrench version="1">
-#   <changeset sourcecountrol="svn|git" root="<repository root>" revision="<revision>">
+#   <changeset sourcecontrol="svn|git" root="<repository root>" revision="<revision>">
 #     <directories>
 #        <directory>/dir1</directory>
 #        <directory>/dir2</directory>

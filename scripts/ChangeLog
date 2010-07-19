@@ -1,3 +1,7 @@
+2010-07-20  Rolf Bjarne Kvinge  <RKvinge@novell.com>
+
+	* postcommit-svn.sh: Fix typo in comment.
+
 2010-07-14  Rolf Bjarne Kvinge  <RKvinge@novell.com>
 
 	* database.sql: Update comment.
