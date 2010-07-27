@@ -312,7 +312,7 @@ namespace MonkeyWrench.Scheduler
 				using (Process git = new Process ()) {
 					git.StartInfo.FileName = "git";
 					if (!Directory.Exists (Path.Combine (cache_dir, ".git"))) {
-						git.StartInfo.Arguments = "clone " + repository + " .";
+						git.StartInfo.Arguments = "clone --no-checkout " + repository + " .";
 					} else {
 						git.StartInfo.Arguments = "fetch";
 					}
