@@ -124,7 +124,7 @@ public partial class ViewWorkTable : System.Web.UI.Page
 			if (file_id == 0) {
 				matrix.AppendFormat ("\t<td class='{0}'>{1}</td>", result, view.revision);
 			} else {
-				matrix.AppendFormat ("\t<td class='{0}'><a href='GetFile.aspx?id={2}'>{1}</a></td>", result, view.revision, file_id);
+				matrix.AppendFormat ("\t<td class='{0}'><a href='ViewLane.aspx?lane_id={2}&host_id={3}&revision_id={4}'>{1}</a></td>", result, view.revision, lane.id, host.id, view.revision_id);
 			}
 
 			if (state > DBState.NotDone && state != DBState.Paused) {
