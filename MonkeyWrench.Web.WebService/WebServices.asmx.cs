@@ -1174,7 +1174,7 @@ ORDER BY date DESC LIMIT 250;
 				}
 				response.WorkFileViews = new List<List<DBWorkFileView>> ();
 				for (int i = 0; i < response.WorkViews.Count; i++) {
-					response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id));
+					response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id, false));
 				}
 			}
 
