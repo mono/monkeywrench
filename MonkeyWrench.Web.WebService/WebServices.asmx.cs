@@ -1162,7 +1162,7 @@ UPDATE Work SET state = @state WHERE Work.revisionwork_id = (SELECT RevisionWork
 SELECT * 
 FROM WorkView2
 WHERE command_id = @command_id AND masterhost_id = @host_id AND lane_id = @lane_id
-ORDER BY revision DESC LIMIT 250;
+ORDER BY date DESC LIMIT 250;
 ";
 					DB.CreateParameter (cmd, "command_id", response.Command.id);
 					DB.CreateParameter (cmd, "host_id", response.Host.id);

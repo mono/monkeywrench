@@ -52,6 +52,7 @@ namespace MonkeyWrench.DataClasses
 		private string _workhost;
 		private string _author;
 		private string _revision;
+		private DateTime _date;
 
 		public string @lane { get { return _lane; } set { _lane = value; } }
 		public int @command_id { get { return _command_id; } set { _command_id = value; } }
@@ -75,6 +76,7 @@ namespace MonkeyWrench.DataClasses
 		public string @workhost { get { return _workhost; } set { _workhost = value; } }
 		public string @author { get { return _author; } set { _author = value; } }
 		public string @revision { get { return _revision; } set { _revision = value; } }
+		public DateTime @date { get { return _date; } set { _date = value; } }
 
 
 		public const string SQL = 
@@ -88,7 +90,7 @@ namespace MonkeyWrench.DataClasses
 		RevisionWork.revision_id, 
 		MasterHost.host AS masterhost,  
 		WorkHost.host AS workhost, 
-		Revision.author, Revision.revision 
+		Revision.author, Revision.revision, Revision.date 
 	FROM Work  
 		INNER JOIN RevisionWork ON Work.revisionwork_id = RevisionWork.id 
 		INNER JOIN Revision ON RevisionWork.revision_id = Revision.id  
@@ -98,7 +100,7 @@ namespace MonkeyWrench.DataClasses
 		INNER JOIN Command ON Work.command_id = Command.id;";
 
 
-		private static string [] _fields_ = new string [] { "lane", "command_id", "state", "starttime", "endtime", "duration", "logfile", "summary", "workhost_id", "nonfatal", "alwaysexecute", "sequence", "internal", "command", "revisionwork_id", "masterhost_id", "lane_id", "revision_id", "masterhost", "workhost", "author", "revision" };
+		private static string [] _fields_ = new string [] { "lane", "command_id", "state", "starttime", "endtime", "duration", "logfile", "summary", "workhost_id", "nonfatal", "alwaysexecute", "sequence", "internal", "command", "revisionwork_id", "masterhost_id", "lane_id", "revision_id", "masterhost", "workhost", "author", "revision", "date" };
 		public override string [] Fields
 		{
 			get

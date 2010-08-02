@@ -274,7 +274,7 @@ CREATE VIEW WorkView2 AS
 		RevisionWork.revision_id,
 		MasterHost.host AS masterhost, 
 		WorkHost.host AS workhost,
-		Revision.author, Revision.revision
+		Revision.author, Revision.revision, Revision.date
 	FROM Work 
 		INNER JOIN RevisionWork ON Work.revisionwork_id = RevisionWork.id
 		INNER JOIN Revision ON RevisionWork.revision_id = Revision.id 
