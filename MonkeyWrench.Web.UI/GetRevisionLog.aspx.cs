@@ -35,8 +35,16 @@ public partial class GetRevisionLog : System.Web.UI.Page
 		int? revision_id = Utils.TryParseInt32 (Request ["id"]);
 
 		if (revision_id != null) {
-			log.InnerText = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, false, Master.WebServiceLogin));
-			diff.InnerText = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, true, Master.WebServiceLogin));
+			try {
+				log.InnerText = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, false, Master.WebServiceLogin));
+			} catch (Exception ex) {
+				log.InnerText = "Exception while fetching log: " + ex.ToString ();
+			}
+			try {
+				diff.InnerText = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, true, Master.WebServiceLogin));
+			} catch (Exception ex) {
+				diff.InnerText = "Exception while fetching diff: " + ex.ToString ();
+			}
 		}
 	}
 }
