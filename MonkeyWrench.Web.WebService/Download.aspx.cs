@@ -182,7 +182,7 @@ namespace MonkeyWrench.WebServices
 								git.StartInfo.RedirectStandardError = true;
 								git.StartInfo.UseShellExecute = false;
 								git.StartInfo.FileName = "git";
-								git.StartInfo.Arguments = "diff --no-color --no-prefix " + revision.revision + " " + revision.revision + "~";
+								git.StartInfo.Arguments = "diff --no-color --no-prefix " + revision.revision + "~ " + revision.revision;
 								git.StartInfo.WorkingDirectory = Configuration.GetSchedulerRepositoryCacheDirectory (lane.repository);
 								git.OutputDataReceived += (object sender, DataReceivedEventArgs ea) =>
 								{
@@ -194,7 +194,7 @@ namespace MonkeyWrench.WebServices
 									Response.Write (ea.Data);
 									Response.Write ('\n');
 								};
-								Logger.Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, git.StartInfo.WorkingDirectory);
+								// Logger.Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, git.StartInfo.WorkingDirectory);
 								git.Start ();
 								git.BeginErrorReadLine ();
 								git.BeginOutputReadLine ();
