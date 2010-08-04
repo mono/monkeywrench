@@ -405,3 +405,101 @@ td.headerlogin
 	font-weight: normal !important;
 	color: #00008B !important;
 }
+
+/* diff view */
+
+.diff_view_line_number 
+{
+    background-color: #ececec;
+    text-align: right;
+    border-style: inset;
+    border-width: 0px;
+    border-left-width: 0px;
+    border-top-width: 0px;
+    border-bottom-width: 0px;
+    border-right-width: 1px;
+    border-right-color: #777777;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.diff_view_normal_line 
+{
+    background-color: white;
+    width: 100%;
+}
+
+.diff_view_removed_line 
+{
+    background-color: #ffd0d0;
+    width: 100%;
+}
+
+.diff_view_added_line 
+{
+    background-color: #d0ffd0;
+    width: 100%;
+}
+
+td.diff_view_header_td
+{
+    background-color: #ececff;
+    border-style: inset;
+    border-left-width: 0px;
+    border-top-width: 0px;
+    border-bottom-width: 1px;
+    border-right-width: 0px;
+    border-right-color: #777777;
+    padding-top: 5px; 
+    padding-bottom: 5px;
+    padding-left: 5px; 
+    padding-right: 5px;
+}
+
+td.diff_view_td
+{
+    border-width: 0px;
+    padding-top: 0px; 
+    padding-bottom: 0px;
+    padding-left: 5px; 
+    padding-right: 5px;
+}
+
+td.diff_view_at_td
+{
+    background-color: #f0f0f0;
+    border-width: 0px;
+    padding-top: 0px; 
+    padding-bottom: 0px;
+    padding-left: 5px; 
+    padding-right: 5px;
+}
+
+td.diff_view_index_td
+{
+    background-color: #f0f0f0;
+    border-width: 0px;
+    padding-top: 0px; 
+    padding-bottom: 0px;
+    padding-left: 5px; 
+    padding-right: 5px;
+}
+
+pre.diff_view_pre
+{
+    border-width: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+table.diff_view_table
+{
+    border-spacing: 0px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 100%;
+    border-width: 1px; 
+    border-style: outset; 
+    border-color: #808080;
+    border-collapse: separate;
+}
