@@ -126,7 +126,8 @@ namespace MonkeyWrench.Builder
 
 				/* Check if step has been aborted already */
 				info.work.State = WebService.GetWorkStateSafe (info.work);
-				if (info.work.State != DBState.NotDone) {
+				if (info.work.State != DBState.NotDone && info.work.State != DBState.Executing) {
+					/* If we're in an executing state, we're restarting a command for whatever reason (crash, reboot, etc) */
 					Logger.Log ("{0} Builder found that step {1} is not ready to start, it's in a '{2}' state", info.number, info.command.command, info.work.State);
 					return;
 				}
