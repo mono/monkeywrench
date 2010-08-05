@@ -1397,32 +1397,35 @@ ORDER BY date DESC LIMIT 250;
 		{
 			GetFilesForWorkResponse response = new GetFilesForWorkResponse ();
 
-			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator, true);
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator, true);
 
-				List<DBFile> files = new List<DBFile> ();
-				response.Files = files;
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = @"
+					response.Files = new List<DBFile> ();
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
 SELECT File.* FROM File
 INNER JOIN WorkFile ON File.id = WorkFile.file_id
 INNER JOIN Work ON Work.id = WorkFile.work_id
 WHERE Work.revisionwork_id = @revisionwork_id AND Work.command_id = @command_id ";
-					if (!string.IsNullOrEmpty (filename)) {
-						cmd.CommandText += " AND WorkFile.filename = @filename";
-						DB.CreateParameter (cmd, "filename", filename);
-					}
-					cmd.CommandText += ";";
+						if (!string.IsNullOrEmpty (filename)) {
+							cmd.CommandText += " AND WorkFile.filename = @filename";
+							DB.CreateParameter (cmd, "filename", filename);
+						}
+						cmd.CommandText += ";";
 
-					DB.CreateParameter (cmd, "revisionwork_id", revisionwork_id);
-					DB.CreateParameter (cmd, "command_id", command_id);
+						DB.CreateParameter (cmd, "revisionwork_id", revisionwork_id);
+						DB.CreateParameter (cmd, "command_id", command_id);
 
-					using (IDataReader reader = cmd.ExecuteReader ()) {
-						while (reader.Read ()) {
-							files.Add (new DBFile (reader));
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.Read ()) {
+								response.Files.Add (new DBFile (reader));
+							}
 						}
 					}
 				}
+			} catch (Exception ex) {
+				Logger.Log ("GetFilesForWork exception: {0}", ex);
 			}
 
 			return response;
