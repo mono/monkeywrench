@@ -142,6 +142,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="workhost" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="author" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -388,6 +389,21 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:complexType name="DBFile">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="md5" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="file_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="mime" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="compressed_mime" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="size" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="hidden" type="xs:boolean" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="DBWorkFile">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
@@ -592,11 +608,43 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:complexType name="GetHostLanesResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="HostLanes" type="s0:ArrayOfDBHostLane" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="GetHostsResponse">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="Hosts" type="s0:ArrayOfDBHost" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetRevisionsResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Revisions" type="s0:ArrayOfDBRevision" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBRevision">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRevision" nillable="true" type="s0:DBRevision" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetCommandsResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Commands" type="s0:ArrayOfDBCommand" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -666,6 +714,20 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBPerson" nillable="true" type="s0:DBPerson" />
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="GetFilesForWorkResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Files" type="s0:ArrayOfDBFile" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBFile">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBFile" nillable="true" type="s0:DBFile" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="ReportBuildStateResponse">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
@@ -675,6 +737,20 @@
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetRevisionWorkForLaneResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="RevisionWork" type="s0:ArrayOfDBRevisionWork" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBRevisionWork">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRevisionWork" nillable="true" type="s0:DBRevisionWork" />
+        </xs:sequence>
       </xs:complexType>
       <xs:complexType name="GetBuildInfoResponse">
         <xs:complexContent mixed="false">
@@ -1356,6 +1432,20 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="GetHostLanes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetHostLanesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetHostLanesResult" type="s0:GetHostLanesResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="GetHosts">
         <xs:complexType>
           <xs:sequence>
@@ -1367,6 +1457,39 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="GetHostsResult" type="s0:GetHostsResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetRevisions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="limit" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="offset" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetRevisionsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetRevisionsResult" type="s0:GetRevisionsResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetCommands">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetCommandsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetCommandsResult" type="s0:GetCommandsResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -1701,6 +1824,23 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="GetFilesForWork">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revisionwork_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="command_id" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetFilesForWorkResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetFilesForWorkResult" type="s0:GetFilesForWorkResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="ReportBuildState">
         <xs:complexType>
           <xs:sequence>
@@ -1713,6 +1853,23 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="ReportBuildStateResult" type="s0:ReportBuildStateResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetRevisionWorkForLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetRevisionWorkForLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetRevisionWorkForLaneResult" type="s0:GetRevisionWorkForLaneResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -2080,11 +2237,29 @@
   <message name="GetLanesSoapOut">
     <part name="parameters" element="s0:GetLanesResponse" />
   </message>
+  <message name="GetHostLanesSoapIn">
+    <part name="parameters" element="s0:GetHostLanes" />
+  </message>
+  <message name="GetHostLanesSoapOut">
+    <part name="parameters" element="s0:GetHostLanesResponse" />
+  </message>
   <message name="GetHostsSoapIn">
     <part name="parameters" element="s0:GetHosts" />
   </message>
   <message name="GetHostsSoapOut">
     <part name="parameters" element="s0:GetHostsResponse" />
+  </message>
+  <message name="GetRevisionsSoapIn">
+    <part name="parameters" element="s0:GetRevisions" />
+  </message>
+  <message name="GetRevisionsSoapOut">
+    <part name="parameters" element="s0:GetRevisionsResponse" />
+  </message>
+  <message name="GetCommandsSoapIn">
+    <part name="parameters" element="s0:GetCommands" />
+  </message>
+  <message name="GetCommandsSoapOut">
+    <part name="parameters" element="s0:GetCommandsResponse" />
   </message>
   <message name="CloneLaneSoapIn">
     <part name="parameters" element="s0:CloneLane" />
@@ -2230,11 +2405,23 @@
   <message name="GetWorkStateSoapOut">
     <part name="parameters" element="s0:GetWorkStateResponse" />
   </message>
+  <message name="GetFilesForWorkSoapIn">
+    <part name="parameters" element="s0:GetFilesForWork" />
+  </message>
+  <message name="GetFilesForWorkSoapOut">
+    <part name="parameters" element="s0:GetFilesForWorkResponse" />
+  </message>
   <message name="ReportBuildStateSoapIn">
     <part name="parameters" element="s0:ReportBuildState" />
   </message>
   <message name="ReportBuildStateSoapOut">
     <part name="parameters" element="s0:ReportBuildStateResponse" />
+  </message>
+  <message name="GetRevisionWorkForLaneSoapIn">
+    <part name="parameters" element="s0:GetRevisionWorkForLane" />
+  </message>
+  <message name="GetRevisionWorkForLaneSoapOut">
+    <part name="parameters" element="s0:GetRevisionWorkForLaneResponse" />
   </message>
   <message name="GetBuildInfoSoapIn">
     <part name="parameters" element="s0:GetBuildInfo" />
@@ -2469,9 +2656,21 @@
       <input message="s0:GetLanesSoapIn" />
       <output message="s0:GetLanesSoapOut" />
     </operation>
+    <operation name="GetHostLanes">
+      <input message="s0:GetHostLanesSoapIn" />
+      <output message="s0:GetHostLanesSoapOut" />
+    </operation>
     <operation name="GetHosts">
       <input message="s0:GetHostsSoapIn" />
       <output message="s0:GetHostsSoapOut" />
+    </operation>
+    <operation name="GetRevisions">
+      <input message="s0:GetRevisionsSoapIn" />
+      <output message="s0:GetRevisionsSoapOut" />
+    </operation>
+    <operation name="GetCommands">
+      <input message="s0:GetCommandsSoapIn" />
+      <output message="s0:GetCommandsSoapOut" />
     </operation>
     <operation name="CloneLane">
       <input message="s0:CloneLaneSoapIn" />
@@ -2569,9 +2768,17 @@
       <input message="s0:GetWorkStateSoapIn" />
       <output message="s0:GetWorkStateSoapOut" />
     </operation>
+    <operation name="GetFilesForWork">
+      <input message="s0:GetFilesForWorkSoapIn" />
+      <output message="s0:GetFilesForWorkSoapOut" />
+    </operation>
     <operation name="ReportBuildState">
       <input message="s0:ReportBuildStateSoapIn" />
       <output message="s0:ReportBuildStateSoapOut" />
+    </operation>
+    <operation name="GetRevisionWorkForLane">
+      <input message="s0:GetRevisionWorkForLaneSoapIn" />
+      <output message="s0:GetRevisionWorkForLaneSoapOut" />
     </operation>
     <operation name="GetBuildInfo">
       <input message="s0:GetBuildInfoSoapIn" />
@@ -2783,9 +2990,21 @@
       <input message="s0:GetLanesSoapIn" />
       <output message="s0:GetLanesSoapOut" />
     </operation>
+    <operation name="GetHostLanes">
+      <input message="s0:GetHostLanesSoapIn" />
+      <output message="s0:GetHostLanesSoapOut" />
+    </operation>
     <operation name="GetHosts">
       <input message="s0:GetHostsSoapIn" />
       <output message="s0:GetHostsSoapOut" />
+    </operation>
+    <operation name="GetRevisions">
+      <input message="s0:GetRevisionsSoapIn" />
+      <output message="s0:GetRevisionsSoapOut" />
+    </operation>
+    <operation name="GetCommands">
+      <input message="s0:GetCommandsSoapIn" />
+      <output message="s0:GetCommandsSoapOut" />
     </operation>
     <operation name="CloneLane">
       <input message="s0:CloneLaneSoapIn" />
@@ -2883,9 +3102,17 @@
       <input message="s0:GetWorkStateSoapIn" />
       <output message="s0:GetWorkStateSoapOut" />
     </operation>
+    <operation name="GetFilesForWork">
+      <input message="s0:GetFilesForWorkSoapIn" />
+      <output message="s0:GetFilesForWorkSoapOut" />
+    </operation>
     <operation name="ReportBuildState">
       <input message="s0:ReportBuildStateSoapIn" />
       <output message="s0:ReportBuildStateSoapOut" />
+    </operation>
+    <operation name="GetRevisionWorkForLane">
+      <input message="s0:GetRevisionWorkForLaneSoapIn" />
+      <output message="s0:GetRevisionWorkForLaneSoapOut" />
     </operation>
     <operation name="GetBuildInfo">
       <input message="s0:GetBuildInfoSoapIn" />
@@ -3340,8 +3567,35 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="GetHostLanes">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetHostLanes" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="GetHosts">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetHosts" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetRevisions">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetRevisions" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetCommands">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetCommands" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -3565,8 +3819,26 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="GetFilesForWork">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetFilesForWork" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="ReportBuildState">
       <soap:operation soapAction="http://monkeywrench.novell.com/ReportBuildState" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetRevisionWorkForLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetRevisionWorkForLane" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -4045,8 +4317,35 @@
         <soap12:body use="literal" />
       </output>
     </operation>
+    <operation name="GetHostLanes">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetHostLanes" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
     <operation name="GetHosts">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetHosts" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetRevisions">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetRevisions" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetCommands">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetCommands" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>
@@ -4270,8 +4569,26 @@
         <soap12:body use="literal" />
       </output>
     </operation>
+    <operation name="GetFilesForWork">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetFilesForWork" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
     <operation name="ReportBuildState">
       <soap12:operation soapAction="http://monkeywrench.novell.com/ReportBuildState" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetRevisionWorkForLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetRevisionWorkForLane" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

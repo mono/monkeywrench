@@ -126,12 +126,17 @@
     <Compile Include="Logic\FrontPageResponse.cs" />
     <Compile Include="Logic\GetAdminInfoResponse.cs" />
     <Compile Include="Logic\GetBuildInfoResponse.cs" />
+    <Compile Include="Logic\GetCommandsResponse.cs" />
+    <Compile Include="Logic\GetFilesForWorkResponse.cs" />
     <Compile Include="Logic\GetHostForEditResponse.cs" />
+    <Compile Include="Logic\GetHostLanesResponse.cs" />
     <Compile Include="Logic\GetHostsResponse.cs" />
     <Compile Include="Logic\GetLaneFileForEditResponse.cs" />
     <Compile Include="Logic\GetLaneForEditResponse.cs" />
     <Compile Include="Logic\GetLaneResponse.cs" />
     <Compile Include="Logic\GetLanesResponse.cs" />
+    <Compile Include="Logic\GetRevisionsResponse.cs" />
+    <Compile Include="Logic\GetRevisionWorkForLaneResponse.cs" />
     <Compile Include="Logic\GetUsersResponse.cs" />
     <Compile Include="Logic\GetViewLaneDataResponse.cs" />
     <Compile Include="Logic\GetViewLaneFileHistoryDataResponse.cs" />

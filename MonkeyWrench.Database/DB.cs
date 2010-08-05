@@ -702,39 +702,12 @@ namespace MonkeyWrench
 			return result;
 		}
 
-		//public List<string> GetRevisions(DBLane lane)
-		//{
-		//    List<string> result = new List<string>();
-
-		//    using (IDbCommand cmd = Connection.CreateCommand())
-		//    {
-		//        cmd.CommandText = "SELECT DISTINCT revision FROM revisions WHERE lane = @lane ORDER BY revision DESC";
-		//        DB.CreateParameter(cmd, "lane", lane);
-		//        using (IDataReader reader = cmd.ExecuteReader())
-		//        {
-		//            while (reader.Read())
-		//                result.Add(reader.GetString(0));
-		//        }
-		//    }
-
-		//    return result;
-		//}
-
 		public Dictionary<string, DBRevision> GetDBRevisions (int lane_id)
 		{
 			Dictionary<string, DBRevision> result = new Dictionary<string, DBRevision> ();
-			DBRevision rev;
 
-			using (IDbCommand cmd = CreateCommand ()) {
-				cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @lane_id";
-				DB.CreateParameter (cmd, "lane_id", lane_id);
-				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ()) {
-						rev = new DBRevision ();
-						rev.Load (reader);
-						result.Add (rev.revision, rev);
-					}
-				}
+			foreach (DBRevision rev in GetDBRevisions (lane_id, 0)) {
+				result.Add (rev.revision, rev);
 			}
 
 			return result;
@@ -742,19 +715,23 @@ namespace MonkeyWrench
 
 		public List<DBRevision> GetDBRevisions (int lane_id, int limit)
 		{
+			return GetDBRevisions (lane_id, limit, 0);
+		}
+
+		public List<DBRevision> GetDBRevisions (int lane_id, int limit, int offset)
+		{
 			List<DBRevision> result = new List<DBRevision> ();
-			DBRevision rev;
 
 			using (IDbCommand cmd = CreateCommand ()) {
-				cmd.CommandText = "SELECT Revision.*, CAST (revision as int) AS r FROM Revision WHERE lane_id = @lane_id ORDER BY r DESC";
+				cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @lane_id ORDER BY date DESC";
 				if (limit > 0)
 					cmd.CommandText += " LIMIT " + limit.ToString ();
+				if (offset > 0)
+					cmd.CommandText += " OFFSET " + offset.ToString ();
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
-						rev = new DBRevision ();
-						rev.Load (reader);
-						result.Add (rev);
+						result.Add (new DBRevision (reader));
 					}
 				}
 			}

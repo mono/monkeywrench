@@ -27,7 +27,7 @@ using MonkeyWrench.DataClasses.Logic;
 namespace MonkeyWrench.WebServices
 {
 	[WebService (Namespace = "http://monkeywrench.novell.com/")]
-	[WebServiceBinding (ConformsTo = WsiProfiles.BasicProfile1_1)]
+	[WebServiceBinding (ConformsTo = WsiProfiles.None)]
 	[System.ComponentModel.ToolboxItem (false)]
 	public class WebServices : System.Web.Services.WebService
 	{
@@ -560,6 +560,17 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			return null;
 		}
 
+		private int FindLaneId (DB db, int? lane_id, string lane)
+		{
+			DBLane l;
+			if (lane_id.HasValue)
+				return lane_id.Value;
+			l = FindLane (db, lane_id, lane);
+			if (l == null)
+				return 0;
+			return l.id;
+		}
+
 		/// <summary>
 		/// Finds the person with the specified login name. Returns null if the person doesn't exist.
 		/// </summary>
@@ -950,6 +961,19 @@ FROM HostLane";
 		}
 
 		[WebMethod]
+		public GetHostLanesResponse GetHostLanes (WebServiceLogin login)
+		{
+			GetHostLanesResponse response = new GetHostLanesResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
+				response.HostLanes = db.GetAllHostLanes ();
+			}
+
+			return response;
+		}
+
+		[WebMethod]
 		public GetHostsResponse GetHosts (WebServiceLogin login)
 		{
 			GetHostsResponse response = new GetHostsResponse ();
@@ -957,6 +981,38 @@ FROM HostLane";
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
 				response.Hosts = db.GetHosts ();
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public GetRevisionsResponse GetRevisions (WebServiceLogin login, int? lane_id, string lane, int limit, int offset)
+		{
+			GetRevisionsResponse response = new GetRevisionsResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
+				response.Revisions = db.GetDBRevisions (FindLaneId (db, lane_id, lane), limit, offset);
+			}
+
+			return response;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="login"></param>
+		/// <param name="lane_id">You can pass 0 to get commands for all lanes</param>
+		/// <returns></returns>
+		[WebMethod]
+		public GetCommandsResponse GetCommands (WebServiceLogin login, int lane_id)
+		{
+			GetCommandsResponse response = new GetCommandsResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
+				response.Commands = db.GetCommands (lane_id);
 			}
 
 			return response;
@@ -1336,6 +1392,42 @@ ORDER BY date DESC LIMIT 250;
 			}
 		}
 
+		[WebMethod]
+		public GetFilesForWorkResponse GetFilesForWork (WebServiceLogin login, int revisionwork_id, int command_id, string filename)
+		{
+			GetFilesForWorkResponse response = new GetFilesForWorkResponse ();
+
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator, true);
+
+				List<DBFile> files = new List<DBFile> ();
+				response.Files = files;
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
+SELECT File.* FROM File
+INNER JOIN WorkFile ON File.id = WorkFile.file_id
+INNER JOIN Work ON Work.id = WorkFile.work_id
+WHERE Work.revisionwork_id = @revisionwork_id AND Work.command_id = @command_id ";
+					if (!string.IsNullOrEmpty (filename)) {
+						cmd.CommandText += " AND WorkFile.filename = @filename";
+						DB.CreateParameter (cmd, "filename", filename);
+					}
+					cmd.CommandText += ";";
+
+					DB.CreateParameter (cmd, "revisionwork_id", revisionwork_id);
+					DB.CreateParameter (cmd, "command_id", command_id);
+
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							files.Add (new DBFile (reader));
+						}
+					}
+				}
+			}
+
+			return response;
+		}
+
 		/// <summary>
 		/// Returns true if the matching revisionwork is finished.
 		/// </summary>
@@ -1435,6 +1527,41 @@ ORDER BY date DESC LIMIT 250;
 			}
 
 			return result;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="login"></param>
+		/// <param name="lane_id"></param>
+		/// <param name="revision_id"></param>
+		/// <param name="host_id">May be 0 to return revision work for all hosts for this lane/revision</param>
+		/// <returns></returns>
+		[WebMethod]
+		public GetRevisionWorkForLaneResponse GetRevisionWorkForLane (WebServiceLogin login, int lane_id, int revision_id, int host_id)
+		{
+			GetRevisionWorkForLaneResponse response = new GetRevisionWorkForLaneResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
+
+				response.RevisionWork = new List<DBRevisionWork> ();
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT * FROM RevisionWork WHERE lane_id = @lane_id AND revision_id = @revision_id";
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+					DB.CreateParameter (cmd, "revision_id", revision_id);
+					if (host_id > 0) {
+						cmd.CommandText = " AND host_id = @host_id";
+						DB.CreateParameter (cmd, "host_id", host_id);
+					}
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ())
+							response.RevisionWork.Add (new DBRevisionWork (reader));
+					}
+				}
+			}
+
+			return response;
 		}
 
 		[WebMethod]
