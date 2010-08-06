@@ -718,10 +718,16 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
             <xs:sequence>
-              <xs:element minOccurs="0" maxOccurs="1" name="Files" type="s0:ArrayOfDBFile" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Commands" type="s0:ArrayOfInt" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Files" type="s0:ArrayOfArrayOfDBFile" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfArrayOfDBFile">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ArrayOfDBFile" nillable="true" type="s0:ArrayOfDBFile" />
+        </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ArrayOfDBFile">
         <xs:sequence>

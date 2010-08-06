@@ -1392,6 +1392,14 @@ ORDER BY date DESC LIMIT 250;
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="login"></param>
+		/// <param name="revisionwork_id"></param>
+		/// <param name="command_id">Can be 0 to check all commmands for a revisionwork</param>
+		/// <param name="filename"></param>
+		/// <returns></returns>
 		[WebMethod]
 		public GetFilesForWorkResponse GetFilesForWork (WebServiceLogin login, int revisionwork_id, int command_id, string filename)
 		{
@@ -1401,13 +1409,19 @@ ORDER BY date DESC LIMIT 250;
 				using (DB db = new DB ()) {
 					VerifyUserInRole (db, login, Roles.Administrator, true);
 
-					response.Files = new List<DBFile> ();
+					response.Files = new List<List<DBFile>> ();
+					response.Commands = new List<int> ();
+
 					using (IDbCommand cmd = db.CreateCommand ()) {
 						cmd.CommandText = @"
-SELECT File.* FROM File
+SELECT File.*, Work.command_id FROM File
 INNER JOIN WorkFile ON File.id = WorkFile.file_id
 INNER JOIN Work ON Work.id = WorkFile.work_id
-WHERE Work.revisionwork_id = @revisionwork_id AND Work.command_id = @command_id ";
+WHERE Work.revisionwork_id = @revisionwork_id ";
+						if (command_id > 0) {
+							cmd.CommandText += "AND Work.command_id = @command_id ";
+							DB.CreateParameter (cmd, "command_id", command_id);
+						}
 						if (!string.IsNullOrEmpty (filename)) {
 							cmd.CommandText += " AND WorkFile.filename = @filename";
 							DB.CreateParameter (cmd, "filename", filename);
@@ -1415,11 +1429,27 @@ WHERE Work.revisionwork_id = @revisionwork_id AND Work.command_id = @command_id 
 						cmd.CommandText += ";";
 
 						DB.CreateParameter (cmd, "revisionwork_id", revisionwork_id);
-						DB.CreateParameter (cmd, "command_id", command_id);
 
 						using (IDataReader reader = cmd.ExecuteReader ()) {
+							int command_id_idx = reader.GetOrdinal ("command_id");
 							while (reader.Read ()) {
-								response.Files.Add (new DBFile (reader));
+								List<DBFile> files = null;
+								int cmd_id = reader.GetInt32 (command_id_idx);
+								
+								for (int i = 0; i < response.Commands.Count; i++) {
+									if (response.Commands [i] == cmd_id) {
+										files = response.Files [i];
+										break;
+									}
+								}
+
+								if (files == null) {
+									files = new List<DBFile> ();
+									response.Files.Add (files);
+									response.Commands.Add (cmd_id);
+								}
+
+								files.Add (new DBFile (reader));
 							}
 						}
 					}

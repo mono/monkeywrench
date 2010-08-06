@@ -21,6 +21,7 @@ namespace MonkeyWrench.DataClasses.Logic
 {
 	public class GetFilesForWorkResponse : WebServiceResponse
 	{
-		public List<DBFile> Files;
+		public List<int> Commands;
+		public List<List<DBFile>> Files;
 	}
 }
