@@ -1409,12 +1409,13 @@ ORDER BY date DESC LIMIT 250;
 				using (DB db = new DB ()) {
 					VerifyUserInRole (db, login, Roles.Administrator, true);
 
+					response.WorkFileIds = new List<List<int>> ();
 					response.Files = new List<List<DBFile>> ();
 					response.Commands = new List<int> ();
 
 					using (IDbCommand cmd = db.CreateCommand ()) {
 						cmd.CommandText = @"
-SELECT File.*, Work.command_id FROM File
+SELECT File.*, Work.command_id, WorkFile.id AS workfile_id FROM File
 INNER JOIN WorkFile ON File.id = WorkFile.file_id
 INNER JOIN Work ON Work.id = WorkFile.work_id
 WHERE Work.revisionwork_id = @revisionwork_id ";
@@ -1432,24 +1433,31 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							int command_id_idx = reader.GetOrdinal ("command_id");
+							int workfile_id_idx = reader.GetOrdinal ("workfile_id");
 							while (reader.Read ()) {
 								List<DBFile> files = null;
+								List<int> workfile_ids = null;
 								int cmd_id = reader.GetInt32 (command_id_idx);
+								int workfile_id = reader.GetInt32 (workfile_id_idx);
 								
 								for (int i = 0; i < response.Commands.Count; i++) {
 									if (response.Commands [i] == cmd_id) {
 										files = response.Files [i];
+										workfile_ids = response.WorkFileIds [i];
 										break;
 									}
 								}
 
 								if (files == null) {
 									files = new List<DBFile> ();
+									workfile_ids = new List<int> ();
 									response.Files.Add (files);
+									response.WorkFileIds.Add (workfile_ids);
 									response.Commands.Add (cmd_id);
 								}
 
 								files.Add (new DBFile (reader));
+								workfile_ids.Add (workfile_id);
 							}
 						}
 					}

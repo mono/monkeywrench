@@ -23,5 +23,6 @@ namespace MonkeyWrench.DataClasses.Logic
 	{
 		public List<int> Commands;
 		public List<List<DBFile>> Files;
+		public List<List<int>> WorkFileIds;
 	}
 }

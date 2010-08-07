@@ -720,6 +720,7 @@
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="Commands" type="s0:ArrayOfInt" />
               <xs:element minOccurs="0" maxOccurs="1" name="Files" type="s0:ArrayOfArrayOfDBFile" />
+              <xs:element minOccurs="0" maxOccurs="1" name="WorkFileIds" type="s0:ArrayOfArrayOfInt" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -732,6 +733,11 @@
       <xs:complexType name="ArrayOfDBFile">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBFile" nillable="true" type="s0:DBFile" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfArrayOfInt">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ArrayOfInt" nillable="true" type="s0:ArrayOfInt" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ReportBuildStateResponse">
