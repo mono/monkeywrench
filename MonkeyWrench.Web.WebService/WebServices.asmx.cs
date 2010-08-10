@@ -436,6 +436,69 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
+		public GetWorkHostHistoryResponse GetWorkHostHistory (WebServiceLogin login, int? host_id, string host, int limit, int offset)
+		{
+			GetWorkHostHistoryResponse response = new GetWorkHostHistoryResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
+
+				response.Host = FindHost (db, host_id, host);
+				response.RevisionWorks = new List<DBRevisionWork> ();
+				response.Lanes = new List<string> ();
+				response.Revisions = new List<string> ();
+				response.StartTime = new List<DateTime> ();
+				response.Hosts = new List<string> ();
+				response.Durations = new List<int> ();
+
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
+SELECT RevisionWork.*, Host.host, Lane.lane, Revision.revision, MAX (Work.starttime) AS order_date,
+-- calculate the duration of each work and add them up
+   SUM (EXTRACT (EPOCH FROM (
+		(CASE
+			WHEN (Work.starttime = '-infinity' OR Work.starttime < '2001-01-01') AND (Work.endtime = '-infinity' OR Work.endtime < '2001-01-01') THEN LOCALTIMESTAMP - LOCALTIMESTAMP
+			WHEN (Work.endtime = '-infinity' OR Work.endtime < '2001-01-01') THEN CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - Work.starttime
+			ELSE Work.endtime - Work.starttime
+			END)
+		))) AS duration
+FROM RevisionWork
+INNER JOIN Revision ON RevisionWork.revision_id = Revision.id
+INNER JOIN Lane ON RevisionWork.lane_id = Lane.id
+INNER JOIN Work ON RevisionWork.id = Work.revisionwork_id
+INNER JOIN Host ON RevisionWork.host_id = Host.id
+WHERE RevisionWork.workhost_id = @host_id 
+GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWork.workhost_id, RevisionWork.revision_id, RevisionWork.state, RevisionWork.lock_expires, RevisionWork.completed, RevisionWork.endtime, Lane.lane, Revision.revision, Host.host ";
+					cmd.CommandText += " ORDER BY order_date DESC ";
+					if (limit > 0)
+						cmd.CommandText += " LIMIT " + limit.ToString ();
+					if (offset > 0)
+						cmd.CommandText += " OFFSET " + offset.ToString ();
+					cmd.CommandText += ";";
+					DB.CreateParameter (cmd, "host_id", response.Host.id);
+
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						int lane_idx = reader.GetOrdinal ("lane");
+						int revision_idx = reader.GetOrdinal ("revision");
+						int starttime_idx = reader.GetOrdinal ("order_date");
+						int host_idx = reader.GetOrdinal ("host");
+						int duration_idx = reader.GetOrdinal ("duration");
+						while (reader.Read ()) {
+							response.RevisionWorks.Add (new DBRevisionWork (reader));
+							response.Lanes.Add (reader.GetString (lane_idx));
+							response.Revisions.Add (reader.GetString (revision_idx));
+							response.StartTime.Add (reader.GetDateTime (starttime_idx));
+							response.Hosts.Add (reader.GetString (host_idx));
+							response.Durations.Add ((int) reader.GetDouble (duration_idx));
+						}
+					}
+				}
+			}
+
+			return response;
+		}
+
+		[WebMethod]
 		public GetHostForEditResponse GetHostForEdit (WebServiceLogin login, int? host_id, string host)
 		{
 			GetHostForEditResponse response = new GetHostForEditResponse ();

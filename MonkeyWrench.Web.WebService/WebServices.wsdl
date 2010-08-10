@@ -236,6 +236,23 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:complexType name="DBRevisionWork">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="workhost_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lock_expires" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="endtime" type="xs:dateTime" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="DBPerson">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
@@ -343,23 +360,6 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
-      <xs:complexType name="DBRevisionWork">
-        <xs:complexContent mixed="false">
-          <xs:extension base="s0:DBRecord">
-            <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
-              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
-              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
-              <xs:element minOccurs="1" maxOccurs="1" name="workhost_id" nillable="true" type="xs:int" />
-              <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
-              <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
-              <xs:element minOccurs="1" maxOccurs="1" name="lock_expires" type="xs:dateTime" />
-              <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
-              <xs:element minOccurs="1" maxOccurs="1" name="endtime" type="xs:dateTime" />
-            </xs:sequence>
-          </xs:extension>
-        </xs:complexContent>
-      </xs:complexType>
       <xs:complexType name="DBHostLane">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
@@ -425,6 +425,41 @@
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetWorkHostHistoryResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="RevisionWorks" type="s0:ArrayOfDBRevisionWork" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfString1" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Revisions" type="s0:ArrayOfString1" />
+              <xs:element minOccurs="0" maxOccurs="1" name="StartTime" type="s0:ArrayOfDateTime" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Hosts" type="s0:ArrayOfString1" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Durations" type="s0:ArrayOfInt" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBRevisionWork">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRevisionWork" nillable="true" type="s0:DBRevisionWork" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfString1">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDateTime">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="dateTime" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfInt">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="int" type="xs:int" />
+        </xs:sequence>
       </xs:complexType>
       <xs:complexType name="GetHostForEditResponse">
         <xs:complexContent mixed="false">
@@ -582,11 +617,6 @@
       <xs:complexType name="ArrayOfDBHostLane">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBHostLane" nillable="true" type="s0:DBHostLane" />
-        </xs:sequence>
-      </xs:complexType>
-      <xs:complexType name="ArrayOfInt">
-        <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="unbounded" name="int" type="xs:int" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ArrayOfArrayOfDBRevisionWorkView2">
@@ -758,11 +788,6 @@
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
-      </xs:complexType>
-      <xs:complexType name="ArrayOfDBRevisionWork">
-        <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRevisionWork" nillable="true" type="s0:DBRevisionWork" />
-        </xs:sequence>
       </xs:complexType>
       <xs:complexType name="GetBuildInfoResponse">
         <xs:complexContent mixed="false">
@@ -1191,6 +1216,24 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="GetLaneResult" type="s0:GetLaneResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetWorkHostHistory">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+            <xs:element minOccurs="1" maxOccurs="1" name="limit" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="offset" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetWorkHostHistoryResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetWorkHostHistoryResult" type="s0:GetWorkHostHistoryResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -2153,6 +2196,12 @@
   <message name="GetLaneSoapOut">
     <part name="parameters" element="s0:GetLaneResponse" />
   </message>
+  <message name="GetWorkHostHistorySoapIn">
+    <part name="parameters" element="s0:GetWorkHostHistory" />
+  </message>
+  <message name="GetWorkHostHistorySoapOut">
+    <part name="parameters" element="s0:GetWorkHostHistoryResponse" />
+  </message>
   <message name="GetHostForEditSoapIn">
     <part name="parameters" element="s0:GetHostForEdit" />
   </message>
@@ -2604,6 +2653,10 @@
       <input message="s0:GetLaneSoapIn" />
       <output message="s0:GetLaneSoapOut" />
     </operation>
+    <operation name="GetWorkHostHistory">
+      <input message="s0:GetWorkHostHistorySoapIn" />
+      <output message="s0:GetWorkHostHistorySoapOut" />
+    </operation>
     <operation name="GetHostForEdit">
       <input message="s0:GetHostForEditSoapIn" />
       <output message="s0:GetHostForEditSoapOut" />
@@ -2937,6 +2990,10 @@
     <operation name="GetLane">
       <input message="s0:GetLaneSoapIn" />
       <output message="s0:GetLaneSoapOut" />
+    </operation>
+    <operation name="GetWorkHostHistory">
+      <input message="s0:GetWorkHostHistorySoapIn" />
+      <output message="s0:GetWorkHostHistorySoapOut" />
     </operation>
     <operation name="GetHostForEdit">
       <input message="s0:GetHostForEditSoapIn" />
@@ -3428,6 +3485,15 @@
     </operation>
     <operation name="GetLane">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetWorkHostHistory">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetWorkHostHistory" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -4178,6 +4244,15 @@
     </operation>
     <operation name="GetLane">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetWorkHostHistory">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetWorkHostHistory" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

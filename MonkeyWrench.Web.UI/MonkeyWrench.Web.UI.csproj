@@ -52,6 +52,7 @@
   <ItemGroup>
     <Content Include="Admin.aspx" />
     <Content Include="ReportGitHubCommit.aspx" />
+    <Content Include="ViewHostHistory.aspx" />
     <Content Include="ViewHtmlReportEmbedded.aspx" />
     <Content Include="Delete.aspx" />
     <Content Include="doc\Configuration.html" />
@@ -105,6 +106,13 @@
     </Compile>
     <Compile Include="ReportGitHubCommit.aspx.designer.cs">
       <DependentUpon>ReportGitHubCommit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewHostHistory.aspx.cs">
+      <DependentUpon>ViewHostHistory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewHostHistory.aspx.designer.cs">
+      <DependentUpon>ViewHostHistory.aspx</DependentUpon>
     </Compile>
     <Compile Include="ViewHtmlReportEmbedded.aspx.cs">
       <DependentUpon>ViewHtmlReportEmbedded.aspx</DependentUpon>

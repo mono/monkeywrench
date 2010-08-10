@@ -703,6 +703,34 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetWorkHostHistory", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetWorkHostHistoryResponse GetWorkHostHistory(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> host_id, string host, int limit, int offset) {
+            object[] results = this.Invoke("GetWorkHostHistory", new object[] {
+                        login,
+                        host_id,
+                        host,
+                        limit,
+                        offset});
+            return ((GetWorkHostHistoryResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetWorkHostHistory(WebServiceLogin login, System.Nullable<int> host_id, string host, int limit, int offset, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetWorkHostHistory", new object[] {
+                        login,
+                        host_id,
+                        host,
+                        limit,
+                        offset}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetWorkHostHistoryResponse EndGetWorkHostHistory(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetWorkHostHistoryResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetHostForEdit", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public GetHostForEditResponse GetHostForEdit(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> host_id, string host) {
             object[] results = this.Invoke("GetHostForEdit", new object[] {

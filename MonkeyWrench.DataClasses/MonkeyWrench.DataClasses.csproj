@@ -129,6 +129,7 @@
     <Compile Include="Logic\GetCommandsResponse.cs" />
     <Compile Include="Logic\GetFilesForWorkResponse.cs" />
     <Compile Include="Logic\GetHostForEditResponse.cs" />
+    <Compile Include="Logic\GetWorkHostHistoryResponse.cs" />
     <Compile Include="Logic\GetHostLanesResponse.cs" />
     <Compile Include="Logic\GetHostsResponse.cs" />
     <Compile Include="Logic\GetLaneFileForEditResponse.cs" />
