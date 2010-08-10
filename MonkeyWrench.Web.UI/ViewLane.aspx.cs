@@ -138,7 +138,7 @@ public partial class ViewLane : System.Web.UI.Page
 		}
 
 		if (response.WorkHost != null) {
-			header.AppendFormat (" - Assigned to {0}", response.WorkHost.host);
+			header.AppendFormat (" - Assigned to <a href='ViewHostHistory.aspx?host_id={1}'>{0}</a>", response.WorkHost.host, response.WorkHost.id);
 		} else {
 			header.AppendFormat (" - Unassigned.");
 		}
