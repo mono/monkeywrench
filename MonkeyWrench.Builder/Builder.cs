@@ -160,7 +160,7 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_DATA_SOURCE"] = info.BUILDER_DATA_SOURCE_DIR;
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY"] = info.lane.repository;
 							p.StartInfo.EnvironmentVariables ["BUILD_HOST"] = Configuration.Host;
-							p.StartInfo.EnvironmentVariables ["BUILD_WORK_HOST"] = info.host.host;
+							p.StartInfo.EnvironmentVariables ["BUILD_WORK_HOST"] = info.host_being_worked_for;
 							p.StartInfo.EnvironmentVariables ["BUILD_LANE_MAX_REVISION"] = info.lane.max_revision;
 							p.StartInfo.EnvironmentVariables ["BUILD_LANE_MIN_REVISION"] = info.lane.min_revision;
 							p.StartInfo.EnvironmentVariables ["BUILD_LANE_COMMIT_FILTER"] = info.lane.commit_filter;
@@ -439,6 +439,7 @@ namespace MonkeyWrench.Builder
 					info.hostlane = entry.HostLane;
 					info.number = i;
 					info.revision = entry.Revision;
+					info.host_being_worked_for = entry.Host.host;
 				}
 
 				threads.Clear ();

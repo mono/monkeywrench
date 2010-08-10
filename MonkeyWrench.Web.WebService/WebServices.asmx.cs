@@ -1679,6 +1679,8 @@ ORDER BY id;
 							}
 						}
 
+						DBHost host_being_worked_for = hosts.Find (h => h.id == revisionwork.host_id);
+
 						foreach (DBWorkView2 work in pending_work) {
 							BuildInfoEntry entry = new BuildInfoEntry ();
 							entry.Lane = lane;
@@ -1690,6 +1692,7 @@ ORDER BY id;
 							entry.Work = DBWork_Extensions.Create (db, work.id);
 							entry.LaneFiles = lane.GetFiles (db);
 							entry.EnvironmentVariables = environment_variables;
+							entry.Host = host_being_worked_for;
 
 							// TODO: put work with the same sequence number into one list of entries.
 							List<BuildInfoEntry> entries = new List<BuildInfoEntry> ();

@@ -22,6 +22,7 @@ namespace MonkeyWrench.Builder
 		public DBLane lane;
 		public DBHostLane hostlane;
 		public DBHost host;
+		public string host_being_worked_for; /* master host if working for a master host, otherwise host */
 		public DBWork work;
 		public DBCommand command;
 		public DBRevision revision;

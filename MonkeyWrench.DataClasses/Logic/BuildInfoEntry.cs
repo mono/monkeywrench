@@ -28,5 +28,6 @@ namespace MonkeyWrench.DataClasses.Logic
 		public DBWork Work;
 		public DBCommand Command;
 		public List<DBEnvironmentVariable> EnvironmentVariables;
+		public DBHost Host; // The host this work was assigned to
 	}
 }

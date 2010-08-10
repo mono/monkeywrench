@@ -708,6 +708,7 @@
           <xs:element minOccurs="0" maxOccurs="1" name="Work" type="s0:DBWork" />
           <xs:element minOccurs="0" maxOccurs="1" name="Command" type="s0:DBCommand" />
           <xs:element minOccurs="0" maxOccurs="1" name="EnvironmentVariables" type="s0:ArrayOfDBEnvironmentVariable" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ArrayOfDBWorkFile">
