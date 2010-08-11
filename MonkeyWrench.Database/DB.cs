@@ -682,8 +682,12 @@ namespace MonkeyWrench
 			List<DBCommand> result = new List<DBCommand> ();
 
 			using (IDbCommand cmd = CreateCommand ()) {
-				cmd.CommandText = "SELECT * FROM Command WHERE lane_id = @lane_id ORDER BY sequence ASC";
-				DB.CreateParameter (cmd, "lane_id", lane_id);
+				cmd.CommandText = "SELECT * FROM Command ";
+				if (lane_id > 0) {
+					cmd.CommandText += "WHERE lane_id = @lane_id ";
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+				}
+				cmd.CommandText += "ORDER BY sequence ASC";
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ())
 						result.Add (new DBCommand (reader));
