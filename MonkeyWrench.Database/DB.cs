@@ -96,7 +96,7 @@ namespace MonkeyWrench
 
 				dbcon = new NpgsqlConnection (connectionString);
 
-				Logger.Log ("Database connection string: {0}", connectionString);
+				Logger.Log (2, "Database connection string: {0}", connectionString);
 
 				dbcon.Open ();
 
@@ -114,7 +114,7 @@ namespace MonkeyWrench
 
 				db_time_difference = db_now - machine_now;
 
-				Logger.Log ("DB now: {0}, current machine's now: {1}, adjusted now: {3}, diff: {2} ms", db_now.ToString (format), machine_now.ToString (format), db_time_difference.TotalMilliseconds, Now.ToString (format));
+				Logger.Log (2, "DB now: {0}, current machine's now: {1}, adjusted now: {3}, diff: {2} ms", db_now.ToString (format), machine_now.ToString (format), db_time_difference.TotalMilliseconds, Now.ToString (format));
 			} catch {
 				if (dbcon != null) {
 					dbcon.Dispose ();

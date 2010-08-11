@@ -231,7 +231,7 @@ namespace MonkeyWrench
 				Environment.Exit (1);
 			}
 
-			Logger.Log ("MonkeyWrench: Initialized {1} and loaded configuration file from: {0}", file, ApplicationName);
+			Logger.Log (2, "MonkeyWrench: Initialized {1} and loaded configuration file from: {0}", file, ApplicationName);
 
 			return true;
 		}
