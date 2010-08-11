@@ -89,6 +89,7 @@ namespace MonkeyWrench.Scheduler
 
 		public static bool ExecuteScheduler (bool forcefullupdate)
 		{
+			DateTime start;
 			Lock scheduler_lock = null;
 			List<DBLane> lanes;
 
@@ -106,6 +107,7 @@ namespace MonkeyWrench.Scheduler
 				Logger.Log ("Scheduler lock aquired successfully.");
 				
 				is_executing = true;
+				start = DateTime.Now;
 
 				SVNUpdater.StartDiffThread ();
 
@@ -140,7 +142,7 @@ namespace MonkeyWrench.Scheduler
 
 				SVNUpdater.StopDiffThread ();
 
-				Logger.Log ("Update finished successfully.");
+				Logger.Log ("Update finished successfully in {0} seconds.", (DateTime.Now - start).TotalSeconds);
 
 				return true;
 			} catch (Exception ex) {
