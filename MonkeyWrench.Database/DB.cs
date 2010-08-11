@@ -731,40 +731,6 @@ namespace MonkeyWrench
 			return result;
 		}
 
-		public List<DBRevision> GetDBRevisionsWithoutWork (int lane_id, int host_id)
-		{
-			List<DBRevision> result = new List<DBRevision> ();
-			DBRevision rev;
-
-			using (IDbCommand cmd = CreateCommand ()) {
-				//cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @lane_id AND NOT EXISTS (SELECT 1 FROM Work WHERE lane_id = @lane_id AND host_id = @host_id AND revision_id = revision.id) ORDER BY date DESC";
-				cmd.CommandText = @"
-SELECT Revision.*, C 
-FROM 
-	(SELECT RevisionWork.id, RevisionWork.revision_id, Count(Work.revisionwork_id) AS C 
-		FROM RevisionWork 
-		LEFT JOIN work ON Work.revisionwork_id = RevisionWork.id 
-		WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id 
-		GROUP BY RevisionWork.id, RevisionWork.revision_id) AS T 
-INNER JOIN Revision ON Revision.id = T.revision_id
-INNER JOIN RevisionWork ON T.id = RevisionWork.id
-WHERE C = 0 OR RevisionWork.state = 9
-ORDER BY Revision.date DESC;
-";
-				DB.CreateParameter (cmd, "lane_id", lane_id);
-				DB.CreateParameter (cmd, "host_id", host_id);
-				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ()) {
-						rev = new DBRevision ();
-						rev.Load (reader);
-						result.Add (rev);
-					}
-				}
-			}
-
-			return result;
-		}
-
 		public List<DBRevision> GetDBRevisions (int lane_id, int limit)
 		{
 			List<DBRevision> result = new List<DBRevision> ();
