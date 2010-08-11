@@ -8,3 +8,7 @@ Builder.dll.mdb
 *.suo
 *.dll
 *.user
+*.pidb
+*.userprefs
+MonkeyWrench.xml
+
