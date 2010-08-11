@@ -1045,7 +1045,7 @@ WHERE
         RevisionWork.host_id = @host_id 
 	AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
 	AND RevisionWork.lane_id = @lane_id
-	AND RevisionWork.state <> @dependencynotfulfilled
+	AND RevisionWork.state <> @dependencynotfulfilled AND RevisionWork.state <> 10
 	AND RevisionWork.completed = false
 ORDER BY RevisionWork.workhost_id IS NULL ASC, Revision.date DESC
 LIMIT 1
