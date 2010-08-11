@@ -215,7 +215,7 @@ namespace MonkeyWrench.Scheduler
 SELECT Revision.*, Lane.repository, Lane.lane
 FROM Revision 
 INNER JOIN Lane ON Lane.id = Revision.lane_id 
-WHERE (Revision.diff IS NULL OR Revision.diff = '') AND Revision.diff_file_id IS NULL;";
+WHERE (Revision.diff IS NULL OR Revision.diff = '') AND Revision.diff_file_id IS NULL AND Lane.source_control = 'svn';";
 							using (IDataReader reader = cmd.ExecuteReader ()) {
 								while (!quit_svn_diff && reader.Read ()) {
 									DBRevision revision = new DBRevision (reader);
