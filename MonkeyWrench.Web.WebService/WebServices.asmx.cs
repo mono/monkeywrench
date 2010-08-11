@@ -1515,7 +1515,7 @@ WHERE
         RevisionWork.host_id = @host_id
 AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
 AND RevisionWork.completed = false
-AND RevisionWork.state <> 9
+AND RevisionWork.state <> 9 AND RevisionWork.state <> 10
 AND lane_id = @lane_id
 LIMIT 1;
         ";
