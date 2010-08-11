@@ -39,8 +39,13 @@ namespace MonkeyWrench.Database
 			List<DBLaneDependency> result = null;
 
 			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = "SELECT * FROM LaneDependency WHERE lane_id = @lane_id;";
-				DB.CreateParameter (cmd, "lane_id", lane.id);
+				cmd.CommandText = "SELECT * FROM LaneDependency";
+				if (lane != null) {
+					cmd.CommandText += " WHERE lane_id = @lane_id";
+					DB.CreateParameter (cmd, "lane_id", lane.id);
+				}
+				cmd.CommandText += ";";
+
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
 						if (result == null)
@@ -89,7 +94,7 @@ WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revi
 				object obj = cmd.ExecuteScalar ();
 				bool result = obj != null && !(obj is DBNull);
 
-				Logger.Log ("Dependency id {0}: {1} (condition: {2}, revision: {3}, host_id: {4}, filename: {5}, lane: {6})", me.id, result, me.Condition, revision, me.dependent_host_id.HasValue ? me.dependent_host_id.Value.ToString () : "null", me.filename, me.dependent_lane_id);
+				Logger.Log (2, "Dependency id {0}: {1} (condition: {2}, revision: {3}, host_id: {4}, filename: {5}, lane: {6})", me.id, result, me.Condition, revision, me.dependent_host_id.HasValue ? me.dependent_host_id.Value.ToString () : "null", me.filename, me.dependent_lane_id);
 
 				return result;
 			}

@@ -28,9 +28,19 @@ namespace MonkeyWrench.Scheduler
 	{
 		private bool force_full_update;
 
+		// a tuple, each path and the revisions the path was modified
+		private List<string> paths;
+		private List<string> min_revisions;
+
 		protected SchedulerBase (bool ForceFullUpdate)
 		{
 			force_full_update = ForceFullUpdate;
+		}
+
+		public virtual void Clear ()
+		{
+			min_revisions = null;
+			paths = null;
 		}
 
 		/// <summary>
@@ -45,10 +55,6 @@ namespace MonkeyWrench.Scheduler
 		{
 			get { return force_full_update; }
 		}
-
-		// a tuple, each path and the revisions the path was modified
-		private List<string> paths;
-		private List<string> min_revisions;
 
 		protected void AddChangedPath (string path, string revision)
 		{
@@ -105,6 +111,11 @@ namespace MonkeyWrench.Scheduler
 		protected void Log (string msg, params object [] args)
 		{
 			Logger.Log (Type + ": " + msg, args);
+		}
+
+		protected void Log (int verbosity, string msg, params object [] args)
+		{
+			Logger.Log (verbosity, Type + ": " + msg, args);
 		}
 
 		/// <summary>

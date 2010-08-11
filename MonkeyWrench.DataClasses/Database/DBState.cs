@@ -23,7 +23,8 @@ namespace MonkeyWrench.DataClasses
 		Paused = 6,
 		Skipped = 7,
 		Issues = 8,
-		DependencyNotFulfilled = 9
+		DependencyNotFulfilled = 9,
+		NoWorkYet = 10,
 	}
 
 }

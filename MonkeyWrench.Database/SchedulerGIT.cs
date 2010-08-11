@@ -27,6 +27,9 @@ namespace MonkeyWrench.Scheduler
 {
 	class GITUpdater : SchedulerBase
 	{
+		/* Save a list of fetches done, to not duplicate work when there are several lanes with the same repository */
+		private List<string> fetched_directories = new List<string> ();
+
 		class GitEntry
 		{
 			public string revision;
@@ -39,6 +42,13 @@ namespace MonkeyWrench.Scheduler
 		public GITUpdater (bool ForceFullUpdate)
 			: base (ForceFullUpdate)
 		{
+		}
+
+		public override void Clear ()
+		{
+			base.Clear ();
+
+			/* We don't clear fetched_directories here, since it's a per-run variable */
 		}
 
 		public override string Type
@@ -159,7 +169,7 @@ namespace MonkeyWrench.Scheduler
 					continue;
 
 				if (revisions.ContainsKey (revision)) {
-					Log ("Already got {0}", revision);
+					Log (2, "Already got {0}", revision);
 					continue;
 				}
 
@@ -189,7 +199,7 @@ namespace MonkeyWrench.Scheduler
 				r.Save (db);
 
 				update_steps = true;
-				Log ("Saved revision '{0}' for lane '{1}' author: {2}, date: {3:yyyy/MM/dd HH:mm:ss.ffffff} {5} {6} msg: {4}", r.revision, lane.lane, r.author, r.date, msg, unix_timestamp, unix_timestamp_str);
+				Log (1, "Saved revision '{0}' for lane '{1}' author: {2}, date: {3:yyyy/MM/dd HH:mm:ss.ffffff} {5} {6}", r.revision, lane.lane, r.author, r.date, msg, unix_timestamp, unix_timestamp_str);
 			}
 
 			return update_steps;
@@ -310,37 +320,48 @@ namespace MonkeyWrench.Scheduler
 
 				// Download/update the cache
 				using (Process git = new Process ()) {
-					git.StartInfo.FileName = "git";
-					if (!Directory.Exists (Path.Combine (cache_dir, ".git"))) {
-						git.StartInfo.Arguments = "clone --no-checkout " + repository + " .";
+					DateTime git_start = DateTime.Now;
+					if (fetched_directories.Contains (repository)) {
+						Log ("Not fetching repository '{0}', it has already been fetched in this run", repository);
 					} else {
-						git.StartInfo.Arguments = "fetch";
-					}
-					git.StartInfo.WorkingDirectory = cache_dir;
-					git.StartInfo.UseShellExecute = false;
-					git.StartInfo.RedirectStandardOutput = true;
-					git.StartInfo.RedirectStandardError = true;
-					Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
-					git.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e)
-					{
-						Log ("FETCH: {0}", e.Data);
-					};
-					git.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs e)
-					{
-						Log ("FETCH STDERR: {0}", e.Data);
-					};
-					git.Start ();
-					git.BeginOutputReadLine ();
-					git.BeginErrorReadLine ();
+						git.StartInfo.FileName = "git";
+						if (!Directory.Exists (Path.Combine (cache_dir, ".git"))) {
+							git.StartInfo.Arguments = "clone --no-checkout " + repository + " .";
+						} else {
+							git.StartInfo.Arguments = "fetch";
+						}
+						git.StartInfo.WorkingDirectory = cache_dir;
+						git.StartInfo.UseShellExecute = false;
+						git.StartInfo.RedirectStandardOutput = true;
+						git.StartInfo.RedirectStandardError = true;
+						Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
+						git.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e)
+						{
+							if (e.Data == null)
+								return;
+							Log ("FETCH: {0}", e.Data);
+						};
+						git.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs e)
+						{
+							if (e.Data == null)
+								return;
+							Log ("FETCH STDERR: {0}", e.Data);
+						};
+						git.Start ();
+						git.BeginOutputReadLine ();
+						git.BeginErrorReadLine ();
 
-					if (!git.WaitForExit (1000 * 60 * 10 /* 10 minutes */)) {
-						Log ("Could not fetch repository, git didn't finish in 10 minutes.");
-						return null;
-					}
+						if (!git.WaitForExit (1000 * 60 * 10 /* 10 minutes */)) {
+							Log ("Could not fetch repository, git didn't finish in 10 minutes.");
+							return null;
+						}
 
-					if (!git.HasExited || git.ExitCode != 0) {
-						Log ("Could not fetch repository, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
-						return null;
+						if (!git.HasExited || git.ExitCode != 0) {
+							Log ("Could not fetch repository, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
+							return null;
+						}
+						fetched_directories.Add (repository);
+						Log ("Fetched git repository in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
 					}
 				}
 
@@ -352,6 +373,7 @@ namespace MonkeyWrench.Scheduler
 				}
 
 				using (Process git = new Process ()) {
+					DateTime git_start = DateTime.Now;
 					git.StartInfo.FileName = "git";
 					// --reverse: git normally gives commits in newest -> oldest, we want to add them to the db in the reverse order
 					git.StartInfo.Arguments = "rev-list --reverse --header " + range;
@@ -438,7 +460,7 @@ namespace MonkeyWrench.Scheduler
 					stderr.Join ((int) TimeSpan.FromMinutes (1).TotalMilliseconds);
 
 					if (git.HasExited && git.ExitCode == 0) {
-						Log ("Got log successfully");
+						Log ("Got log successfully in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
 						return result;
 					} else {
 						Log ("Didn't get log, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");

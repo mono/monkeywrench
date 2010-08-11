@@ -901,7 +901,8 @@ WHERE Work.revisionwork_id =
 	 WHERE		lane_id = @lane_id 
 			AND revision_id = @revision_id 
 			AND host_id = @host_id
-	);";
+	);
+UPDATE RevisionWork SET state = 10 WHERE lane_id = @lane_id AND host_id = @host_id AND revision_id = @revision_id;";
 				DB.CreateParameter (cmd, "lane_id", lane_id);
 				DB.CreateParameter (cmd, "revision_id", revision_id);
 				DB.CreateParameter (cmd, "host_id", host_id);

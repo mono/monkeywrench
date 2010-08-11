@@ -180,6 +180,7 @@ CREATE TABLE Revision (
 	diff_file_id int    NULL DEFAULT NULL REFERENCES File (id), -- the file where the diff is stored.
 	UNIQUE (lane_id, revision)
 );
+CREATE INDEX Revision_revision_idx ON Revision (revision);
 
 CREATE TABLE RevisionWork (
 	id             serial     PRIMARY KEY,
@@ -190,6 +191,7 @@ CREATE TABLE RevisionWork (
 	state          int        NOT NULL DEFAULT 0, -- same as Work.state, though not all are applicable
 
 	-- ** possible states (evaluated in this order) ** 
+	-- no work yet (transitional state until work has been added)
 	-- dependency not fulfilled (any Work.State == dependency not fulfilled)
 	-- paused (any Work.State == paused)
 	-- queued (all Work.State == queued)
@@ -224,6 +226,7 @@ CREATE TABLE Work (
 	                                                                     -- 4 aborted, 5 timeout, 6 paused, 7 skipped, 
 	                                                                     -- 8 issues (RevisionWork only for nonfatal failures)
 	                                                                     -- 9 dependency not fulfilled
+	                                                                     -- 10 no work added yet [used in the RevisionWork table, not here]
 	starttime        timestamp NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time when the step started to execute
 	endtime          timestamp NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time when the step stopped to execute
 	duration         int       NOT NULL DEFAULT 0,                       -- duration in seconds
