@@ -41,16 +41,16 @@ namespace MonkeyWrench.WebServices
 			int person_id;
 			DBLoginView view = null;
 
-			Console.WriteLine ("WebService.Authenticate (Ip4: {0}, UserHostAddress: {1}, User: {2}, Cookie: {3}, Password: {4}", login == null ? null : login.Ip4, Context.Request.UserHostAddress, login == null ? null : login.User, login == null ? null : login.Cookie, login == null ? null : login.Password);
+			Logger.Log (2, "WebService.Authenticate (Ip4: {0}, UserHostAddress: {1}, User: {2}, Cookie: {3}, Password: {4}", login == null ? null : login.Ip4, Context.Request.UserHostAddress, login == null ? null : login.User, login == null ? null : login.Cookie, login == null ? null : login.Password);
 
 			// Check if credentials were passed in
 			if (login == null || string.IsNullOrEmpty (login.User) || (string.IsNullOrEmpty (login.Password) && string.IsNullOrEmpty (login.Cookie))) {
-				Console.WriteLine ("No credentials.");
+				Logger.Log (2, "No credentials.");
 				return;
 			}
 
 			if (@readonly && string.IsNullOrEmpty (login.Password)) {
-				// Console.WriteLine ("Readonly authentication needs a password.");
+				Logger.Log (2, "Readonly authentication needs a password.");
 				return;
 			}
 
@@ -63,7 +63,7 @@ namespace MonkeyWrench.WebServices
 			if (@readonly) {
 				DBLogin result = DBLogin_Extensions.Login (db, login.User, login.Password, ip, @readonly);
 				if (result == null) {
-					// Console.WriteLine ("Incorrect Login/Password for readonly login");
+					Logger.Log (2, "Incorrect Login/Password for readonly login");
 					return;
 				}
 				person_id = result.person_id;
@@ -74,16 +74,16 @@ namespace MonkeyWrench.WebServices
 						view = DBLoginView_Extensions.VerifyLogin (db, login.User, result.cookie, ip);
 				} else {
 					view = DBLoginView_Extensions.VerifyLogin (db, login.User, login.Cookie, ip);
-					Console.WriteLine ("Verifying login, cookie: {0} user: {1} ip: {2}", login.Cookie, login.User, ip);
+					Logger.Log (2, "Verifying login, cookie: {0} user: {1} ip: {2}", login.Cookie, login.User, ip);
 				}
 
 				if (view == null) {
-					Console.WriteLine ("Invalid credentials.");
+					Logger.Log (2, "Invalid credentials.");
 					return;
 				}
 				person_id = view.person_id;
 			}
-			Console.WriteLine ("Valid credentials");
+			Logger.Log (2, "Valid credentials");
 
 			LoginResponse login_response = response as LoginResponse;
 			if (login_response != null) {
@@ -94,7 +94,7 @@ namespace MonkeyWrench.WebServices
 
 			DBPerson person = DBPerson_Extensions.Create (db, person_id);
 
-			Console.WriteLine ("Roles for '{0}': {1}", login.User, person.roles);
+			Logger.Log (2, "Roles for '{0}': {1}", login.User, person.roles);
 
 			if (!string.IsNullOrEmpty (person.roles))
 				response.UserRoles = person.roles.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -106,7 +106,7 @@ namespace MonkeyWrench.WebServices
 			Authenticate (Context, db, login, dummy, @readonly);
 
 			if (!dummy.IsInRole (role)) {
-				Console.WriteLine ("The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
+				Logger.Log (2, "The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
 				throw new HttpException (403, "You don't have the required permissions.");
 			}
 		}
