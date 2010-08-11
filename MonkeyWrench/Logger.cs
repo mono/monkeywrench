@@ -22,6 +22,11 @@ namespace MonkeyWrench
 	{
 		private readonly static int ProcessID = Process.GetCurrentProcess ().Id;
 
+		public static bool IsVerbosityIncluded (int verbosity)
+		{
+			return verbosity <= Configuration.LogVerbosity;
+		}
+
 		static string FormatLog (string format, params object [] args)
 		{
 			string message;
@@ -39,9 +44,17 @@ namespace MonkeyWrench
 
 		public static void Log (string format, params object [] args)
 		{
+			Log (Configuration.LogVerbosity, format, args);
+		}
+
+		public static void Log (int verbosity, string format, params object [] args)
+		{
 			string message;
 
 			try {
+				if (!IsVerbosityIncluded (verbosity))
+					return;
+
 				message = FormatLog (format, args);
 				if (string.IsNullOrEmpty (Configuration.LogFile)) {
 					Console.Write (message);
