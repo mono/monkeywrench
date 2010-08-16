@@ -142,7 +142,7 @@ namespace MonkeyWrench.Builder
 					using (FileStream fs = new FileStream (log_file, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)) {
 						using (StreamWriter log = new StreamWriter (fs)) {
 							p.StartInfo.FileName = info.command.filename;
-							p.StartInfo.Arguments = string.Format (info.command.arguments, Path.Combine (info.temp_dir, info.command.command));
+							p.StartInfo.Arguments = string.Format (info.command.arguments, Path.Combine (info.temp_dir, info.command.command), info.temp_dir);
 							if (!string.IsNullOrEmpty (info.command.working_directory))
 								p.StartInfo.WorkingDirectory = Path.Combine (info.BUILDER_DATA_SOURCE_DIR, info.command.working_directory);
 							else
