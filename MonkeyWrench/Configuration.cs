@@ -299,7 +299,7 @@ namespace MonkeyWrench
 		/// <returns></returns>
 		public static string GetDataRevisionDir (string lane, string revision)
 		{
-			return Path.Combine (Path.Combine (RevDataDirectory, lane), revision);
+			return Path.Combine (Path.Combine (RevDataDirectory, lane), revision.Length > 8 ? revision.Substring (0, 8) : revision);
 		}
 
 		/// <summary>
