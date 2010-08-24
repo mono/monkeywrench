@@ -50,6 +50,18 @@ namespace MonkeyWrench
 		/// <param name="pids"></param>
 		internal static void KillImpl (IEnumerable<int> pids)
 		{
+			using (Process quit = new Process ()) {
+				quit.StartInfo.FileName = "kill";
+				quit.StartInfo.Arguments = "-QUIT ";
+				foreach (int pid in pids) {
+					quit.StartInfo.Arguments += pid.ToString () + " ";
+				}
+				quit.StartInfo.UseShellExecute = false;
+				quit.Start ();
+
+				if (!quit.WaitForExit (1000 * 15 /* 15 seconds */))
+					throw new ApplicationException (string.Format ("The 'kill -QUIT' process didn't exit in 15 seconds."));
+			}
 			using (Process kill = new Process ()) {
 				kill.StartInfo.FileName = "kill";
 				kill.StartInfo.Arguments = "-9 ";
