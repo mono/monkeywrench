@@ -485,6 +485,8 @@ namespace MonkeyWrench
 						clone.nonfatal = cmdmaster.nonfatal;
 						clone.sequence = cmdmaster.sequence;
 						clone.timeout = cmdmaster.timeout;
+						clone.working_directory = cmdmaster.working_directory;
+						clone.upload_files = cmdmaster.upload_files;
 						clone.Save (this);
 					}
 
