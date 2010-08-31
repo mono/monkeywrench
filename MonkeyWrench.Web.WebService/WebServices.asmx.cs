@@ -1961,8 +1961,13 @@ FROM WorkFile
 INNER JOIN Work ON WorkFile.work_id = Work.id
 INNER JOIN RevisionWork ON RevisionWork.id = Work.revisionwork_id
 INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
-WHERE WorkFile.filename = @filename AND Revision.lane_id = @lane_id 
-";
+WHERE Revision.lane_id = @lane_id AND ";
+					bool is_glob = filename.IndexOfAny (new char [] {'*', '?'}) >= 0;
+					if (is_glob) {
+						cmd.CommandText += @" WorkFile.filename LIKE @filename ";
+					} else {
+						cmd.CommandText += @" WorkFile.filename = @filename ";
+					}
 					if (successful)
 						cmd.CommandText += " AND RevisionWork.result = " + ((int) DBState.Success).ToString () + " ";
 					if (completed)
@@ -1972,7 +1977,7 @@ WHERE WorkFile.filename = @filename AND Revision.lane_id = @lane_id
 					Console.WriteLine (cmd.CommandText);
 
 					DB.CreateParameter (cmd, "lane_id", l.id);
-					DB.CreateParameter (cmd, "filename", filename);
+					DB.CreateParameter (cmd, "filename", is_glob ? filename.Replace ('*', '%').Replace ('?', '_') : filename);
 
 					using (IDataReader reader = cmd.ExecuteReader ()) {
 						if (!reader.Read ())
