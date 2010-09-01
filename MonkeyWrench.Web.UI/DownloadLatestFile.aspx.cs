@@ -25,23 +25,23 @@ public partial class DownloadLatestFile : System.Web.UI.Page
 	{
 		int? lane_id = null;
 		int? revision_id = null;
-		string revision = null;
 		string lane = null;
 		string filename = null;
+		bool completed = false;
+		bool successful = false;
 		int tmp;
 
 		lane = Request ["lane"];
 		if (int.TryParse (Request ["lane_id"], out tmp))
 			lane_id = tmp;
 
-		revision = Request ["revision"];
-		if (int.TryParse (Request ["revision_id"], out tmp))
-			revision_id = tmp;
+		bool.TryParse (Request ["completed"], out completed);
+		bool.TryParse (Request ["successful"], out successful);
 
 		filename = Request ["filename"];
 
 		using (WebServices ws = WebServices.Create ()) {
-			int? id = ws.FindLatestWorkFileId (ws.WebServiceLogin, lane_id, lane, filename, true, false);
+			int? id = ws.FindLatestWorkFileId (ws.WebServiceLogin, lane_id, lane, filename, completed, successful);
 
 			if (id == null)
 				throw new HttpException (404, "File not found");
