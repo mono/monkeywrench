@@ -330,12 +330,8 @@ namespace MonkeyWrench.Builder
 						// TODO: allow absolute paths?
 						foreach (string match in Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName(glob)), Path.GetFileName(glob))) {
 							Logger.Log ("Uploading file {0} from glob {1}", match, glob);
-							try {
-								// TODO: allow hidden files also
-								WebService.UploadFileSafe (info.work, match, false);
-							} catch (Exception ex) {
-								Logger.Log ("Error while uploading file {0}: '{1}'. Skipping upload of this file", match, ex.Message);
-							}
+							// TODO: allow hidden files also
+							WebService.UploadFileSafe (info.work, match, false);
 						}
 					}
 				}
@@ -503,11 +499,7 @@ namespace MonkeyWrench.Builder
 							try {
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								string filename = line.Trim ();
-								try {
-									WebService.UploadFileSafe (info.work, filename, cmd.Contains ("Hidden"));
-								} catch (Exception ex) {
-									Logger.Log ("Error while uploading file {0}: '{1}'. Skipping upload of this file", filename, ex.Message);
-								}
+								WebService.UploadFileSafe (info.work, filename, cmd.Contains ("Hidden"));
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
 							}
@@ -517,11 +509,7 @@ namespace MonkeyWrench.Builder
 							try {
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								foreach (string file in Directory.GetFiles (line.Trim ())) {
-									try {
-										WebService.UploadFileSafe (info.work, file, cmd.Contains ("Hidden"));
-									} catch (Exception ex) {
-										Logger.Log ("Error while uploading file {0}: '{1}'. Skipping upload of this file", file, ex.Message);
-									}
+									WebService.UploadFileSafe (info.work, file, cmd.Contains ("Hidden"));
 								}
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);

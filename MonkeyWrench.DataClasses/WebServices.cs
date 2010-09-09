@@ -149,6 +149,9 @@ namespace MonkeyWrench.Web.WebServices
 				// try to upload the file
 				try {
 					return action ();
+				} catch (OutOfMemoryException oom) {
+					Logger.Log ("Could not {0}: {1}, will not retry, this is a fatal exception.", message, oom.Message);
+					throw;
 				} catch (Exception ex) {
 					if ((DateTime.Now - start).TotalMinutes < Configuration.ConnectionRetryDuration) {
 						Logger.Log ("Could not {0}: {1}, retrying in 1 minute.", message, ex.Message);
@@ -229,7 +232,8 @@ namespace MonkeyWrench.Web.WebServices
 				{
 					this.UploadCompressedFile (WebServiceLogin, work, Path.GetFileName (filename), File.ReadAllBytes (file_to_upload), hidden, compressed_mime);
 				});
-
+			} catch (Exception ex) {
+				Logger.Log ("Could not upload {0}: {1}", filename, ex.Message);
 			} finally {
 				// clean up
 				try {
