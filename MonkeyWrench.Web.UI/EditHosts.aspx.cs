@@ -68,23 +68,27 @@ public partial class EditHosts : System.Web.UI.Page
 			TableHeaderCell cell = new TableHeaderCell ();
 			TableRow row;
 			cell.Text = "Hosts";
-			cell.ColumnSpan = 4;
+			cell.ColumnSpan = 5;
 			header.Cells.Add (cell);
 			tblHosts.Rows.Add (header);
-			foreach (DBHost host in response.Hosts) {
-				row = new TableRow ();
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host)));
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHosts.aspx?host_id={0}&amp;action=remove'>Delete</a>", host.id)));
-				row.Cells.Add (Utils.CreateTableCell (host.description));
-				row.Cells.Add (Utils.CreateTableCell (host.architecture));
-				tblHosts.Rows.Add (row);
-			}
+			
 			row = new TableRow ();
 			row.Cells.Add (Utils.CreateTableCell ("<input type='text' value='host' id='txtHost'></input>"));
 			row.Cells.Add (Utils.CreateTableCell ("<a href='javascript:addHost ()'>Add</a>"));
 			row.Cells.Add (Utils.CreateTableCell (""));
 			row.Cells.Add (Utils.CreateTableCell (""));
+			row.Cells.Add (Utils.CreateTableCell (""));
 			tblHosts.Rows.Add (row);
+
+			foreach (DBHost host in response.Hosts) {
+				row = new TableRow ();
+				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host)));
+				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHosts.aspx?host_id={0}&amp;action=remove'>Delete</a>", host.id)));
+				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='ViewHostHistory.aspx?host_id={0}'>View history</a>", host.id)));
+				row.Cells.Add (Utils.CreateTableCell (host.description));
+				row.Cells.Add (Utils.CreateTableCell (host.architecture));
+				tblHosts.Rows.Add (row);
+			}
 		}
 
 		if (lblMessage.Text != string.Empty)
