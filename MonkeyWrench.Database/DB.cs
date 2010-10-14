@@ -395,6 +395,9 @@ namespace MonkeyWrench
 				case ".xpi":
 					result.mime = MimeTypes.XPI;
 					break;
+				case ".crx":
+					result.mime = MimeTypes.CRX;
+					break;
 				default:
 					result.mime = MimeTypes.OCTET_STREAM;
 					break;
