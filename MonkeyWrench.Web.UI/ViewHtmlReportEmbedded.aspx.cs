@@ -34,10 +34,10 @@ public partial class ViewHtmlReportEmbedded : System.Web.UI.Page
 		try {
 			GetViewLaneDataResponse response;
 
-			response = Master.WebService.GetViewLaneData (Master.WebServiceLogin,
+			response = Master.WebService.GetViewLaneData2 (Master.WebServiceLogin,
 				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
 				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
-				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"]);
+				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
 
 			DBHost host = response.Host;
 			DBLane lane = response.Lane;
