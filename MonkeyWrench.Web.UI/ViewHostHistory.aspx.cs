@@ -66,7 +66,7 @@ public partial class ViewHostHistory : System.Web.UI.Page
 					break;
 				}
 
-				Response.Redirect (string.Format ("ViewHostHistory.aspx?host_id={0}", host_id));
+				Response.Redirect (string.Format ("ViewHostHistory.aspx?host_id={0}", host_id), false);
 				Page.Visible = false;
 				return;
 			}
