@@ -55,8 +55,10 @@ public partial class ViewLane : System.Web.UI.Page
 			DBLane lane = response.Lane;
 			DBRevision revision = response.Revision;
 
-			if (lane == null || host == null || revision == null)
-				Response.Redirect ("index.aspx");
+			if (lane == null || host == null || revision == null) {
+				Response.Redirect ("index.aspx", false);
+				return;
+			}
 
 			if (!string.IsNullOrEmpty (action)) {
 				switch (action) {

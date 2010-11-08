@@ -46,7 +46,7 @@ public partial class DownloadLatestFile : System.Web.UI.Page
 			if (id == null)
 				throw new HttpException (404, "File not found");
 
-			Response.Redirect ("GetFile.aspx?id=" + id.Value.ToString ());
+			Response.Redirect ("GetFile.aspx?id=" + id.Value.ToString (), false);
 		}
 	}
 }

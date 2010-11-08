@@ -65,8 +65,8 @@ public partial class ViewTable : System.Web.UI.Page
 								throw new Exception ("Invalid revision_id: " + revision.ToString () + "(revisions: '" + revisions + "')");
 							Master.WebService.ClearRevision (Master.WebServiceLogin, lane_id, host_id, revision_id);
 						}
-						Response.Redirect (string.Format ("ViewTable.aspx?lane_id={0}&host_id={1}", lane_id, host_id));
-						break;
+						Response.Redirect (string.Format ("ViewTable.aspx?lane_id={0}&host_id={1}", lane_id, host_id), false);
+						return;
 					}
 				}
 			}

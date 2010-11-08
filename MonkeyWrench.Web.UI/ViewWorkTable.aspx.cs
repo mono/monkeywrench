@@ -47,8 +47,10 @@ public partial class ViewWorkTable : System.Web.UI.Page
 			host = response.Host;
 			command = response.Command;
 
-			if (lane == null || host == null || command == null)
-				Response.Redirect ("index.aspx");
+			if (lane == null || host == null || command == null) {
+				Response.Redirect ("index.aspx", false);
+				return;
+			}
 
 			header.InnerHtml = GenerateHeader (response, lane, host, command);
 			buildtable.InnerHtml = GenerateLane (response, lane, host, command);

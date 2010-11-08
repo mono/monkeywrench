@@ -25,8 +25,10 @@ public partial class Delete : System.Web.UI.Page
 			if (!IsPostBack && string.IsNullOrEmpty (txtReturnTo.Value) && Request.UrlReferrer != null)
 				txtReturnTo.Value = Request.UrlReferrer.ToString ();
 
-			if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
+			if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 				Redirect ();
+				return;
+			}
 
 			int tmp;
 			if (int.TryParse (Request ["lane_id"], out tmp)) {
@@ -69,6 +71,6 @@ public partial class Delete : System.Web.UI.Page
 
 	private void Redirect ()
 	{
-		Response.Redirect (string.IsNullOrEmpty (txtReturnTo.Value) ? "index.aspx" : txtReturnTo.Value);
+		Response.Redirect (string.IsNullOrEmpty (txtReturnTo.Value) ? "index.aspx" : txtReturnTo.Value, false);
 	}
 }

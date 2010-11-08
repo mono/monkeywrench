@@ -28,6 +28,6 @@ public partial class GetFile : System.Web.UI.Page
 		if (!int.TryParse (Request ["id"], out id))
 			throw new HttpException ("Invalid id");
 
-		Response.Redirect (Utilities.CreateWebServiceDownloadUrl (Request, id, true));
+		Response.Redirect (Utilities.CreateWebServiceDownloadUrl (Request, id, true), false);
 	}
 }

@@ -56,7 +56,7 @@ public partial class EditHost : System.Web.UI.Page
 			response = Master.WebService.GetHostForEdit (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"]);
 
 			if (response == null || response.Host == null) {
-				Response.Redirect ("EditHosts.aspx");
+				Response.Redirect ("EditHosts.aspx", false);
 				return;
 			}
 
@@ -208,13 +208,13 @@ public partial class EditHost : System.Web.UI.Page
 			Master.WebService.RemoveMasterHost (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), response.Host.id);
 			break;
 		}
-		Response.Redirect ("EditHost.aspx?host_id=" + response.Host.id.ToString ());
+		Response.Redirect ("EditHost.aspx?host_id=" + response.Host.id.ToString (), false);
 	}
 
 	protected void cmdSave_Click (object sender, EventArgs e)
 	{
 		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			Response.Redirect ("index.aspx");
+			Response.Redirect ("index.aspx", false);
 			return;
 		}
 

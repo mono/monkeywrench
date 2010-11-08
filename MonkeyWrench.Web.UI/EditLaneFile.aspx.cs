@@ -33,7 +33,7 @@ public partial class EditLaneFile : System.Web.UI.Page
 		int id;
 
 		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			Response.Redirect ("index.aspx");
+			Response.Redirect ("index.aspx", false);
 			return;
 		}
 
@@ -59,7 +59,7 @@ public partial class EditLaneFile : System.Web.UI.Page
 
 	protected void cmdCancel_Click (object sender, EventArgs e)
 	{
-		Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"]);
+		Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"], false);
 	}
 
 	protected void cmdSave_Click (object sender, EventArgs e)
@@ -72,12 +72,12 @@ public partial class EditLaneFile : System.Web.UI.Page
 				Master.WebService.EditLaneFile (Master.WebServiceLogin, response.Lanefile);
 
 				if (Request.UrlReferrer != null && Request.UrlReferrer.LocalPath.Contains ("ViewLaneFileHistory.aspx")) {
-					Response.Redirect ("ViewLaneFileHistory.aspx?id=" + Request ["file_id"]);
+					Response.Redirect ("ViewLaneFileHistory.aspx?id=" + Request ["file_id"], false);
 				} else {
-					Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"]);
+					Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"], false);
 				}
 			} else {
-				Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"]);
+				Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"], false);
 			}
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));

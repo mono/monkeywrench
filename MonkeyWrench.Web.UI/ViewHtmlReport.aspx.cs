@@ -91,10 +91,10 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 				}
 			} catch (HttpException ex) {
 				Logger.Log ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex.Message);
-				Response.Redirect ("Login.aspx");
+				Response.Redirect ("Login.aspx", false);
 			} catch (WebException ex) {
 				Logger.Log ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex.Message);
-				Response.Redirect ("Login.aspx");
+				Response.Redirect ("Login.aspx", false);
 			} finally {
 				try {
 					File.Delete (tmp_html_filename);
@@ -110,6 +110,6 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 		if (!string.IsNullOrEmpty (md5))
 			url += "&md5=" + md5;
 		url += "&filename=" + HttpUtility.UrlEncode (filename);
-		Response.Redirect (url);
+		Response.Redirect (url, false);
 	}
 }

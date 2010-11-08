@@ -43,8 +43,10 @@ public partial class ViewHtmlReportEmbedded : System.Web.UI.Page
 			DBLane lane = response.Lane;
 			DBRevision revision = response.Revision;
 
-			if (lane == null || host == null || revision == null)
-				Response.Redirect ("index.aspx");
+			if (lane == null || host == null || revision == null) {
+				Response.Redirect ("index.aspx", false);
+				return;
+			}
 
 			header.InnerHtml = ViewLane.GenerateHeader (lane, host, revision, "Html report for");
 			htmlreport.Attributes ["src"] = Request.Url.ToString ().Replace ("Embedded", "");
