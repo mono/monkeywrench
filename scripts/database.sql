@@ -247,6 +247,8 @@ CREATE TABLE WorkFile (
 );
 CREATE INDEX workfile_idx_file_id_key ON WorkFile (file_id);
 CREATE INDEX workfile_idx_work_id_key ON WorkFile (work_id);
+CREATE INDEX workfile_idx_filename_key ON WorkFile(filename);
+CREATE INDEX workfile_idx_filename_pattern_key ON WorkFile(filename text_pattern_ops);
 
 CREATE TABLE Person ( -- 'User' is a reserved word in sql...
 	id             serial    PRIMARY KEY,
