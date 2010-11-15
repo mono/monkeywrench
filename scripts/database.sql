@@ -235,6 +235,7 @@ CREATE TABLE Work (
 	revisionwork_id  int       REFERENCES RevisionWork (id) ON DELETE CASCADE -- make NOT NULL after successful move
 );
 CREATE INDEX Work_revisionwork_id_idx ON Work (revisionwork_id);
+CREATE INDEX Work_command_id_idx ON Work (command_id);
 
 CREATE TABLE WorkFile (
 	id             serial     PRIMARY KEY,
