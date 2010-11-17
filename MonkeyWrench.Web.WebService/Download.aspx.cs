@@ -26,8 +26,6 @@ namespace MonkeyWrench.WebServices
 {
 	public partial class Download : System.Web.UI.Page
 	{
-		
-
 		protected void Page_Load (object sender, EventArgs e)
 		{
 			try {
@@ -52,8 +50,7 @@ namespace MonkeyWrench.WebServices
 				}
 
 			} catch (Exception ex) {
-				Console.Error.WriteLine ("Download failed:");
-				Console.Error.WriteLine (ex);
+				Logger.Log ("Download failed: {0}", ex);
 				throw;
 			}
 		}

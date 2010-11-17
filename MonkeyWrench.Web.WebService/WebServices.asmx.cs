@@ -1545,7 +1545,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.BuildBot, true);
-				Console.WriteLine ("ReportBuildState, state: {0}, start time: {1}, end time: {2}", work.State, work.starttime, work.endtime);
+				Logger.Log (2, "ReportBuildState, state: {0}, start time: {1}, end time: {2}", work.State, work.starttime, work.endtime);
 				if (work.starttime > new DateTime (2000, 1, 1) && work.endtime < work.starttime) {
 					// the issue here is that the server interprets the datetime as local time, while it's always as utc.
 					try {
@@ -1554,12 +1554,11 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 							work.starttime = (DateTime) cmd.ExecuteScalar ();
 						}
 					} catch (Exception ex) {
-						Console.WriteLine ("ReportBuildState: Exception while fixing timezone data: {0}", ex.Message);
+						Logger.Log ("ReportBuildState: Exception while fixing timezone data: {0}", ex.Message);
 					}
 				}
 				work.Save (db);
 				work.Reload (db);
-				Console.WriteLine ("ReportBuildState, state: {0}, start time: {1}, end time: {2} SAVED", work.State, work.starttime, work.endtime);
 
 				response.Work = work;
 
@@ -1935,7 +1934,7 @@ ORDER BY id;
 
 				return response;
 			} catch (Exception ex) {
-				Console.WriteLine ("Exception in GetBuildInfo: {0}", ex);
+				Logger.Log ("Exception in GetBuildInfo: {0}", ex);
 				throw;
 			}
 		}
@@ -1974,7 +1973,6 @@ WHERE Revision.lane_id = @lane_id AND ";
 						cmd.CommandText += " AND RevisionWork.completed = true ";
 
 					cmd.CommandText += " ORDER BY Revision.date DESC LIMIT 1;";
-					Console.WriteLine (cmd.CommandText);
 
 					DB.CreateParameter (cmd, "lane_id", l.id);
 					DB.CreateParameter (cmd, "filename", is_glob ? filename.Replace ('*', '%').Replace ('?', '_') : filename);

@@ -38,7 +38,7 @@ namespace MonkeyWrench.Database
 			DBLogin result;
 			int id;
 
-			Console.WriteLine ("DBLogin.Login ('{0}', '{1}', '{2}'. {3})", login, password, ip4, @readonly);
+			Logger.Log (2, "DBLogin.Login ('{0}', '{1}', '{2}'. {3})", login, password, ip4, @readonly);
 
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				// TODO: Encrypt passwords somehow, not store as plaintext.
