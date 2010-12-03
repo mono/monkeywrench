@@ -50,9 +50,6 @@ public partial class ViewHostHistory : System.Web.UI.Page
 			int.TryParse (Request ["revision_id"], out revision_id);
 			int.TryParse (Request ["masterhost_id"], out masterhost_id);
 
-			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-				action = Request ["action"];
-
 			if (!string.IsNullOrEmpty (action) && masterhost_id > 0 && lane_id > 0 && revision_id > 0) {
 				switch (action) {
 				case "clearrevision":
@@ -80,7 +77,7 @@ public partial class ViewHostHistory : System.Web.UI.Page
 			response = Master.WebService.GetWorkHostHistory (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"], limit, offset);
 
 			string hdr;
-			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+			if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 				hdr = string.Format ("History for <a href='EditHost.aspx?host_id={1}'>{0}</a>", response.Host.host, response.Host.id);
 			} else {
 				hdr = string.Format ("History for {0}", response.Host.host);

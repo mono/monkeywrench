@@ -25,20 +25,26 @@ public partial class Delete : System.Web.UI.Page
 			if (!IsPostBack && string.IsNullOrEmpty (txtReturnTo.Value) && Request.UrlReferrer != null)
 				txtReturnTo.Value = Request.UrlReferrer.ToString ();
 
-			if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-				Redirect ();
-				return;
-			}
 
 			int tmp;
 			if (int.TryParse (Request ["lane_id"], out tmp)) {
 				lane_id = tmp;
 				FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
 
+				if (!Authentication.IsInRole (lane, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+					Redirect ();
+					return;
+				}
+
 				lblMessage.Text = string.Format ("Are you sure you want to delete the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
 			} else if (int.TryParse (Request ["host_id"], out tmp)) {
 				host_id = tmp;
 				FindHostResponse host = Master.WebService.FindHost (Master.WebServiceLogin, host_id, null);
+
+				if (!Authentication.IsInRole (host, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+					Redirect ();
+					return;
+				}
 
 				lblMessage.Text = string.Format ("Are you sure you want to delete the host '{0}' (ID: {1})?", host.Host.host, host.Host.id);
 			} else {

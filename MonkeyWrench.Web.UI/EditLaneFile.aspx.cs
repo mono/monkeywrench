@@ -32,11 +32,6 @@ public partial class EditLaneFile : System.Web.UI.Page
 	{
 		int id;
 
-		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			Response.Redirect ("index.aspx", false);
-			return;
-		}
-
 		if (!IsPostBack) {
 
 			if (int.TryParse (Request ["file_id"], out id)) {

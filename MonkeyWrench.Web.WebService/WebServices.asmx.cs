@@ -85,6 +85,21 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
+		public void Logout (WebServiceLogin login)
+		{
+			if (string.IsNullOrEmpty (login.Cookie))
+				return;
+
+			using (DB db = new DB ()) {
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "DELETE FROM Login WHERE cookie = @cookie;";
+					DB.CreateParameter (cmd, "cookie", login.Cookie);
+					cmd.ExecuteNonQuery ();
+				}
+			}
+		}
+
+		[WebMethod]
 		public void CreateLanefile (WebServiceLogin login, int lane_id, string filename)
 		{
 			if (string.IsNullOrEmpty (filename))
@@ -923,7 +938,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			limit = Math.Min (limit, 500);
 
 			using (DB db = new DB ()) {
-				Authenticate (db, login, response);
+				Authenticate (db, login, response, true);
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = DBLane.TableName;

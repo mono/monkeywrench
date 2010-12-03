@@ -40,10 +40,6 @@ public partial class EditHost : System.Web.UI.Page
 		List<DBLane> all_lanes;
 
 		try {
-			if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-				Response.Redirect ("index.aspx", false);
-				return;
-			}
 
 			string disable = Request ["disablelane"];
 			string enable = Request ["enablelane"];
@@ -213,7 +209,7 @@ public partial class EditHost : System.Web.UI.Page
 
 	protected void cmdSave_Click (object sender, EventArgs e)
 	{
-		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+		if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			Response.Redirect ("index.aspx", false);
 			return;
 		}

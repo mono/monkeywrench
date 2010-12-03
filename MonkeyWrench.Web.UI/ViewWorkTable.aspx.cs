@@ -60,7 +60,7 @@ public partial class ViewWorkTable : System.Web.UI.Page
 	}
 	public string GenerateHeader (GetViewWorkTableDataResponse response, DBLane lane, DBHost host, DBCommand command)
 	{
-		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+		if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			return string.Format (@"
 <h2>Step {4} on lane '{2}' on '{3}' (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, command.command);
 		} else {

@@ -37,7 +37,15 @@ public partial class Login : System.Web.UI.Page
 			txtReferrer.Value = Request.UrlReferrer.AbsoluteUri;
 
 		if (!string.IsNullOrEmpty (action) && action == "logout") {
-			FormsAuthentication.SignOut ();
+			if (Request.Cookies ["cookie"] != null) {
+				Master.WebService.Logout (Master.WebServiceLogin);
+				Response.Cookies.Add(new HttpCookie ("cookie", ""));
+				Response.Cookies ["cookie"].Expires = DateTime.Now.AddYears (-20);
+				Response.Cookies.Add (new HttpCookie ("user", ""));
+				Response.Cookies ["user"].Expires = DateTime.Now.AddYears (-20);
+				Response.Cookies.Add (new HttpCookie ("roles", ""));
+				Response.Cookies ["roles"].Expires = DateTime.Now.AddYears (-20);
+			}
 			Response.Redirect (txtReferrer.Value, false);
 			return;
 		}
@@ -45,27 +53,13 @@ public partial class Login : System.Web.UI.Page
 
 	protected void cmdLogin_Click (object sender, EventArgs e)
 	{
-		LoginResponse response;
-
 		Master.ClearLogin ();
 
 		try {
-			WebServiceLogin login = new WebServiceLogin ();
-			login.User = txtUser.Text;
-			login.Password = txtPassword.Text;
-			Console.WriteLine ("Trying to log in with {0}/{1}", login.User, login.Password);
-			login.Ip4 = Utilities.GetExternalIP (Context.Request);
-			response = Master.WebService.Login (login);
-			if (response == null) {
-				lblMessage.Text = "Could not log in.";
+			if (!Authentication.Login (txtUser.Text, txtPassword.Text, Request, Response)) {
+				lblMessage.Text = "Could not log in";
 				txtPassword.Text = "";
 			} else {
-				Console.WriteLine ("Login.aspx: Saved cookie!");
-				FormsAuthenticationTicket cookie = new FormsAuthenticationTicket ("cookie", true, 60 * 24);
-				Response.Cookies.Add (new HttpCookie ("cookie", response.Cookie));
-				Response.Cookies ["cookie"].Expires = DateTime.Now.AddDays (1);
-				Response.Cookies.Add (new HttpCookie ("user", login.User));
-				FormsAuthentication.SetAuthCookie (response.User, true);
 				Response.Redirect (txtReferrer.Value, false);
 			}
 		} catch (Exception) {

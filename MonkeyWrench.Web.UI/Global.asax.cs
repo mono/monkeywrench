@@ -39,14 +39,6 @@ namespace MonkeyWrench.Web.UI
 
 		protected void Application_AuthenticateRequest (object sender, EventArgs e)
 		{
-			if (HttpContext.Current.User != null) {
-				if (HttpContext.Current.User.Identity.IsAuthenticated) {
-					if (HttpContext.Current.User.Identity is FormsIdentity) {
-						FormsIdentity id = (FormsIdentity) HttpContext.Current.User.Identity;
-						HttpContext.Current.User = new System.Security.Principal.GenericPrincipal (id, Utils.WebService.GetRoles (id.Name));
-					}
-				}
-			}
 		}
 
 		protected void Application_Error (object sender, EventArgs e)

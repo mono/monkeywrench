@@ -170,11 +170,6 @@ public static class Utils
 		}
 	}
 
-	public static bool IsInRole (string role)
-	{
-		return HttpContext.Current.User.IsInRole (role);
-	}
-
 	public static int? TryParseInt32 (string input)
 	{
 		int i;

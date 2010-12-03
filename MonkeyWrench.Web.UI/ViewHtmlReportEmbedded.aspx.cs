@@ -48,7 +48,7 @@ public partial class ViewHtmlReportEmbedded : System.Web.UI.Page
 				return;
 			}
 
-			header.InnerHtml = ViewLane.GenerateHeader (lane, host, revision, "Html report for");
+			header.InnerHtml = ViewLane.GenerateHeader (response, lane, host, revision, "Html report for");
 			htmlreport.Attributes ["src"] = Request.Url.ToString ().Replace ("Embedded", "");
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));

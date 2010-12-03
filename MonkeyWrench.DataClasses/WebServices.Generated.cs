@@ -75,6 +75,24 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/Logout", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void Logout(WebServiceLogin login) {
+            this.Invoke("Logout", new object[] {
+                        login});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginLogout(WebServiceLogin login, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("Logout", new object[] {
+                        login}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndLogout(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/CreateLanefile", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void CreateLanefile(WebServiceLogin login, int lane_id, string filename) {
             this.Invoke("CreateLanefile", new object[] {

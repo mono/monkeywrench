@@ -27,6 +27,8 @@ using MonkeyWrench.Web.WebServices;
 
 public partial class ViewLane : System.Web.UI.Page
 {
+	GetViewLaneDataResponse response;
+
 	private new Master Master
 	{
 		get { return base.Master as Master; }
@@ -39,16 +41,15 @@ public partial class ViewLane : System.Web.UI.Page
 		try {
 			string action = null;
 
-			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-				action = Request ["action"];
-
 			int id;
-			GetViewLaneDataResponse response;
 
 			response = Master.WebService.GetViewLaneData2 (Master.WebServiceLogin,
 				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
 				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
 				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
+
+			if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
+				action = Request ["action"];
 
 
 			DBHost host = response.Host;
@@ -94,16 +95,16 @@ public partial class ViewLane : System.Web.UI.Page
 				return;
 			}
 
-			header.InnerHtml = GenerateHeader (lane, host, revision, "Build of");
+			header.InnerHtml = GenerateHeader (response, lane, host, revision, "Build of");
 			buildtable.InnerHtml = GenerateLane (response);
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
 		}
 	}
 
-	public static string GenerateHeader (DBLane lane, DBHost host, DBRevision revision, string description)
+	public static string GenerateHeader (GetViewLaneDataResponse response, DBLane lane, DBHost host, DBRevision revision, string description)
 	{
-		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+		if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			return string.Format (@"
 <h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '{2}' on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>' 
 (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, description, revision.revision, revision.id);
@@ -130,8 +131,8 @@ public partial class ViewLane : System.Web.UI.Page
 		header.AppendFormat (" - Status: {0}", revisionwork.State);
 		header.AppendFormat (" - Author: {0}", dbr.author);
 		header.AppendFormat (" - Commit date: {0}", dbr.date.ToString ("yyyy/MM/dd HH:mm:ss UTC"));
-	
-		if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+
+		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>reset work</a>", lane.id, dbr.id, host.id);
 			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision'>delete work</a>", lane.id, dbr.id, host.id);
 			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=abortrevision'>abort work</a>", lane.id, dbr.id, host.id);

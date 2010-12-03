@@ -32,11 +32,6 @@ public partial class EditHosts : System.Web.UI.Page
 		lblMessage.Text = "";
 		lblMessage.Visible = false;
 
-		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			Response.Redirect ("index.aspx");
-			return;
-		}
-
 		if (!IsPostBack) {
 			string action = Request ["action"];
 			int host_id;

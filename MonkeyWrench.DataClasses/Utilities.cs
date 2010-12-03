@@ -48,7 +48,7 @@ namespace MonkeyWrench
 			web_service_login = new WebServiceLogin ();
 			web_service_login.Cookie = GetCookie (Request, "cookie");
 			if (HttpContext.Current.User != null)
-				web_service_login.User = HttpContext.Current.User.Identity.Name;
+				web_service_login.User = GetCookie (Request, "user");
 			web_service_login.Ip4 = GetExternalIP (Request);
 
 			// Console.WriteLine ("Master, Cookie: {0}, User: {1}", web_service_login.Cookie, web_service_login.User);
@@ -56,9 +56,19 @@ namespace MonkeyWrench
 			return web_service_login;
 		}
 
-		public static bool IsInRole (string role)
+		public static bool IsInRole (WebServiceResponse response, string role)
 		{
-			return HttpContext.Current.User.IsInRole (role);
+			bool result;
+
+			if (response == null)
+				return false;
+
+			if (response.UserRoles == null)
+				return false;
+
+			result = Array.IndexOf (response.UserRoles, role) >= 0;
+
+			return result;
 		}
 	}
 }

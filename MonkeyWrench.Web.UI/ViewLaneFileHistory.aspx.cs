@@ -30,12 +30,7 @@ public partial class ViewLaneFileHistory : System.Web.UI.Page
 	protected void Page_Load (object sender, EventArgs e)
 	{
 		int id;
-
-		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			Response.Redirect ("index.aspx", false);
-			return;
-		}
-
+		
 		if (!IsPostBack) {
 			if (int.TryParse (Request ["id"], out id)) {
 				GetViewLaneFileHistoryDataResponse response;

@@ -27,6 +27,8 @@ using MonkeyWrench.Web.WebServices;
 
 public partial class ViewTable : System.Web.UI.Page
 {
+	GetViewTableDataResponse response;
+
 	private new Master Master
 	{
 		get { return base.Master as Master; }
@@ -40,14 +42,13 @@ public partial class ViewTable : System.Web.UI.Page
 		base.OnLoad (e);
 
 		try {
-			GetViewTableDataResponse response;
 
 			int page = 0;
 			int page_size = 0;
 			bool horizontal;
 			string action;
 
-			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+			if (Authentication.IsInCookieRole (Request, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 				action = Request ["action"];
 				if (!string.IsNullOrEmpty (action)) {
 					switch (action) {
@@ -171,14 +172,14 @@ public partial class ViewTable : System.Web.UI.Page
 		string result;
 		string format;
 
-		if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			format = @"<h2>Build Matrix for <a href='EditLane.aspx?lane_id={0}'>'{2}'</a> on <a href='EditHost.aspx?host_id={5}'>'{4}'</a></h2><br/>";
 		} else {
 			format = @"<h2>Build Matrix for '{2}' on '{4}'</h2><br/>";
 		}
 
 		format += @"<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}&amp;horizontal={3}'>Reverse x/y axis</a><br/>";
-		if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
+		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
 			format += string.Format (@"<a href='javascript:clearRevisions ({0}, {1})'>Clear selected revisions</a><br/>", lane.id, host.id);
 
 		format += "<br/>";
@@ -214,11 +215,11 @@ public partial class ViewTable : System.Web.UI.Page
 			header.RemoveAll (delegate (string match) { return match == null; });
 			header.Insert (0, "Revision");
 			header.Insert (1, "Author");
-			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
+			if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
 				header.Insert (2, "Select");
 			header.Add ("Host");
 			header.Add ("Duration");
-			result_index = Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator) ? 3 : 2;
+			result_index = Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator) ? 3 : 2;
 			table.Add (header);
 
 			bool failed = false;
@@ -247,7 +248,7 @@ public partial class ViewTable : System.Web.UI.Page
 					row = new List<string> ();
 					row.Add (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a></td>", lane.id, host.id, view.revision_id, revision, string.Format ("Author: {1} Build start date: {0}", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"), view.author)));
 					row.Add (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>{1}</a></td>", view.revision_id, view.author));
-					if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator))
+					if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
 						row.Add (string.Format ("<input type=checkbox id='id_revision_chk_{1}' name='revision_id_{0}' />", view.revision_id, i));
 					while (row.Count < header.Count - 2)
 						row.Add ("-");

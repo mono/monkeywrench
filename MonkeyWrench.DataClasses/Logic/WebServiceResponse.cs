@@ -28,6 +28,11 @@ namespace MonkeyWrench.DataClasses.Logic
 		public string [] UserRoles;
 
 		/// <summary>
+		/// The name of the logged in user.
+		/// Will be null if there is no logged in user.
+		/// </summary>
+		public string UserName;
+
 		/// Checks if a user in in a specific role
 		/// </summary>
 		/// <param name="role"></param>

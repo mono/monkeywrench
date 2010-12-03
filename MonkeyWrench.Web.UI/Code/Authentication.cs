@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 
+using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
@@ -30,11 +31,73 @@ public class Authentication
 		response.Cookies.Add (person);
 	}
 
-	public static bool IsInRole (WebServiceResponse response, string role)
+	public static bool IsLoggedIn (WebServiceResponse response)
 	{
-		if (response.UserRoles == null)
+		if (response == null)
 			return false;
 
-		return Array.IndexOf (response.UserRoles, role) >= 0;
+		return !string.IsNullOrEmpty (response.UserName);
+	}
+
+	public static bool IsInRole (WebServiceResponse response, string role)
+	{
+		bool result;
+
+		if (response == null) {
+			MonkeyWrench.Logger.Log (2, "IsInRole: no response");
+			return false;
+		}
+
+		if (response.UserRoles == null) {
+			MonkeyWrench.Logger.Log (2, "IsInRole: no userroles");
+			return false;
+		}
+		
+		result = Array.IndexOf (response.UserRoles, role) >= 0;
+
+		MonkeyWrench.Logger.Log (2, "IsInRole ({0}) => {1} (roles: {2})", role, result, string.Join (";", response.UserRoles));
+
+		return result;
+	}
+
+	public static bool IsInCookieRole (HttpRequest request, string role)
+	{
+		HttpCookie cookie;
+
+		if (request == null)
+			return false;
+
+		if (request.Cookies ["cookie"] == null || string.IsNullOrEmpty (request.Cookies ["cookie"].Value))
+			return false;
+
+		cookie = request.Cookies ["roles"];
+		if (cookie == null)
+			return false;
+
+		return Array.IndexOf<string> (cookie.Value.ToLowerInvariant ().Split (','), role.ToLowerInvariant ()) >= 0;
+	}
+	
+	public static bool Login (string user, string password, HttpRequest Request, HttpResponse Response)
+	{
+		LoginResponse response;
+
+		WebServiceLogin login = new WebServiceLogin ();
+		login.User = user;
+		login.Password = password;
+
+		login.Ip4 = MonkeyWrench.Utilities.GetExternalIP (Request);
+		response = Utils.WebService.Login (login);
+		if (response == null) {
+			Logger.Log ("Login failed");
+			return false;
+		} else {
+			Logger.Log ("Login succeeded, cookie: {0}", response.Cookie);
+			Response.Cookies.Add (new HttpCookie ("cookie", response.Cookie));
+			Response.Cookies ["cookie"].Expires = DateTime.Now.AddDays (1);
+			Response.Cookies.Add (new HttpCookie ("user", login.User));
+			/* Note that the 'roles' cookie is only used to determine the web ui to show, it's not used to authorize anything */
+			Response.Cookies.Add (new HttpCookie ("roles", string.Join (", ", Utils.WebService.GetRoles (login.User))));
+			return true;
+		}
 	}
 }

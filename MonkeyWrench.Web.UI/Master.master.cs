@@ -24,6 +24,7 @@ using MonkeyWrench.Web.WebServices;
 public partial class Master : System.Web.UI.MasterPage
 {
 	private WebServiceLogin web_service_login;
+	private WebServiceResponse response;
 
 	public WebServices WebService
 	{
@@ -49,28 +50,40 @@ public partial class Master : System.Web.UI.MasterPage
 		web_service_login = null;
 	}
 
+	private void SetResponse (WebServiceResponse response)
+	{
+		this.response = response;
+		LoadView ();
+	}
+
 	protected void Page_Load (object sender, EventArgs e)
+	{
+		LoadView ();
+	}
+
+	private void LoadView ()
 	{
 		TableRow row = new TableRow ();
 		TableCell title = new TableCell ();
 		TableCell user = new TableCell ();
 
 		title.Text = "<a href='index.aspx'>MonkeyWrench</a>";
-		if (!Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+		if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			user.Text = "<a href='Login.aspx'>Login</a>";
 		} else {
-			user.Text = string.Format ("<a href='User.aspx?id={0}'>{0}</a> <a href='Login.aspx?action=logout'>Log out</a>", Context.User.Identity.Name);
+			user.Text = string.Format ("<a href='User.aspx?id={0}'>{0}</a> <a href='Login.aspx?action=logout'>Log out</a>", Utilities.GetCookie (Request, "user"));
 		}
 		user.CssClass = "headerlogin";
 		row.Cells.Add (title);
 		row.Cells.Add (user);
 
+		tableHeader.Rows.Clear ();
 		tableHeader.Rows.Add (row);
 
-		if (!IsPostBack)
-			CreateTree ();
+		CreateTree ();
 
-		if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+		tableFooter.Rows.Clear ();
+		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='EditHosts.aspx'>Edit Hosts</a>"));
 			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='EditLanes.aspx'>Edit Lanes</a>"));
 			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='Admin.aspx'>Administration</a>"));
@@ -80,14 +93,20 @@ public partial class Master : System.Web.UI.MasterPage
 
 	private void CreateTree ()
 	{
+		if (this.response != null)
+			return;
+
 		GetLanesResponse response = WebService.GetLanes (WebServiceLogin);
 		// we need to create a tree of the lanes
 		LaneTreeNode root = LaneTreeNode.BuildTree (response.Lanes, null);
 
+		SetResponse (response);
+		
 		// layout the tree
 		TreeNode tn = new TreeNode ();
 		tn.Text = "All";
 		tn.NavigateUrl = "index.aspx?show_all=true";
+		treeMain.Nodes.Clear ();
 		treeMain.Nodes.Add (tn);
 		root.WriteTree (tn.ChildNodes);
 		treeMain.NodeIndent = 8;
