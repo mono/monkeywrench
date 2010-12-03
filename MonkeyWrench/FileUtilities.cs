@@ -225,7 +225,30 @@ namespace MonkeyWrench
 			try {
 				TryDeleteDirectoryRecursive (directory, directory);
 			} catch (Exception ex) {
-				Logger.Log ("TryDeleteDirectoryRecursive ({0}): Could not delete directory recursively: {1}", directory, ex);
+				Logger.Log ("TryDeleteDirectoryRecursive ({0}): Could not delete directory recursively: {1}", directory, ex.Message);
+			}
+		}
+
+		private static void MakeReadWrite (string path)
+		{
+			try {
+				FileAttributes attributes = File.GetAttributes (path);
+				if ((attributes & FileAttributes.ReadOnly) != 0) {
+					File.SetAttributes (path, attributes & ~FileAttributes.ReadOnly);
+				}
+			} catch (Exception ex) {
+				Logger.Log ("MakeReadWrite ({0}): Could not make RW: {2}", path, ex.Message);
+			}
+		}
+
+		private static void TryDeleteROFile (string path)
+		{
+			try {
+				MakeReadWrite (path);
+				File.Delete (path);
+			} catch (Exception ex) {
+				Logger.Log ("TryDeleteDirectoryRecursive ({0}): Could not delete the file: {1}", path, ex.Message);
+				/* Ignore any exceptions */
 			}
 		}
 
@@ -234,36 +257,25 @@ namespace MonkeyWrench
 			try {
 				foreach (string dir in Directory.GetDirectories (path)) {
 					if ((File.GetAttributes (dir) & FileAttributes.ReparsePoint) != 0) {
-						continue; /* this is a symlink */
+						/* this is a symlink */
+						TryDeleteROFile (dir);
+					} else {
+						TryDeleteDirectoryRecursive (root, dir);
 					}
-
-					TryDeleteDirectoryRecursive (root, dir);
 				}
 			} catch (Exception ex) {
-				Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not recurse into subdirectories: {2}", root, path, ex);
+				Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not recurse into subdirectories: {2}", root, path, ex.Message);
 			}
 
 			foreach (string file in Directory.GetFiles (path)) {
-				try {
-					try {
-						File.Delete (file);
-					} catch (UnauthorizedAccessException ex) {
-						Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Unauthorized access exception while trying to delete the file (will make file readable and try again): {2}: {3}", root, path, file, ex);
-						/* readonly maybe, make file writeable */
-						File.SetAttributes (path, FileAttributes.Normal);
-						/* try again */
-						File.Delete (file);
-					}
-				} catch (Exception ex) {
-					Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not delete the file: {2}: {3}", root, path, file, ex);
-					/* Ignore any exceptions */
-				}
+				TryDeleteROFile (file);
 			}
 
 			try {
+				MakeReadWrite (path);
 				Directory.Delete (path);
 			} catch (Exception ex) {
-				Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not delete the directory: {2}", root, path, ex);
+				Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not delete the directory: {2}", root, path, ex.Message);
 				/* Ignore any exceptions */
 			}
 		}
