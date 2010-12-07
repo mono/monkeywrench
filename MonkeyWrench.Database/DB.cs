@@ -282,26 +282,32 @@ namespace MonkeyWrench
 		/// </summary>
 		/// <param name="Filename"></param>
 		/// <returns></returns>
-		public DBFile Upload (string Filename, string extension, bool hidden, string compressed_mime)
+		public DBFile Upload (string filename, string extension, bool hidden, string compressed_mime)
+		{
+			string md5;
+
+			// first check if the file is already in the database
+			using (FileStream st = new FileStream (filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+				md5 = FileUtilities.CalculateMD5 (st);
+			}
+
+			return Upload (md5, filename, filename, extension, hidden, compressed_mime);
+		}
+		
+		public DBFile Upload (string md5, string path_to_contents, string filename, string extension, bool hidden, string compressed_mime)
 		{
 			IDbTransaction transaction = null;
 			LargeObjectManager manager;
 			LargeObject obj;
 			int? oid;
-			string md5;
 			DBFile result;
 			long filesize;
 			string gzFilename = null;
 
 			try {
-				filesize = new FileInfo (Filename).Length;
+				filesize = new FileInfo (path_to_contents).Length;
 				if (filesize > 1024 * 1024 * 100)
 					throw new Exception ("Max file size is 100 MB");
-
-				// first check if the file is already in the database
-				using (FileStream st = new FileStream (Filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-					md5 = FileUtilities.CalculateMD5 (st);
-				}
 
 				using (IDbCommand cmd = CreateCommand ()) {
 					cmd.CommandText = "SELECT * FROM File WHERE md5 = '" + md5 + "'";
@@ -319,9 +325,9 @@ namespace MonkeyWrench
 				// not quite sure how to deal with that except retrying the above if the insert below fails.
 
 				if (compressed_mime == MimeTypes.GZ) {
-					gzFilename = Filename;
+					gzFilename = path_to_contents;
 				} else {
-					gzFilename = FileUtilities.GZCompress (Filename);
+					gzFilename = FileUtilities.GZCompress (path_to_contents);
 					compressed_mime = MimeTypes.GZ;
 				}
 
@@ -332,7 +338,7 @@ namespace MonkeyWrench
 					oid = manager.Create (LargeObjectManager.READWRITE);
 					obj = manager.Open (oid.Value, LargeObjectManager.READWRITE);
 
-					using (FileStream st = new FileStream (gzFilename != null ? gzFilename : Filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					using (FileStream st = new FileStream (gzFilename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 						byte [] buffer = new byte [1024];
 						int read = -1;
 						while (read != 0) {
@@ -343,15 +349,15 @@ namespace MonkeyWrench
 					obj.Close ();
 				} else {
 					oid = null;
-					string fn = FileUtilities.CreateFilename (md5, !string.IsNullOrEmpty (gzFilename), true);
+					string fn = FileUtilities.CreateFilename (md5, true, true);
 
-					File.Copy (string.IsNullOrEmpty (gzFilename) ? Filename : gzFilename, fn, true);
+					File.Copy (gzFilename, fn, true);
 					Logger.Log ("Saved file to: {0}", fn);
 				}
 
 				result = new DBFile ();
 				result.file_id = oid;
-				result.filename = Path.GetFileName (Filename);
+				result.filename = Path.GetFileName (filename);
 				result.md5 = md5;
 				result.size = (int) filesize;
 				result.hidden = hidden;

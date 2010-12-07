@@ -1641,6 +1641,24 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetUploadPort", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public int GetUploadPort() {
+            object[] results = this.Invoke("GetUploadPort", new object[0]);
+            return ((int)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetUploadPort(System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetUploadPort", new object[0], callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public int EndGetUploadPort(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((int)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/AddEnvironmentVariable", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public int AddEnvironmentVariable(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> host_id, string name, string value) {
             object[] results = this.Invoke("AddEnvironmentVariable", new object[] {

@@ -1202,8 +1202,6 @@ FROM HostLane";
 		[WebMethod]
 		public void AbortRevision (WebServiceLogin login, int lane_id, int host_id, int revision_id)
 		{
-			DBRevisionWork rw = null;
-
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				using (IDbCommand cmd = db.CreateCommand ()) {
@@ -1390,6 +1388,12 @@ ORDER BY date DESC LIMIT 250;
 			}
 
 			return response;
+		}
+
+		[WebMethod]
+		public int GetUploadPort ()
+		{
+			return Upload.GetListenPort ();
 		}
 
 		[WebMethod]

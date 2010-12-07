@@ -217,7 +217,7 @@ namespace MonkeyWrench
 			return path;
 		}
 
-		private static string MD5BytesToString (byte [] bytes)
+		public static string MD5BytesToString (byte [] bytes)
 		{
 			StringBuilder result = new StringBuilder (16);
 			for (int i = 0; i < bytes.Length; i++)
@@ -227,11 +227,15 @@ namespace MonkeyWrench
 
 		public static string CalculateMD5 (Stream str)
 		{
-			using (MD5CryptoServiceProvider md5_provider = new MD5CryptoServiceProvider ()) {
-					return MD5BytesToString (md5_provider.ComputeHash (str));
-			}
+			return MD5BytesToString (CalculateMD5_Bytes (str));
 		}
 
+		public static byte [] CalculateMD5_Bytes (Stream str)
+		{
+			using (MD5CryptoServiceProvider md5_provider = new MD5CryptoServiceProvider ()) {
+				return md5_provider.ComputeHash (str);
+			}
+		}
 		/// <summary>
 		/// Tries to delete a file, does not throw any exceptions.
 		/// </summary>

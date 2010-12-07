@@ -1807,6 +1807,16 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="GetUploadPort">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="GetUploadPortResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="GetUploadPortResult" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="AddEnvironmentVariable">
         <xs:complexType>
           <xs:sequence>
@@ -2026,6 +2036,7 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="ArrayOfString" nillable="true" type="s0:ArrayOfString" />
+      <xs:element name="int" type="xs:int" />
     </xs:schema>
   </types>
   <message name="GetRolesSoapIn">
@@ -2448,6 +2459,12 @@
   <message name="GetUsersSoapOut">
     <part name="parameters" element="s0:GetUsersResponse" />
   </message>
+  <message name="GetUploadPortSoapIn">
+    <part name="parameters" element="s0:GetUploadPort" />
+  </message>
+  <message name="GetUploadPortSoapOut">
+    <part name="parameters" element="s0:GetUploadPortResponse" />
+  </message>
   <message name="AddEnvironmentVariableSoapIn">
     <part name="parameters" element="s0:AddEnvironmentVariable" />
   </message>
@@ -2544,11 +2561,19 @@
   <message name="GetRolesHttpGetOut">
     <part name="Body" element="s0:ArrayOfString" />
   </message>
+  <message name="GetUploadPortHttpGetIn" />
+  <message name="GetUploadPortHttpGetOut">
+    <part name="Body" element="s0:int" />
+  </message>
   <message name="GetRolesHttpPostIn">
     <part name="user" type="s:string" />
   </message>
   <message name="GetRolesHttpPostOut">
     <part name="Body" element="s0:ArrayOfString" />
+  </message>
+  <message name="GetUploadPortHttpPostIn" />
+  <message name="GetUploadPortHttpPostOut">
+    <part name="Body" element="s0:int" />
   </message>
   <portType name="WebServicesSoap">
     <operation name="GetRoles">
@@ -2830,6 +2855,10 @@
     <operation name="GetUsers">
       <input message="s0:GetUsersSoapIn" />
       <output message="s0:GetUsersSoapOut" />
+    </operation>
+    <operation name="GetUploadPort">
+      <input message="s0:GetUploadPortSoapIn" />
+      <output message="s0:GetUploadPortSoapOut" />
     </operation>
     <operation name="AddEnvironmentVariable">
       <input message="s0:AddEnvironmentVariableSoapIn" />
@@ -3173,6 +3202,10 @@
       <input message="s0:GetUsersSoapIn" />
       <output message="s0:GetUsersSoapOut" />
     </operation>
+    <operation name="GetUploadPort">
+      <input message="s0:GetUploadPortSoapIn" />
+      <output message="s0:GetUploadPortSoapOut" />
+    </operation>
     <operation name="AddEnvironmentVariable">
       <input message="s0:AddEnvironmentVariableSoapIn" />
       <output message="s0:AddEnvironmentVariableSoapOut" />
@@ -3239,11 +3272,19 @@
       <input message="s0:GetRolesHttpGetIn" />
       <output message="s0:GetRolesHttpGetOut" />
     </operation>
+    <operation name="GetUploadPort">
+      <input message="s0:GetUploadPortHttpGetIn" />
+      <output message="s0:GetUploadPortHttpGetOut" />
+    </operation>
   </portType>
   <portType name="WebServicesHttpPost">
     <operation name="GetRoles">
       <input message="s0:GetRolesHttpPostIn" />
       <output message="s0:GetRolesHttpPostOut" />
+    </operation>
+    <operation name="GetUploadPort">
+      <input message="s0:GetUploadPortHttpPostIn" />
+      <output message="s0:GetUploadPortHttpPostOut" />
     </operation>
   </portType>
   <binding name="WebServicesSoap" type="s0:WebServicesSoap">
@@ -3871,6 +3912,15 @@
     </operation>
     <operation name="GetUsers">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetUsers" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetUploadPort">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetUploadPort" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -4646,6 +4696,15 @@
         <soap12:body use="literal" />
       </output>
     </operation>
+    <operation name="GetUploadPort">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetUploadPort" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
     <operation name="AddEnvironmentVariable">
       <soap12:operation soapAction="http://monkeywrench.novell.com/AddEnvironmentVariable" style="document" />
       <input>
@@ -4793,11 +4852,29 @@
         <mime:mimeXml part="Body" />
       </output>
     </operation>
+    <operation name="GetUploadPort">
+      <http:operation location="/GetUploadPort" />
+      <input>
+        <http:urlEncoded />
+      </input>
+      <output>
+        <mime:mimeXml part="Body" />
+      </output>
+    </operation>
   </binding>
   <binding name="WebServicesHttpPost" type="s0:WebServicesHttpPost">
     <http:binding verb="POST" />
     <operation name="GetRoles">
       <http:operation location="/GetRoles" />
+      <input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </input>
+      <output>
+        <mime:mimeXml part="Body" />
+      </output>
+    </operation>
+    <operation name="GetUploadPort">
+      <http:operation location="/GetUploadPort" />
       <input>
         <mime:content type="application/x-www-form-urlencoded" />
       </input>

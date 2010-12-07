@@ -11,8 +11,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
@@ -190,12 +193,203 @@ namespace MonkeyWrench.Web.WebServices
 			});
 		}
 
+		private static string ReadString (BinaryReader reader, byte [] buffer, ushort length)
+		{
+			reader.Read (buffer, 0, length);
+			return UTF8Encoding.UTF8.GetString (buffer, 0, length);
+		}
+
+		private void ReadResponse (BinaryReader reader, out byte version, out byte type)
+		{
+			ushort message_length;
+			string message;
+			byte [] buffer;
+
+			version = reader.ReadByte ();
+			type = reader.ReadByte ();
+
+			if (version != 1)
+				throw new ApplicationException (string.Format ("Got unexpected response version from server, expected version = 1, got version = {0} and type = {1}", version, type));
+
+			switch (type) {
+			case 3:
+				/* error */
+				message_length = reader.ReadUInt16 ();
+				buffer = new byte [message_length];
+				message = ReadString (reader, buffer, message_length);
+				throw new ApplicationException (string.Format ("Got error from server: {0}", message));
+			}
+		}
+
+		private void WriteStringByte (BinaryWriter writer, string str)
+		{
+			byte [] data = UTF8Encoding.UTF8.GetBytes (str);
+			writer.Write ((byte) data.Length);
+			writer.Write (data, 0, data.Length);
+		}
+
+		public void UploadFilesSafe (DBWork work, string [] filenames, bool [] hidden_values)
+		{
+			Queue<string> files = new Queue<string> (filenames);
+			Queue<bool> hiddens;
+
+			if (hidden_values != null) {
+				hiddens = new Queue<bool> (hidden_values);
+			} else {
+				hiddens = new Queue<bool> (new bool [filenames.Length]);
+			}
+
+			if (filenames.Length != hidden_values.Length)
+				throw new ArgumentOutOfRangeException ("filenames/hidden");
+
+			ExecuteSafe ("Upload files safe", () =>
+			{
+				byte version;
+				byte type;
+				int port;
+				string gz = null;
+				BinaryReader reader = null;
+				BinaryWriter writer = null;
+				NetworkStream stream = null;
+				byte [] buffer = new byte [1024];
+				TcpClient client = null;
+
+				Logger.Log ("UploadFilesSafe () trying to upload {0} files...", files.Count);
+
+				port = this.GetUploadPort ();
+
+				try {
+					client = new TcpClient ();
+					client.Connect (new Uri (this.Url, UriKind.Absolute).Host, port);
+					stream = client.GetStream ();
+					stream.ReadTimeout = (int) TimeSpan.FromMinutes (5).TotalMilliseconds;
+					stream.WriteTimeout = stream.ReadTimeout;
+					reader = new BinaryReader (stream);
+					writer = new BinaryWriter (stream);
+
+					writer.Write ((byte) 1); // version
+					WriteStringByte (writer, WebServiceLogin.User); // name_length + name
+					WriteStringByte (writer, WebServiceLogin.Password); // password_length + password
+					writer.Write ((int) work.id); // work_id
+					writer.Write ((ushort) filenames.Length); // file_count
+					writer.Write ((ulong) 0); // reserved
+
+					while (files.Count > 0) {
+						string path_to_contents = files.Peek ();
+						string filename = Path.GetFileName (path_to_contents);
+						string compressed_mime;
+						bool hidden = hiddens.Peek ();
+						byte [] md5;
+						FileInfo fi;
+
+						Logger.Log (2, "WebServices.UploadFilesSafe (): uploading '{0}' to port {1}", filename, port);
+
+						using (FileStream fs = new FileStream (path_to_contents, FileMode.Open, FileAccess.Read, FileShare.Read))
+							md5 = FileUtilities.CalculateMD5_Bytes (fs);
+
+						writer.Write ("MonkeyWrench".ToCharArray ()); // marker
+						writer.Write (md5, 0, md5.Length); // md5
+						writer.Write ((byte) (hidden ? 3 : 1)); // flags
+						WriteStringByte (writer, filename); // filename_length + filename
+						writer.Flush ();
+
+						ReadResponse (reader, out version, out type);
+
+						Logger.Log (2, "WebServices.UploadFilesSafe (): uploading '{0}', got response type {1}", filename, type);
+
+						// 1 = everything OK, 2 = file received OK, 3 = error, 4 = send file
+						switch (type) {
+						case 2:
+							/* No need to send file */
+							break;
+						case 4:
+							/* Send file */
+							int read;
+							int total = 0;
+
+							// try to compress the file
+							string original_contents = path_to_contents;
+							try {
+								gz = FileUtilities.GZCompress (path_to_contents);
+								if (gz != null) {
+									path_to_contents = gz;
+									compressed_mime = MimeTypes.GZ;
+								} else {
+									path_to_contents = filename;
+									compressed_mime = null;
+								}
+								Logger.Log (2, "Compressed {0} to {1}.", original_contents, gz);
+							} catch (Exception ex) {
+								path_to_contents = filename;
+								compressed_mime = null;
+								Logger.Log ("Could not compress the file {0}: {1}, uploading uncompressed.", filename, ex.Message);
+							}
+
+							fi = new FileInfo (path_to_contents);
+
+							long length = fi.Length;
+							if (length > 1024 * 1024 * 100) {
+								files.Dequeue ();
+								hiddens.Dequeue ();
+								throw new ApplicationException (string.Format ("Not uploading {0} ({2}): filesize is > 100MB (it is: {1} MB)", path_to_contents, length / (1024.0 * 1024.0), filename));
+							}
+
+							if (compressed_mime == null) {
+								writer.Write ((byte) 0);
+							} else {
+								WriteStringByte (writer, compressed_mime); // compressed_mime_length + compressed_mime
+							}
+							writer.Write ((uint) fi.Length); // content_length
+
+							using (FileStream fs = new FileStream (path_to_contents, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+								while ((read = fs.Read (buffer, 0, buffer.Length)) != 0) {
+									total += read;
+									writer.Write (buffer, 0, read);
+								}
+								writer.Flush ();
+							}
+							Logger.Log (2, "WebServices.UploadFilesSafe (): uploaded '{0}', {1} bytes", filename, total);
+
+							ReadResponse (reader, out version, out type);
+							if (type == 2) {
+								Logger.Log ("WebServices.UploadFilesSafe (): uploaded '{0}' successfully", filename);
+							}
+							break;
+						}
+
+						files.Dequeue ();
+						hiddens.Dequeue ();
+					}
+					ReadResponse (reader, out version, out type);
+					if (type == 4) {
+						Logger.Log ("WebServices.UploadFilesSafe (): all files uploaded successfully");
+					}
+				} finally {
+					FileUtilities.TryDeleteFile (gz);
+					try {
+						stream.Close ();
+						reader.Close ();
+						writer.Close ();
+					} catch {
+						// Ignore
+					}
+					try {
+						client.Close ();
+					} catch {
+						// Ignore
+					}
+				}
+			});
+
+		}
+
 		/// <summary>
 		/// Uploads the file (compressed if possible) and in case of failures retries until it succeeds.
 		/// </summary>
 		/// <param name="work"></param>
 		/// <param name="filename"></param>
 		/// <param name="hidden"></param>
+		[Obsolete ()]
 		public void UploadFileSafe (DBWork work, string filename, bool hidden)
 		{
 			string gz = null;

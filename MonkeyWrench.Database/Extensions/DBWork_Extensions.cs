@@ -75,7 +75,7 @@ namespace MonkeyWrench.Database
 			work.UpdateRevisionWorkState (db);
 		}
 
-		public static void AddFile (this DBWork me, DB db, DBFile file, string path, string filename, bool hidden)
+		public static void AddFile (this DBWork me, DB db, DBFile file, string filename, bool hidden)
 		{
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "INSERT INTO WorkFile (work_id, file_id, hidden, filename) VALUES (@work_id, @file_id, @hidden, @filename);";
@@ -189,7 +189,7 @@ SELECT File.id, File.md5, File.file_id, File.mime, File.compressed_mime, File.si
 		public static DBFile AddFile (this DBWork me, DB db, string path, string filename, bool hidden, string compressed_mime)
 		{
 			DBFile result = db.Upload (path, Path.GetExtension (filename), hidden, compressed_mime);
-			me.AddFile (db, result, path, filename, hidden);
+			me.AddFile (db, result, filename, hidden);
 			return result;
 		}
 

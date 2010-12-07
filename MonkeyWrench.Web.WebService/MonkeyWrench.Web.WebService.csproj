@@ -79,6 +79,7 @@
     <Compile Include="Download.aspx.designer.cs">
       <DependentUpon>Download.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Upload.cs" />
     <Compile Include="WebServices.asmx.cs">
       <DependentUpon>WebServices.asmx</DependentUpon>
       <SubType>Component</SubType>

@@ -320,19 +320,17 @@ namespace MonkeyWrench.Builder
 				response = WebService.ReportBuildStateSafe (info.work);
 				info.work = response.Work;
 
-				WebService.UploadFileSafe (info.work, log_file, false);
+				WebService.UploadFilesSafe (info.work, new string [] { log_file }, new bool [] { false });
 
 				// Gather files from logged commands and from the upload_files glob
 				CheckLog (log_file, info);
 				if (!string.IsNullOrEmpty (info.command.upload_files)) {
-					foreach (string glob in info.command.upload_files.Split(',')) {
+					foreach (string glob in info.command.upload_files.Split (',')) {
 						// TODO: handle globs in directory parts
 						// TODO: allow absolute paths?
-						foreach (string match in Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName(glob)), Path.GetFileName(glob))) {
-							Logger.Log ("Uploading file {0} from glob {1}", match, glob);
-							// TODO: allow hidden files also
-							WebService.UploadFileSafe (info.work, match, false);
-						}
+						Logger.Log ("Uploading files from glob {0}", glob);
+						// TODO: allow hidden files also
+						WebService.UploadFilesSafe (info.work, Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName (glob)), Path.GetFileName (glob)), null);
 					}
 				}
 
@@ -472,6 +470,9 @@ namespace MonkeyWrench.Builder
 
 			using (FileStream fs = new FileStream (log_file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
 				using (StreamReader reader = new StreamReader (fs)) {
+					List<String> files = new List<string> ();
+					List<bool> hidden = new List<bool> ();
+
 					while (null != (l = reader.ReadLine ())) {
 						line = l;
 						if (line.StartsWith ("@Moonbuilder:")) {
@@ -498,8 +499,8 @@ namespace MonkeyWrench.Builder
 						case "AddHiddenFile":
 							try {
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
-								string filename = line.Trim ();
-								WebService.UploadFileSafe (info.work, filename, cmd.Contains ("Hidden"));
+								files.Add (line.Trim ());
+								hidden.Add (cmd.Contains ("Hidden"));
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
 							}
@@ -509,7 +510,8 @@ namespace MonkeyWrench.Builder
 							try {
 								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								foreach (string file in Directory.GetFiles (line.Trim ())) {
-									WebService.UploadFileSafe (info.work, file, cmd.Contains ("Hidden"));
+									files.Add (file);
+									hidden.Add (cmd.Contains ("Hidden"));
 								}
 							} catch (Exception e) {
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
@@ -524,6 +526,8 @@ namespace MonkeyWrench.Builder
 							break;
 						}
 					}
+
+					WebService.UploadFilesSafe (info.work, files.ToArray (), hidden.ToArray ());
 				}
 			}
 		}
