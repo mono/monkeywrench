@@ -32,6 +32,11 @@ namespace MonkeyWrench
 		/// <returns></returns>
 		public static string GZCompress (string filename)
 		{
+			return GZCompressManaged (filename);
+		}
+
+		public static string GZCompressGZ (string filename)
+		{
 			if (Environment.OSVersion.Platform != PlatformID.Unix)
 				return null; /* the GZipStream compression method really sucks on MS, we could possibly implement it on mono only */
 
@@ -95,6 +100,32 @@ namespace MonkeyWrench
 			return true;
 		}
 
+		public static string GZCompressManaged (string filename)
+		{
+			string outfile = null;
+
+			try {
+				outfile = Path.GetTempFileName ();
+
+				using (FileStream infs = new FileStream (filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					using (FileStream outfs = new FileStream (outfile, FileMode.Open, FileAccess.Write, FileShare.Read)) {
+						using (GZipStream gz = new GZipStream (outfs, CompressionMode.Compress)) {
+							byte [] buffer = new byte [1024];
+							int bytes_read;
+							while ((bytes_read = infs.Read (buffer, 0, buffer.Length)) > 0) {
+								gz.Write (buffer, 0, bytes_read);
+							}
+						}
+					}
+				}
+
+				return outfile;
+			} catch (Exception ex) {
+				Logger.Log ("Failed to compress file: {0} {1}", filename, ex);
+				FileUtilities.TryDeleteFile (outfile);
+				return null;
+			}
+		}
 
 		public static string GlobToRegExp (string expression)
 		{
