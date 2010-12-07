@@ -68,8 +68,9 @@ namespace MonkeyWrench.WebServices
 			}
 			
 			try {
-				Response.AppendHeader ("Content-Length", str.Length.ToString ());
-			} catch (NotSupportedException ex)  {
+				if (!(str is GZipStream))
+					Response.AppendHeader ("Content-Length", str.Length.ToString ());
+			} catch (NotSupportedException)  {
 				// GZipStreams don't usually know their length, just ignore
 			}
 
