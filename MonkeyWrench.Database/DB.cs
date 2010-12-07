@@ -410,16 +410,10 @@ namespace MonkeyWrench
 
 				return result;
 			} finally {
+				FileUtilities.TryDeleteFile (gzFilename);
+
 				if (transaction != null)
 					transaction.Rollback ();
-
-				try {
-					if (gzFilename != null && File.Exists (gzFilename)) {
-						File.Delete (gzFilename);
-					}
-				} catch {
-					// Ignore any exceptions
-				}
 			}
 		}
 
