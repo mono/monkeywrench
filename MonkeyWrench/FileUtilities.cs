@@ -208,7 +208,7 @@ namespace MonkeyWrench
 		public static void TryDeleteFile (string filename)
 		{
 			try {
-				if (File.Exists (filename))
+				if (!string.IsNullOrEmpty (filename) && File.Exists (filename))
 					File.Delete (filename);
 			} catch {
 			}
