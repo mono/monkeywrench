@@ -241,13 +241,24 @@ namespace MonkeyWrench
 			}
 		}
 
+		private static void TryDeleteRODirectory (string path)
+		{
+			try {
+				MakeReadWrite (path);
+				Directory.Delete (path);
+			} catch (Exception ex) {
+				Logger.Log ("TryDeleteRODirectory ({0}): Could not delete the directory: {1}", path, ex.Message);
+				/* Ignore any exceptions */
+			}
+		}
+
 		private static void TryDeleteROFile (string path)
 		{
 			try {
 				MakeReadWrite (path);
 				File.Delete (path);
 			} catch (Exception ex) {
-				Logger.Log ("TryDeleteDirectoryRecursive ({0}): Could not delete the file: {1}", path, ex.Message);
+				Logger.Log ("TryDeleteROFile ({0}): Could not delete the file: {1}", path, ex.Message);
 				/* Ignore any exceptions */
 			}
 		}
@@ -258,7 +269,7 @@ namespace MonkeyWrench
 				foreach (string dir in Directory.GetDirectories (path)) {
 					if ((File.GetAttributes (dir) & FileAttributes.ReparsePoint) != 0) {
 						/* this is a symlink */
-						TryDeleteROFile (dir);
+						TryDeleteRODirectory (dir);
 					} else {
 						TryDeleteDirectoryRecursive (root, dir);
 					}
@@ -271,13 +282,7 @@ namespace MonkeyWrench
 				TryDeleteROFile (file);
 			}
 
-			try {
-				MakeReadWrite (path);
-				Directory.Delete (path);
-			} catch (Exception ex) {
-				Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not delete the directory: {2}", root, path, ex.Message);
-				/* Ignore any exceptions */
-			}
+			TryDeleteRODirectory (path);
 		}
 	}
 }
