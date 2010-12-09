@@ -89,7 +89,7 @@ public partial class ViewLane : System.Web.UI.Page
 					break;
 				}
 
-				Response.Redirect (string.Format ("ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={2}", lane.id, host.id, revision.id));
+				Response.Redirect (string.Format ("ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={2}", lane.id, host.id, revision.id), false);
 				Page.Visible = false;
 				return;
 			}
