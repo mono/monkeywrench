@@ -1,0 +1,6 @@
+Z:\main\git\monkeywrench\SmartIrc4net\SmartIrc4net-0.4.0-src\VisualStudio\2010\obj\Debug\ResolveAssemblyReference.cache
+Z:\main\git\monkeywrench\SmartIrc4net\SmartIrc4net-0.4.0-src\bin\debug\Meebey.SmartIrc4net.dll
+Z:\main\git\monkeywrench\SmartIrc4net\SmartIrc4net-0.4.0-src\bin\debug\Meebey.SmartIrc4net.pdb
+Z:\main\git\monkeywrench\SmartIrc4net\SmartIrc4net-0.4.0-src\bin\debug\Meebey.SmartIrc4net.xml
+Z:\main\git\monkeywrench\SmartIrc4net\SmartIrc4net-0.4.0-src\VisualStudio\2010\obj\Debug\Meebey.SmartIrc4net.dll
+Z:\main\git\monkeywrench\SmartIrc4net\SmartIrc4net-0.4.0-src\VisualStudio\2010\obj\Debug\Meebey.SmartIrc4net.pdb
