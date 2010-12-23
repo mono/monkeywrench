@@ -135,6 +135,7 @@ namespace MonkeyWrench.Scheduler
 				if (!long.TryParse (unix_timestamp_str, out unix_timestamp)) {
 					/* here something is wrong, this way the commit shows up as the first one so that it's easy to spot and start investigating */
 					date = DateTime.Now.AddYears (20);
+					Log ("Could not parse timestamp '{0}' for revision '{1}' in lane '{2}' in repository {3}", unix_timestamp_str, entry.revision, lane.lane, repository);
 				} else {
 					const long EPOCH_DIFF = 0x019DB1DED53E8000; /* 116444736000000000 nsecs */
 					const long RATE_DIFF = 10000000; /* 100 nsecs */
@@ -169,6 +170,13 @@ namespace MonkeyWrench.Scheduler
 					continue;
 
 				if (revisions.ContainsKey (revision)) {
+					/* Check if we've saved the wrong date earlier and fix it */
+					if (revisions [revision].date > new DateTime (2030, 1, 1)) {
+						/* Hopefully this code will not stay here for 20 years */
+						revisions [revision].date = date;
+						revisions [revision].Save (db);
+						Log ("Detected wrong date in revision '{0}' in lane '{1}' in repository {2}, fixing it", revision, lane.lane, repository);
+				}
 					Log (2, "Already got {0}", revision);
 					continue;
 				}
@@ -422,9 +430,13 @@ namespace MonkeyWrench.Scheduler
 										current.author = header;
 									} else if (header.StartsWith ("committer ")) {
 										header = header.Substring ("committer ".Length);
-										int gt = header.IndexOf ('>');
-										if (gt > 0)
-											current.timestamp = header.Substring (gt + 1, header.IndexOf (' ', gt + 1) - gt).Trim ();
+										int gt = header.LastIndexOf ('>');
+										if (gt > 0) {
+											current.timestamp = header.Substring (gt + 1).Trim ();
+											current.timestamp = current.timestamp.Substring (0, current.timestamp.IndexOf (' ')).Trim ();
+										} else {
+											Logger.Log ("Could not find timestamp in committer line");
+										}
 									} else {
 										// do nothing
 									}
