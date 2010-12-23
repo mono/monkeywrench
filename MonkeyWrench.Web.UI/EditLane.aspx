@@ -20,8 +20,8 @@
                 <asp:TableCell>Source control:</asp:TableCell>
                 <asp:TableCell>
                     <asp:DropDownList ID="cmbSourceControl" runat="server" Width="600px">
-                        <asp:ListItem Text="svn" Value="svn" Selected="True" />
-                        <asp:ListItem Text="git" Value="git" Selected="False" />
+                        <asp:ListItem Text="svn" Value="svn" />
+                        <asp:ListItem Text="git" Value="git" />
                     </asp:DropDownList>
                 </asp:TableCell>
                 <asp:TableCell>Source control.</asp:TableCell>
