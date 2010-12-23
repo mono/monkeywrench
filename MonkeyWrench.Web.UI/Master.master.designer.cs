@@ -22,13 +22,31 @@ public partial class Master {
     protected global::System.Web.UI.WebControls.Table tableHeader;
     
     /// <summary>
-    /// form1 control.
+    /// cellLogin control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+    protected global::System.Web.UI.WebControls.TableCell cellLogin;
+    
+    /// <summary>
+    /// rowAdmin control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.TableRow rowAdmin;
+    
+    /// <summary>
+    /// cellAdmin control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.TableCell cellAdmin;
     
     /// <summary>
     /// treeMain control.
@@ -40,6 +58,15 @@ public partial class Master {
     protected global::System.Web.UI.WebControls.TreeView treeMain;
     
     /// <summary>
+    /// form1 control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+    
+    /// <summary>
     /// content control.
     /// </summary>
     /// <remarks>
@@ -47,13 +74,4 @@ public partial class Master {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.ContentPlaceHolder content;
-    
-    /// <summary>
-    /// tableFooter control.
-    /// </summary>
-    /// <remarks>
-    /// Auto-generated field.
-    /// To modify move field declaration from designer file to code-behind file.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Table tableFooter;
 }

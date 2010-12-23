@@ -1,32 +1,45 @@
-<%@ Master Language="C#" AutoEventWireup="True" Inherits="Master" CodeBehind="Master.master.cs" %>
+<%@ Master Language="C#" AutoEventWireup="True" Inherits="Master" CodeBehind="Master.master.cs" EnableViewState="false" %>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>MonkeyWrench</title>
     <link rel='stylesheet' href='build.css' type='text/css' />
     <meta http-equiv='Content-Type' content='text/html;charset=utf-8' />
+    <script type="text/javascript" src="Master.js"> </script>
 </head>
-<body style="height: 100%; ">
-    <asp:Table runat="server" CssClass='headertable' ID="tableHeader">
-    </asp:Table>
-    <div style="min-height: 80%; height:80%; ">
-        <form id="form1" runat="server" style="min-height: 100%; height:100%; ">
-        <div style="min-height: 100%; height: 100%; ">
-            <div id="left-content" class="left-content">
-                <asp:TreeView ID="treeMain" runat="server" />
-            </div>
-            <div id="right-content" class="right-content" style="min-height: 100%; height: 100%;">
-                <asp:ContentPlaceHolder ID="content" runat="server">
-                </asp:ContentPlaceHolder>
-            </div>
-        </div>
-        </form>
-    </div>
-    <div style="position: absolute; bottom: 0px;">
-        <hr />
-        <asp:Table runat="server" CssClass='footertable' ID="tableFooter">
+<body>
+    <div id="siteheader">
+        <asp:Table runat="server" CssClass='headertable' ID="tableHeader">
+            <asp:TableRow>
+                <asp:TableCell RowSpan="3" CssClass="title"><a href="index.aspx">MonkeyWrench</a></asp:TableCell>
+                <asp:TableCell ID="cellLogin" runat="server" CssClass="rightcolumn" />
+            </asp:TableRow>
+            <asp:TableRow>
+                <asp:TableCell runat="server" CssClass="rightcolumn"><a href="doc/index.html">Help</a></asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow ID="rowAdmin" runat="server">
+                <asp:TableCell id="cellAdmin" runat="server" CssClass="rightcolumn">
+                    <div id="adminmenu">
+                        <a href='Admin.aspx'>Administration</a>
+                        <ul>
+                            <li class="adminitem"><a href='EditHosts.aspx'>Edit Hosts</a></li> 
+                            <li class="adminitem"><a href='EditLanes.aspx'>Edit Lanes</a></li> 
+                            <li class="adminitem"></li>
+                        </ul> 
+                    </div>
+                </asp:TableCell>
+            </asp:TableRow>
         </asp:Table>
+    </div>
+    <div id="left-content" class="left-content">
+        <asp:TreeView ID="treeMain" runat="server" EnableViewState="false" />
+    </div>
+    <div id="right-content" class="right-content">
+        <form id="form1" runat="server">
+            <asp:ContentPlaceHolder ID="content" runat="server" EnableViewState="false" />
+        </form>
     </div>
 </body>
 </html>

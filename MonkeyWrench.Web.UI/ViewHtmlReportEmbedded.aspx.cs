@@ -50,6 +50,8 @@ public partial class ViewHtmlReportEmbedded : System.Web.UI.Page
 
 			header.InnerHtml = ViewLane.GenerateHeader (response, lane, host, revision, "Html report for");
 			htmlreport.Attributes ["src"] = Request.Url.ToString ().Replace ("Embedded", "");
+			htmlreport.Attributes ["onload"] = "javascript: resizeToFillIFrame (document.getElementById ('" + htmlreport.ClientID + "'));";
+			ClientScript.RegisterStartupScript (GetType (), "resizeIFrame", "<script type='text/javascript'>resizeToFillIFrame (document.getElementById ('" + htmlreport.ClientID + "'));</script>");
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
 		}

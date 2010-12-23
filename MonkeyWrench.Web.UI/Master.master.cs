@@ -63,32 +63,15 @@ public partial class Master : System.Web.UI.MasterPage
 
 	private void LoadView ()
 	{
-		TableRow row = new TableRow ();
-		TableCell title = new TableCell ();
-		TableCell user = new TableCell ();
-
-		title.Text = "<a href='index.aspx'>MonkeyWrench</a>";
-		if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			user.Text = "<a href='Login.aspx'>Login</a>";
+		if (!Authentication.IsLoggedIn (response)) {
+			cellLogin.Text = "<a href='User.aspx'>Create account</a> <a href='Login.aspx'>Login</a>";
+			rowAdmin.Visible = false;
 		} else {
-			user.Text = string.Format ("<a href='User.aspx?id={0}'>{0}</a> <a href='Login.aspx?action=logout'>Log out</a>", Utilities.GetCookie (Request, "user"));
+			cellLogin.Text = string.Format ("<a href='User.aspx?username={0}'>My Account ({0})</a> <a href='Login.aspx?action=logout'>Log out</a>", Utilities.GetCookie (Request, "user"));
+			rowAdmin.Visible = true;
 		}
-		user.CssClass = "headerlogin";
-		row.Cells.Add (title);
-		row.Cells.Add (user);
-
-		tableHeader.Rows.Clear ();
-		tableHeader.Rows.Add (row);
 
 		CreateTree ();
-
-		tableFooter.Rows.Clear ();
-		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='EditHosts.aspx'>Edit Hosts</a>"));
-			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='EditLanes.aspx'>Edit Lanes</a>"));
-			tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='Admin.aspx'>Administration</a>"));
-		}
-		tableFooter.Rows.Add (Utils.CreateTableRow ("<a href='doc/index.html'>Documentation</a>"));
 	}
 
 	private void CreateTree ()
