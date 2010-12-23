@@ -1503,10 +1503,118 @@ ORDER BY date DESC LIMIT 250;
 		{
 			GetUsersResponse response = new GetUsersResponse ();
 
-			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					
+					response.Users = DBPerson_Extensions.GetAll (db);
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
 
-				response.Users = DBPerson_Extensions.GetAll (db);
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse DeleteUser (WebServiceLogin login, int id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+			
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "DELETE FROM Person WHERE id = @id;";
+						DB.CreateParameter (cmd, "id", id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse EditUser (WebServiceLogin login, DBPerson user)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					Authenticate (db, login, response, true);
+					
+					if (user.id == 0) {
+						/* new user, anybody can create new users */
+						/* create a new person object, and only copy over the fields self is allowed to edit */
+
+						if (string.IsNullOrEmpty (user.password) || user.password.Length < 8) {
+							response.Exception = new WebServiceException ("Password must be at least 8 characters long");
+							return response;
+						}
+
+						DBPerson person = new DBPerson ();
+						person.fullname = user.fullname;
+						person.login = user.login;
+						person.password = user.password;
+						person.Save (db);
+					} else {
+						if (Utilities.IsInRole (response, Roles.Administrator)) {
+							/* admin editing (or adming editing self) */
+							user.Save (db); // no restrictions
+						} else if (response.UserName == user.login) {
+							/* editing self */
+							/* create another person object, and only copy over the fields self is allowed to edit */
+							DBPerson person = DBPerson_Extensions.Create (db, user.id);
+							person.fullname = user.fullname;
+							person.password = user.password;
+							person.Save (db);
+						} else {
+							/* somebody else editing some other person */
+							response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
+						}
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public GetUserResponse GetUser (WebServiceLogin login, int? id, string username)
+		{
+			DBPerson result = null;
+			GetUserResponse response = new GetUserResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					Authenticate (db, login, response, true);
+
+					if (!id.HasValue) {
+						using (IDbCommand cmd = db.CreateCommand ()) {
+							cmd.CommandText = "SELECT * FROM Person WHERE login = @login;";
+							DB.CreateParameter (cmd, "login", username);
+							using (IDataReader reader = cmd.ExecuteReader ()) {
+								if (reader.Read ())
+									result = new DBPerson (reader);
+							}
+						}
+					} else {
+						result = DBPerson_Extensions.Create (db, id.Value);
+					}
+
+					if (result != null && (result.login == response.UserName || Utilities.IsInRole (response, Roles.Administrator))) {
+						response.User = result;
+					} else {
+						response.Exception = new WebServiceException (new HttpException (403, "You don't have access to this user's data"));
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;

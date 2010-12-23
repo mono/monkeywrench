@@ -780,6 +780,15 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBPerson" nillable="true" type="s0:DBPerson" />
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="GetUserResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="User" type="s0:DBPerson" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="GetFilesForWorkResponse">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
@@ -1949,6 +1958,52 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="DeleteUser">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteUserResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="DeleteUserResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditUser">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="user" type="s0:DBPerson" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditUserResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="EditUserResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetUser">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="username" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetUserResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetUserResult" type="s0:GetUserResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="GetUploadPort">
         <xs:complexType />
       </xs:element>
@@ -2710,6 +2765,24 @@
   <message name="GetUsersSoapOut">
     <part name="parameters" element="s0:GetUsersResponse" />
   </message>
+  <message name="DeleteUserSoapIn">
+    <part name="parameters" element="s0:DeleteUser" />
+  </message>
+  <message name="DeleteUserSoapOut">
+    <part name="parameters" element="s0:DeleteUserResponse" />
+  </message>
+  <message name="EditUserSoapIn">
+    <part name="parameters" element="s0:EditUser" />
+  </message>
+  <message name="EditUserSoapOut">
+    <part name="parameters" element="s0:EditUserResponse" />
+  </message>
+  <message name="GetUserSoapIn">
+    <part name="parameters" element="s0:GetUser" />
+  </message>
+  <message name="GetUserSoapOut">
+    <part name="parameters" element="s0:GetUserResponse" />
+  </message>
   <message name="GetUploadPortSoapIn">
     <part name="parameters" element="s0:GetUploadPort" />
   </message>
@@ -3157,6 +3230,18 @@
       <input message="s0:GetUsersSoapIn" />
       <output message="s0:GetUsersSoapOut" />
     </operation>
+    <operation name="DeleteUser">
+      <input message="s0:DeleteUserSoapIn" />
+      <output message="s0:DeleteUserSoapOut" />
+    </operation>
+    <operation name="EditUser">
+      <input message="s0:EditUserSoapIn" />
+      <output message="s0:EditUserSoapOut" />
+    </operation>
+    <operation name="GetUser">
+      <input message="s0:GetUserSoapIn" />
+      <output message="s0:GetUserSoapOut" />
+    </operation>
     <operation name="GetUploadPort">
       <input message="s0:GetUploadPortSoapIn" />
       <output message="s0:GetUploadPortSoapOut" />
@@ -3534,6 +3619,18 @@
     <operation name="GetUsers">
       <input message="s0:GetUsersSoapIn" />
       <output message="s0:GetUsersSoapOut" />
+    </operation>
+    <operation name="DeleteUser">
+      <input message="s0:DeleteUserSoapIn" />
+      <output message="s0:DeleteUserSoapOut" />
+    </operation>
+    <operation name="EditUser">
+      <input message="s0:EditUserSoapIn" />
+      <output message="s0:EditUserSoapOut" />
+    </operation>
+    <operation name="GetUser">
+      <input message="s0:GetUserSoapIn" />
+      <output message="s0:GetUserSoapOut" />
     </operation>
     <operation name="GetUploadPort">
       <input message="s0:GetUploadPortSoapIn" />
@@ -4310,6 +4407,33 @@
     </operation>
     <operation name="GetUsers">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetUsers" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteUser">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteUser" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditUser">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditUser" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetUser">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetUser" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5177,6 +5301,33 @@
     </operation>
     <operation name="GetUsers">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetUsers" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteUser">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteUser" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditUser">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditUser" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetUser">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetUser" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

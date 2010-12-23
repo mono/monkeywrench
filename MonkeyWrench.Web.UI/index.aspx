@@ -3,10 +3,9 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="content" runat="Server" EnableViewState="False">
     <h3>
         Build matrix</h3>
-    <div id="buildtable" runat="server" enableviewstate="False">
-    </div>
-    <div enableviewstate="false"><a href="SelectLanes.aspx">Select lanes</a></div>
+    <div id="buildtable" runat="server" />
     <div><asp:Label runat="server" ID="lblMessage" ForeColor="Red" /></div>
+    <div><a href="SelectLanes.aspx">Select lanes</a></div>
     <h3>
         Legend</h3>
     <div>

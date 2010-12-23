@@ -1751,6 +1751,74 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/DeleteUser", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse DeleteUser(WebServiceLogin login, int id) {
+            object[] results = this.Invoke("DeleteUser", new object[] {
+                        login,
+                        id});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginDeleteUser(WebServiceLogin login, int id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("DeleteUser", new object[] {
+                        login,
+                        id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndDeleteUser(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditUser", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse EditUser(WebServiceLogin login, DBPerson user) {
+            object[] results = this.Invoke("EditUser", new object[] {
+                        login,
+                        user});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginEditUser(WebServiceLogin login, DBPerson user, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("EditUser", new object[] {
+                        login,
+                        user}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndEditUser(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetUser", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetUserResponse GetUser(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> id, string username) {
+            object[] results = this.Invoke("GetUser", new object[] {
+                        login,
+                        id,
+                        username});
+            return ((GetUserResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetUser(WebServiceLogin login, System.Nullable<int> id, string username, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetUser", new object[] {
+                        login,
+                        id,
+                        username}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetUserResponse EndGetUser(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetUserResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetUploadPort", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public int GetUploadPort() {
             object[] results = this.Invoke("GetUploadPort", new object[0]);
