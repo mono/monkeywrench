@@ -28,6 +28,7 @@ namespace MonkeyWrench
 		public static string RevDataDirectory;
 		public static string Host;
 		public static string WebServiceUrl;
+		public static string WebSiteUrl;
 		public static bool ForceFullUpdate = true;
 		public static string WebServicePassword;
 		public static string DatabaseHost = "localhost";
@@ -158,6 +159,7 @@ namespace MonkeyWrench
 				ForceFullUpdate = Boolean.Parse (xml.SelectSingleNode ("/MonkeyWrench/Configuration/ForceFullUpdate").GetNodeValue (ForceFullUpdate.ToString ()));
 				WebServiceUrl = xml.SelectSingleNode ("/MonkeyWrench/Configuration/WebServiceUrl").GetNodeValue (WebServiceUrl);
 				WebServicePassword = xml.SelectSingleNode ("/MonkeyWrench/Configuration/WebServicePassword").GetNodeValue (WebServicePassword);
+				WebSiteUrl = xml.SelectSingleNode ("/MonkeyWrench/Configuration/WebSiteUrl").GetNodeValue (WebSiteUrl);
 				DatabaseHost = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabaseHost").GetNodeValue (DatabaseHost);
 				DatabasePort = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabasePort").GetNodeValue (DatabasePort);
 				StoreFilesInDB = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/StoreFilesInDb").GetNodeValue (StoreFilesInDB.ToString ()));
@@ -183,6 +185,7 @@ namespace MonkeyWrench
 					{"forcefullupdate=", v => ForceFullUpdate = Boolean.Parse (v.Trim ())},
 					{"webserviceurl=", v => WebServiceUrl = v},
 					{"webservicepassword=", v => WebServicePassword = v},
+					{"websiteurl=", v => WebSiteUrl = v},
 					{"databasehost=", v => DatabaseHost = v},
 					{"databaseport=", v => DatabasePort = v},
 					{"storefilesindb=", v => StoreFilesInDB = Boolean.Parse (v.Trim ())},
@@ -497,5 +500,12 @@ namespace MonkeyWrench
 			return path.Replace ('\\', '/');
 		}
 
+		public static string GetWebSiteUrl ()
+		{
+			if (string.IsNullOrEmpty (WebSiteUrl)) {
+				WebSiteUrl = new Uri (WebServiceUrl).GetComponents (UriComponents.SchemeAndServer, UriFormat.UriEscaped);	
+			}
+			return WebSiteUrl;
+		}
 	}
 }

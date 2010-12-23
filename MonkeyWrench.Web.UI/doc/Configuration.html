@@ -28,6 +28,7 @@
         &lt;Host /&gt;
         &lt;LogFile /&gt;
         &lt;WebServiceUrl /&gt;
+        &lt;WebSiteUrl /&gt;
         &lt;ForceFullUpdate&gt;true|false&lt;/ForceFullUpdate&gt;
         &lt;WebServicePassword /&gt;
         &lt;DatabaseHost /&gt;
@@ -95,6 +96,7 @@
     </ul>
     <h3>AllowedCommitReporterIPs</h3>The IPs that can report commits to ReportCommit.aspx or ReportGitHubCommit.aspx. Comma separated list of globs to accept.
     <h3>LogVerbosity</h3>How verbose the output to the log should be. Valid values: 0 (quiet), 1 (some output) or 2 (verbose). Default: 1.
+    <h3>WebSiteUrl</h3>The url for the web site. This is used to create proper links when notifications are sent. It defaults to the root directory of WebServiceUrl.
     <h2>
         Sample configuration</h2>
     This is a sample configuration file for a buildbot:
