@@ -41,6 +41,4 @@
             </tr>
         </table>
     </div>
-    <h3 runat="server" id="adminlinksheader" enableviewstate="false"></h3>
-    <div runat="server" id="adminlinks" enableviewstate="false"></div>
 </asp:Content>

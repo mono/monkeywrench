@@ -88,10 +88,6 @@ public partial class index : System.Web.UI.Page
 			data = Master.WebService.GetFrontPageData2 (Master.WebServiceLogin, limit, lanes, lane_ids != null ? lane_ids.ToArray () : null);
 
 			this.buildtable.InnerHtml = GenerateOverview (data);
-
-			if (Utils.IsInRole (MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-				this.adminlinksheader.InnerHtml = "Admin";
-			}
 		} catch (Exception ex) {
 			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
 		}
