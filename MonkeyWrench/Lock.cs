@@ -47,8 +47,18 @@ namespace MonkeyWrench
 			case "fileexistance":
 				string tmp = Path.Combine (Path.GetTempPath (), name + ".fileexistence-lock--delete-to-unlock");
 				Logger.Log ("Checking file existence for {0}", tmp);
-				if (File.Exists (tmp))
-					return null;
+				if (File.Exists (tmp)) {
+					try {
+						if (ProcessHelper.Exists (int.Parse (File.ReadAllText (tmp)))) {
+							Logger.Log ("File lock corresponds to an existing process.");
+							return null;
+						}
+					} catch (Exception ex) {
+						Logger.Log ("Could not confirm that file lock corresponds to a non-existing process: {0}", ex.Message);
+						return null;
+					}
+					Logger.Log ("File lock corresponds to a dead process, lock acquired");
+				}
 				// there is a race condition here.
 				// given that the default setup is to execute a program at most once per minute,
 				// the race condition is harmless.

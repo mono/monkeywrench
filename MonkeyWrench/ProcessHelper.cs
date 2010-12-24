@@ -70,6 +70,18 @@ namespace MonkeyWrench
 			
 			return new Job ();
 		}
+
+		public static bool Exists (int pid)
+		{
+			try {
+				using (Process p = Process.GetProcessById (pid)) {
+				}
+				return true;
+			} catch (Exception ex) {
+				Logger.Log ("Process {0} does not exist: {1}", pid, ex.Message);
+				return false;
+			}
+		}
 	}
 
 	internal abstract class IProcessHelper
