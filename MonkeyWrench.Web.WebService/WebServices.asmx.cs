@@ -317,6 +317,7 @@ namespace MonkeyWrench.WebServices
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				DBHost host = DBHost_Extensions.Create (db, host_id);
+				host.enabled = true;
 				host.AddLane (db, lane_id);
 			}
 		}
