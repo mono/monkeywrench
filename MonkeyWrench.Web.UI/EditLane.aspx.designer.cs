@@ -112,6 +112,33 @@ public partial class EditLane {
     protected global::System.Web.UI.WebControls.Button cmdSave;
     
     /// <summary>
+    /// cmdDeleteAllWork control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button cmdDeleteAllWork;
+    
+    /// <summary>
+    /// cmdClearAllWork control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button cmdClearAllWork;
+    
+    /// <summary>
+    /// cmdDeleteAllRevisions control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button cmdDeleteAllRevisions;
+    
+    /// <summary>
     /// tblDependencies control.
     /// </summary>
     /// <remarks>
@@ -211,6 +238,15 @@ public partial class EditLane {
     protected global::System.Web.UI.WebControls.LinkButton lnkAddDeletionDirective1;
     
     /// <summary>
+    /// rowDeletionDirectives2 control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.TableRow rowDeletionDirectives2;
+    
+    /// <summary>
     /// lstDeletionDirectives2 control.
     /// </summary>
     /// <remarks>
@@ -263,4 +299,40 @@ public partial class EditLane {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::MonkeyWrench.Web.UI.EnvironmentVariablesEditor editorVariables;
+    
+    /// <summary>
+    /// tblNotifications control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Table tblNotifications;
+    
+    /// <summary>
+    /// cmbNotifications control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.DropDownList cmbNotifications;
+    
+    /// <summary>
+    /// lnkAddNotification control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.LinkButton lnkAddNotification;
+    
+    /// <summary>
+    /// lblMessage control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblMessage;
 }

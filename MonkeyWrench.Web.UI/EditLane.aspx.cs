@@ -19,6 +19,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
+using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
@@ -44,6 +45,8 @@ public partial class EditLane : System.Web.UI.Page
 			TableRow row;
 			GetLaneForEditResponse response;
 
+			txtID.Attributes ["readonly"] = "readonly";
+
 			string strlane = Request ["lane"];
 			string laneid = Request ["lane_id"];
 			string action = Request ["action"];
@@ -52,53 +55,51 @@ public partial class EditLane : System.Web.UI.Page
 			int id;
 			int sequence;
 			int timeout;
-
-			// Builder.Configuration.InitializeApp (null, "Builder.Web");
-
+			
 			tblCommands.Visible = true;
 			tblFiles.Visible = true;
 
 			int.TryParse (Request ["lane_id"], out id);
 			response = Master.WebService.GetLaneForEdit (Master.WebServiceLogin, id, Request ["lane"]);
 
-			if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-				Response.Redirect ("index.aspx");
-				return;
-			}
-
 			lane = response.Lane;
 
 			if (lane == null) {
-				Response.Redirect ("EditLanes.aspx");
+				Response.Redirect ("EditLanes.aspx", false);
 				return;
 			}
 
 			lblH2.Text = "Lane: " + lane.lane;
 			lblDeletionDirectiveErrors.Visible = false;
 
+			// find possible parent lanes
+			lstParentLane.Items.Clear ();
+			lstParentLane.Items.Add (new ListItem ("None", "0"));
+			foreach (DBLane l in response.Lanes) {
+				if (l.id == lane.id)
+					continue;
+
+				if (Utils.IsDescendentLaneOf (response.Lanes, lane, l, 0))
+					continue; // our descendents can't be our parents too.
+
+				lstParentLane.Items.Add (new ListItem (l.lane, l.id.ToString ()));
+
+				if (!IsPostBack) {
+					if (lane.parent_lane_id.HasValue && lane.parent_lane_id.Value == l.id)
+						lstParentLane.SelectedIndex = lstParentLane.Items.Count - 1;
+				}
+			}
+
 			if (!IsPostBack) {
-				cmbSourceControl.Text = lane.source_control;
+				for (int i = 0; i < cmbSourceControl.Items.Count; i++) {
+					cmbSourceControl.Items [i].Selected = lane.source_control == cmbSourceControl.Items [i].Text;
+				}
 				txtRepository.Text = lane.repository;
 				txtCommitFilter.Text = lane.commit_filter;
 				txtMinRevision.Text = lane.min_revision;
 				txtMaxRevision.Text = lane.max_revision;
 				txtLane.Text = lane.lane;
 				txtID.Text = lane.id.ToString ();
-				// find possible parent lanes
-				lstParentLane.Items.Add (new ListItem ("None", "0"));
-				foreach (DBLane l in response.Lanes) {
-					if (l.id == lane.id)
-						continue;
-
-					if (Utils.IsDescendentLaneOf (response.Lanes, lane, l, 0))
-						continue; // our descendents can't be our parents too.
-
-					lstParentLane.Items.Add (new ListItem (l.lane, l.id.ToString ()));
-
-					if (lane.parent_lane_id.HasValue && lane.parent_lane_id.Value == l.id)
-						lstParentLane.SelectedIndex = lstParentLane.Items.Count - 1;
-				}
-
 				// find (direct) child lanes
 				foreach (DBLane l in response.Lanes) {
 					if (l.parent_lane_id.HasValue && l.parent_lane_id.Value == lane.id) {
@@ -230,8 +231,6 @@ public partial class EditLane : System.Web.UI.Page
 			}
 
 			// Files
-			tblFiles.Rows.Add (Utils.CreateTableHeaderRow ("Files"));
-			tblFiles.Rows [0].Cells [0].ColumnSpan = 4;
 			foreach (DBLanefile file in response.Files) {
 				string text = file.name;
 				if (!string.IsNullOrEmpty (file.mime))
@@ -260,11 +259,7 @@ public partial class EditLane : System.Web.UI.Page
 				));
 			tblFiles.Visible = true;
 
-
-			tblCommands.Rows.Add (Utils.CreateTableHeaderRow ("Commands"));
-			tblCommands.Rows.Add (Utils.CreateTableHeaderRow ("Sequence", "Command", "Always Execute", "Non Fatal", "Internal", "Executable", "Arguments", "Timeout", "Working Directory", "Upload Files", ""));
-			tblCommands.Rows [0].Cells [0].ColumnSpan = 10;
-
+			// commands
 			foreach (DBCommand command in response.Commands) {
 				string filename = command.command;
 				DBLanefile file = Utils.FindFile (response.Files, f => f.name == filename);
@@ -299,22 +294,21 @@ public partial class EditLane : System.Web.UI.Page
 				"bash",
 				"-ex {0}",
 				"60 minutes",
+				"-",
+				"-",
 				string.Format ("<a href='javascript:addCommand ({0}, {1})'>Add</a>", lane.id, (response.Commands.Count * 10))));
 
 			// Show all the hosts
 			List<string> current_hosts = new List<string> ();
 			string html;
 
-			tblHosts.Rows.Add (Utils.CreateTableHeaderRow ("Hosts"));
-			tblHosts.Rows [0].Cells [0].ColumnSpan = 3;
 			foreach (DBHostLaneView view in response.HostLaneViews) {
 				string ed = view.enabled ? "enabled" : "disabled";
 				row = new TableRow ();
 
 				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", view.host_id, view.host), view.enabled ? "enabled" : "disabled"));
 				html = string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;host_id={1}&amp;action=removeHost'>Remove</a> ", lane.id, view.host_id);
-				row.Cells.Add (Utils.CreateTableCell (html, ed));
-				html = string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;host_id={1}&amp;action=switchHostEnabled'>{2}</a>", lane.id, view.host_id, (view.enabled ? "Disable" : "Enable"));
+				html = html + string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;host_id={1}&amp;action=switchHostEnabled'>{2}</a>", lane.id, view.host_id, (view.enabled ? "Disable" : "Enable"));
 				row.Cells.Add (Utils.CreateTableCell (html, ed));
 				tblHosts.Rows.Add (row);
 				current_hosts.Add (view.host);
@@ -330,14 +324,10 @@ public partial class EditLane : System.Web.UI.Page
 				html += "</select>";
 				row.Cells.Add (Utils.CreateTableCell (html));
 				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript:addHost({0})'>Add</a>", lane.id)));
-				row.Cells.Add (Utils.CreateTableCell ("-"));
 				tblHosts.Rows.Add (row);
 			}
 
 			// dependencies
-			tblDependencies.Rows.Add (Utils.CreateTableHeaderRow ("Dependencies"));
-			tblDependencies.Rows.Add (Utils.CreateTableHeaderRow ("Dependent lane", "Condition", "Host", "Filename", "Files to download", "Actions"));
-			tblDependencies.Rows [0].Cells [0].ColumnSpan = tblDependencies.Rows [1].Cells.Count;
 			foreach (DBLaneDependency dependency in response.Dependencies) {
 				row = new TableRow ();
 				for (int i = 0; i < response.Lanes.Count; i++) {
@@ -395,8 +385,12 @@ public partial class EditLane : System.Web.UI.Page
 			// deletion directives
 			foreach (DBLaneDeletionDirectiveView directive in response.LaneDeletionDirectives)
 				AddDeletionDirectiveRow (directive);
-			foreach (DBFileDeletionDirective directive in response.FileDeletionDirectives) {
-				lstDeletionDirectives2.Items.Add (new ListItem (directive.name, directive.id.ToString ()));
+			if (response.FileDeletionDirectives != null && response.FileDeletionDirectives.Count > 0) {
+				foreach (DBFileDeletionDirective directive in response.FileDeletionDirectives) {
+					lstDeletionDirectives2.Items.Add (new ListItem (directive.name, directive.id.ToString ()));
+				}
+			} else {
+				rowDeletionDirectives2.Visible = false;
 			}
 			foreach (DBDeleteCondition condition in Enum.GetValues (typeof (DBDeleteCondition)))
 				lstDeletionDirectiveCondition1.Items.Add (new ListItem (condition.ToString (), ((int) condition).ToString ()));
@@ -407,7 +401,7 @@ public partial class EditLane : System.Web.UI.Page
 			editorVariables.Master = Master;
 			editorVariables.Variables = response.Variables;
 		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+			lblMessage.Text = ex.ToString ().Replace ("\n", "<br/>");
 		}
 	}
 
@@ -434,12 +428,6 @@ public partial class EditLane : System.Web.UI.Page
 		foreach (string obj in Request.Params.AllKeys)
 			Console.WriteLine (">> '{0}' = '{1}'", obj, Request [obj]);
 		Console.WriteLine ("> ARGUMENT DUMP END");
-
-	}
-
-	protected override void OnLoadComplete (EventArgs e)
-	{
-		base.OnLoadComplete (e);
 
 	}
 
@@ -565,7 +553,9 @@ public partial class EditLane : System.Web.UI.Page
 		if (!int.TryParse (str_lane, out lane_id))
 			return;
 
-		parent_lane_id = int.Parse (lstParentLane.SelectedValue);
+		Logger.Log ("lstParentLane: {0}", lstParentLane.SelectedValue);
+		if (!string.IsNullOrEmpty (lstParentLane.SelectedValue))
+			parent_lane_id = int.Parse (lstParentLane.SelectedValue);
 
 		lane = new DBLane ();
 		lane.id = lane_id;
@@ -577,5 +567,33 @@ public partial class EditLane : System.Web.UI.Page
 		lane.source_control = cmbSourceControl.Text;
 		lane.parent_lane_id = (parent_lane_id.HasValue && parent_lane_id.Value != 0) ? parent_lane_id : null;
 		Master.WebService.EditLane (Master.WebServiceLogin, lane);
+		RedirectToSelf ();
+	}
+
+	protected void cmdDeleteAllWork_Click (object sender, EventArgs e)
+	{
+		try {
+			Response.Redirect ("Delete.aspx?action=delete-all-work-for-lane&lane_id=" + lane.id.ToString (), false);
+		} catch (Exception ex) {
+			lblMessage.Text = ex.Message;
+		}
+	}
+
+	protected void cmdClearAllWork_Click (object sender, EventArgs e)
+	{
+		try {
+			Response.Redirect ("Delete.aspx?action=clear-all-work-for-lane&lane_id=" + lane.id.ToString (), false);
+		} catch (Exception ex) {
+			lblMessage.Text = ex.Message;
+		}
+	}
+
+	protected void cmdDeleteAllRevisions_Click (object sender, EventArgs e)
+	{
+		try {
+			Response.Redirect ("Delete.aspx?action=delete-all-revisions-for-lane&lane_id=" + lane.id.ToString (), false);
+		} catch (Exception ex) {
+			lblMessage.Text = ex.Message;
+		}
 	}
 }

@@ -1226,6 +1226,33 @@ UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEF
 			return response;
 		}
 
+
+		[WebMethod]
+		public WebServiceResponse ClearAllWorkForLane (WebServiceLogin login, int lane_id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
+UPDATE Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
+WHERE Work.revisionwork_id IN (SELECT RevisionWork.id FROM RevisionWork WHERE RevisionWork.lane_id = @lane_id);
+
+UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT WHERE lane_id = @lane_id;
+";
+						DB.CreateParameter (cmd, "lane_id", lane_id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
 		[WebMethod]
 		public WebServiceResponse DeleteAllWorkForHost (WebServiceLogin login, int host_id)
 		{
@@ -1240,6 +1267,51 @@ DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE hos
 UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE host_id = @host_id;
 ";
 						DB.CreateParameter (cmd, "host_id", host_id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse DeleteAllWorkForLane (WebServiceLogin login, int lane_id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
+DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE lane_id = @lane_id);
+UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE lane_id = @lane_id;
+";
+						DB.CreateParameter (cmd, "lane_id", lane_id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse DeleteAllRevisionsForLane (WebServiceLogin login, int lane_id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"DELETE FROM Revision WHERE lane_id = @lane_id;";
+						DB.CreateParameter (cmd, "lane_id", lane_id);
 						cmd.ExecuteNonQuery ();
 					}
 				}

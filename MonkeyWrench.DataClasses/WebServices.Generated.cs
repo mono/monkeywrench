@@ -1411,6 +1411,27 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/ClearAllWorkForLane", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse ClearAllWorkForLane(WebServiceLogin login, int lane_id) {
+            object[] results = this.Invoke("ClearAllWorkForLane", new object[] {
+                        login,
+                        lane_id});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginClearAllWorkForLane(WebServiceLogin login, int lane_id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("ClearAllWorkForLane", new object[] {
+                        login,
+                        lane_id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndClearAllWorkForLane(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/DeleteAllWorkForHost", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public WebServiceResponse DeleteAllWorkForHost(WebServiceLogin login, int host_id) {
@@ -1433,6 +1454,51 @@ namespace MonkeyWrench.Web.WebServices {
             return ((WebServiceResponse)(results[0]));
         }
         
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/DeleteAllWorkForLane", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse DeleteAllWorkForLane(WebServiceLogin login, int lane_id) {
+            object[] results = this.Invoke("DeleteAllWorkForLane", new object[] {
+                        login,
+                        lane_id});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginDeleteAllWorkForLane(WebServiceLogin login, int lane_id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("DeleteAllWorkForLane", new object[] {
+                        login,
+                        lane_id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndDeleteAllWorkForLane(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/DeleteAllRevisionsForLane", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse DeleteAllRevisionsForLane(WebServiceLogin login, int lane_id) {
+            object[] results = this.Invoke("DeleteAllRevisionsForLane", new object[] {
+                        login,
+                        lane_id});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginDeleteAllRevisionsForLane(WebServiceLogin login, int lane_id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("DeleteAllRevisionsForLane", new object[] {
+                        login,
+                        lane_id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndDeleteAllRevisionsForLane(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/AbortRevision", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void AbortRevision(WebServiceLogin login, int lane_id, int host_id, int revision_id) {
             this.Invoke("AbortRevision", new object[] {

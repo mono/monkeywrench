@@ -1679,6 +1679,21 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="ClearAllWorkForLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ClearAllWorkForLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="ClearAllWorkForLaneResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="DeleteAllWorkForHost">
         <xs:complexType>
           <xs:sequence>
@@ -1691,6 +1706,36 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="DeleteAllWorkForHostResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteAllWorkForLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteAllWorkForLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="DeleteAllWorkForLaneResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteAllRevisionsForLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteAllRevisionsForLaneResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="DeleteAllRevisionsForLaneResult" type="s0:WebServiceResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -2438,11 +2483,29 @@
   <message name="ClearAllWorkForHostSoapOut">
     <part name="parameters" element="s0:ClearAllWorkForHostResponse" />
   </message>
+  <message name="ClearAllWorkForLaneSoapIn">
+    <part name="parameters" element="s0:ClearAllWorkForLane" />
+  </message>
+  <message name="ClearAllWorkForLaneSoapOut">
+    <part name="parameters" element="s0:ClearAllWorkForLaneResponse" />
+  </message>
   <message name="DeleteAllWorkForHostSoapIn">
     <part name="parameters" element="s0:DeleteAllWorkForHost" />
   </message>
   <message name="DeleteAllWorkForHostSoapOut">
     <part name="parameters" element="s0:DeleteAllWorkForHostResponse" />
+  </message>
+  <message name="DeleteAllWorkForLaneSoapIn">
+    <part name="parameters" element="s0:DeleteAllWorkForLane" />
+  </message>
+  <message name="DeleteAllWorkForLaneSoapOut">
+    <part name="parameters" element="s0:DeleteAllWorkForLaneResponse" />
+  </message>
+  <message name="DeleteAllRevisionsForLaneSoapIn">
+    <part name="parameters" element="s0:DeleteAllRevisionsForLane" />
+  </message>
+  <message name="DeleteAllRevisionsForLaneSoapOut">
+    <part name="parameters" element="s0:DeleteAllRevisionsForLaneResponse" />
   </message>
   <message name="AbortRevisionSoapIn">
     <part name="parameters" element="s0:AbortRevision" />
@@ -2867,9 +2930,21 @@
       <input message="s0:ClearAllWorkForHostSoapIn" />
       <output message="s0:ClearAllWorkForHostSoapOut" />
     </operation>
+    <operation name="ClearAllWorkForLane">
+      <input message="s0:ClearAllWorkForLaneSoapIn" />
+      <output message="s0:ClearAllWorkForLaneSoapOut" />
+    </operation>
     <operation name="DeleteAllWorkForHost">
       <input message="s0:DeleteAllWorkForHostSoapIn" />
       <output message="s0:DeleteAllWorkForHostSoapOut" />
+    </operation>
+    <operation name="DeleteAllWorkForLane">
+      <input message="s0:DeleteAllWorkForLaneSoapIn" />
+      <output message="s0:DeleteAllWorkForLaneSoapOut" />
+    </operation>
+    <operation name="DeleteAllRevisionsForLane">
+      <input message="s0:DeleteAllRevisionsForLaneSoapIn" />
+      <output message="s0:DeleteAllRevisionsForLaneSoapOut" />
     </operation>
     <operation name="AbortRevision">
       <input message="s0:AbortRevisionSoapIn" />
@@ -3221,9 +3296,21 @@
       <input message="s0:ClearAllWorkForHostSoapIn" />
       <output message="s0:ClearAllWorkForHostSoapOut" />
     </operation>
+    <operation name="ClearAllWorkForLane">
+      <input message="s0:ClearAllWorkForLaneSoapIn" />
+      <output message="s0:ClearAllWorkForLaneSoapOut" />
+    </operation>
     <operation name="DeleteAllWorkForHost">
       <input message="s0:DeleteAllWorkForHostSoapIn" />
       <output message="s0:DeleteAllWorkForHostSoapOut" />
+    </operation>
+    <operation name="DeleteAllWorkForLane">
+      <input message="s0:DeleteAllWorkForLaneSoapIn" />
+      <output message="s0:DeleteAllWorkForLaneSoapOut" />
+    </operation>
+    <operation name="DeleteAllRevisionsForLane">
+      <input message="s0:DeleteAllRevisionsForLaneSoapIn" />
+      <output message="s0:DeleteAllRevisionsForLaneSoapOut" />
     </operation>
     <operation name="AbortRevision">
       <input message="s0:AbortRevisionSoapIn" />
@@ -3896,8 +3983,35 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="ClearAllWorkForLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ClearAllWorkForLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="DeleteAllWorkForHost">
       <soap:operation soapAction="http://monkeywrench.novell.com/DeleteAllWorkForHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteAllWorkForLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteAllWorkForLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteAllRevisionsForLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteAllRevisionsForLane" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -4691,8 +4805,35 @@
         <soap12:body use="literal" />
       </output>
     </operation>
+    <operation name="ClearAllWorkForLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ClearAllWorkForLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
     <operation name="DeleteAllWorkForHost">
       <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteAllWorkForHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteAllWorkForLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteAllWorkForLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteAllRevisionsForLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteAllRevisionsForLane" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>
