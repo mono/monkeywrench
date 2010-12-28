@@ -229,6 +229,9 @@ namespace MonkeyWrench
 				if (!string.IsNullOrEmpty (RevDataDirectory) && !Directory.Exists (RevDataDirectory))
 					Directory.CreateDirectory (RevDataDirectory);
 
+				if (!string.IsNullOrEmpty (GetReleaseDirectory ()) && !Directory.Exists (GetReleaseDirectory ()))
+					Directory.CreateDirectory (GetReleaseDirectory ());
+
 			} catch (Exception ex) {
 				Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not load configuration file from: {0}: {1}", file, ex.Message);
 				Environment.Exit (1);
@@ -435,6 +438,15 @@ namespace MonkeyWrench
 		public static string GetSchedulerRepositoryCacheDirectory (string repository)
 		{
 			return Path.Combine (Path.Combine (DataDirectory, "SchedulerCache"), repository.Replace (':', '_').Replace ('/', '_').Replace ('\\', '_'));
+		}
+
+		/// <summary>
+		/// The directory where the monkeywrench releases are stored
+		/// </summary>
+		/// <returns></returns>
+		public static string GetReleaseDirectory ()
+		{
+			return Path.Combine (DataDirectory, "Releases");
 		}
 
 		/// <summary>

@@ -1810,6 +1810,84 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 		}
 
 		[WebMethod]
+		public ReportBuildBotStatusResponse ReportBuildBotStatus (WebServiceLogin login, BuildBotStatus status)
+		{
+			ReportBuildBotStatusResponse response = new ReportBuildBotStatusResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.BuildBot, true);
+
+					Logger.Log ("BuildBot reported in. v{0}: {1}", status.AssemblyVersion, status.AssemblyDescription);
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
+DELETE FROM BuildBotStatus WHERE host_id = (SELECT id FROM Host WHERE host = @host);
+INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FROM Host WHERE host = @host), @version, @description);
+";
+						DB.CreateParameter (cmd, "host", status.Host);
+						DB.CreateParameter (cmd, "version", status.AssemblyVersion);
+						DB.CreateParameter (cmd, "description", status.AssemblyDescription);
+						cmd.ExecuteNonQuery ();
+					}
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "SELECT * FROM Release INNER JOIN Host ON Host.release_id = Release.id WHERE Host.host = @host;";
+						DB.CreateParameter (cmd, "host", status.Host);
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							if (reader.Read ()) {
+								DBRelease release = new DBRelease (reader);
+								response.ConfiguredVersion = release.version;
+								response.ConfiguredRevision = release.revision;
+							}
+						}
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public GetBuildBotStatusResponse GetBuildBotStatus (WebServiceLogin login)
+		{
+			GetBuildBotStatusResponse response = new GetBuildBotStatusResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator, true);
+
+					response.Status = new List<DBBuildBotStatus> ();
+					response.Hosts = new List<DBHost> ();
+					response.Releases = new List<DBRelease> ();
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "SELECT * FROM BuildBotStatus; SELECT * FROM Host; SELECT * FROM Release;";
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.Read ()) {
+								response.Status.Add (new DBBuildBotStatus (reader));
+							}
+							if (reader.NextResult ()) {
+								while (reader.Read ()) {
+									response.Hosts.Add (new DBHost (reader));
+								}
+								if (reader.NextResult ()) {
+									while (reader.Read ()) {
+										response.Releases.Add (new DBRelease (reader));
+									}
+								}
+							}
+						}
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
 		public GetBuildInfoResponse GetBuildInfo (WebServiceLogin login, string host)
 		{
 			return GetBuildInfoMultiple (login, host, false);
@@ -2128,6 +2206,68 @@ WHERE Revision.lane_id = @lane_id AND ";
 				}
 			}
 		}
+		[WebMethod]
+		public WebServiceResponse AddRelease (WebServiceLogin login, DBRelease release)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.BuildBot);
+					release.Save (db);
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public GetReleasesResponse GetReleases (WebServiceLogin login)
+		{
+			GetReleasesResponse response = new GetReleasesResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					response.Releases = new List<DBRelease> ();
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "SELECT * FROM Release ORDER BY version;";
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.Read ()) {
+								response.Releases.Add (new DBRelease (reader));
+							}
+						}
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse DeleteRelease (WebServiceLogin login, int id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "DELETE FROM Release WHERE id = @id;";
+						DB.CreateParameter (cmd, "id", id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
 		#region Adminstration methods
 
 		[WebMethod]

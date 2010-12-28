@@ -243,6 +243,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="architecture" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="queuemanagement" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="release" nillable="true" type="xs:int" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -415,6 +416,18 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:complexType name="DBBuildBotStatus">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="person_id" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="version" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="report_date" type="xs:dateTime" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="DBWorkFile">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
@@ -433,6 +446,18 @@
             <xs:sequence>
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="master_host_id" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBRelease">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="version" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -800,6 +825,25 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:complexType name="ReportBuildBotStatusResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse" />
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetBuildBotStatusResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Status" type="s0:ArrayOfDBBuildBotStatus" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBBuildBotStatus">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBBuildBotStatus" nillable="true" type="s0:DBBuildBotStatus" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="GetBuildInfoResponse">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
@@ -843,6 +887,20 @@
       <xs:complexType name="ArrayOfDBMasterHost">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBMasterHost" nillable="true" type="s0:DBMasterHost" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetReleasesResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Releases" type="s0:ArrayOfDBRelease" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBRelease">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRelease" nillable="true" type="s0:DBRelease" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="GetAdminInfoResponse">
@@ -2034,6 +2092,41 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:complexType name="BuildBotStatus">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="AssemblyVersion" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="AssemblyDescription" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="ReportBuildBotStatus">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="status" type="s0:BuildBotStatus" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ReportBuildBotStatusResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="ReportBuildBotStatusResult" type="s0:ReportBuildBotStatusResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetBuildBotStatus">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetBuildBotStatusResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetBuildBotStatusResult" type="s0:GetBuildBotStatusResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="GetBuildInfo">
         <xs:complexType>
           <xs:sequence>
@@ -2081,6 +2174,50 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="1" maxOccurs="1" name="FindLatestWorkFileIdResult" nillable="true" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddRelease">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="release" type="s0:DBRelease" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddReleaseResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="AddReleaseResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetReleases">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetReleasesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetReleasesResult" type="s0:GetReleasesResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteRelease">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteReleaseResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="DeleteReleaseResult" type="s0:WebServiceResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -2633,6 +2770,18 @@
   <message name="GetRevisionWorkForLaneSoapOut">
     <part name="parameters" element="s0:GetRevisionWorkForLaneResponse" />
   </message>
+  <message name="ReportBuildBotStatusSoapIn">
+    <part name="parameters" element="s0:ReportBuildBotStatus" />
+  </message>
+  <message name="ReportBuildBotStatusSoapOut">
+    <part name="parameters" element="s0:ReportBuildBotStatusResponse" />
+  </message>
+  <message name="GetBuildBotStatusSoapIn">
+    <part name="parameters" element="s0:GetBuildBotStatus" />
+  </message>
+  <message name="GetBuildBotStatusSoapOut">
+    <part name="parameters" element="s0:GetBuildBotStatusResponse" />
+  </message>
   <message name="GetBuildInfoSoapIn">
     <part name="parameters" element="s0:GetBuildInfo" />
   </message>
@@ -2650,6 +2799,24 @@
   </message>
   <message name="FindLatestWorkFileIdSoapOut">
     <part name="parameters" element="s0:FindLatestWorkFileIdResponse" />
+  </message>
+  <message name="AddReleaseSoapIn">
+    <part name="parameters" element="s0:AddRelease" />
+  </message>
+  <message name="AddReleaseSoapOut">
+    <part name="parameters" element="s0:AddReleaseResponse" />
+  </message>
+  <message name="GetReleasesSoapIn">
+    <part name="parameters" element="s0:GetReleases" />
+  </message>
+  <message name="GetReleasesSoapOut">
+    <part name="parameters" element="s0:GetReleasesResponse" />
+  </message>
+  <message name="DeleteReleaseSoapIn">
+    <part name="parameters" element="s0:DeleteRelease" />
+  </message>
+  <message name="DeleteReleaseSoapOut">
+    <part name="parameters" element="s0:DeleteReleaseResponse" />
   </message>
   <message name="ExecuteSchedulerSoapIn">
     <part name="parameters" element="s0:ExecuteScheduler" />
@@ -3042,6 +3209,18 @@
       <input message="s0:FindLatestWorkFileIdSoapIn" />
       <output message="s0:FindLatestWorkFileIdSoapOut" />
     </operation>
+    <operation name="AddRelease">
+      <input message="s0:AddReleaseSoapIn" />
+      <output message="s0:AddReleaseSoapOut" />
+    </operation>
+    <operation name="GetReleases">
+      <input message="s0:GetReleasesSoapIn" />
+      <output message="s0:GetReleasesSoapOut" />
+    </operation>
+    <operation name="DeleteRelease">
+      <input message="s0:DeleteReleaseSoapIn" />
+      <output message="s0:DeleteReleaseSoapOut" />
+    </operation>
     <operation name="ExecuteScheduler">
       <input message="s0:ExecuteSchedulerSoapIn" />
       <output message="s0:ExecuteSchedulerSoapOut" />
@@ -3396,6 +3575,14 @@
       <input message="s0:GetRevisionWorkForLaneSoapIn" />
       <output message="s0:GetRevisionWorkForLaneSoapOut" />
     </operation>
+    <operation name="ReportBuildBotStatus">
+      <input message="s0:ReportBuildBotStatusSoapIn" />
+      <output message="s0:ReportBuildBotStatusSoapOut" />
+    </operation>
+    <operation name="GetBuildBotStatus">
+      <input message="s0:GetBuildBotStatusSoapIn" />
+      <output message="s0:GetBuildBotStatusSoapOut" />
+    </operation>
     <operation name="GetBuildInfo">
       <input message="s0:GetBuildInfoSoapIn" />
       <output message="s0:GetBuildInfoSoapOut" />
@@ -3407,6 +3594,18 @@
     <operation name="FindLatestWorkFileId">
       <input message="s0:FindLatestWorkFileIdSoapIn" />
       <output message="s0:FindLatestWorkFileIdSoapOut" />
+    </operation>
+    <operation name="AddRelease">
+      <input message="s0:AddReleaseSoapIn" />
+      <output message="s0:AddReleaseSoapOut" />
+    </operation>
+    <operation name="GetReleases">
+      <input message="s0:GetReleasesSoapIn" />
+      <output message="s0:GetReleasesSoapOut" />
+    </operation>
+    <operation name="DeleteRelease">
+      <input message="s0:DeleteReleaseSoapIn" />
+      <output message="s0:DeleteReleaseSoapOut" />
     </operation>
     <operation name="ExecuteScheduler">
       <input message="s0:ExecuteSchedulerSoapIn" />
@@ -4208,6 +4407,24 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="ReportBuildBotStatus">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ReportBuildBotStatus" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetBuildBotStatus">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetBuildBotStatus" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="GetBuildInfo">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetBuildInfo" style="document" />
       <input>
@@ -4228,6 +4445,33 @@
     </operation>
     <operation name="FindLatestWorkFileId">
       <soap:operation soapAction="http://monkeywrench.novell.com/FindLatestWorkFileId" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddRelease">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddRelease" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetReleases">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetReleases" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteRelease">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteRelease" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5030,6 +5274,24 @@
         <soap12:body use="literal" />
       </output>
     </operation>
+    <operation name="ReportBuildBotStatus">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ReportBuildBotStatus" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetBuildBotStatus">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetBuildBotStatus" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
     <operation name="GetBuildInfo">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetBuildInfo" style="document" />
       <input>
@@ -5050,6 +5312,33 @@
     </operation>
     <operation name="FindLatestWorkFileId">
       <soap12:operation soapAction="http://monkeywrench.novell.com/FindLatestWorkFileId" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddRelease">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddRelease" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetReleases">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetReleases" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteRelease">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteRelease" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

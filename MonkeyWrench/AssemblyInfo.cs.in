@@ -1,0 +1,28 @@
+/*
+ * AssemblyInfo.cs
+ *
+ * Authors:
+ *   Rolf Bjarne Kvinge (RKvinge@novell.com)
+ *   
+ * Copyright 2010 Novell, Inc. (http://www.novell.com)
+ *
+ * See the LICENSE file included with the distribution for details.
+ *
+ */
+
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle ("MonkeyWrench")]
+[assembly: AssemblyConfiguration ("")]
+[assembly: AssemblyCompany ("Novell, Inc")]
+[assembly: AssemblyProduct ("MonkeyWrench")]
+
+// the following two are generated at build time
+[assembly: AssemblyDescription (@"<generated>")]
+[assembly: AssemblyVersion ("<generated>")]
+

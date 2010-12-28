@@ -1987,6 +1987,48 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/ReportBuildBotStatus", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ReportBuildBotStatusResponse ReportBuildBotStatus(WebServiceLogin login, BuildBotStatus status) {
+            object[] results = this.Invoke("ReportBuildBotStatus", new object[] {
+                        login,
+                        status});
+            return ((ReportBuildBotStatusResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginReportBuildBotStatus(WebServiceLogin login, BuildBotStatus status, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("ReportBuildBotStatus", new object[] {
+                        login,
+                        status}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public ReportBuildBotStatusResponse EndReportBuildBotStatus(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((ReportBuildBotStatusResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetBuildBotStatus", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetBuildBotStatusResponse GetBuildBotStatus(WebServiceLogin login) {
+            object[] results = this.Invoke("GetBuildBotStatus", new object[] {
+                        login});
+            return ((GetBuildBotStatusResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetBuildBotStatus(WebServiceLogin login, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetBuildBotStatus", new object[] {
+                        login}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetBuildBotStatusResponse EndGetBuildBotStatus(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetBuildBotStatusResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetBuildInfo", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public GetBuildInfoResponse GetBuildInfo(WebServiceLogin login, string host) {
             object[] results = this.Invoke("GetBuildInfo", new object[] {
@@ -2061,6 +2103,71 @@ namespace MonkeyWrench.Web.WebServices {
         public System.Nullable<int> EndFindLatestWorkFileId(System.IAsyncResult asyncResult) {
             object[] results = this.EndInvoke(asyncResult);
             return ((System.Nullable<int>)(results[0]));
+        }
+        
+        /// <remarks/>
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/AddRelease", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse AddRelease(WebServiceLogin login, DBRelease release) {
+            object[] results = this.Invoke("AddRelease", new object[] {
+                        login,
+                        release});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginAddRelease(WebServiceLogin login, DBRelease release, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("AddRelease", new object[] {
+                        login,
+                        release}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndAddRelease(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetReleases", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetReleasesResponse GetReleases(WebServiceLogin login) {
+            object[] results = this.Invoke("GetReleases", new object[] {
+                        login});
+            return ((GetReleasesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetReleases(WebServiceLogin login, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetReleases", new object[] {
+                        login}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetReleasesResponse EndGetReleases(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetReleasesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/DeleteRelease", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse DeleteRelease(WebServiceLogin login, int id) {
+            object[] results = this.Invoke("DeleteRelease", new object[] {
+                        login,
+                        id});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginDeleteRelease(WebServiceLogin login, int id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("DeleteRelease", new object[] {
+                        login,
+                        id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndDeleteRelease(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
         }
         
         /// <remarks/>

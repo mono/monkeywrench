@@ -51,6 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Admin.aspx" />
+    <Content Include="BuildBotStatus.aspx" />
+    <Content Include="BuildBotStatus.js" />
+    <Content Include="Releases.aspx" />
     <Content Include="ReportGitHubCommit.aspx" />
     <Content Include="ViewHostHistory.aspx" />
     <Content Include="ViewHtmlReportEmbedded.aspx" />
@@ -99,6 +102,20 @@
     </Compile>
     <Compile Include="Admin.aspx.designer.cs">
       <DependentUpon>Admin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BuildBotStatus.aspx.cs">
+      <DependentUpon>BuildBotStatus.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="BuildBotStatus.aspx.designer.cs">
+      <DependentUpon>BuildBotStatus.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Releases.aspx.cs">
+      <DependentUpon>Releases.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Releases.aspx.designer.cs">
+      <DependentUpon>Releases.aspx</DependentUpon>
     </Compile>
     <Compile Include="ReportGitHubCommit.aspx.cs">
       <DependentUpon>ReportGitHubCommit.aspx</DependentUpon>

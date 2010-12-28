@@ -62,6 +62,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\DBBuildBotStatus.cs" />
+    <Compile Include="Database\DBBuildBotStatus.generated.cs" />
     <Compile Include="Database\DBCommand.cs" />
     <Compile Include="Database\DBCommand.generated.cs" />
     <Compile Include="Database\DBDeleteCondition.cs" />
@@ -101,6 +103,8 @@
     <Compile Include="Database\DBPerson.generated.cs" />
     <Compile Include="Database\DBQueueManagement.cs" />
     <Compile Include="Database\DBRecord.cs" />
+    <Compile Include="Database\DBRelease.cs" />
+    <Compile Include="Database\DBRelease.generated.cs" />
     <Compile Include="Database\DBRevision.cs" />
     <Compile Include="Database\DBRevision.generated.cs" />
     <Compile Include="Database\DBRevisionWork.cs" />
@@ -119,7 +123,11 @@
     <Compile Include="Database\DBWorkFileView.generated.cs" />
     <Compile Include="Database\DBWorkView2.cs" />
     <Compile Include="Database\DBWorkView2.generated.cs" />
+    <Compile Include="Logic\BuildBotStatus.cs" />
     <Compile Include="Logic\BuildInfoEntry.cs" />
+    <Compile Include="Logic\GetBuildBotStatusResponse.cs" />
+    <Compile Include="Logic\GetReleasesResponse.cs" />
+    <Compile Include="Logic\GetUserResponse.cs" />
     <Compile Include="Logic\FindHostResponse.cs" />
     <Compile Include="Logic\FindLaneResponse.cs" />
     <Compile Include="Logic\FindRevisionResponse.cs" />
@@ -144,6 +152,7 @@
     <Compile Include="Logic\GetViewTableDataResponse.cs" />
     <Compile Include="Logic\GetViewWorkTableDataResponse.cs" />
     <Compile Include="Logic\LoginResponse.cs" />
+    <Compile Include="Logic\ReportBuildBotStatusResponse.cs" />
     <Compile Include="Logic\ReportBuildStateResponse.cs" />
     <Compile Include="Logic\Roles.cs" />
     <Compile Include="Logic\WebServiceException.cs" />

@@ -27,6 +27,8 @@
                             <li class="adminitem"><a href='EditHosts.aspx'>Edit Hosts</a></li> 
                             <li class="adminitem"><a href='EditLanes.aspx'>Edit Lanes</a></li> 
                             <li class="adminitem"><a href='Admin.aspx?action=schedule'>Execute scheduler (full update)</a></li>
+                            <li class="adminitem"><a href="BuildBotStatus.aspx">View BuildBot status</a></li>
+                            <li class="adminitem"><a href="Releases.aspx">View MonkeyWrench releases</a></li>
                             <li class="adminitem"></li>
                         </ul> 
                     </div>

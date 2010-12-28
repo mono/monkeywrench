@@ -59,9 +59,11 @@ generate:
 clean-large-objects compress-files execute-deletion-directives move-files-to-file-system move-files-to-database: all
 	mono --debug class/lib/MonkeyWrench.Database.Manager.exe --$@
 
-zip:
-	echo "Not implemented yet"
-	exit 1
+RELEASE_FILENAME=releases/MonkeyWrench.`grep AssemblyVersion MonkeyWrench/AssemblyInfo.cs | awk -F'\"' '{print $$2}'`.zip
+release: all
+	@mkdir -p releases
+	rm -f $(RELEASE_FILENAME)
+	zip -j -9 $(RELEASE_FILENAME) class/lib/* scripts/build
 
 #
 # Test targets:

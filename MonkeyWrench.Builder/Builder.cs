@@ -15,6 +15,7 @@ using System.Xml;
 using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Text;
 
@@ -39,6 +40,8 @@ namespace MonkeyWrench.Builder
 		private static int Main2 (string [] arguments)
 		{
 			Lock process_lock;
+			ReportBuildBotStatusResponse status_response;
+			BuildBotStatus status;
 
 			try {
 				if (!Configuration.LoadConfiguration (arguments))
@@ -61,6 +64,25 @@ namespace MonkeyWrench.Builder
 			try {
 				WebService = WebServices.Create ();
 				WebService.CreateLogin (Configuration.Host, Configuration.WebServicePassword);
+
+				status = new BuildBotStatus ();
+				status.Host = Configuration.Host;
+				status.FillInAssemblyAttributes ();
+				status_response = WebService.ReportBuildBotStatus (WebService.WebServiceLogin, status);
+				if (status_response.Exception != null) {
+					Logger.Log ("Failed to report status: {0}", status_response.Exception.Message);
+					return 1;
+				}
+
+				if (!string.IsNullOrEmpty (status_response.ConfiguredVersion) && status_response.ConfiguredVersion != status.AssemblyVersion) {
+					if (!Update (status, status_response)) {
+						Console.Error.WriteLine ("Automatic update to: {0} / {1} failed (see log for details). Please update manually.", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
+						return 2; /* Magic return code that means "automatic update failed" */
+					} else {
+						Console.WriteLine ("The builder has been updated. Please run 'make build' again.");
+						return 1;
+					}
+				}
 
 				response = WebService.GetBuildInfoMultiple (WebService.WebServiceLogin, Configuration.Host, true);
 
@@ -86,6 +108,97 @@ namespace MonkeyWrench.Builder
 			} finally {
 				process_lock.Unlock ();
 			}
+		}
+
+		private static bool Update (BuildBotStatus status, ReportBuildBotStatusResponse status_response)
+		{
+			StringBuilder output = new StringBuilder ();
+			object lock_obj = new object ();
+
+			Logger.Log ("This host is at version {0}, while it should be running version {1} ({2}). Will try to update.", status.AssemblyVersion, status_response.ConfiguredVersion, status_response.ConfiguredRevision);
+
+			try {
+				/* Check with git status if working copy is clean */
+				using (Process git = new Process ()) {
+					git.StartInfo.FileName = "git";
+					git.StartInfo.Arguments = "status -s";
+					git.StartInfo.UseShellExecute = false;
+					git.StartInfo.RedirectStandardError = true;
+					git.StartInfo.RedirectStandardOutput = true;
+					git.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e) { lock (output) { output.AppendLine (e.Data); } };
+					git.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs e) { lock (output) { output.AppendLine (e.Data); } };
+					git.Start ();
+					git.BeginErrorReadLine ();
+					git.BeginOutputReadLine ();
+					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
+						Logger.Log ("Builder.Update (): Could not get git status, git didn't get any status in 1 minute.");
+						return false;
+					}
+					if (git.ExitCode != 0) {
+						Logger.Log ("Builder.Update (): git status failed: {0}", output.ToString ());
+						return false;
+					}
+					if (output.ToString ().Trim ().Length != 0) {
+						Logger.Log ("Builder.Update (): git status shows that there are local changes: \n{0}", output);
+						return false;
+					}
+				}
+
+				/* git status shows we're clean, now run git fetch */
+				output.Length = 0;
+
+				using (Process git = new Process ()) {
+					git.StartInfo.FileName = "git";
+					git.StartInfo.Arguments = "fetch";
+					git.StartInfo.UseShellExecute = false;
+					git.StartInfo.RedirectStandardError = true;
+					git.StartInfo.RedirectStandardOutput = true;
+					git.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e) { lock (output) { output.AppendLine (e.Data); } };
+					git.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs e) { lock (output) { output.AppendLine (e.Data); } };
+					git.Start ();
+					git.BeginErrorReadLine ();
+					git.BeginOutputReadLine ();
+					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
+						Logger.Log ("Builder.Update (): git fetch didn't finish in 1 minute");
+						return false;
+					}
+					if (git.ExitCode != 0) {
+						Logger.Log ("Builder.Update (): git status failed: {0}", output.ToString ());
+						return false;
+					}
+				}
+
+				/* git fetch done, checkout the revision we want */
+				output.Length = 0;
+
+				using (Process git = new Process ()) {
+					git.StartInfo.FileName = "git";
+					git.StartInfo.Arguments = "reset --hard " + status_response.ConfiguredRevision;
+					git.StartInfo.UseShellExecute = false;
+					git.StartInfo.RedirectStandardError = true;
+					git.StartInfo.RedirectStandardOutput = true;
+					git.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e) { lock (output) { output.AppendLine (e.Data); } };
+					git.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs e) { lock (output) { output.AppendLine (e.Data); } };
+					git.Start ();
+					git.BeginErrorReadLine ();
+					git.BeginOutputReadLine ();
+					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
+						Logger.Log ("Builder.Update (): Could not checkout the required revision in 1 minute.");
+						return false;
+					}
+					if (git.ExitCode != 0) {
+						Logger.Log ("Builder.Update (): git reset failed: {0}", output.ToString ());
+						return false;
+					}
+				}
+
+				Logger.Log ("Successfully updated to {0} {1})", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
+			} catch (Exception ex) {
+				Logger.Log ("Builder.Update (): exception caught: {0}", ex.Message);
+				return false;
+			}
+
+			return true;
 		}
 
 		public static string Dos2Unix (string contents)
@@ -464,6 +577,7 @@ namespace MonkeyWrench.Builder
 
 		static void CheckLog (string log_file, BuildInfo info)
 		{
+			DBRelease release = null;
 			string line, l;
 			string cmd;
 			int index;
@@ -520,6 +634,40 @@ namespace MonkeyWrench.Builder
 						case "SetSummary":
 							info.work.summary = line;
 							info.work = WebService.ReportBuildStateSafe (info.work).Work;
+							break;
+						case "SetReleaseVersion":
+							if (release == null)
+								release = new DBRelease ();
+							release.version = line.Trim ();
+							break;
+						case "SetReleaseRevision":
+							if (release == null)
+								release = new DBRelease ();
+							release.revision = line.Trim ();
+							break;
+						case "SetReleaseDescription":
+							if (release == null)
+								release = new DBRelease ();
+							release.description = line.Trim ();
+							break;
+						case "AddRelease":
+							if (release == null) {
+								Logger.Log ("Invalid @MonkeyWrench command: '{0}: No release created", cmd);
+								break;
+							}
+
+							WebServiceResponse rsp;
+
+							try {
+								release.filename = Path.GetFileName (line.Trim ());
+								File.Copy (line.Trim (), Path.Combine (Configuration.GetReleaseDirectory (), release.filename), true);
+								rsp = WebService.AddRelease (WebService.WebServiceLogin, release);
+								if (rsp.Exception != null) {
+									Logger.Log ("Error while adding release: {0}", rsp.Exception);
+								}
+							} catch (Exception ex) {
+								Logger.Log ("Could not copy release: {0}", ex.ToString ());
+							}
 							break;
 						default:
 							Logger.Log ("Invalid @MonkeyWrench command: '{0}', entire line: '{1}'", cmd, l);

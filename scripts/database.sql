@@ -8,6 +8,17 @@ CREATE DATABASE builder OWNER builder;
 
 \connect builder
 
+CREATE TABLE Release (
+	id             serial    PRIMARY KEY,
+	version        text      NOT NULL DEFAULT '', -- 1.0.0.*
+	revision       text      NOT NULL DEFAULT '', -- the git sha
+	description    text      NOT NULL DEFAULT '',
+	filename       text      NOT NULL DEFAULT '', -- where the released binary (compressed) is stored on disk
+
+	UNIQUE (version),
+	UNIQUE (revision)
+);
+
 -- 
 -- Enums:
 --
@@ -40,6 +51,7 @@ CREATE TABLE Host (
                                                     -- 2: send one revisionwork at a time to the bot, even if several lanes are configured for it,
                                                     --    and cycle through the configured lanes when selecting revisionwork.
 	enabled         boolean    NOT NULL DEFAULT TRUE, -- if this host is enabled.
+	release_id      int        NULL REFERENCES Release (id) ON DELETE CASCADE, -- the release this host should use. May be null - in which case the updating is not done automatically.
 	UNIQUE (host)
 );
 
@@ -65,6 +77,7 @@ CREATE TABLE Lane (
 	commit_filter  text       NOT NULL DEFAULT '',    -- a filter to filter out commits. Syntax not decided yet. An empty filter means include all commits to the repository.
 	UNIQUE (lane)
 );
+INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
 
 CREATE TABLE EnvironmentVariable (
 	id              serial    PRIMARY KEY,
@@ -288,6 +301,14 @@ CREATE TABLE Login (
 	person_id      int       NOT NULL REFERENCES Person (id), -- the user this login is valid for
 	expires        timestamp NOT NULL,                   	  -- the date/time this login expires
 	ip4            text      NOT NULL DEFAULT ''              -- the ip the user is connecting from
+);
+
+CREATE TABLE BuildBotStatus (
+	id             serial    PRIMARY KEY,
+	host_id        int       NOT NULL REFERENCES Host (id) ON DELETE CASCADE,
+	version        text      NOT NULL DEFAULT '',
+	description    text      NOT NULL DEFAULT '',
+	report_date    timestamp NOT NULL DEFAULT now ()
 );
 
 CREATE VIEW WorkView2 AS 
