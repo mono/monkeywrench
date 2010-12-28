@@ -125,7 +125,7 @@ public partial class index : System.Web.UI.Page
 			} else {
 				foreach (DBHostLane hl in target.HostLanes) {
 					hostlane_order.Add (hl.id);
-					matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&host_id={2}'>{0}</a></td>", Utils.FindHost (hosts, hl.host_id).host, hl.lane_id, hl.host_id);
+					matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&amp;host_id={2}'>{0}</a></td>", Utils.FindHost (hosts, hl.host_id).host, hl.lane_id, hl.host_id);
 				}
 			}
 		}));
@@ -162,6 +162,9 @@ public partial class index : System.Web.UI.Page
 
 		matrix.AppendLine ("<table class='buildstatus'>");
 		for (int i = 0; i < header_rows.Count; i++) {
+			if (header_rows [i].Length == 0)
+				continue;
+
 			matrix.Append ("<tr>");
 			matrix.Append (header_rows [i]);
 			matrix.AppendLine ("</tr>");
@@ -245,7 +248,7 @@ public partial class index : System.Web.UI.Page
 				}
 			}
 
-			if (added > 0) {
+			if (added > 0 && row.Length > 0) {
 				matrix.Append ("<tr>");
 				matrix.Append (row.ToString ());
 				matrix.Append ("</tr>");
