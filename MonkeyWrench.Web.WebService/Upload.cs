@@ -52,9 +52,11 @@ namespace MonkeyWrench.WebServices
 
 				accept_cb = new AsyncCallback (OnAccept);
 
-				listener = new TcpListener (new IPEndPoint (IPAddress.Any, 0));
+				listener = new TcpListener (new IPEndPoint (IPAddress.Any, Configuration.UploadPort));
 				listener.Start ();
 				listener.BeginAcceptTcpClient (accept_cb, null);
+
+				Logger.Log ("WebService successfully started upload listener on port {0}", ((IPEndPoint) listener.LocalEndpoint).Port);
 			}
 		}
 

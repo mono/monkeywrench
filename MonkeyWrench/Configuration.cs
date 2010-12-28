@@ -41,6 +41,7 @@ namespace MonkeyWrench
 		public static string ChildProcessAlgorithm = "pgrep";
 		public static string Platform = ""; // detect automatically
 		public static string AllowedCommitReporterIPs = "";
+		public static int UploadPort = 0; // default = 0 (any port)
 		public static int LogVerbosity = 1; // 0: quiet, 1: some messages, 2: verbose (default: 1)
 
 		//the following are used by the database manager.
@@ -171,6 +172,7 @@ namespace MonkeyWrench
 				Platform = xml.SelectSingleNode ("MonkeyWrench/Configuration/Platform").GetNodeValue (Platform);
 				AllowedCommitReporterIPs = xml.SelectSingleNode ("MonkeyWrench/Configuration/AllowedCommitReporterIPs").GetNodeValue (AllowedCommitReporterIPs);
 				LogVerbosity = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/LogVerbosity").GetNodeValue (LogVerbosity.ToString ()));
+				UploadPort = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/UploadPort").GetNodeValue (UploadPort.ToString ()));
 
 				// override from command line
 
@@ -196,6 +198,7 @@ namespace MonkeyWrench
 					{"childprocessalgorithm=", v => ChildProcessAlgorithm = v},
 					{"platform=", v => Platform = v},
 					{"logverbosity=", v => LogVerbosity = int.Parse (v.Trim ())},
+					{"uploadport=", v => UploadPort = int.Parse (v.Trim ())},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},
