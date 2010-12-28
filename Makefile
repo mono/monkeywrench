@@ -30,15 +30,15 @@ svn:
 	svn ps svn:executable $(SVN_EXEC_FILES)
 	
 all clean install:
-	$(MAKE) -C SmartIrc4net $@
-	$(MAKE) -C MonkeyWrench $@
-	$(MAKE) -C MonkeyWrench.DataClasses $@
-	$(MAKE) -C MonkeyWrench.Database $@
-	$(MAKE) -C MonkeyWrench.Database.Manager $@
-	$(MAKE) -C MonkeyWrench.Scheduler $@
-	$(MAKE) -C MonkeyWrench.Builder $@
-	$(MAKE) -C MonkeyWrench.Web.UI $@
-	$(MAKE) -C MonkeyWrench.Web.WebService $@
+	@$(MAKE) -C SmartIrc4net $@
+	@$(MAKE) -C MonkeyWrench $@
+	@$(MAKE) -C MonkeyWrench.DataClasses $@
+	@$(MAKE) -C MonkeyWrench.Database $@
+	@$(MAKE) -C MonkeyWrench.Database.Manager $@
+	@$(MAKE) -C MonkeyWrench.Scheduler $@
+	@$(MAKE) -C MonkeyWrench.Builder $@
+	@$(MAKE) -C MonkeyWrench.Web.UI $@
+	@$(MAKE) -C MonkeyWrench.Web.WebService $@
 
 publish: install
 

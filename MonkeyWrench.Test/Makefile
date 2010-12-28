@@ -16,12 +16,13 @@ REFERENCES = \
 	-r:System.Data.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	gmcs -target:exe -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    GMCS $(LIBRARY)"
+	@gmcs -target:exe -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 test tests all: $(OUT)
 
 clean:
-	rm -f $(OUT)*
+	@rm -f $(OUT)*
 
 publish install: all
 	@:

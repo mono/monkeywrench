@@ -25,22 +25,24 @@ SOURCES = \
 	$(wildcard *.cs)
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	MONO_PATH=$(OUT_DIR):$(MONO_PATH) gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    GMCS $(LIBRARY)"
+	@MONO_PATH=$(OUT_DIR):$(MONO_PATH) gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 all: $(OUT)
 
 clean:
-	rm -f $(OUT)*
-	rm -f bin/*.dll bin/*.mdb bin/*.pdb
+	@rm -f $(OUT)*
+	@rm -f bin/*.dll bin/*.mdb bin/*.pdb
 
 install: all
-	mkdir -p bin
-	cp -pu $(OUT)* bin
-	cp -pu $(OUT_DIR)/Npgsql.dll* bin
-	cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin
-	cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin
-	cp -pu $(OUT_DIR)/MonkeyWrench.Database.dll* bin
-	cp -pu $(OUT_DIR)/Meebey.SmartIrc4net.dll* bin
+	@echo "    PUBLISH $(LIBRARY)"
+	@mkdir -p bin
+	@cp -pu $(OUT)* bin
+	@cp -pu $(OUT_DIR)/Npgsql.dll* bin
+	@cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin
+	@cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin
+	@cp -pu $(OUT_DIR)/MonkeyWrench.Database.dll* bin
+	@cp -pu $(OUT_DIR)/Meebey.SmartIrc4net.dll* bin
 
 dataclasses:
 	$(MAKE) -C $(TOPDIR)/MonkeyWrench.DataClasses

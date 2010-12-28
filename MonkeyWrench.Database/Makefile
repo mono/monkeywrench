@@ -18,12 +18,13 @@ REFERENCES = \
 	-r:System.Data.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	MONO_PATH=$(OUT_DIR):$(MONO_PATH) gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    GMCS $(LIBRARY)"
+	@MONO_PATH=$(OUT_DIR):$(MONO_PATH) gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 all: $(OUT)
 
 clean:
-	rm -f $(OUT)*
+	@rm -f $(OUT)*
 
 publish install: all
 	@:

@@ -22,17 +22,19 @@ REFERENCES = \
 	-r:System.Web.Services.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    GMCS $(LIBRARY)"
+	@gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 all: $(OUT)
 
 clean:
-	rm -f $(OUT)*
-	rm -f bin/*.mdb bin/*.dll bin/*.pdb
+	@rm -f $(OUT)*
+	@rm -f bin/*.mdb bin/*.dll bin/*.pdb
 
 install: all
-	mkdir -p bin
-	cp -pu $(OUT_DIR)/Npgsql.dll* bin/
-	cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin/
-	cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
-	cp -pu $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/
+	@echo "    PUBLISH $(LIBRARY)"
+	@mkdir -p bin
+	@cp -pu $(OUT_DIR)/Npgsql.dll* bin/
+	@cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin/
+	@cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
+	@cp -pu $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/
