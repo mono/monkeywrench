@@ -29,9 +29,6 @@ public partial class EditLanes : System.Web.UI.Page
 
 	protected void Page_Load (object sender, EventArgs e)
 	{
-		lblMessage.Text = "";
-		lblMessage.Visible = false;
-
 		if (!IsPostBack) {
 			string action = Request ["action"];
 			int lane_id;
@@ -46,10 +43,10 @@ public partial class EditLanes : System.Web.UI.Page
 					try {
 						int tmp;
 						tmp = Master.WebService.CloneLane (Master.WebServiceLogin, lane_id, Request ["lane"], false);
-						Response.Redirect ("EditLane.aspx?lane_id=" + tmp.ToString ());
+						Response.Redirect ("EditLane.aspx?lane_id=" + tmp.ToString (), false);
 						return;
 					} catch (Exception ex) {
-						lblMessage.Text = ex.Message;
+						lblMessage.Text = Utils.FormatException (ex);
 					}
 					break;
 				case "remove":
@@ -60,8 +57,10 @@ public partial class EditLanes : System.Web.UI.Page
 				case "add":
 					try {
 						Master.WebService.AddLane (Master.WebServiceLogin, Request ["lane"]);
+						Response.Redirect ("EditLanes.aspx", false);
+						return;
 					} catch (Exception ex) {
-						lblMessage.Text = ex.Message;
+						lblMessage.Text = Utils.FormatException (ex);
 					}
 					break;
 				default:
@@ -69,32 +68,26 @@ public partial class EditLanes : System.Web.UI.Page
 					break;
 				}
 			}
-
-			GetLanesResponse response = Master.WebService.GetLanes (Master.WebServiceLogin);
-
-			TableHeaderRow header = new TableHeaderRow ();
-			TableHeaderCell cell = new TableHeaderCell ();
-			TableRow row;
-			cell.Text = "Lanes";
-			cell.ColumnSpan = Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator) ? 3 : 2;
-			header.Cells.Add (cell);
-			tblLanes.Rows.Add (header);
-			foreach (DBLane lane in response.Lanes) {
-				row = new TableRow ();
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditLane.aspx?lane_id={0}'>{1}</a>", lane.id, lane.lane)));
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditLanes.aspx?lane_id={0}&amp;action=remove'>Delete</a>", lane.id)));
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript:cloneLane ({0}, \"{1}\");'>Clone</a>", lane.id, lane.lane)));
-				tblLanes.Rows.Add (row);
+		} else if (!string.IsNullOrEmpty (Request ["txtLane"])) {
+			try {
+				Master.WebService.AddLane (Master.WebServiceLogin, Request ["txtlane"]);
+				Response.Redirect ("EditLanes.aspx", false);
+				return;
+			} catch (Exception ex) {
+				lblMessage.Text = Utils.FormatException (ex);
 			}
-			row = new TableRow ();
-			row.Cells.Add (Utils.CreateTableCell ("<input type='text' value='lane' id='txtLane'></input>"));
-			row.Cells.Add (Utils.CreateTableCell ("<a href='javascript:addLane ()'>Add</a>"));
-			if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-				row.Cells.Add (Utils.CreateTableCell ("-"));
-			tblLanes.Rows.Add (row);
 		}
 
-		if (lblMessage.Text != string.Empty)
-			lblMessage.Visible = true;
+		GetLanesResponse response = Master.WebService.GetLanes (Master.WebServiceLogin);
+
+		TableRow row;
+		foreach (DBLane lane in response.Lanes) {
+			row = new TableRow ();
+			row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditLane.aspx?lane_id={0}'>{1}</a>", lane.id, lane.lane)));
+			row.Cells.Add (Utils.CreateTableCell (
+				string.Format ("<a href='EditLanes.aspx?lane_id={0}&amp;action=remove'>Delete</a> ", lane.id) +
+				string.Format ("<a href='javascript:cloneLane ({0}, \"{1}\");'>Clone</a>", lane.id, lane.lane)));
+			tblLanes.Rows.Add (row);
+		}
 	}
 }

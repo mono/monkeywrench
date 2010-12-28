@@ -2,9 +2,18 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
     <script type="text/javascript" src="EditLanes.js"></script>
-    <h2>Lanes</h2>
-    <div>
-        <asp:Table ID="tblLanes" runat="server" CssClass="buildstatus"></asp:Table>
-        <asp:Label ID="lblMessage" runat="server"></asp:Label>
-    </div>
+    <asp:Table ID="tblLanes" runat="server" CssClass="buildstatus lanes">
+        <asp:TableHeaderRow>
+            <asp:TableHeaderCell ColumnSpan="2">Lanes</asp:TableHeaderCell>
+        </asp:TableHeaderRow>
+        <asp:TableHeaderRow>
+            <asp:TableHeaderCell>Name</asp:TableHeaderCell>
+            <asp:TableHeaderCell>Actions</asp:TableHeaderCell>
+        </asp:TableHeaderRow>
+        <asp:TableRow>
+            <asp:TableCell><input type='text' value='lane' name='txtLane' id='txtLane' /></asp:TableCell>
+            <asp:TableCell><a href='javascript:addLane ()'>Add</a></asp:TableCell>
+        </asp:TableRow>
+    </asp:Table>
+    <div><asp:Label ID="lblMessage" runat="server" ForeColor="Red"/></div>
 </asp:Content>

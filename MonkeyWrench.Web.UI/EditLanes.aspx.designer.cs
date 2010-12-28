@@ -10,7 +10,22 @@
 
 
 public partial class EditLanes {
-    protected System.Web.UI.WebControls.Content Content2;
-    protected System.Web.UI.WebControls.Table tblLanes;
-    protected System.Web.UI.WebControls.Label lblMessage;
+    
+    /// <summary>
+    /// tblLanes control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Table tblLanes;
+    
+    /// <summary>
+    /// lblMessage control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblMessage;
 }
