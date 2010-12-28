@@ -7,7 +7,7 @@
         <asp:Label ID="lblMessage" runat="server" Font-Bold="True" Font-Size="X-Large" ForeColor="Red" ></asp:Label>
         <br />
         <br />
-        <asp:Button ID="cmdConfirm" runat="server" Text="Yes" onclick="cmdConfirm_Click" Width="200px" />
+        <asp:Button ID="cmdConfirm" runat="server" Text="Yes" Enabled="false" onclick="cmdConfirm_Click" Width="200px" />
         <asp:Label ID="lblDummy" runat="server" Width="100px" />
         <asp:Button ID="cmdCancel" runat="server" Text="No / Cancel" onclick="cmdCancel_Click" Width="200px"/>
         <asp:HiddenField ID="txtReturnTo" runat="server" />

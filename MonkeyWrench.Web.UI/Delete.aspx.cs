@@ -11,8 +11,9 @@ using MonkeyWrench.Web.WebServices;
 
 public partial class Delete : System.Web.UI.Page
 {
-	int? lane_id;
-	int? host_id;
+	string action;
+	int lane_id;
+	int host_id;
 
 	private new Master Master
 	{
@@ -25,34 +26,46 @@ public partial class Delete : System.Web.UI.Page
 			if (!IsPostBack && string.IsNullOrEmpty (txtReturnTo.Value) && Request.UrlReferrer != null)
 				txtReturnTo.Value = Request.UrlReferrer.ToString ();
 
+			action = Request ["action"];
+			if (string.IsNullOrEmpty (action)) {
+				lblMessage.Text = "Nothing to ask?!?";
+				return;
+			}
 
-			int tmp;
-			if (int.TryParse (Request ["lane_id"], out tmp)) {
-				lane_id = tmp;
+			switch (action) {
+			case "delete-lane": {
+				if (!int.TryParse (Request ["lane_id"], out lane_id)) {
+					lblMessage.Text = "You need to specify a lane to delete.";
+					return;
+				}
+
 				FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
 
-				if (!Authentication.IsInRole (lane, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-					Redirect ();
+				lblMessage.Text = string.Format ("Are you sure you want to delete the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
+				cmdConfirm.Enabled = true;
+				break;
+			}
+			case "delete-host": {
+				if (!int.TryParse (Request ["host_id"], out host_id)) {
+					lblMessage.Text = "You need to specify a host to delete.";
 					return;
 				}
 
-				lblMessage.Text = string.Format ("Are you sure you want to delete the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
-			} else if (int.TryParse (Request ["host_id"], out tmp)) {
-				host_id = tmp;
 				FindHostResponse host = Master.WebService.FindHost (Master.WebServiceLogin, host_id, null);
 
-				if (!Authentication.IsInRole (host, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-					Redirect ();
-					return;
-				}
-
 				lblMessage.Text = string.Format ("Are you sure you want to delete the host '{0}' (ID: {1})?", host.Host.host, host.Host.id);
-			} else {
-				lblMessage.Text = "Nothing to confirm. Click Cancel to go back.";
-				cmdConfirm.Enabled = false;
+				cmdConfirm.Enabled = true;
+				break;
 			}
-		} catch {
-			throw;
+
+			default:
+				lblMessage.Text = "Nothing to confirm. Click Cancel to go back.";
+				break;
+			}
+		} catch (Exception ex) {
+			cmdConfirm.Enabled = false;
+			cmdConfirm.Visible = false;
+			lblMessage.Text = Utils.FormatException (ex, true);
 		}
 	}
 
@@ -63,15 +76,31 @@ public partial class Delete : System.Web.UI.Page
 
 	protected void cmdConfirm_Click (object sender, EventArgs e)
 	{
-		try {
-			if (lane_id.HasValue)
-				Master.WebService.DeleteLane (Master.WebServiceLogin, lane_id.Value);
-			else if (host_id.HasValue)
-				Master.WebService.DeleteHost (Master.WebServiceLogin, host_id.Value);
+		WebServiceResponse rsp = null;
 
-			Redirect ();
-		} catch {
-			throw;
+		try {
+			switch (action) {
+			case "delete-lane":
+				Master.WebService.DeleteLane (Master.WebServiceLogin, lane_id);
+				break;
+			case "delete-host":
+				Master.WebService.DeleteHost (Master.WebServiceLogin, host_id);
+				break;
+			default:
+				lblMessage.Text = "Invalid action";
+				return;
+			}
+
+			if (rsp != null && rsp.Exception != null) {
+				cmdConfirm.Enabled = false;
+				lblMessage.Text = Utils.FormatException (rsp.Exception.Message);
+			} else {
+				Redirect ();
+			}
+		} catch (Exception ex) {
+			cmdConfirm.Enabled = false;
+			cmdConfirm.Visible = false;
+			lblMessage.Text = Utils.FormatException (ex, true);
 		}
 	}
 

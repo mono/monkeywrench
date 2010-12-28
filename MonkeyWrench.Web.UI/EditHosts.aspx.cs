@@ -42,7 +42,7 @@ public partial class EditHosts : System.Web.UI.Page
 					if (!int.TryParse (Request ["host_id"], out host_id))
 						break;
 
-					Response.Redirect ("Delete.aspx?host_id=" + host_id.ToString ());
+					Response.Redirect ("Delete.aspx?action=delete-host&host_id=" + host_id.ToString ());
 					return;
 				case "add":
 					try {
