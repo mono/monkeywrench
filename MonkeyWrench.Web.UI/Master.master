@@ -34,7 +34,7 @@
         </asp:Table>
     </div>
     <div id="left-content" class="left-content">
-        <asp:TreeView ID="treeMain" runat="server" EnableViewState="false" />
+        <asp:Table ID="tableMainTree" runat="server" CellPadding="0" CellSpacing="0" CssClass="lefttree" />
     </div>
     <div id="right-content" class="right-content">
         <form id="form1" runat="server">

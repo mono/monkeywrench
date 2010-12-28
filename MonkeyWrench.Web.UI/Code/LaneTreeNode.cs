@@ -41,18 +41,6 @@ public class LaneTreeNode
 		}
 	}
 
-	public void WriteTree (TreeNodeCollection list)
-	{
-		foreach (LaneTreeNode n in Children) {
-			//TreeMenuNode tn = new TreeMenuNode ();
-			TreeNode tn = new TreeNode ();
-			tn.Text = n.Lane.lane;
-			tn.NavigateUrl = "index.aspx?lane=" + HttpUtility.UrlEncode (n.Lane.lane);
-			list.Add (tn);
-			n.WriteTree (tn.ChildNodes);
-		}
-	}
-
 	public void ForEach (Action<LaneTreeNode> action)
 	{
 		action (this);

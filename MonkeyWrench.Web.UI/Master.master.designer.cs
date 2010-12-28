@@ -49,13 +49,13 @@ public partial class Master {
     protected global::System.Web.UI.WebControls.TableCell cellAdmin;
     
     /// <summary>
-    /// treeMain control.
+    /// tableMainTree control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.TreeView treeMain;
+    protected global::System.Web.UI.WebControls.Table tableMainTree;
     
     /// <summary>
     /// form1 control.
