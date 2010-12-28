@@ -114,6 +114,8 @@
     <Compile Include="Database\DBRevisionWorkView2.cs" />
     <Compile Include="Database\DBRevisionWorkView2.generated.cs" />
     <Compile Include="Database\DBState.cs" />
+    <Compile Include="Database\DBUserEmail.cs" />
+    <Compile Include="Database\DBUserEmail.generated.cs" />
     <Compile Include="Database\DBView.cs" />
     <Compile Include="Database\DBWork.cs" />
     <Compile Include="Database\DBWork.generated.cs" />

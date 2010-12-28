@@ -1773,6 +1773,58 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/AddUserEmail", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse AddUserEmail(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> id, string username, string email) {
+            object[] results = this.Invoke("AddUserEmail", new object[] {
+                        login,
+                        id,
+                        username,
+                        email});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginAddUserEmail(WebServiceLogin login, System.Nullable<int> id, string username, string email, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("AddUserEmail", new object[] {
+                        login,
+                        id,
+                        username,
+                        email}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndAddUserEmail(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/RemoveUserEmail", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse RemoveUserEmail(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> id, string username, string email) {
+            object[] results = this.Invoke("RemoveUserEmail", new object[] {
+                        login,
+                        id,
+                        username,
+                        email});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginRemoveUserEmail(WebServiceLogin login, System.Nullable<int> id, string username, string email, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("RemoveUserEmail", new object[] {
+                        login,
+                        id,
+                        username,
+                        email}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndRemoveUserEmail(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditUser", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public WebServiceResponse EditUser(WebServiceLogin login, DBPerson user) {
             object[] results = this.Invoke("EditUser", new object[] {

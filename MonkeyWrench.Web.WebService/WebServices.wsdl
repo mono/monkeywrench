@@ -269,10 +269,12 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
             <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Emails" type="s0:ArrayOfString" />
               <xs:element minOccurs="0" maxOccurs="1" name="login" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="fullname" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="roles" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="irc_nicknames" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -1973,6 +1975,40 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="AddUserEmail">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="username" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="email" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddUserEmailResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="AddUserEmailResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveUserEmail">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="username" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="email" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveUserEmailResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="RemoveUserEmailResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="EditUser">
         <xs:complexType>
           <xs:sequence>
@@ -2771,6 +2807,18 @@
   <message name="DeleteUserSoapOut">
     <part name="parameters" element="s0:DeleteUserResponse" />
   </message>
+  <message name="AddUserEmailSoapIn">
+    <part name="parameters" element="s0:AddUserEmail" />
+  </message>
+  <message name="AddUserEmailSoapOut">
+    <part name="parameters" element="s0:AddUserEmailResponse" />
+  </message>
+  <message name="RemoveUserEmailSoapIn">
+    <part name="parameters" element="s0:RemoveUserEmail" />
+  </message>
+  <message name="RemoveUserEmailSoapOut">
+    <part name="parameters" element="s0:RemoveUserEmailResponse" />
+  </message>
   <message name="EditUserSoapIn">
     <part name="parameters" element="s0:EditUser" />
   </message>
@@ -3234,6 +3282,14 @@
       <input message="s0:DeleteUserSoapIn" />
       <output message="s0:DeleteUserSoapOut" />
     </operation>
+    <operation name="AddUserEmail">
+      <input message="s0:AddUserEmailSoapIn" />
+      <output message="s0:AddUserEmailSoapOut" />
+    </operation>
+    <operation name="RemoveUserEmail">
+      <input message="s0:RemoveUserEmailSoapIn" />
+      <output message="s0:RemoveUserEmailSoapOut" />
+    </operation>
     <operation name="EditUser">
       <input message="s0:EditUserSoapIn" />
       <output message="s0:EditUserSoapOut" />
@@ -3623,6 +3679,14 @@
     <operation name="DeleteUser">
       <input message="s0:DeleteUserSoapIn" />
       <output message="s0:DeleteUserSoapOut" />
+    </operation>
+    <operation name="AddUserEmail">
+      <input message="s0:AddUserEmailSoapIn" />
+      <output message="s0:AddUserEmailSoapOut" />
+    </operation>
+    <operation name="RemoveUserEmail">
+      <input message="s0:RemoveUserEmailSoapIn" />
+      <output message="s0:RemoveUserEmailSoapOut" />
     </operation>
     <operation name="EditUser">
       <input message="s0:EditUserSoapIn" />
@@ -4416,6 +4480,24 @@
     </operation>
     <operation name="DeleteUser">
       <soap:operation soapAction="http://monkeywrench.novell.com/DeleteUser" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddUserEmail">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddUserEmail" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveUserEmail">
+      <soap:operation soapAction="http://monkeywrench.novell.com/RemoveUserEmail" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5310,6 +5392,24 @@
     </operation>
     <operation name="DeleteUser">
       <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteUser" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddUserEmail">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddUserEmail" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveUserEmail">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/RemoveUserEmail" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

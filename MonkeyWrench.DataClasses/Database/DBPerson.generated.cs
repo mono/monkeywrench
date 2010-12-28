@@ -34,11 +34,13 @@ namespace MonkeyWrench.DataClasses
 		private string _password;
 		private string _fullname;
 		private string _roles;
+		private string _irc_nicknames;
 
 		public string @login { get { return _login; } set { _login = value; } }
 		public string @password { get { return _password; } set { _password = value; } }
 		public string @fullname { get { return _fullname; } set { _fullname = value; } }
 		public string @roles { get { return _roles; } set { _roles = value; } }
+		public string @irc_nicknames { get { return _irc_nicknames; } set { _irc_nicknames = value; } }
 
 
 		public override string Table
@@ -51,7 +53,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "login", "password", "fullname", "roles" };
+				return new string [] { "login", "password", "fullname", "roles", "irc_nicknames" };
 			}
 		}
         

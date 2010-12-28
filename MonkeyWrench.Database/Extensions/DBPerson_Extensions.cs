@@ -42,5 +42,42 @@ namespace MonkeyWrench.Database
 
 			return result;
 		}
+
+		public static List<string> GetEmails (this DBPerson person, DB db)
+		{
+			List<string> result = new List<string> ();
+
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT email FROM UserEmail WHERE person_id = @person_id;";
+				DB.CreateParameter (cmd, "person_id", person.id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						result.Add (reader.GetString (0));
+					}
+				}
+			}
+
+			return result;
+		}
+
+		public static void AddEmail (this DBPerson person, DB db, string email)
+		{
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "INSERT INTO UserEmail (person_id, email) VALUES (@person_id, @email);";
+				DB.CreateParameter (cmd, "person_id", person.id);
+				DB.CreateParameter (cmd, "email", email);
+				cmd.ExecuteNonQuery ();
+			}
+		}
+
+		public static void RemoveEmail (this DBPerson person, DB db, string email)
+		{
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "DELETE FROM UserEmail WHERE person_id = @person_id AND email = @email;";
+				DB.CreateParameter (cmd, "person_id", person.id);
+				DB.CreateParameter (cmd, "email", email);
+				cmd.ExecuteNonQuery ();
+			}
+		}
 	}
 }

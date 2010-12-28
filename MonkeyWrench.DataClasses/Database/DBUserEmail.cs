@@ -1,5 +1,5 @@
 /*
- * DBPerson.cs
+ * DBUserEmail.cs
  *
  * Authors:
  *   Rolf Bjarne Kvinge (RKvinge@novell.com)
@@ -16,18 +16,19 @@ using System.Text;
 using System.Data;
 using System.Data.Common;
 
+#pragma warning disable 649
+
 namespace MonkeyWrench.DataClasses
 {
-	public partial class DBPerson : DBRecord
+	public partial class DBUserEmail : DBRecord
 	{
-		public const string TableName = "Person";
-		public string [] Emails;
+		public const string TableName = "UserEmail";
 
-		public DBPerson ()
+		public DBUserEmail ()
 		{
 		}
 	
-		public DBPerson (IDataReader reader) 
+		public DBUserEmail (IDataReader reader) 
 			: base (reader)
 		{
 		}

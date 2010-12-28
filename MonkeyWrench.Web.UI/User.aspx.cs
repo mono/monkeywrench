@@ -44,6 +44,7 @@ public partial class User : System.Web.UI.Page
 		try {
 			int? id = null;
 			string username;
+			string action = Request ["action"];
 
 			if (!string.IsNullOrEmpty (Request ["id"])) {
 				int i;
@@ -53,6 +54,40 @@ public partial class User : System.Web.UI.Page
 			}
 
 			username = Request ["username"];
+
+			if (!string.IsNullOrEmpty (action)) {
+				WebServiceResponse rsp;
+				string email = Request ["email"];
+
+				switch (action) {
+				case "addemail":
+					if (!string.IsNullOrEmpty (email)) {
+						rsp = Master.WebService.AddUserEmail (Master.WebServiceLogin, id, username, email);
+						if (rsp.Exception != null) {
+							lblMessage.Text = rsp.Exception.Message;
+						} else {
+							Response.Redirect (GetSelfLink (), false);
+							return;
+						}
+					} else {
+						lblMessage.Text = "No email specified";
+					}
+					break;
+				case "removeemail":
+					if (!string.IsNullOrEmpty (email)) {
+						rsp = Master.WebService.RemoveUserEmail (Master.WebServiceLogin, id, username, email);
+						if (rsp.Exception != null) {
+							lblMessage.Text = rsp.Exception.Message;
+						} else {
+							Response.Redirect (GetSelfLink (), false);
+							return;
+						}
+					} else {
+						lblMessage.Text = "No email specified";
+					}
+					break;
+				}
+			}
 
 			rowRoles.Visible = Authentication.IsInCookieRole (Request, Roles.Administrator);
 			if (!string.IsNullOrEmpty (username) || id.HasValue) {
@@ -64,10 +99,17 @@ public partial class User : System.Web.UI.Page
 						txtUserName.Text = response.User.login;
 						txtPassword.Text = response.User.password;
 						txtRoles.Text = response.User.roles;
+						txtIRCNicks.Text = response.User.irc_nicknames;
 
 						txtUserName.Attributes ["readonly"] = "readonly"; // asp.net sets readonly="ReadOnly", which fails w3 validation since casing isn't right
 					}
 
+					foreach (string email in response.User.Emails) {
+						tblUser.Rows.Add (Utils.CreateTableRow (Utils.CreateTableCell (email), Utils.CreateTableCell (string.Format ("<a href='{1}&action=removeemail&email={0}'>Remove</a>", HttpUtility.HtmlEncode (HttpUtility.UrlEncode (email)), GetSelfLink ()))));
+					}
+					TableCell cell = Utils.CreateTableCell (string.Format ("<a href=\"javascript:adduseremail ('{0}')\">Add email</a>", GetSelfLink ()));
+					cell.ColumnSpan = 2;
+					tblUser.Rows.Add (Utils.CreateTableRow (cell));
 				} else {
 					lblMessage.Text = response.Exception.Message;
 				}
@@ -97,6 +139,7 @@ public partial class User : System.Web.UI.Page
 			user.fullname = txtFullName.Text;
 			user.password = txtPassword.Text;
 			user.roles = txtRoles.Text;
+			user.irc_nicknames = txtIRCNicks.Text;
 			rsp = Master.WebService.EditUser (Master.WebServiceLogin, user);
 			if (rsp.Exception != null) {
 				lblMessage.Text = rsp.Exception.Message;

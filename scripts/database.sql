@@ -291,17 +291,30 @@ CREATE TABLE Person ( -- 'User' is a reserved word in sql...
 	fullname       text      NOT NULL DEFAULT '', -- the full name of the user
 	roles          text      NULL DEFAULT NULL,   -- comma separated list of roles the user is member of
                                                   -- current values: <none>, Administrator, BuildBot
+	irc_nicknames  text      NULL DEFAULT NULL,   -- comma or space separated list of nick names the user is known as on irc
 	UNIQUE (login)
 );
 INSERT INTO Person (login, password, fullname, roles) VALUES ('admin', 'admin', 'admin', 'Administrator');
+-- alter table person add column irc_nicknames text null default null;
+
+CREATE TABLE UserEmail (
+	id             serial    PRIMARY KEY,
+	person_id      int       NOT NULL REFERENCES Person (id) ON DELETE CASCADE,
+	email          text      NOT NULL
+);
+CREATE INDEX useremail_idx_email ON UserEmail (email);
 
 CREATE TABLE Login (
 	id             serial    PRIMARY KEY,
 	cookie         text      UNIQUE NOT NULL,                 -- the cookie stored on the client machine
-	person_id      int       NOT NULL REFERENCES Person (id), -- the user this login is valid for
+	person_id      int       NOT NULL REFERENCES Person (id) ON DELETE CASCADE, -- the user this login is valid for
 	expires        timestamp NOT NULL,                   	  -- the date/time this login expires
 	ip4            text      NOT NULL DEFAULT ''              -- the ip the user is connecting from
 );
+-- alter table login add constraint login_person_id_fkey2 foreign key (person_id) references person (id) on delete cascade;
+-- alter table login drop constraint login_person_id_fkey;
+-- alter table login add constraint login_person_id_fkey foreign key (person_id) references person (id) on delete cascade;
+-- alter table login drop constraint login_person_id_fkey2;
 
 CREATE TABLE BuildBotStatus (
 	id             serial    PRIMARY KEY,

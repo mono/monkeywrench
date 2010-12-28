@@ -1538,6 +1538,71 @@ ORDER BY date DESC LIMIT 250;
 		}
 
 		[WebMethod]
+		public WebServiceResponse AddUserEmail (WebServiceLogin login, int? id, string username, string email)
+		{
+			DBPerson user;
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					Authenticate (db, login, response, true);
+
+					user = FindUser (db, id, username);
+					if (user == null) {
+						/* user doesn't exist */
+						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
+					} else if (Utilities.IsInRole (response, Roles.Administrator)) {
+						/* admin editing (or adming editing self) */
+						user.AddEmail (db, email);
+					} else if (response.UserName == user.login) {
+						/* editing self */
+						user.AddEmail (db, email);
+					} else {
+						/* somebody else editing some other person */
+						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse RemoveUserEmail (WebServiceLogin login, int? id, string username, string email)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+			DBPerson user;
+
+			try {
+				using (DB db = new DB ()) {
+					Authenticate (db, login, response, true);
+
+					user = FindUser (db, id, username);
+
+					if (user == null) {
+						/* user doesn't exist */
+						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
+					} else if (Utilities.IsInRole (response, Roles.Administrator)) {
+						/* admin editing (or adming editing self) */
+						user.RemoveEmail (db, email);
+					} else if (response.UserName == user.login) {
+						/* editing self */
+						user.RemoveEmail (db, email);
+					} else {
+						/* somebody else editing some other person */
+						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
 		public WebServiceResponse EditUser (WebServiceLogin login, DBPerson user)
 		{
 			WebServiceResponse response = new WebServiceResponse ();
@@ -1559,6 +1624,7 @@ ORDER BY date DESC LIMIT 250;
 						person.fullname = user.fullname;
 						person.login = user.login;
 						person.password = user.password;
+						person.irc_nicknames = user.irc_nicknames;
 						person.Save (db);
 					} else {
 						if (Utilities.IsInRole (response, Roles.Administrator)) {
@@ -1570,6 +1636,7 @@ ORDER BY date DESC LIMIT 250;
 							DBPerson person = DBPerson_Extensions.Create (db, user.id);
 							person.fullname = user.fullname;
 							person.password = user.password;
+							person.irc_nicknames = user.irc_nicknames;
 							person.Save (db);
 						} else {
 							/* somebody else editing some other person */
@@ -1582,6 +1649,24 @@ ORDER BY date DESC LIMIT 250;
 			}
 
 			return response;
+		}
+
+		private DBPerson FindUser (DB db, int? id, string username)
+		{
+			if (!id.HasValue) {
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT * FROM Person WHERE login = @login;";
+					DB.CreateParameter (cmd, "login", username);
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						if (reader.Read ())
+							return new DBPerson (reader);
+					}
+				}
+			} else {
+				return DBPerson_Extensions.Create (db, id.Value);
+			}
+
+			return null;
 		}
 
 		[WebMethod]
@@ -1608,6 +1693,7 @@ ORDER BY date DESC LIMIT 250;
 					}
 
 					if (result != null && (result.login == response.UserName || Utilities.IsInRole (response, Roles.Administrator))) {
+						result.Emails = result.GetEmails (db).ToArray ();
 						response.User = result;
 					} else {
 						response.Exception = new WebServiceException (new HttpException (403, "You don't have access to this user's data"));

@@ -36,8 +36,13 @@ public static class Utils
 	public static TableRow CreateTableRow (params object [] cells)
 	{
 		TableRow result = new TableRow ();
-		for (int i = 0; i < cells.Length; i++)
-			result.Cells.Add (CreateTableCell (cells [i]));
+		TableCell cell;
+		for (int i = 0; i < cells.Length; i++) {
+			cell = cells [i] as TableCell;
+			if (cell == null)
+				cell = CreateTableCell (cells [i]);
+			result.Cells.Add (cell);
+		}
 		return result;
 	}
 

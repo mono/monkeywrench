@@ -1,6 +1,7 @@
 <%@ Page Language="C#" MasterPageFile="~/Master.master" AutoEventWireup="true" Inherits="User" CodeBehind="User.aspx.cs" EnableViewState="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="content" runat="Server" EnableViewState="False">
+    <script type="text/javascript" src="User.js"></script>
     <asp:Table CssClass="users" ID="tblUser" runat="server">
         <asp:TableRow>
             <asp:TableCell>Username:</asp:TableCell>
@@ -29,7 +30,14 @@
             <asp:TableCell>Only admins can edit. BuildBot or Administrator (or empty).</asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>
-            <asp:TableCell ColumnSpan="3">
+            <asp:TableCell>IRC nicks:</asp:TableCell>
+            <asp:TableCell>
+                <asp:TextBox ID="txtIRCNicks" runat="server"></asp:TextBox>
+            </asp:TableCell>
+            <asp:TableCell>Comma or space separated list of nicknames you're using on IRC</asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow>
+            <asp:TableCell ColumnSpan="2">
                 <asp:Button ID="cmdSave" Text="Save" runat="server" OnClick="cmdSave_OnClick" /></asp:TableCell>
         </asp:TableRow>
     </asp:Table>
