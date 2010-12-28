@@ -185,10 +185,10 @@ CREATE INDEX Revision_revision_idx ON Revision (revision);
 
 CREATE TABLE RevisionWork (
 	id             serial     PRIMARY KEY,
-	lane_id        int        NOT NULL REFERENCES Lane (id),
-	host_id        int        NOT NULL REFERENCES Host (id),
-	workhost_id    int        NULL     REFERENCES Host (id) DEFAULT NULL , -- the host which is actually working on this revision. If NULL, work no started.
-	revision_id    int        NOT NULL REFERENCES Revision (id),
+	lane_id        int        NOT NULL REFERENCES Lane (id) ON DELETE CASCADE,
+	host_id        int        NOT NULL REFERENCES Host (id) ON DELETE CASCADE,
+	workhost_id    int        NULL     REFERENCES Host (id) DEFAULT NULL ON DELETE CASCADE, -- the host which is actually working on this revision. If NULL, work no started.
+	revision_id    int        NOT NULL REFERENCES Revision (id) ON DELETE CASCADE,
 	state          int        NOT NULL DEFAULT 0, -- same as Work.state, though not all are applicable
 
 	-- ** possible states (evaluated in this order) ** 
@@ -216,6 +216,26 @@ CREATE INDEX RevisionWork_lane_id_idx ON RevisionWork (lane_id);
 CREATE INDEX RevisionWork_endtime_idx ON RevisionWork (endtime);
 CREATE INDEX RevisionWork_completed_idx ON RevisionWork (completed);
 CREATE INDEX RevisionWork_state_idx ON RevisionWork (state);
+-- -- recreate host_id fkey with delete cascade
+-- alter table RevisionWork add constraint revisionwork_host_id_fkey2 foreign key (host_id) references host (id) on delete cascade;
+-- alter table RevisionWork drop constraint revisionwork_host_id_fkey;
+-- alter table RevisionWork add constraint revisionwork_host_id_fkey foreign key (host_id) references host (id) on delete cascade;
+-- alter table RevisionWork drop constraint revisionwork_host_id_fkey2;
+-- -- recreate lane_id fkey with delete cascade
+-- alter table RevisionWork add constraint revisionwork_lane_id_fkey2 foreign key (lane_id) references lane (id) on delete cascade;
+-- alter table RevisionWork drop constraint revisionwork_lane_id_fkey;
+-- alter table RevisionWork add constraint revisionwork_lane_id_fkey foreign key (lane_id) references lane (id) on delete cascade;
+-- alter table RevisionWork drop constraint revisionwork_lane_id_fkey2;
+-- -- recreate revision_id fkey with delete cascade
+-- alter table RevisionWork add constraint revisionwork_revision_id_fkey2 foreign key (revision_id) references revision (id) on delete cascade;
+-- alter table RevisionWork drop constraint revisionwork_revision_id_fkey;
+-- alter table RevisionWork add constraint revisionwork_revision_id_fkey foreign key (revision_id) references revision (id) on delete cascade;
+-- alter table RevisionWork drop constraint revisionwork_revision_id_fkey2;
+-- -- recreate workhost_id fkey with delete cascade
+-- alter table RevisionWork add constraint revisionwork_workhost_id_fkey2 foreign key (workhost_id) references host (id) on delete cascade;
+-- alter table RevisionWork drop constraint revisionwork_workhost_id_fkey;
+-- alter table RevisionWork add constraint revisionwork_workhost_id_fkey foreign key (workhost_id) references host (id) on delete cascade;
+-- alter table RevisionWork drop constraint revisionwork_workhost_id_fkey2;
 
 CREATE TABLE Work (
 	id               serial    PRIMARY KEY,
