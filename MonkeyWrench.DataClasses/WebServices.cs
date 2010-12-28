@@ -239,7 +239,7 @@ namespace MonkeyWrench.Web.WebServices
 				hiddens = new Queue<bool> (new bool [filenames.Length]);
 			}
 
-			if (filenames.Length != hidden_values.Length)
+			if (filenames.Length != hiddens.Length)
 				throw new ArgumentOutOfRangeException ("filenames/hidden");
 
 			ExecuteSafe ("Upload files safe", () =>
