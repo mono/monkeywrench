@@ -31,6 +31,16 @@ public partial class Admin : System.Web.UI.Page
 	{
 		try {
 			GetAdminInfoResponse response;
+			string action = Request ["action"];
+
+			if (!string.IsNullOrEmpty (action)) {
+				switch (action) {
+				case "schedule":
+					Master.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
+					Response.Redirect (Request.UrlReferrer == null ? "index.aspx" : Request.UrlReferrer.ToString (), false);
+					return;
+				}
+			}
 
 			response = Master.WebService.GetAdminInfo (Master.WebServiceLogin);
 
