@@ -53,6 +53,12 @@ a, a.visited
     text-decoration: underline;
 }
 
+table.center
+{
+    margin-left: auto;
+    margin-right: auto;
+}
+
 table.lanetree td 
 {
 	padding: .5em;
@@ -182,32 +188,92 @@ table.lanes input
 
 table.users
 {
-    border: 1px solid #CCCCCC;
-}
-table.users th
-{
-    border: 1px solid #CCCCCC;
-    font-weight: normal;
-    padding: .5em;
-}
-table.users td
-{
-    text-align: center;
-    border: 1px solid #CCCCCC;
-    font-weight: normal;
-    padding: .5em;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
 }
 
-table.identity th
+table.users tr:first-child th
 {
-    padding: 0.5em;
+    font-weight: bold;
+    font-size: 16px;
 }
 
-table.identity td
+table.users input
 {
     text-align: center;
-    padding: .5em;
-    font-weight: normal;
+}
+
+table.identity
+{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+table.identity tr:first-child th
+{
+    font-weight: bold;
+    font-size: 16px;
+}
+
+table.identity input
+{
+    text-align: center;
+}
+
+table.notifications
+{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+table.notifications tr:first-child th
+{
+    font-weight: bold;
+    font-size: 16px;
+}
+
+table.notifications input
+{
+    text-align: center;
+}
+
+table.buildbotstatus
+{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+table.buildbotstatus tr:first-child th
+{
+    font-weight: bold;
+    font-size: 16px;
+}
+
+table.buildbotstatus input
+{
+    text-align: center;
+}
+
+table.releases
+{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+table.releases tr:first-child th
+{
+    font-weight: bold;
+    font-size: 16px;
+}
+
+table.releases input
+{
+    text-align: center;
 }
 
 table.lefttree a
@@ -400,6 +466,12 @@ table.headertable td.title
 	font-size: 16pt;
 }
 
+table.headertable td.titleimage
+{
+    width: 70px;
+    padding: 0px;
+}
+
 table.headertable td.rightcolumn
 {
 	font-size: 10pt;
@@ -412,6 +484,13 @@ table.headertable td
 	background-color: inherit;
 	padding-left: 0.5em;
 	padding-right: 0.5em;
+}
+
+table.headertable img
+{
+    height: 64px;
+    display: block;
+    border-width: 0px;
 }
 
 #left-content

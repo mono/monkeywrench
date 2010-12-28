@@ -59,6 +59,11 @@ public partial class Master : System.Web.UI.MasterPage
 	protected void Page_Load (object sender, EventArgs e)
 	{
 		LoadView ();
+		if (!string.IsNullOrEmpty (Configuration.SiteSkin)) {
+			idFavicon.Href = "res/" + Configuration.SiteSkin + "/favicon.ico";
+			imgLogo.Src = "res/" + Configuration.SiteSkin + "/logo.png";
+			cssSkin.Href = "res/" + Configuration.SiteSkin + "/" + Configuration.SiteSkin + ".css";
+		}
 	}
 
 	private void LoadView ()

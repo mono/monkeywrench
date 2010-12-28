@@ -13,6 +13,24 @@
 public partial class Master {
     
     /// <summary>
+    /// cssSkin control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlLink cssSkin;
+    
+    /// <summary>
+    /// idFavicon control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlLink idFavicon;
+    
+    /// <summary>
     /// tableHeader control.
     /// </summary>
     /// <remarks>
@@ -20,6 +38,15 @@ public partial class Master {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.Table tableHeader;
+    
+    /// <summary>
+    /// imgLogo control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlImage imgLogo;
     
     /// <summary>
     /// cellLogin control.

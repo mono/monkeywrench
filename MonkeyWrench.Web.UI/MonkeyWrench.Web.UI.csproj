@@ -60,6 +60,16 @@
     <Content Include="Notifications.aspx" />
     <Content Include="Releases.aspx" />
     <Content Include="ReportGitHubCommit.aspx" />
+    <Content Include="res\default.css" />
+    <Content Include="res\minus.gif" />
+    <Content Include="res\moonlight\favicon.ico" />
+    <Content Include="res\moonlight\logo.png" />
+    <Content Include="res\moonlight\moonlight.css" />
+    <Content Include="res\plus.gif" />
+    <Content Include="res\skin.css" />
+    <Content Include="res\wrench\favicon.ico" />
+    <Content Include="res\wrench\logo.png" />
+    <Content Include="res\wrench\wrench.css" />
     <Content Include="robots.txt" />
     <Content Include="SelectLanes.aspx" />
     <Content Include="User.js" />
@@ -99,7 +109,6 @@
     <Content Include="ViewTable.js" />
     <Content Include="ViewTable.aspx" />
     <Content Include="ViewWorkTable.aspx" />
-    <Content Include="build.css" />
     <Content Include="Master.master" />
     <Content Include="web.config" />
   </ItemGroup>
