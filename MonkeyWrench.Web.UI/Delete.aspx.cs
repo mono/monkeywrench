@@ -57,6 +57,28 @@ public partial class Delete : System.Web.UI.Page
 				cmdConfirm.Enabled = true;
 				break;
 			}
+			case "delete-all-work-for-host": {
+				if (!int.TryParse (Request ["host_id"], out host_id)) {
+					lblMessage.Text = "You need to specify a host whose work should be deleted.";
+					return;
+				}
+				FindHostResponse host = Master.WebService.FindHost (Master.WebServiceLogin, host_id, null);
+
+				lblMessage.Text = string.Format ("Are you sure you want to delete all the work for the host '{0}' (ID: {1})?", host.Host.host, host.Host.id);
+				cmdConfirm.Enabled = true;
+				break;
+			}
+			case "clear-all-work-for-host": {
+				if (!int.TryParse (Request ["host_id"], out host_id)) {
+					lblMessage.Text = "You need to specify a host whose work should be cleared.";
+					return;
+				}
+				FindHostResponse host = Master.WebService.FindHost (Master.WebServiceLogin, host_id, null);
+
+				lblMessage.Text = string.Format ("Are you sure you want to clear all the work for the host '{0}' (ID: {1})?", host.Host.host, host.Host.id);
+				cmdConfirm.Enabled = true;
+				break;
+			}
 
 			default:
 				lblMessage.Text = "Nothing to confirm. Click Cancel to go back.";
@@ -85,6 +107,12 @@ public partial class Delete : System.Web.UI.Page
 				break;
 			case "delete-host":
 				Master.WebService.DeleteHost (Master.WebServiceLogin, host_id);
+				break;
+			case "delete-all-work-for-host":
+				rsp = Master.WebService.DeleteAllWorkForHost (Master.WebServiceLogin, host_id);
+				break;
+			case "clear-all-work-for-host":
+				rsp = Master.WebService.ClearAllWorkForHost (Master.WebServiceLogin, host_id);
 				break;
 			default:
 				lblMessage.Text = "Invalid action";

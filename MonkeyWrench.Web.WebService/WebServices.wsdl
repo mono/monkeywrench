@@ -1664,6 +1664,36 @@
       <xs:element name="RescheduleRevisionResponse">
         <xs:complexType />
       </xs:element>
+      <xs:element name="ClearAllWorkForHost">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ClearAllWorkForHostResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="ClearAllWorkForHostResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteAllWorkForHost">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteAllWorkForHostResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="DeleteAllWorkForHostResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="AbortRevision">
         <xs:complexType>
           <xs:sequence>
@@ -2402,6 +2432,18 @@
   <message name="RescheduleRevisionSoapOut">
     <part name="parameters" element="s0:RescheduleRevisionResponse" />
   </message>
+  <message name="ClearAllWorkForHostSoapIn">
+    <part name="parameters" element="s0:ClearAllWorkForHost" />
+  </message>
+  <message name="ClearAllWorkForHostSoapOut">
+    <part name="parameters" element="s0:ClearAllWorkForHostResponse" />
+  </message>
+  <message name="DeleteAllWorkForHostSoapIn">
+    <part name="parameters" element="s0:DeleteAllWorkForHost" />
+  </message>
+  <message name="DeleteAllWorkForHostSoapOut">
+    <part name="parameters" element="s0:DeleteAllWorkForHostResponse" />
+  </message>
   <message name="AbortRevisionSoapIn">
     <part name="parameters" element="s0:AbortRevision" />
   </message>
@@ -2821,6 +2863,14 @@
       <input message="s0:RescheduleRevisionSoapIn" />
       <output message="s0:RescheduleRevisionSoapOut" />
     </operation>
+    <operation name="ClearAllWorkForHost">
+      <input message="s0:ClearAllWorkForHostSoapIn" />
+      <output message="s0:ClearAllWorkForHostSoapOut" />
+    </operation>
+    <operation name="DeleteAllWorkForHost">
+      <input message="s0:DeleteAllWorkForHostSoapIn" />
+      <output message="s0:DeleteAllWorkForHostSoapOut" />
+    </operation>
     <operation name="AbortRevision">
       <input message="s0:AbortRevisionSoapIn" />
       <output message="s0:AbortRevisionSoapOut" />
@@ -3166,6 +3216,14 @@
     <operation name="RescheduleRevision">
       <input message="s0:RescheduleRevisionSoapIn" />
       <output message="s0:RescheduleRevisionSoapOut" />
+    </operation>
+    <operation name="ClearAllWorkForHost">
+      <input message="s0:ClearAllWorkForHostSoapIn" />
+      <output message="s0:ClearAllWorkForHostSoapOut" />
+    </operation>
+    <operation name="DeleteAllWorkForHost">
+      <input message="s0:DeleteAllWorkForHostSoapIn" />
+      <output message="s0:DeleteAllWorkForHostSoapOut" />
     </operation>
     <operation name="AbortRevision">
       <input message="s0:AbortRevisionSoapIn" />
@@ -3822,6 +3880,24 @@
     </operation>
     <operation name="RescheduleRevision">
       <soap:operation soapAction="http://monkeywrench.novell.com/RescheduleRevision" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ClearAllWorkForHost">
+      <soap:operation soapAction="http://monkeywrench.novell.com/ClearAllWorkForHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteAllWorkForHost">
+      <soap:operation soapAction="http://monkeywrench.novell.com/DeleteAllWorkForHost" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -4599,6 +4675,24 @@
     </operation>
     <operation name="RescheduleRevision">
       <soap12:operation soapAction="http://monkeywrench.novell.com/RescheduleRevision" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="ClearAllWorkForHost">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/ClearAllWorkForHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="DeleteAllWorkForHost">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteAllWorkForHost" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

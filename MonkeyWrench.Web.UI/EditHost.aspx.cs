@@ -29,6 +29,11 @@ public partial class EditHost : System.Web.UI.Page
 		get { return base.Master as Master; }
 	}
 
+	private void RedirectToSelf ()
+	{
+		Response.Redirect ("EditHost.aspx?host_id=" + response.Host.id.ToString (), false);
+	}
+
 	protected override void OnInit (EventArgs e)
 	{
 		base.OnInit (e);
@@ -40,7 +45,6 @@ public partial class EditHost : System.Web.UI.Page
 		List<DBLane> all_lanes;
 
 		try {
-
 			string disable = Request ["disablelane"];
 			string enable = Request ["enablelane"];
 			string remove = Request ["removelane"];
@@ -48,6 +52,8 @@ public partial class EditHost : System.Web.UI.Page
 			string action = Request ["action"];
 			int id;
 			bool redirect = false;
+
+			txtID.Attributes ["readonly"] = "readonly";
 
 			response = Master.WebService.GetHostForEdit (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"]);
 
@@ -92,7 +98,7 @@ public partial class EditHost : System.Web.UI.Page
 					redirect = true;
 				}
 				if (redirect) {
-					Response.Redirect ("EditHost.aspx?host_id=" + response.Host.id.ToString (), false);
+					RedirectToSelf ();
 					return;
 				}
 
@@ -110,11 +116,7 @@ public partial class EditHost : System.Web.UI.Page
 						builder.Append ((char) valid_chars [random.Next (valid_chars.Length)]);
 					txtPassword.Text = builder.ToString ();
 
-					TableRow warning = Utils.CreateTableRow ("A password for the host has been generated, please hit Save to save it.");
-					warning.Cells [0].ColumnSpan = 2;
-					warning.Cells [0].ForeColor = System.Drawing.Color.Tomato;
-					warning.Cells [0].HorizontalAlign = HorizontalAlign.Center;
-					tblData.Rows.AddAt (tblData.Rows.Count - 1, warning);
+					lblPasswordWarning.Text = "A password for the host has been generated, please hit Save to save it.";
 				} else {
 					txtPassword.Text = response.Person.password;
 				}
@@ -174,7 +176,7 @@ public partial class EditHost : System.Web.UI.Page
 					Utils.CreateLinkButton ("removeSaveHostLinkButton_" + host.id.ToString (), "Remove", "RemoveSlaveHost", host.id.ToString (), OnLinkButtonCommand)));
 			}
 
-			lblConfiguration.Text = string.Format (@"
+			string txt = string.Format (@"
 <MonkeyWrench Version='2'>
 	<Configuration>
 		<WebServiceUrl>http://{0}/WebServices/</WebServiceUrl>
@@ -185,9 +187,9 @@ public partial class EditHost : System.Web.UI.Page
 	</Configuration>
 </MonkeyWrench>
 ", Request.Url.Host + (Request.Url.Port != 0 && Request.Url.Port != 80 ? ":" + Request.Url.Port.ToString () : ""), txtPassword.Text, txtHost.Text);
-			lblConfiguration.Text = "<pre>" + HttpUtility.HtmlEncode (lblConfiguration.Text) + "</pre>";
+			lblConfiguration.InnerHtml = "<pre>" + HttpUtility.HtmlEncode (txt) + "</pre>";
 		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+			lblMessage.Text = Utils.FormatException (ex, true);
 		}
 	}
 
@@ -204,23 +206,40 @@ public partial class EditHost : System.Web.UI.Page
 			Master.WebService.RemoveMasterHost (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), response.Host.id);
 			break;
 		}
-		Response.Redirect ("EditHost.aspx?host_id=" + response.Host.id.ToString (), false);
+		RedirectToSelf ();
 	}
 
 	protected void cmdSave_Click (object sender, EventArgs e)
 	{
-		if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			Response.Redirect ("index.aspx", false);
-			return;
+		try {
+			DBHost host = response.Host;
+			host.host = txtHost.Text;
+			host.architecture = txtArchitecture.Text;
+			host.description = txtDescription.Text;
+			host.queuemanagement = cmbQueueManagement.SelectedIndex;
+			host.enabled = chkEnabled.Checked;
+			Master.WebService.EditHostWithPassword (Master.WebServiceLogin, host, txtPassword.Text);
+			RedirectToSelf ();
+		} catch (Exception ex) {
+			lblMessage.Text = Utils.FormatException (ex, true);
 		}
-
-		DBHost host = response.Host;
-		host.host = txtHost.Text;
-		host.architecture = txtArchitecture.Text;
-		host.description = txtDescription.Text;
-		host.queuemanagement = cmbQueueManagement.SelectedIndex;
-		host.enabled = chkEnabled.Checked;
-		Master.WebService.EditHostWithPassword (Master.WebServiceLogin, host, txtPassword.Text);
 	}
 
+	protected void cmdDeleteAllWork_Click (object sender, EventArgs e)
+	{
+		try {
+			Response.Redirect ("Delete.aspx?action=delete-all-work-for-host&host_id=" + response.Host.id.ToString (), false);
+		} catch (Exception ex) {
+			lblMessage.Text = Utils.FormatException (ex, true);
+		}
+	}
+
+	protected void cmdClearAllWork_Click (object sender, EventArgs e)
+	{
+		try {
+			Response.Redirect ("Delete.aspx?action=clear-all-work-for-host&host_id=" + response.Host.id.ToString (), false);
+		} catch (Exception ex) {
+			lblMessage.Text = Utils.FormatException (ex, true);
+		}
+	}
 }

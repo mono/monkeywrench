@@ -1201,6 +1201,55 @@ FROM HostLane";
 		}
 
 		[WebMethod]
+		public WebServiceResponse ClearAllWorkForHost (WebServiceLogin login, int host_id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
+UPDATE Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
+WHERE Work.revisionwork_id IN (SELECT RevisionWork.id FROM RevisionWork WHERE RevisionWork.host_id = @host_id);
+
+UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT WHERE host_id = @host_id;
+";
+						DB.CreateParameter (cmd, "host_id", host_id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse DeleteAllWorkForHost (WebServiceLogin login, int host_id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
+DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE host_id = @host_id);
+UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE host_id = @host_id;
+";
+						DB.CreateParameter (cmd, "host_id", host_id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+		[WebMethod]
 		public void AbortRevision (WebServiceLogin login, int lane_id, int host_id, int revision_id)
 		{
 			using (DB db = new DB ()) {

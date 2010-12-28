@@ -94,6 +94,42 @@ public partial class EditHost {
     protected global::System.Web.UI.WebControls.Button cmdSave;
     
     /// <summary>
+    /// cmdDeleteAllWork control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button cmdDeleteAllWork;
+    
+    /// <summary>
+    /// cmdClearAllWork control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button cmdClearAllWork;
+    
+    /// <summary>
+    /// lblPasswordWarning control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblPasswordWarning;
+    
+    /// <summary>
+    /// lblMessage control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblMessage;
+    
+    /// <summary>
     /// tblLanes control.
     /// </summary>
     /// <remarks>
@@ -154,5 +190,5 @@ public partial class EditHost {
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Label lblConfiguration;
+    protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblConfiguration;
 }

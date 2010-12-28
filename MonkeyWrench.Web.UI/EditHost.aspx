@@ -16,7 +16,7 @@
                     Id:
                 </asp:TableCell>
                 <asp:TableCell>
-                    <asp:TextBox ID="txtID" runat="server" ReadOnly="True" Width="471px"></asp:TextBox>
+                    <asp:TextBox ID="txtID" runat="server" Width="471px"></asp:TextBox>
                 </asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
@@ -84,13 +84,17 @@
                 </asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
-                <asp:TableCell ColumnSpan="2">
-                    <center>
-                        <asp:Button ID="cmdSave" runat="server" Text="Save" OnClick="cmdSave_Click" />
-                    </center>
+                <asp:TableCell>
+                </asp:TableCell>
+                <asp:TableCell>
+                    <asp:Button ID="cmdSave" runat="server" Text="Save" OnClick="cmdSave_Click" />
+                    <asp:Button id="cmdDeleteAllWork" runat="server" Text="Delete all work" OnClick="cmdDeleteAllWork_Click" />
+                    <asp:Button id="cmdClearAllWork" runat="server" Text="Clear all work" OnClick="cmdClearAllWork_Click" />
                 </asp:TableCell>
             </asp:TableRow>
         </asp:Table>
+        <asp:Label ID="lblPasswordWarning" runat="server" ForeColor="Tomato" />
+        <asp:Label ID="lblMessage" runat="server" ForeColor="Red" />
         <br />
         Lanes configured for this host:<br />
         <br />
@@ -125,6 +129,6 @@
         <ucs:EnvironmentVariablesEditor ID="editorVariables" runat="server"></ucs:EnvironmentVariablesEditor>
         <br />
         Sample MonkeyWrench.xml configuration file (copy to ~/.config/MonkeyWrench/MonkeyWrench.xml):
-        <asp:Label ID="lblConfiguration" runat="server" ></asp:Label>
+        <div ID="lblConfiguration" runat="server" />
     </div>
 </asp:Content>
