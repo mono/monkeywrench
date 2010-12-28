@@ -316,6 +316,36 @@ CREATE TABLE Login (
 -- alter table login add constraint login_person_id_fkey foreign key (person_id) references person (id) on delete cascade;
 -- alter table login drop constraint login_person_id_fkey2;
 
+CREATE TABLE IrcIdentity (
+	id         serial    PRIMARY KEY,
+	name       text      NOT NULL DEFAULT '', 
+	servers    text      NOT NULL DEFAULT '',             -- a comma separated list of irc servers.
+	channels   text      NOT NULL DEFAULT '',             -- a comma separated list of irc channels to join.
+	nicks      text      NOT NULL DEFAULT 'monkeywrench'  -- a comma separated list of irc nicks to use
+);
+
+CREATE TABLE EmailIdentity (
+	id       serial    PRIMARY KEY,
+	name     text      NOT NULL DEFAULT '', 
+	email    text      NOT NULL DEFAULT '',             -- the email address used to send email
+	password text      NOT NULL DEFAULT ''              -- the password for the above email address
+);
+
+CREATE TABLE Notification (
+	id               serial    PRIMARY KEY,
+	name             text      NOT NULL DEFAULT '',
+	ircidentity_id   int       NULL REFERENCES IrcIdentity (id) ON DELETE CASCADE, 
+	emailidentity_id int       NULL REFERENCES EmailIdentity (id) ON DELETE CASCADE,
+	mode             int       NOT NULL DEFAULT 0,                                    -- 0: Default 1: MoonlightDrt 2: NUnit
+	type             int       NOT NULL DEFAULT 0                                     -- 0: fatal failures only 1: non-fatal failures only 2: all failures
+);
+
+CREATE TABLE LaneNotification (
+	id              serial    PRIMARY KEY,
+	lane_id         int       NOT NULL REFERENCES Lane (id) ON DELETE CASCADE,
+	notification_id int       NOT NULL REFERENCES Notification (id) ON DELETE CASCADE
+);
+
 CREATE TABLE BuildBotStatus (
 	id             serial    PRIMARY KEY,
 	host_id        int       NOT NULL REFERENCES Host (id) ON DELETE CASCADE,

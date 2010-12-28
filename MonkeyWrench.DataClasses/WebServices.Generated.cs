@@ -2226,6 +2226,183 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditIdentity", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse EditIdentity(WebServiceLogin login, DBIrcIdentity irc_identity, DBEmailIdentity email_identity) {
+            object[] results = this.Invoke("EditIdentity", new object[] {
+                        login,
+                        irc_identity,
+                        email_identity});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginEditIdentity(WebServiceLogin login, DBIrcIdentity irc_identity, DBEmailIdentity email_identity, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("EditIdentity", new object[] {
+                        login,
+                        irc_identity,
+                        email_identity}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndEditIdentity(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/RemoveIdentity", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse RemoveIdentity(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> irc_identity, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> email_identity) {
+            object[] results = this.Invoke("RemoveIdentity", new object[] {
+                        login,
+                        irc_identity,
+                        email_identity});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginRemoveIdentity(WebServiceLogin login, System.Nullable<int> irc_identity, System.Nullable<int> email_identity, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("RemoveIdentity", new object[] {
+                        login,
+                        irc_identity,
+                        email_identity}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndRemoveIdentity(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetIdentities", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetIdentitiesResponse GetIdentities(WebServiceLogin login) {
+            object[] results = this.Invoke("GetIdentities", new object[] {
+                        login});
+            return ((GetIdentitiesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetIdentities(WebServiceLogin login, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetIdentities", new object[] {
+                        login}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetIdentitiesResponse EndGetIdentities(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetIdentitiesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditNotification", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse EditNotification(WebServiceLogin login, DBNotification notification) {
+            object[] results = this.Invoke("EditNotification", new object[] {
+                        login,
+                        notification});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginEditNotification(WebServiceLogin login, DBNotification notification, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("EditNotification", new object[] {
+                        login,
+                        notification}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndEditNotification(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/RemoveNotification", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse RemoveNotification(WebServiceLogin login, int id) {
+            object[] results = this.Invoke("RemoveNotification", new object[] {
+                        login,
+                        id});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginRemoveNotification(WebServiceLogin login, int id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("RemoveNotification", new object[] {
+                        login,
+                        id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndRemoveNotification(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetNotifications", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GetNotificationsResponse GetNotifications(WebServiceLogin login) {
+            object[] results = this.Invoke("GetNotifications", new object[] {
+                        login});
+            return ((GetNotificationsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetNotifications(WebServiceLogin login, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetNotifications", new object[] {
+                        login}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public GetNotificationsResponse EndGetNotifications(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((GetNotificationsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/AddLaneNotification", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse AddLaneNotification(WebServiceLogin login, int lane_id, int notification_id) {
+            object[] results = this.Invoke("AddLaneNotification", new object[] {
+                        login,
+                        lane_id,
+                        notification_id});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginAddLaneNotification(WebServiceLogin login, int lane_id, int notification_id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("AddLaneNotification", new object[] {
+                        login,
+                        lane_id,
+                        notification_id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndAddLaneNotification(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/RemoveLaneNotification", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public WebServiceResponse RemoveLaneNotification(WebServiceLogin login, int id) {
+            object[] results = this.Invoke("RemoveLaneNotification", new object[] {
+                        login,
+                        id});
+            return ((WebServiceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginRemoveLaneNotification(WebServiceLogin login, int id, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("RemoveLaneNotification", new object[] {
+                        login,
+                        id}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public WebServiceResponse EndRemoveLaneNotification(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((WebServiceResponse)(results[0]));
+        }
+        
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/AddRelease", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public WebServiceResponse AddRelease(WebServiceLogin login, DBRelease release) {

@@ -358,6 +358,45 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:complexType name="DBNotification">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="Mode" type="s0:DBNotificationMode" />
+              <xs:element minOccurs="1" maxOccurs="1" name="Type" type="s0:DBNotificationType" />
+              <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="ircidentity_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="emailidentity_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="mode" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="type" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:simpleType name="DBNotificationMode">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Default" />
+          <xs:enumeration value="MoonlightDrt" />
+          <xs:enumeration value="NUnit" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="DBNotificationType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FatalFailuresOnly" />
+          <xs:enumeration value="NonFatalFailuresOnly" />
+          <xs:enumeration value="AllFailures" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="DBLaneNotification">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="notification_id" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="DBRevision">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
@@ -448,6 +487,29 @@
             <xs:sequence>
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="master_host_id" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBIrcIdentity">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="servers" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="channels" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="nicks" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBEmailIdentity">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="email" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -550,6 +612,8 @@
               <xs:element minOccurs="0" maxOccurs="1" name="LaneDeletionDirectives" type="s0:ArrayOfDBLaneDeletionDirectiveView" />
               <xs:element minOccurs="0" maxOccurs="1" name="FileDeletionDirectives" type="s0:ArrayOfDBFileDeletionDirective" />
               <xs:element minOccurs="0" maxOccurs="1" name="Variables" type="s0:ArrayOfDBEnvironmentVariable" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Notifications" type="s0:ArrayOfDBNotification" />
+              <xs:element minOccurs="0" maxOccurs="1" name="LaneNotifications" type="s0:ArrayOfDBLaneNotification" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -577,6 +641,16 @@
       <xs:complexType name="ArrayOfDBFileDeletionDirective">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBFileDeletionDirective" nillable="true" type="s0:DBFileDeletionDirective" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBNotification">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBNotification" nillable="true" type="s0:DBNotification" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBLaneNotification">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLaneNotification" nillable="true" type="s0:DBLaneNotification" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="FindHostResponse">
@@ -899,6 +973,37 @@
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBMasterHost" nillable="true" type="s0:DBMasterHost" />
         </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetIdentitiesResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="IrcIdentities" type="s0:ArrayOfDBIrcIdentity" />
+              <xs:element minOccurs="0" maxOccurs="1" name="EmailIdentities" type="s0:ArrayOfDBEmailIdentity" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBIrcIdentity">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBIrcIdentity" nillable="true" type="s0:DBIrcIdentity" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBEmailIdentity">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBEmailIdentity" nillable="true" type="s0:DBEmailIdentity" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetNotificationsResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Notifications" type="s0:ArrayOfDBNotification" />
+              <xs:element minOccurs="0" maxOccurs="1" name="IrcIdentities" type="s0:ArrayOfDBIrcIdentity" />
+              <xs:element minOccurs="0" maxOccurs="1" name="EmailIdentities" type="s0:ArrayOfDBEmailIdentity" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
       </xs:complexType>
       <xs:complexType name="GetReleasesResponse">
         <xs:complexContent mixed="false">
@@ -2268,6 +2373,127 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="EditIdentity">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="irc_identity" type="s0:DBIrcIdentity" />
+            <xs:element minOccurs="0" maxOccurs="1" name="email_identity" type="s0:DBEmailIdentity" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditIdentityResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="EditIdentityResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveIdentity">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="irc_identity" nillable="true" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="email_identity" nillable="true" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveIdentityResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="RemoveIdentityResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetIdentities">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetIdentitiesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetIdentitiesResult" type="s0:GetIdentitiesResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditNotification">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="notification" type="s0:DBNotification" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditNotificationResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="EditNotificationResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveNotification">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveNotificationResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="RemoveNotificationResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetNotifications">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetNotificationsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetNotificationsResult" type="s0:GetNotificationsResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddLaneNotification">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="notification_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AddLaneNotificationResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="AddLaneNotificationResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveLaneNotification">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RemoveLaneNotificationResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="RemoveLaneNotificationResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="AddRelease">
         <xs:complexType>
           <xs:sequence>
@@ -2921,6 +3147,54 @@
   <message name="FindLatestWorkFileIdSoapOut">
     <part name="parameters" element="s0:FindLatestWorkFileIdResponse" />
   </message>
+  <message name="EditIdentitySoapIn">
+    <part name="parameters" element="s0:EditIdentity" />
+  </message>
+  <message name="EditIdentitySoapOut">
+    <part name="parameters" element="s0:EditIdentityResponse" />
+  </message>
+  <message name="RemoveIdentitySoapIn">
+    <part name="parameters" element="s0:RemoveIdentity" />
+  </message>
+  <message name="RemoveIdentitySoapOut">
+    <part name="parameters" element="s0:RemoveIdentityResponse" />
+  </message>
+  <message name="GetIdentitiesSoapIn">
+    <part name="parameters" element="s0:GetIdentities" />
+  </message>
+  <message name="GetIdentitiesSoapOut">
+    <part name="parameters" element="s0:GetIdentitiesResponse" />
+  </message>
+  <message name="EditNotificationSoapIn">
+    <part name="parameters" element="s0:EditNotification" />
+  </message>
+  <message name="EditNotificationSoapOut">
+    <part name="parameters" element="s0:EditNotificationResponse" />
+  </message>
+  <message name="RemoveNotificationSoapIn">
+    <part name="parameters" element="s0:RemoveNotification" />
+  </message>
+  <message name="RemoveNotificationSoapOut">
+    <part name="parameters" element="s0:RemoveNotificationResponse" />
+  </message>
+  <message name="GetNotificationsSoapIn">
+    <part name="parameters" element="s0:GetNotifications" />
+  </message>
+  <message name="GetNotificationsSoapOut">
+    <part name="parameters" element="s0:GetNotificationsResponse" />
+  </message>
+  <message name="AddLaneNotificationSoapIn">
+    <part name="parameters" element="s0:AddLaneNotification" />
+  </message>
+  <message name="AddLaneNotificationSoapOut">
+    <part name="parameters" element="s0:AddLaneNotificationResponse" />
+  </message>
+  <message name="RemoveLaneNotificationSoapIn">
+    <part name="parameters" element="s0:RemoveLaneNotification" />
+  </message>
+  <message name="RemoveLaneNotificationSoapOut">
+    <part name="parameters" element="s0:RemoveLaneNotificationResponse" />
+  </message>
   <message name="AddReleaseSoapIn">
     <part name="parameters" element="s0:AddRelease" />
   </message>
@@ -3338,6 +3612,14 @@
       <input message="s0:GetRevisionWorkForLaneSoapIn" />
       <output message="s0:GetRevisionWorkForLaneSoapOut" />
     </operation>
+    <operation name="ReportBuildBotStatus">
+      <input message="s0:ReportBuildBotStatusSoapIn" />
+      <output message="s0:ReportBuildBotStatusSoapOut" />
+    </operation>
+    <operation name="GetBuildBotStatus">
+      <input message="s0:GetBuildBotStatusSoapIn" />
+      <output message="s0:GetBuildBotStatusSoapOut" />
+    </operation>
     <operation name="GetBuildInfo">
       <input message="s0:GetBuildInfoSoapIn" />
       <output message="s0:GetBuildInfoSoapOut" />
@@ -3349,6 +3631,38 @@
     <operation name="FindLatestWorkFileId">
       <input message="s0:FindLatestWorkFileIdSoapIn" />
       <output message="s0:FindLatestWorkFileIdSoapOut" />
+    </operation>
+    <operation name="EditIdentity">
+      <input message="s0:EditIdentitySoapIn" />
+      <output message="s0:EditIdentitySoapOut" />
+    </operation>
+    <operation name="RemoveIdentity">
+      <input message="s0:RemoveIdentitySoapIn" />
+      <output message="s0:RemoveIdentitySoapOut" />
+    </operation>
+    <operation name="GetIdentities">
+      <input message="s0:GetIdentitiesSoapIn" />
+      <output message="s0:GetIdentitiesSoapOut" />
+    </operation>
+    <operation name="EditNotification">
+      <input message="s0:EditNotificationSoapIn" />
+      <output message="s0:EditNotificationSoapOut" />
+    </operation>
+    <operation name="RemoveNotification">
+      <input message="s0:RemoveNotificationSoapIn" />
+      <output message="s0:RemoveNotificationSoapOut" />
+    </operation>
+    <operation name="GetNotifications">
+      <input message="s0:GetNotificationsSoapIn" />
+      <output message="s0:GetNotificationsSoapOut" />
+    </operation>
+    <operation name="AddLaneNotification">
+      <input message="s0:AddLaneNotificationSoapIn" />
+      <output message="s0:AddLaneNotificationSoapOut" />
+    </operation>
+    <operation name="RemoveLaneNotification">
+      <input message="s0:RemoveLaneNotificationSoapIn" />
+      <output message="s0:RemoveLaneNotificationSoapOut" />
     </operation>
     <operation name="AddRelease">
       <input message="s0:AddReleaseSoapIn" />
@@ -3755,6 +4069,38 @@
     <operation name="FindLatestWorkFileId">
       <input message="s0:FindLatestWorkFileIdSoapIn" />
       <output message="s0:FindLatestWorkFileIdSoapOut" />
+    </operation>
+    <operation name="EditIdentity">
+      <input message="s0:EditIdentitySoapIn" />
+      <output message="s0:EditIdentitySoapOut" />
+    </operation>
+    <operation name="RemoveIdentity">
+      <input message="s0:RemoveIdentitySoapIn" />
+      <output message="s0:RemoveIdentitySoapOut" />
+    </operation>
+    <operation name="GetIdentities">
+      <input message="s0:GetIdentitiesSoapIn" />
+      <output message="s0:GetIdentitiesSoapOut" />
+    </operation>
+    <operation name="EditNotification">
+      <input message="s0:EditNotificationSoapIn" />
+      <output message="s0:EditNotificationSoapOut" />
+    </operation>
+    <operation name="RemoveNotification">
+      <input message="s0:RemoveNotificationSoapIn" />
+      <output message="s0:RemoveNotificationSoapOut" />
+    </operation>
+    <operation name="GetNotifications">
+      <input message="s0:GetNotificationsSoapIn" />
+      <output message="s0:GetNotificationsSoapOut" />
+    </operation>
+    <operation name="AddLaneNotification">
+      <input message="s0:AddLaneNotificationSoapIn" />
+      <output message="s0:AddLaneNotificationSoapOut" />
+    </operation>
+    <operation name="RemoveLaneNotification">
+      <input message="s0:RemoveLaneNotificationSoapIn" />
+      <output message="s0:RemoveLaneNotificationSoapOut" />
     </operation>
     <operation name="AddRelease">
       <input message="s0:AddReleaseSoapIn" />
@@ -4651,6 +4997,78 @@
     </operation>
     <operation name="FindLatestWorkFileId">
       <soap:operation soapAction="http://monkeywrench.novell.com/FindLatestWorkFileId" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditIdentity">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditIdentity" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveIdentity">
+      <soap:operation soapAction="http://monkeywrench.novell.com/RemoveIdentity" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetIdentities">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetIdentities" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditNotification">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditNotification" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveNotification">
+      <soap:operation soapAction="http://monkeywrench.novell.com/RemoveNotification" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetNotifications">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetNotifications" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddLaneNotification">
+      <soap:operation soapAction="http://monkeywrench.novell.com/AddLaneNotification" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveLaneNotification">
+      <soap:operation soapAction="http://monkeywrench.novell.com/RemoveLaneNotification" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5563,6 +5981,78 @@
     </operation>
     <operation name="FindLatestWorkFileId">
       <soap12:operation soapAction="http://monkeywrench.novell.com/FindLatestWorkFileId" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditIdentity">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditIdentity" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveIdentity">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/RemoveIdentity" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetIdentities">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetIdentities" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditNotification">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditNotification" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveNotification">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/RemoveNotification" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetNotifications">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetNotifications" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="AddLaneNotification">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/AddLaneNotification" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="RemoveLaneNotification">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/RemoveLaneNotification" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

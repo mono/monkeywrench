@@ -64,9 +64,12 @@
   <ItemGroup>
     <Compile Include="Database\DBBuildBotStatus.cs" />
     <Compile Include="Database\DBBuildBotStatus.generated.cs" />
+    <Compile Include="Database\DBNotificationType.cs" />
     <Compile Include="Database\DBCommand.cs" />
     <Compile Include="Database\DBCommand.generated.cs" />
     <Compile Include="Database\DBDeleteCondition.cs" />
+    <Compile Include="Database\DBEmailIdentity.cs" />
+    <Compile Include="Database\DBEmailIdentity.generated.cs" />
     <Compile Include="Database\DBEnvironmentVariable.cs" />
     <Compile Include="Database\DBEnvironmentVariable.generated.cs" />
     <Compile Include="Database\DBFile.cs" />
@@ -79,6 +82,8 @@
     <Compile Include="Database\DBHostLane.generated.cs" />
     <Compile Include="Database\DBHostLaneView.cs" />
     <Compile Include="Database\DBHostLaneView.generated.cs" />
+    <Compile Include="Database\DBIrcIdentity.cs" />
+    <Compile Include="Database\DBIrcIdentity.generated.cs" />
     <Compile Include="Database\DBLane.cs" />
     <Compile Include="Database\DBLane.generated.cs" />
     <Compile Include="Database\DBLaneDeletionDirective.cs" />
@@ -92,6 +97,8 @@
     <Compile Include="Database\DBLanefile.generated.cs" />
     <Compile Include="Database\DBLanefiles.cs" />
     <Compile Include="Database\DBLanefiles.generated.cs" />
+    <Compile Include="Database\DBLaneNotification.cs" />
+    <Compile Include="Database\DBLaneNotification.generated.cs" />
     <Compile Include="Database\DBLogin.cs" />
     <Compile Include="Database\DBLogin.generated.cs" />
     <Compile Include="Database\DBLoginView.cs" />
@@ -99,6 +106,9 @@
     <Compile Include="Database\DBMasterHost.cs" />
     <Compile Include="Database\DBMasterHost.generated.cs" />
     <Compile Include="Database\DBMatchMode.cs" />
+    <Compile Include="Database\DBNotification.cs" />
+    <Compile Include="Database\DBNotification.generated.cs" />
+    <Compile Include="Database\DBNotificationMode.cs" />
     <Compile Include="Database\DBPerson.cs" />
     <Compile Include="Database\DBPerson.generated.cs" />
     <Compile Include="Database\DBQueueManagement.cs" />
@@ -128,6 +138,8 @@
     <Compile Include="Logic\BuildBotStatus.cs" />
     <Compile Include="Logic\BuildInfoEntry.cs" />
     <Compile Include="Logic\GetBuildBotStatusResponse.cs" />
+    <Compile Include="Logic\GetIdentitiesResponse.cs" />
+    <Compile Include="Logic\GetNotificationsResponse.cs" />
     <Compile Include="Logic\GetReleasesResponse.cs" />
     <Compile Include="Logic\GetUserResponse.cs" />
     <Compile Include="Logic\FindHostResponse.cs" />

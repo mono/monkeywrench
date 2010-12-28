@@ -400,6 +400,15 @@ public partial class EditLane : System.Web.UI.Page
 			editorVariables.Lane = response.Lane;
 			editorVariables.Master = Master;
 			editorVariables.Variables = response.Variables;
+
+			// notifications
+			foreach (DBLaneNotification ln in response.LaneNotifications.FindAll ((v) => v.lane_id == response.Lane.id)) {
+				DBNotification notification = response.Notifications.Find ((v) => v.id == ln.notification_id);
+				tblNotifications.Rows.AddAt (tblNotifications.Rows.Count - 1, Utils.CreateTableRow (Utils.CreateTableCell (notification.name), Utils.CreateTableCell (Utils.CreateLinkButton ("remove_notification_" + ln.id.ToString (), "Remove", "RemoveNotification", ln.id.ToString (), OnLinkButtonCommand))));
+			}
+			foreach (DBNotification notification in response.Notifications.FindAll ((v) => !response.LaneNotifications.Exists ((ln) => ln.notification_id == v.id && ln.lane_id == response.Lane.id))) {
+				cmbNotifications.Items.Add (new ListItem (notification.name, notification.id.ToString ()));
+			}
 		} catch (Exception ex) {
 			lblMessage.Text = ex.ToString ().Replace ("\n", "<br/>");
 		}
@@ -568,6 +577,44 @@ public partial class EditLane : System.Web.UI.Page
 		lane.parent_lane_id = (parent_lane_id.HasValue && parent_lane_id.Value != 0) ? parent_lane_id : null;
 		Master.WebService.EditLane (Master.WebServiceLogin, lane);
 		RedirectToSelf ();
+	}
+
+	protected void lnkAddNotification_Click (object sender, EventArgs e)
+	{
+		WebServiceResponse response;
+
+		try {
+			response = null;
+
+			response = Master.WebService.AddLaneNotification (Master.WebServiceLogin, lane.id, int.Parse (cmbNotifications.SelectedItem.Value));
+			if (response.Exception != null) {
+				lblMessage.Text = response.Exception.Message;
+			} else {
+				RedirectToSelf ();
+			}
+		} catch (Exception ex) {
+			lblMessage.Text = ex.Message;
+		}
+	}
+
+	protected void OnLinkButtonCommand (object sender, CommandEventArgs e)
+	{
+		WebServiceResponse response;
+
+		try {
+			switch (e.CommandName) {
+			case "RemoveNotification":
+				response = Master.WebService.RemoveLaneNotification (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
+				if (response.Exception != null) {
+					lblMessage.Text = response.Exception.Message;
+				} else {
+					RedirectToSelf ();
+				}
+				break;
+			}
+		} catch (Exception ex) {
+			lblMessage.Text = ex.Message;
+		}
 	}
 
 	protected void cmdDeleteAllWork_Click (object sender, EventArgs e)

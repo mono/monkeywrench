@@ -32,5 +32,7 @@ namespace MonkeyWrench.DataClasses.Logic
 		public List<DBLaneDeletionDirectiveView> LaneDeletionDirectives;
 		public List<DBFileDeletionDirective> FileDeletionDirectives;
 		public List<DBEnvironmentVariable> Variables;
+		public List<DBNotification> Notifications;
+		public List<DBLaneNotification> LaneNotifications;
 	}
 }

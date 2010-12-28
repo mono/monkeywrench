@@ -53,8 +53,16 @@
     <Content Include="Admin.aspx" />
     <Content Include="BuildBotStatus.aspx" />
     <Content Include="BuildBotStatus.js" />
+    <Content Include="clientaccesspolicy.xml" />
+    <Content Include="DownloadLatestFile.aspx" />
+    <Content Include="Identities.aspx" />
+    <Content Include="Master.js" />
+    <Content Include="Notifications.aspx" />
     <Content Include="Releases.aspx" />
     <Content Include="ReportGitHubCommit.aspx" />
+    <Content Include="robots.txt" />
+    <Content Include="SelectLanes.aspx" />
+    <Content Include="User.js" />
     <Content Include="ViewHostHistory.aspx" />
     <Content Include="ViewHtmlReportEmbedded.aspx" />
     <Content Include="Delete.aspx" />
@@ -110,6 +118,27 @@
     <Compile Include="BuildBotStatus.aspx.designer.cs">
       <DependentUpon>BuildBotStatus.aspx</DependentUpon>
     </Compile>
+    <Compile Include="DownloadLatestFile.aspx.cs">
+      <DependentUpon>DownloadLatestFile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DownloadLatestFile.aspx.designer.cs">
+      <DependentUpon>DownloadLatestFile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Identities.aspx.cs">
+      <DependentUpon>Identities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Identities.aspx.designer.cs">
+      <DependentUpon>Identities.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Notifications.aspx.cs">
+      <DependentUpon>Notifications.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Notifications.aspx.designer.cs">
+      <DependentUpon>Notifications.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Releases.aspx.cs">
       <DependentUpon>Releases.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -123,6 +152,13 @@
     </Compile>
     <Compile Include="ReportGitHubCommit.aspx.designer.cs">
       <DependentUpon>ReportGitHubCommit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SelectLanes.aspx.cs">
+      <DependentUpon>SelectLanes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SelectLanes.aspx.designer.cs">
+      <DependentUpon>SelectLanes.aspx</DependentUpon>
     </Compile>
     <Compile Include="ViewHostHistory.aspx.cs">
       <DependentUpon>ViewHostHistory.aspx</DependentUpon>

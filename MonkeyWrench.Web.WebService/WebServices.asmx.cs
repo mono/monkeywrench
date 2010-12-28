@@ -600,6 +600,23 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 
 				response.Variables = DBEnvironmentVariable_Extensions.Find (db, response.Lane.id, null, null);
 
+				response.Notifications = new List<DBNotification> ();
+				response.LaneNotifications = new List<DBLaneNotification> ();
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT * FROM Notification; SELECT * FROM LaneNotification WHERE lane_id = @lane_id;";
+					DB.CreateParameter (cmd, "lane_id", response.Lane.id);
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							response.Notifications.Add (new DBNotification (reader));
+						}
+						if (reader.NextResult ()) {
+							while (reader.Read ()) {
+								response.LaneNotifications.Add (new DBLaneNotification (reader));
+							}
+						}
+					}
+				}
+
 				return response;
 			}
 		}
@@ -1907,6 +1924,8 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 				}
 				response.RevisionWorkCompleted = rw.completed;
 
+				MonkeyWrench.Web.WebService.Notifications.Notify (work, rw);
+
 				return response;
 			}
 		}
@@ -2400,6 +2419,217 @@ WHERE Revision.lane_id = @lane_id AND ";
 				}
 			}
 		}
+
+		[WebMethod]
+		public WebServiceResponse EditIdentity (WebServiceLogin login, DBIrcIdentity irc_identity, DBEmailIdentity email_identity)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+
+					if (irc_identity != null) {
+						irc_identity.Save (db);
+					}
+					if (email_identity != null) {
+						email_identity.Save (db);
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse RemoveIdentity (WebServiceLogin login, int? irc_identity, int? email_identity)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = string.Empty;
+
+						if (irc_identity.HasValue) {
+							cmd.CommandText += "DELETE FROM IrcIdentity WHERE id = @irc_id;";
+							DB.CreateParameter (cmd, "irc_id", irc_identity.Value);
+						}
+						if (email_identity.HasValue) {
+							cmd.CommandText += "DELETE FROM EmailIdentity WHERE id = @email_id;";
+							DB.CreateParameter (cmd, "email_id", email_identity.Value);
+						}
+
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public GetIdentitiesResponse GetIdentities (WebServiceLogin login)
+		{
+			GetIdentitiesResponse response = new GetIdentitiesResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+
+					response.EmailIdentities = new List<DBEmailIdentity> ();
+					response.IrcIdentities = new List<DBIrcIdentity> ();
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "SELECT * FROM IrcIdentity; SELECT * FROM EmailIdentity;";
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.Read ()) {
+								response.IrcIdentities.Add (new DBIrcIdentity (reader));
+							}
+							if (reader.NextResult ()) {
+								while (reader.Read ()) {
+									response.EmailIdentities.Add (new DBEmailIdentity (reader));
+								}
+							}
+						}
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse EditNotification (WebServiceLogin login, DBNotification notification)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					notification.Save (db);
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse RemoveNotification (WebServiceLogin login, int id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "DELETE FROM Notification WHERE id = @id;";
+						DB.CreateParameter (cmd, "id", id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public GetNotificationsResponse GetNotifications (WebServiceLogin login)
+		{
+			GetNotificationsResponse response = new GetNotificationsResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+
+					response.EmailIdentities = new List<DBEmailIdentity> ();
+					response.IrcIdentities = new List<DBIrcIdentity> ();
+					response.Notifications = new List<DBNotification> ();
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "SELECT * FROM IrcIdentity; SELECT * FROM EmailIdentity; SELECT * FROM Notification;";
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.Read ()) {
+								response.IrcIdentities.Add (new DBIrcIdentity (reader));
+							}
+							if (reader.NextResult ()) {
+								while (reader.Read ()) {
+									response.EmailIdentities.Add (new DBEmailIdentity (reader));
+								}
+								if (reader.NextResult ()) {
+									while (reader.Read ()) {
+										response.Notifications.Add (new DBNotification (reader));
+									}
+								}
+							}
+						}
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse AddLaneNotification (WebServiceLogin login, int lane_id, int notification_id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "INSERT INTO LaneNotification (lane_id, notification_id) VALUES (@lane_id, @notification_id);";
+						DB.CreateParameter (cmd, "lane_id", lane_id);
+						DB.CreateParameter (cmd, "notification_id", notification_id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse RemoveLaneNotification (WebServiceLogin login, int id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "DELETE FROM LaneNotification WHERE id = @id;";
+						DB.CreateParameter (cmd, "id", id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
 		[WebMethod]
 		public WebServiceResponse AddRelease (WebServiceLogin login, DBRelease release)
 		{

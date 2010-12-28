@@ -11,7 +11,8 @@ OUT = $(OUT_DIR)/$(LIBRARY)
 BUILDABLE_REFS = \
 	$(OUT_DIR)/MonkeyWrench.dll	\
 	$(OUT_DIR)/MonkeyWrench.DataClasses.dll	\
-	$(OUT_DIR)/MonkeyWrench.Database.dll
+	$(OUT_DIR)/MonkeyWrench.Database.dll \
+	$(OUT_DIR)/Meebey.SmartIrc4net.dll
 
 REFERENCES = \
 	$(foreach ref,$(BUILDABLE_REFS),-r:$(ref))	\
@@ -39,6 +40,7 @@ install: all
 	cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin
 	cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin
 	cp -pu $(OUT_DIR)/MonkeyWrench.Database.dll* bin
+	cp -pu $(OUT_DIR)/Meebey.SmartIrc4net.dll* bin
 
 dataclasses:
 	$(MAKE) -C $(TOPDIR)/MonkeyWrench.DataClasses

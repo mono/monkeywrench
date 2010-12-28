@@ -484,5 +484,65 @@ namespace MonkeyWrench.Scheduler
 				return null;
 			}
 		}
+
+		public static void FindPeopleForCommit (DBLane lane, DBRevision revision, List<DBPerson> people)
+		{
+			DBPerson person;
+			try {
+				foreach (string repository in lane.repository.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
+					string cache_dir = Configuration.GetSchedulerRepositoryCacheDirectory (repository);
+
+					if (!Directory.Exists (cache_dir))
+						continue;
+
+					using (Process git = new Process ()) {
+						DateTime git_start = DateTime.Now;
+						git.StartInfo.FileName = "git";
+						git.StartInfo.Arguments = "log -1 --pretty=format:'%aE%n%aN%n%cE%n%cN' " + revision.revision;
+						git.StartInfo.WorkingDirectory = cache_dir;
+						git.StartInfo.UseShellExecute = false;
+						git.StartInfo.RedirectStandardOutput = true;
+
+						git.Start ();
+
+						string author_email = git.StandardOutput.ReadLine ();
+						string author_name = git.StandardOutput.ReadLine ();
+						string committer_email = git.StandardOutput.ReadLine ();
+						string committer_name = git.StandardOutput.ReadLine ();
+
+						// Wait 10 minutes for git to finish, otherwise abort.
+						if (!git.WaitForExit (1000 * 60 * 10)) {
+							Logger.Log ("Getting commit info took more than 10 minutes, aborting.");
+							try {
+								git.Kill ();
+								git.WaitForExit (10000); // Give the process 10 more seconds to completely exit.
+							} catch (Exception ex) {
+								Logger.Log ("Aborting commit info retrieval failed: {0}", ex.ToString ());
+							}
+						}
+
+						if (git.HasExited && git.ExitCode == 0) {
+							Logger.Log ("Got commit info successfully in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
+							person = new DBPerson ();
+							person.fullname = author_name;
+							person.Emails = new string [] { author_email };
+							people.Add (person);
+							if (author_name != committer_name && !string.IsNullOrEmpty (committer_name)) {
+								person = new DBPerson ();
+								person.fullname = committer_name;
+								person.Emails = new string [] {committer_email};
+								people.Add (person);
+							}
+							Logger.Log ("Git commit info for {0}: author_name = {1} author_email: {2} committer_name: {3} committer_email: {4}", revision.revision, author_name, author_email, committer_name, committer_email);
+						} else {
+							Logger.Log ("Didn't get commit info, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
+						}
+					}
+				}
+			} catch (Exception ex) {
+				Logger.Log ("Exception while trying to get commit info: {0}", ex.ToString ());
+			}
+		}
+
 	}
 }

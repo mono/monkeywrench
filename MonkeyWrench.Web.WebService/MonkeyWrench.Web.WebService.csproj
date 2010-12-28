@@ -62,12 +62,17 @@
       <Project>{EBFBC3BF-10E1-4482-B9BE-A516934C099A}</Project>
       <Name>MonkeyWrench</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SmartIrc4net\SmartIrc4net-0.4.0-src\VisualStudio\2010\SmartIrc4net.csproj">
+      <Project>{19607F57-B521-4477-9DE0-F0D9B1A68BC7}</Project>
+      <Name>SmartIrc4net</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Download.aspx" />
+    <Content Include="Global.asax" />
     <Content Include="WebServices.asmx" />
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +84,10 @@
     <Compile Include="Download.aspx.designer.cs">
       <DependentUpon>Download.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Notifications.cs" />
     <Compile Include="Upload.cs" />
     <Compile Include="WebServices.asmx.cs">
       <DependentUpon>WebServices.asmx</DependentUpon>

@@ -217,6 +217,22 @@
             </asp:TableRow>
             <asp:TableRow runat="server">
                 <asp:TableCell>
+                    <asp:Table ID="tblNotifications" runat="server"  CssClass="commands">
+                        <asp:TableHeaderRow CssClass="commands_header">
+                            <asp:TableHeaderCell ColumnSpan="2">Notifications</asp:TableHeaderCell>
+                        </asp:TableHeaderRow>
+                        <asp:TableHeaderRow>
+                            <asp:TableHeaderCell>Name</asp:TableHeaderCell><asp:TableHeaderCell>Type</asp:TableHeaderCell>
+                        </asp:TableHeaderRow>
+                        <asp:TableFooterRow>
+                            <asp:TableCell>
+                                <asp:DropDownList ID="cmbNotifications" runat="server" /> 
+                            </asp:TableCell>
+                            <asp:TableCell>
+                                <asp:LinkButton ID="lnkAddNotification" runat="server" Text="Add" OnClick="lnkAddNotification_Click" />
+                            </asp:TableCell>
+                        </asp:TableFooterRow>
+                    </asp:Table>
                 </asp:TableCell>
             </asp:TableRow>
             <asp:TableRow runat="server">

@@ -498,5 +498,16 @@ WHERE
 				Logger.Log ("CheckDependencies: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
 			}
 		}
+
+		public static void FindPeopleForCommit (DBLane lane, DBRevision revision, List<DBPerson> people)
+		{
+			if (lane.source_control == "git") {
+				GITUpdater.FindPeopleForCommit (lane, revision, people);
+			} else if (lane.source_control == "svn") {
+				SVNUpdater.FindPeopleForCommit (lane, revision, people);
+			} else {
+				Logger.Log ("FindPeopleForCommit (): unknown source control: '{0}'", lane.source_control);
+			}
+		}
 	}
 }

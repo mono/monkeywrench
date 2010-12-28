@@ -190,6 +190,13 @@ namespace MonkeyWrench.Scheduler
 			}
 		}
 
+		public static void FindPeopleForCommit (DBLane lane, DBRevision revision, List<DBPerson> people)
+		{
+			DBPerson person = new DBPerson ();
+			person.fullname = revision.author;
+			people.Add (person);
+		}
+
 		public static void StartDiffThread ()
 		{
 			quit_svn_diff = false;
