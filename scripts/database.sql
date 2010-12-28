@@ -29,7 +29,7 @@ CREATE DATABASE builder OWNER builder;
 
 CREATE TABLE Host (
 	id              serial     PRIMARY KEY,
-	host            text       UNIQUE NOT NULL,     -- the name of this host (no commas allowed)
+	host            text       NOT NULL,     -- the name of this host (no commas allowed)
 	description     text       NOT NULL DEFAULT '', -- a description for this host
 	architecture    text       NOT NULL DEFAULT '', -- this host's architecture.
 	queuemanagement int        NOT NULL DEFAULT 0,  -- how this host manages its queue. 
@@ -39,7 +39,8 @@ CREATE TABLE Host (
                                                     --    * if the bot can't keep up with the number of commits, it'll run out of disk space.
                                                     -- 2: send one revisionwork at a time to the bot, even if several lanes are configured for it,
                                                     --    and cycle through the configured lanes when selecting revisionwork.
-    enabled         boolean    NOT NULL DEFAULT TRUE -- if this host is enabled.
+	enabled         boolean    NOT NULL DEFAULT TRUE, -- if this host is enabled.
+	UNIQUE (host)
 );
 
 -- host/master host relationships
@@ -203,7 +204,7 @@ CREATE TABLE RevisionWork (
 	-- executing (default)
 	
 	lock_expires   timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time when this revisionwork's lock (if any) expires
-	completed      boolean    NOT NULL DEFAULT FALSE, -- if this revision has completed it's work
+	completed      boolean    NOT NULL DEFAULT FALSE, -- if this revision has completed its work
 	endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time this revisionwork finished working
 	-- alter table revisionwork add column endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0';
 	UNIQUE (lane_id, host_id, revision_id)
