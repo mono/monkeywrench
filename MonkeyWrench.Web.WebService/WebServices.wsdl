@@ -52,6 +52,15 @@
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="1" name="UserRoles" type="s0:ArrayOfString" />
           <xs:element minOccurs="0" maxOccurs="1" name="UserName" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Exception" type="s0:WebServiceException" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="WebServiceException">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Message" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="StackTrace" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="AsString" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="GetLaneResponse">

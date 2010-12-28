@@ -33,6 +33,12 @@ namespace MonkeyWrench.DataClasses.Logic
 		/// </summary>
 		public string UserName;
 
+		/// <summary>
+		/// Any exceptions thrown
+		/// </summary>
+		public WebServiceException Exception;
+
+		/// <summary>
 		/// Checks if a user in in a specific role
 		/// </summary>
 		/// <param name="role"></param>

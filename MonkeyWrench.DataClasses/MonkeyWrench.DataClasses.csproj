@@ -146,6 +146,7 @@
     <Compile Include="Logic\LoginResponse.cs" />
     <Compile Include="Logic\ReportBuildStateResponse.cs" />
     <Compile Include="Logic\Roles.cs" />
+    <Compile Include="Logic\WebServiceException.cs" />
     <Compile Include="Logic\WebServiceLogin.cs" />
     <Compile Include="Logic\WebServiceResponse.cs" />
     <Compile Include="SqlToCSharp.cs" />
