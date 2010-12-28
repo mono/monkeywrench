@@ -80,8 +80,8 @@ namespace MonkeyWrench.WebServices
 			} else {
 				view = DBLoginView_Extensions.VerifyLogin (db, login.User, login.Cookie, ip);
 				if (view == null) {
-					return;
 					Logger.Log (2, "Invalid cookie");
+					return;
 				}
 				person_id = view.person_id;
 				Logger.Log (2, "Verifying login, cookie: {0} user: {1} ip: {2}", login.Cookie, login.User, ip);

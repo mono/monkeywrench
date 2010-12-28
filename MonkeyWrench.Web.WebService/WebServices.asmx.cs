@@ -851,7 +851,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 		[WebMethod]
 		public void EditLane (WebServiceLogin login, DBLane lane)
 		{
-			WebServiceResponse response = new WebServiceResponse ();
+			//WebServiceResponse response = new WebServiceResponse ();
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				lane.Save (db);
@@ -862,7 +862,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 		[Obsolete]
 		public void EditHost (WebServiceLogin login, DBHost host)
 		{
-			WebServiceResponse response = new WebServiceResponse ();
+			//WebServiceResponse response = new WebServiceResponse ();
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				host.Save (db);
@@ -872,7 +872,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 		[WebMethod]
 		public void EditHostWithPassword (WebServiceLogin login, DBHost host, string password)
 		{
-			WebServiceLogin response = new WebServiceLogin ();
+			//WebServiceLogin response = new WebServiceLogin ();
 			using (DB db = new DB ()) {
 				using (IDbTransaction transaction = db.BeginTransaction ()) {
 					VerifyUserInRole (db, login, Roles.Administrator);

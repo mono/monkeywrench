@@ -21,7 +21,6 @@ namespace MonkeyWrench.DataClasses.Logic
 {
 	public class FrontPageResponse : WebServiceResponse
 	{
-		[Obsolete]
 		public DBLane Lane;
 		/// <summary>
 		/// A list of the lanes to show.

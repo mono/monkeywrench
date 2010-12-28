@@ -150,10 +150,6 @@ public partial class index : System.Web.UI.Page
 	public string GenerateOverview (FrontPageResponse data)
 	{
 		StringBuilder matrix = new StringBuilder ();
-		StringBuilder lane_row = new StringBuilder ();
-		StringBuilder host_row = new StringBuilder ();
-		List<StringBuilder> rows = new List<StringBuilder> ();
-		Dictionary<long, int> col_indices = new Dictionary<long, int> ();
 		LaneTreeNode tree = BuildTree (data);
 		List<StringBuilder> header_rows = new List<StringBuilder> ();
 		List<int> hostlane_order = new List<int> ();

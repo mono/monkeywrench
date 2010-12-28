@@ -137,11 +137,9 @@ namespace MonkeyWrench.DataClasses
 			}
 
 			do {
-				string type;
 				ViewColumns c = new ViewColumns ();
 
 				column = ReadWord (ref view);
-				type = column;
 
 				if (string.IsNullOrEmpty (column) || column == "FROM")
 					break;

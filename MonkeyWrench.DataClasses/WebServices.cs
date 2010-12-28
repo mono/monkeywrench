@@ -393,7 +393,6 @@ namespace MonkeyWrench.Web.WebServices
 		public void UploadFileSafe (DBWork work, string filename, bool hidden)
 		{
 			string gz = null;
-			DateTime start = DateTime.Now;
 			string file_to_upload = null;
 			string compressed_mime = null;
 

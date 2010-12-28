@@ -119,7 +119,6 @@ public partial class ViewLane : System.Web.UI.Page
 	{
 		StringBuilder matrix = new StringBuilder ();
 		List<DBWorkView2> steps = response.WorkViews;
-		DateTime beginning = new DateTime (2001, 1, 1, 0, 0, 0);
 		DBRevision dbr = response.Revision;
 		DBRevisionWork revisionwork = response.RevisionWork;
 		DBLane lane = response.Lane;
@@ -174,12 +173,10 @@ public partial class ViewLane : System.Web.UI.Page
 		for (int s = 0; s < steps.Count; s++) {
 			DBWorkView2 step = steps [s];
 			DBState state = (DBState) step.state;
-			bool done = state > DBState.Executing;
 			DateTime starttime = step.starttime.ToLocalTime ();
 			DateTime endtime = step.endtime.ToLocalTime ();
 			int duration = (int) (endtime - starttime).TotalSeconds;
 			bool nonfatal = step.nonfatal;
-			bool alwaysexecute = step.alwaysexecute;
 			string command = step.command;
 			List<DBWorkFileView> files = response.WorkFileViews [s];
 

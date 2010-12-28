@@ -192,7 +192,6 @@ public partial class ViewTable : System.Web.UI.Page
 	public string GenerateLaneTable (GetViewTableDataResponse response, DBLane lane, DBHost host, bool horizontal, int page, int limit)
 	{
 		StringBuilder matrix = new StringBuilder ();
-		DateTime beginning = new DateTime (2001, 1, 1, 0, 0, 0);
 		bool new_revision = true;
 		int revision_id = 0;
 		int result_index;

@@ -228,7 +228,6 @@ WHERE HostLane.enabled = true AND
 		private static void AddWork (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes)
 		{
 			DateTime start = DateTime.Now;
-			List<DBRevision> revisions = new List<DBRevision> ();
 			List<DBCommand> commands = null;
 			List<DBLaneDependency> dependencies = null;
 			IEnumerable<DBCommand> commands_in_lane;
@@ -317,13 +316,13 @@ WHERE HostLane.enabled = true AND
 		private static void CheckDependenciesSlow (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes, List<DBLaneDependency> dependencies)
 		{
 			DateTime start = DateTime.Now;
-			List<DBRevision> revisions = new List<DBRevision> ();
+			//List<DBRevision> revisions = new List<DBRevision> ();
 			//List<DBCommand> commands = null;
 			//IEnumerable<DBLaneDependency> dependencies_in_lane;
 			//IEnumerable<DBCommand> commands_in_lane;
 			//List<DBRevisionWork> revisionwork_without_work = new List<DBRevisionWork> ();
 			//DBHostLane hostlane;
-			StringBuilder sql = new StringBuilder ();
+			//StringBuilder sql = new StringBuilder ();
 
 			try {
 				Logger.Log ("CheckDependenciesSlow: IMPLEMENTED, BUT NOT TESTED");
@@ -422,7 +421,6 @@ WHERE HostLane.enabled = true AND
 		private static void CheckDependencies (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes)
 		{
 			DateTime start = DateTime.Now;
-			List<DBRevisionWork> filfilled_revisionwork = new List<DBRevisionWork> ();
 			StringBuilder sql = new StringBuilder ();
 			List<DBLaneDependency> dependencies;
 

@@ -74,7 +74,6 @@ public partial class ViewWorkTable : System.Web.UI.Page
 	{
 		StringBuilder matrix = new StringBuilder ();
 		List<DBWorkView2> steps;
-		DateTime beginning = new DateTime (2001, 1, 1, 0, 0, 0);
 
 		steps = response.WorkViews;
 
@@ -116,13 +115,6 @@ public partial class ViewWorkTable : System.Web.UI.Page
 
 			// result
 
-			int file_id = 0;
-			foreach (DBWorkFileView file in files) {
-				if (!file.filename.StartsWith (view.command))
-					continue;
-				file_id = file.id;
-				break;
-			}
 			matrix.AppendFormat ("\t<td class='{0}'><a href='ViewLane.aspx?lane_id={2}&host_id={3}&revision_id={4}'>{1}</a></td>", result, view.revision, lane.id, host.id, view.revision_id);
 
 			if (state > DBState.NotDone && state != DBState.Paused) {

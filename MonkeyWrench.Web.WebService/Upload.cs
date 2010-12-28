@@ -167,7 +167,6 @@ namespace MonkeyWrench.WebServices
 						byte [] md5 = new byte [16];
 						byte flags;
 						bool hidden;
-						bool compressed;
 						byte filename_length;
 						byte compressed_mime_length;
 						int content_length;
@@ -187,7 +186,7 @@ namespace MonkeyWrench.WebServices
 						filename = ReadString (reader, buffer, filename_length);
 
 						hidden = (flags & 0x2) == 0x2;
-						compressed = (flags & 0x1) == 0x1;
+						// compressed = (flags & 0x1) == 0x1;
 
 						Logger.Log ("Upload.ExecuteRequest (): {0} file #{1}: filename: '{2}' ", id, i + 1, filename);
 

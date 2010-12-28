@@ -113,7 +113,6 @@ namespace MonkeyWrench.Builder
 		private static bool Update (BuildBotStatus status, ReportBuildBotStatusResponse status_response)
 		{
 			StringBuilder output = new StringBuilder ();
-			object lock_obj = new object ();
 
 			Logger.Log ("This host is at version {0}, while it should be running version {1} ({2}). Will try to update.", status.AssemblyVersion, status_response.ConfiguredVersion, status_response.ConfiguredRevision);
 

@@ -316,7 +316,6 @@ namespace MonkeyWrench.Scheduler
 		private List<GitEntry> GetGITLog (DBLane dblane, string repository, string min_revision, string max_revision)
 		{
 			List<GitEntry> result = null;
-			string revs = string.Empty;
 
 			try {
 				Log ("Retrieving log for '{0}', repository: '{1}', min_revision: {2} max_revision: {3}", dblane.lane, repository, min_revision, max_revision);

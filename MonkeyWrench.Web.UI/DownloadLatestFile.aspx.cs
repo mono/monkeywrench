@@ -24,7 +24,6 @@ public partial class DownloadLatestFile : System.Web.UI.Page
 	protected void Page_Load (object sender, EventArgs e)
 	{
 		int? lane_id = null;
-		int? revision_id = null;
 		string lane = null;
 		string filename = null;
 		bool completed = false;

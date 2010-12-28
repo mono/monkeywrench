@@ -34,8 +34,6 @@ namespace MonkeyWrench.WebServices
 				bool diff;
 				string md5;
 
-				DateTime start = DateTime.Now;
-
 				int.TryParse (Request ["revision_id"], out revision_id);
 				int.TryParse (Request ["workfile_id"], out workfile_id);
 				bool.TryParse (Request ["diff"], out diff);
@@ -161,8 +159,6 @@ namespace MonkeyWrench.WebServices
 			DBLane lane;
 
 			using (DB db = new DB ()) {
-				WebServiceLogin login = CreateLogin ();
-
 				revision = DBRevision_Extensions.Create (db, revision_id);
 
 				// no access restricion on revision logs/diffs

@@ -47,8 +47,6 @@ public partial class EditLane : System.Web.UI.Page
 
 			txtID.Attributes ["readonly"] = "readonly";
 
-			string strlane = Request ["lane"];
-			string laneid = Request ["lane_id"];
 			string action = Request ["action"];
 			string command_id = Request ["command_id"];
 

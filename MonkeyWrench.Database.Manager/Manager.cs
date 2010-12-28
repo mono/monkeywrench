@@ -213,7 +213,6 @@ LIMIT 10
 
 								do {
 									DBRevision revision = new DBRevision (reader);
-									byte [] buffer = new byte [1024];
 									string tmpfile = null;
 
 									if (!string.IsNullOrEmpty (revision.diff)) {

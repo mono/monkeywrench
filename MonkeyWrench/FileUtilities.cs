@@ -200,7 +200,6 @@ namespace MonkeyWrench
 		/// <returns></returns>
 		public static string CreateFilename (string md5, bool is_gz_compressed, bool create_directory)
 		{
-			string file = md5;
 			string path = Configuration.GetFilesDirectory ();
 
 			path = Path.Combine (path, md5.Substring (0, 2));
