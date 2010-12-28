@@ -75,11 +75,6 @@ public partial class BuildBotStatus : System.Web.UI.Page
 				foreach (DBBuildBotStatus status in response.Status) {
 					DBHost host = response.Hosts.Find ((v) => v.id == status.host_id);
 					DBRelease configured_release = host.release_id.HasValue ? response.Releases.Find ((v) => v.id == host.release_id.Value) : null;
-					if (host.release_id.HasValue) {
-						Logger.Log ("Configured release3: {0} {1} releases finding id={2} when first is id={3}", configured_release == null ? "NULL" : "SOMETHING", response.Releases.Count, host.release_id.Value, response.Releases [0].id);
-					} else {
-						Logger.Log ("Configured release3: NO HOST RELEASE for host id {0} = {1}", host.id, host.host);
-					}
 					TableRow row = new TableRow ();
 					row.Cells.Add (Utils.CreateTableCell (host.host));
 					row.Cells.Add (Utils.CreateTableCell (status.version));

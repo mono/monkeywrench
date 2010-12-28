@@ -1818,7 +1818,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 				using (DB db = new DB ()) {
 					VerifyUserInRole (db, login, Roles.BuildBot, true);
 
-					Logger.Log ("BuildBot reported in. v{0}: {1}", status.AssemblyVersion, status.AssemblyDescription);
+					Logger.Log (2, "BuildBot '{2}' reported in. v{0}: {1}", status.AssemblyVersion, status.AssemblyDescription, status.Host);
 
 					using (IDbCommand cmd = db.CreateCommand ()) {
 						cmd.CommandText = @"
