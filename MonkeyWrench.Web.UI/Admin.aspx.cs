@@ -37,7 +37,7 @@ public partial class Admin : System.Web.UI.Page
 			lblDeletionDirectiveStatus.Text = response.IsDeletionDirectivesExecuting ? "Running" : "Not running";
 			lblSchedulerStatus.Text = response.IsSchedulerExecuting ? "Running" : "Not running";
 		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+			lblMessage.Text = Utils.FormatException (ex);
 		}
 	}
 
@@ -49,7 +49,7 @@ public partial class Admin : System.Web.UI.Page
 			lblSchedule.Text = "Scheduler started. It's run asynchronously, so no updates will be shown here.";
 			lblSchedulerStatus.Text = "Running";
 		} catch (Exception ex) {
-			lblSchedule.Text = ex.Message;
+			lblSchedule.Text = Utils.FormatException (ex.Message);
 		}
 	}
 
@@ -61,7 +61,7 @@ public partial class Admin : System.Web.UI.Page
 			lblExecuteDeletionDirectives.Text = "Retention directives executed. They are run asynchronously, so no updates will be shown here.";
 			lblDeletionDirectiveStatus.Text = "Running";
 		} catch (Exception ex) {
-			lblExecuteDeletionDirectives.Text = ex.Message;
+			lblExecuteDeletionDirectives.Text = Utils.FormatException (ex.Message);
 		}
 	}
 }

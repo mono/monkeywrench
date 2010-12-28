@@ -6,6 +6,7 @@
     <div id="buildtable" runat="server" enableviewstate="False">
     </div>
     <div enableviewstate="false"><a href="SelectLanes.aspx">Select lanes</a></div>
+    <div><asp:Label runat="server" ID="lblMessage" ForeColor="Red" /></div>
     <h3>
         Legend</h3>
     <div>

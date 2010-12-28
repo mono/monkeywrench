@@ -89,7 +89,7 @@ public partial class index : System.Web.UI.Page
 
 			this.buildtable.InnerHtml = GenerateOverview (data);
 		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+			lblMessage.Text = Utils.FormatException (ex, true);
 		}
 	}
 

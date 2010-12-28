@@ -13,5 +13,6 @@
         <asp:Button ID="cmdExecuteDeletionDirectives" runat="server" Text="Execute retention directives" OnClick="cmdExecuteDeletionDirectives_Click" />
         <br />
         <asp:Label ID="lblExecuteDeletionDirectives" runat="server" />
+        <asp:Label ID="lblMessage" runat="server" ForeColor="Red" />
     </div>
 </asp:Content>

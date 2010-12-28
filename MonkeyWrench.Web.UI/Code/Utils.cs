@@ -177,4 +177,19 @@ public static class Utils
 			return i;
 		return null;
 	}
+
+	public static string FormatException (Exception ex)
+	{
+		return FormatException (ex, false);
+	}
+
+	public static string FormatException (Exception ex, bool include_stack_trace)
+	{
+		return FormatException (include_stack_trace ? ex.ToString () : ex.Message);
+	}
+
+	public static string FormatException (string str)
+	{
+		return str.Replace ("\n", "<br/>\n").Replace (" ", "&nbsp;").Replace ("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+	}
 }
