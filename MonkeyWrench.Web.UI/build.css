@@ -144,6 +144,24 @@ table.buildstatus .enabled
 	background: #C9FFC9;
 }
 
+table.hosts 
+{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+table.hosts tr:first-child th
+{
+    font-weight: bold;
+    font-size: 16px;
+}
+
+table.hosts input
+{
+    text-align: center;
+}
+
 table.users
 {
     border: 1px solid #CCCCCC;

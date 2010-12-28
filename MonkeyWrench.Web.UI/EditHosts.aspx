@@ -1,12 +1,23 @@
-<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" Inherits="EditHosts" Codebehind="EditHosts.aspx.cs" %>
+<%@ Page MasterPageFile="~/Master.master" Language="C#" AutoEventWireup="true" Inherits="EditHosts" CodeBehind="EditHosts.aspx.cs" EnableViewState="false" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
     <script type="text/javascript" src="EditHosts.js"></script>
-    <h2>Hosts</h2>
-    <div>
-        <asp:Table ID="tblHosts" CssClass="buildstatus" runat="server">
-        </asp:Table>
-        <asp:Label ID="lblMessage" runat="server"></asp:Label>
-        <br />
-    </div>
+    <asp:Table ID="tblHosts" CssClass="buildstatus hosts" runat="server">
+        <asp:TableHeaderRow>
+            <asp:TableHeaderCell ColumnSpan="4">Hosts</asp:TableHeaderCell>
+        </asp:TableHeaderRow>
+        <asp:TableHeaderRow>
+            <asp:TableHeaderCell>Name</asp:TableHeaderCell>
+            <asp:TableHeaderCell>Actions</asp:TableHeaderCell>
+            <asp:TableHeaderCell>Description</asp:TableHeaderCell>
+            <asp:TableHeaderCell>Architecture</asp:TableHeaderCell>
+        </asp:TableHeaderRow>
+        <asp:TableRow>
+            <asp:TableCell><input type='text' value='host' name='txtHost' id='txtHost' /></asp:TableCell>
+            <asp:TableCell><a href='javascript:addHost ()'>Add</a></asp:TableCell>
+            <asp:TableCell></asp:TableCell>
+            <asp:TableCell></asp:TableCell>
+        </asp:TableRow>
+    </asp:Table>
+    <div><asp:Label ID="lblMessage" runat="server" ForeColor="Red" /></div>
 </asp:Content>

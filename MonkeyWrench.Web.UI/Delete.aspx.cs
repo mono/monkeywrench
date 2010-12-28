@@ -68,6 +68,28 @@ public partial class Delete : System.Web.UI.Page
 				cmdConfirm.Enabled = true;
 				break;
 			}
+			case "delete-all-work-for-lane": {
+				if (!int.TryParse (Request ["lane_id"], out lane_id)) {
+					lblMessage.Text = "You need to specify a lane whose work should be deleted.";
+					return;
+				}
+				FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
+
+				lblMessage.Text = string.Format ("Are you sure you want to delete all the work for the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
+				cmdConfirm.Enabled = true;
+				break;
+				}
+			case "delete-all-revisions-for-lane": {
+				if (!int.TryParse (Request ["lane_id"], out lane_id)) {
+					lblMessage.Text = "You need to specify a lane whose revisions should be deleted.";
+					return;
+				}
+				FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
+
+				lblMessage.Text = string.Format ("Are you sure you want to delete all the revisions for the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
+				cmdConfirm.Enabled = true;
+				break;
+			}
 			case "clear-all-work-for-host": {
 				if (!int.TryParse (Request ["host_id"], out host_id)) {
 					lblMessage.Text = "You need to specify a host whose work should be cleared.";
@@ -79,7 +101,17 @@ public partial class Delete : System.Web.UI.Page
 				cmdConfirm.Enabled = true;
 				break;
 			}
+			case "clear-all-work-for-lane": {
+				if (!int.TryParse (Request ["lane_id"], out lane_id)) {
+					lblMessage.Text = "You need to specify a lane whose work should be cleared.";
+					return;
+				}
+				FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
 
+				lblMessage.Text = string.Format ("Are you sure you want to clear all the work for the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
+				cmdConfirm.Enabled = true;
+				break;
+			}
 			default:
 				lblMessage.Text = "Nothing to confirm. Click Cancel to go back.";
 				break;
@@ -111,8 +143,17 @@ public partial class Delete : System.Web.UI.Page
 			case "delete-all-work-for-host":
 				rsp = Master.WebService.DeleteAllWorkForHost (Master.WebServiceLogin, host_id);
 				break;
+			case "delete-all-work-for-lane":
+				rsp = Master.WebService.DeleteAllWorkForLane (Master.WebServiceLogin, lane_id);
+				break;
+			case "delete-all-revisions-for-lane":
+				rsp = Master.WebService.DeleteAllRevisionsForLane (Master.WebServiceLogin, lane_id);
+				break;
 			case "clear-all-work-for-host":
 				rsp = Master.WebService.ClearAllWorkForHost (Master.WebServiceLogin, host_id);
+				break;
+			case "clear-all-work-for-lane":
+				rsp = Master.WebService.ClearAllWorkForLane (Master.WebServiceLogin, lane_id);
 				break;
 			default:
 				lblMessage.Text = "Invalid action";

@@ -16,6 +16,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
+using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
@@ -29,9 +30,6 @@ public partial class EditHosts : System.Web.UI.Page
 
 	protected void Page_Load (object sender, EventArgs e)
 	{
-		lblMessage.Text = "";
-		lblMessage.Visible = false;
-
 		if (!IsPostBack) {
 			string action = Request ["action"];
 			int host_id;
@@ -47,47 +45,39 @@ public partial class EditHosts : System.Web.UI.Page
 				case "add":
 					try {
 						Master.WebService.AddHost (Master.WebServiceLogin, Request ["host"]);
+						Response.Redirect ("EditHosts.aspx");
+						return;
 					} catch (Exception ex) {
-						lblMessage.Text = ex.Message;
+						lblMessage.Text = Utils.FormatException (ex);
 					}
-					Response.Redirect ("EditHosts.aspx");
-					return;
+					break;
 				default:
 					// do nothing
 					break;
 				}
 			}
-
-			GetHostsResponse response = Master.WebService.GetHosts (Master.WebServiceLogin);
-			TableHeaderRow header = new TableHeaderRow ();
-			TableHeaderCell cell = new TableHeaderCell ();
-			TableRow row;
-			cell.Text = "Hosts";
-			cell.ColumnSpan = 5;
-			header.Cells.Add (cell);
-			tblHosts.Rows.Add (header);
-			
-			row = new TableRow ();
-			row.Cells.Add (Utils.CreateTableCell ("<input type='text' value='host' id='txtHost'></input>"));
-			row.Cells.Add (Utils.CreateTableCell ("<a href='javascript:addHost ()'>Add</a>"));
-			row.Cells.Add (Utils.CreateTableCell (""));
-			row.Cells.Add (Utils.CreateTableCell (""));
-			row.Cells.Add (Utils.CreateTableCell (""));
-			tblHosts.Rows.Add (row);
-
-			foreach (DBHost host in response.Hosts) {
-				row = new TableRow ();
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host)));
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHosts.aspx?host_id={0}&amp;action=remove'>Delete</a>", host.id)));
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='ViewHostHistory.aspx?host_id={0}'>View history</a>", host.id)));
-				row.Cells.Add (Utils.CreateTableCell (host.description));
-				row.Cells.Add (Utils.CreateTableCell (host.architecture));
-				tblHosts.Rows.Add (row);
+		} else if (!string.IsNullOrEmpty (Request ["txtHost"])) {
+			try {
+				Master.WebService.AddHost (Master.WebServiceLogin, Request ["txtHost"]);
+				Response.Redirect ("EditHosts.aspx");
+				return;
+			} catch (Exception ex) {
+				lblMessage.Text = Utils.FormatException (ex);
 			}
 		}
 
-		if (lblMessage.Text != string.Empty)
-			lblMessage.Visible = true;
+		GetHostsResponse response = Master.WebService.GetHosts (Master.WebServiceLogin);
+		TableRow row;
 
+		foreach (DBHost host in response.Hosts) {
+			row = new TableRow ();
+			row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host)));
+			row.Cells.Add (Utils.CreateTableCell (
+				string.Format ("<a href='EditHosts.aspx?host_id={0}&amp;action=remove'>Delete</a> ", host.id) +
+				string.Format ("<a href='ViewHostHistory.aspx?host_id={0}'>View history</a>", host.id)));
+			row.Cells.Add (Utils.CreateTableCell (host.description));
+			row.Cells.Add (Utils.CreateTableCell (host.architecture));
+			tblHosts.Rows.Add (row);
+		}
 	}
 }
