@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>MonkeyWrench</title>
-    <link rel='stylesheet' href='build.css' type='text/css' />
+    <link rel='stylesheet' href='res/default.css' type='text/css' />
     <link rel='stylesheet' href='res/skin.css' type='text/css' id='cssSkin' />
     <link rel='icon' id='idFavicon' runat='server' href='res/favicon.ico' />
     <meta http-equiv='Content-Type' content='text/html;charset=utf-8' />
