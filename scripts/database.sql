@@ -200,7 +200,7 @@ CREATE TABLE RevisionWork (
 	id             serial     PRIMARY KEY,
 	lane_id        int        NOT NULL REFERENCES Lane (id) ON DELETE CASCADE,
 	host_id        int        NOT NULL REFERENCES Host (id) ON DELETE CASCADE,
-	workhost_id    int        NULL     REFERENCES Host (id) DEFAULT NULL ON DELETE CASCADE, -- the host which is actually working on this revision. If NULL, work no started.
+	workhost_id    int        NULL DEFAULT NULL REFERENCES Host (id) ON DELETE CASCADE, -- the host which is actually working on this revision. If NULL, work no started.
 	revision_id    int        NOT NULL REFERENCES Revision (id) ON DELETE CASCADE,
 	state          int        NOT NULL DEFAULT 0, -- same as Work.state, though not all are applicable
 
