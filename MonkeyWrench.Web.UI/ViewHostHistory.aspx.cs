@@ -35,7 +35,7 @@ public partial class ViewHostHistory : System.Web.UI.Page
 		int host_id;
 		int limit;
 		int offset;
-		string action = null;
+		string action;
 		int lane_id = 0;
 		int revision_id = 0;
 		int masterhost_id = 0;
@@ -49,6 +49,7 @@ public partial class ViewHostHistory : System.Web.UI.Page
 			int.TryParse (Request ["lane_id"], out lane_id);
 			int.TryParse (Request ["revision_id"], out revision_id);
 			int.TryParse (Request ["masterhost_id"], out masterhost_id);
+			action = Request ["action"];
 
 			if (!string.IsNullOrEmpty (action) && masterhost_id > 0 && lane_id > 0 && revision_id > 0) {
 				switch (action) {
