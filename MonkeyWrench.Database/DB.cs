@@ -352,7 +352,7 @@ namespace MonkeyWrench
 					string fn = FileUtilities.CreateFilename (md5, true, true);
 
 					File.Copy (gzFilename, fn, true);
-					Logger.Log ("Saved file to: {0}", fn);
+					Logger.Log (2, "Saved file to: {0}", fn);
 				}
 
 				result = new DBFile ();

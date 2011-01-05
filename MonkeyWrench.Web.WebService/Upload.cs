@@ -159,7 +159,7 @@ namespace MonkeyWrench.WebServices
 				ushort file_count = reader.ReadUInt16 ();
 				reader.ReadInt64 ();
 
-				Logger.Log ("Upload.ExecuteRequest (): {0} version: {1} work_id: {2} file count: {3} remote ip: {4}", id, version, work_id, file_count, client.Client.RemoteEndPoint.ToString ());
+				Logger.Log (2, "Upload.ExecuteRequest (): {0} version: {1} work_id: {2} file count: {3} remote ip: {4}", id, version, work_id, file_count, client.Client.RemoteEndPoint.ToString ());
 
 				using (DB db = new DB ()) {
 					Authentication.VerifyUserInRole (remote_ip, db, login, Roles.BuildBot, true);
@@ -188,11 +188,11 @@ namespace MonkeyWrench.WebServices
 						hidden = (flags & 0x2) == 0x2;
 						// compressed = (flags & 0x1) == 0x1;
 
-						Logger.Log ("Upload.ExecuteRequest (): {0} file #{1}: filename: '{2}' ", id, i + 1, filename);
+						Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1}: filename: '{2}' ", id, i + 1, filename);
 
 						DBFile file = DBFile_Extensions.Find (db, FileUtilities.MD5BytesToString (md5));
 						if (file == null) {
-							Logger.Log ("Upload.ExecuteRequest (): {0} file #{1} must be sent, sending 'send file' response", id, i + 1);
+							Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1} must be sent, sending 'send file' response", id, i + 1);
 							// Write 'send file'
 							writer.Write ((byte) 1); // version
 							writer.Write ((byte) 4); // type (4 = send file)
@@ -202,7 +202,7 @@ namespace MonkeyWrench.WebServices
 							compressed_mime = ReadString (reader, buffer, compressed_mime_length);
 							content_length = reader.ReadInt32 ();
 
-							Logger.Log ("Upload.ExecuteRequest (): {0} file #{1} content_length: {2} compressed_mime: '{3}' reading...", id, i + 1, content_length, compressed_mime);
+							Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1} content_length: {2} compressed_mime: '{3}' reading...", id, i + 1, content_length, compressed_mime);
 							
 							int bytes_left = content_length;
 							tmpfile = Path.GetTempFileName ();
@@ -217,10 +217,10 @@ namespace MonkeyWrench.WebServices
 								}
 							}
 
-							Logger.Log ("Upload.ExecuteRequest (): {0} file #{1} received, uploading '{2}' to database", id, i + 1, tmpfile);
+							Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1} received, uploading '{2}' to database", id, i + 1, tmpfile);
 							file = db.Upload (FileUtilities.MD5BytesToString (md5), tmpfile, filename, Path.GetExtension (filename), hidden, compressed_mime);
 						} else {
-							Logger.Log ("Upload.ExecuteRequest (): {0} file #{1} already in database, not uploading", id, i + 1);
+							Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1} already in database, not uploading", id, i + 1);
 						}
 
 						DBWork work = DBWork_Extensions.Create (db, work_id);
@@ -230,7 +230,7 @@ namespace MonkeyWrench.WebServices
 						writer.Write ((byte) 1); // version
 						writer.Write ((byte) 2); // type (2 = file received OK)
 						writer.Flush ();
-						Logger.Log ("Upload.ExecuteRequest (): {0} {1} uploaded successfully", id, filename);
+						Logger.Log (2, "Upload.ExecuteRequest (): {0} {1} uploaded successfully", id, filename);
 					}
 				}
 
@@ -238,7 +238,7 @@ namespace MonkeyWrench.WebServices
 				writer.Write ((byte) 1); // version
 				writer.Write ((byte) 1); // type (1 = everything OK)
 				writer.Flush ();
-				Logger.Log ("Upload.ExecuteRequest (): {0} completed", id);
+				Logger.Log (2, "Upload.ExecuteRequest (): {0} completed", id);
 			} catch (Exception ex) {
 				try {
 					string msg = ex.ToString ();
