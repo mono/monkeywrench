@@ -254,6 +254,9 @@ namespace MonkeyWrench.Web.WebServices
 				byte [] buffer = new byte [1024];
 				TcpClient client = null;
 
+				if (files.Count == 0)
+					return;
+
 				Logger.Log ("UploadFilesSafe () trying to upload {0} files...", files.Count);
 
 				port = this.GetUploadPort ();
