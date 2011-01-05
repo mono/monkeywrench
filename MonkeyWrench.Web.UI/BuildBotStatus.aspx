@@ -2,11 +2,11 @@
     CodeBehind="BuildBotStatus.aspx.cs" EnableViewState="false" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
+    <script type="text/javascript" src="res/sorttable.js"></script>
     <script type="text/javascript" src="BuildBotStatus.js"></script>
-    <asp:Table runat="server" ID="tblStatus" CssClass="buildstatus buildbotstatus">
-        <asp:TableHeaderRow>
-            <asp:TableHeaderCell ColumnSpan="4">Build bot status</asp:TableHeaderCell>
-        </asp:TableHeaderRow>
+
+	<h2><center>Build bot status</center></h2>
+    <asp:Table runat="server" ID="tblStatus" CssClass="buildstatus buildbotstatus sortable">
         <asp:TableHeaderRow>
             <asp:TableHeaderCell>Bot</asp:TableHeaderCell>
             <asp:TableHeaderCell>Last Version</asp:TableHeaderCell>
