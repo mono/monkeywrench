@@ -283,6 +283,7 @@ LIMIT 1
 		Thread thread;
 		IrcClient irc;
 		DBIrcIdentity identity;
+		bool enabled = true;
 
 		public IrcNotification (DBNotification notification)
 			: base (notification)
@@ -329,7 +330,10 @@ LIMIT 1
 
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message)
 		{
-			Logger.Log ("IrcNotification.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+			Logger.Log ("IrcNotification.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) enabled: {4}", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, enabled);
+
+			if (!enabled)
+				return;
 
 			foreach (var person in people) {
 				if (string.IsNullOrEmpty (person.irc_nicknames)) {
@@ -361,7 +365,7 @@ LIMIT 1
 
 				message = message.Replace ("{red}", "\u00034").Replace ("{bold}", "\u0002").Replace ("{default}", "\u000F");
 
-				foreach (var nick in person.irc_nicknames.Split (',', ' ')) {
+				foreach (var nick in person.irc_nicknames.Split (',')) {
 					foreach (var channel in irc.GetChannels ()) {
 						irc.SendMessage (SendType.Message, channel, nick + ": " + message);
 					}
@@ -405,7 +409,28 @@ LIMIT 1
 			switch (e.Data.Type) {
 			case ReceiveType.ChannelMessage:
 				if (e.Data.Message.StartsWith (irc.Nickname)) {
-					irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": Don't know how to '" + e.Data.Message.Substring (irc.Nickname.Length).TrimStart (':', ' ', ',') + "'");
+					string cmd = e.Data.Message.Substring (irc.Nickname.Length).TrimStart (':', ' ', ',');
+					switch (cmd.ToLowerInvariant ()) {
+					case "enable":
+						enabled = true;
+						break;
+					case "disable":
+						enabled = false;
+						break;
+					case "state":
+						irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": " + (enabled ? "enabled" : "disabled"));
+						break;
+					case "help":
+					case "h":
+					case "?":
+					case "/?":
+					case "-?":
+						irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": enable|disable: enable or disable irc notifications temporarily.");
+						break;
+					default:
+						irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": Don't know how to '" + cmd + "'");
+						break;
+					}
 				}
 				break;
 			}
