@@ -78,7 +78,7 @@ public partial class BuildBotStatus : System.Web.UI.Page
 					TableRow row = new TableRow ();
 					row.Cells.Add (Utils.CreateTableCell (host.host));
 					row.Cells.Add (Utils.CreateTableCell (status.version));
-					row.Cells.Add (Utils.CreateTableCell (status.report_date.ToString ()));
+					row.Cells.Add (Utils.CreateTableCell (status.report_date.ToString ("yyyy/MM/dd HH:mm:ss UTC")));
 					row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: selectBuildBotRelease (\"{0}\", {1}, \"{2}\")'>{0}</a>", configured_release == null ? "Manual" : configured_release.version, host.id, tblReleases.ClientID)));
 					tblStatus.Rows.Add (row);
 				}
