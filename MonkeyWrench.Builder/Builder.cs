@@ -137,7 +137,13 @@ namespace MonkeyWrench.Builder
 						Logger.Log ("Builder.Update (): git status failed: {0}", output.ToString ());
 						return false;
 					}
-					if (output.ToString ().Trim ().Length != 0) {
+
+					string stdout = output.ToString ().Trim ();
+					if (string.IsNullOrEmpty (stdout)) {
+						/* OK */
+					} else if (stdout.Contains ("nothing to commit (working directory clean)")) {
+						/* OK - git 1.6 doesn't seem to understand the -s flag */
+					} else {
 						Logger.Log ("Builder.Update (): git status shows that there are local changes: \n{0}", output);
 						return false;
 					}
