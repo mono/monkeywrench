@@ -269,7 +269,7 @@ namespace MonkeyWrench.WebServices
 				}
 
 				Response.ContentType = mime;
-				Response.AppendHeader ("Content-Disposition", "filename=" + Path.GetFileName (filename));
+				Response.AppendHeader ("Content-Disposition", "filename=\"" + Path.GetFileName (filename) + "\"");
 
 				// any access rights verified, serve the file
 
