@@ -16,6 +16,7 @@ BUILDABLE_REFS = \
 
 REFERENCES = \
 	$(foreach ref,$(BUILDABLE_REFS),-r:$(ref))	\
+	-r:System.Web.Services.dll \
 	-r:System.Data.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
