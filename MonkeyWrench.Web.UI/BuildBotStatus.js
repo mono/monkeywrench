@@ -4,7 +4,7 @@ var table_releases = null;
 function selectBuildBotRelease(version, hid, tblReleases) {
     table_releases = tblReleases;
     host_id = hid;
-    document.getElementById(tblReleases).style = "display: block";
+    document.getElementById(tblReleases).style.display = "block";
 }
 
 function executeBuildBotSelection(release_id) {
