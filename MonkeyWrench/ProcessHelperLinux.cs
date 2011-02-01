@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Linq;
 
 namespace MonkeyWrench
 {
@@ -53,7 +54,7 @@ namespace MonkeyWrench
 			using (Process quit = new Process ()) {
 				quit.StartInfo.FileName = "kill";
 				quit.StartInfo.Arguments = "-QUIT ";
-				foreach (int pid in pids) {
+				foreach (int pid in pids.Reverse()) {
 					quit.StartInfo.Arguments += pid.ToString () + " ";
 				}
 				quit.StartInfo.UseShellExecute = false;
