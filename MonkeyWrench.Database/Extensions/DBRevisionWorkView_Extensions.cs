@@ -47,6 +47,10 @@ SELECT RevisionWork.id, Revision.revision
 	WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id
 	ORDER BY Revision.date DESC LIMIT @limit OFFSET @offset;
 
+-- For some reason postgresql thinks the temp table has 1230 entries, while it usually has about 20 entries,
+-- and decides to do a sequential scan on the work tabe. Analyze it to make it realize its untrue presumptions.
+ANALYZE revisionwork_temptable; 
+
 	SELECT 
 		Work.id, Work.command_id, Work.state, Work.starttime, Work.endtime, Work.duration, Work.logfile, Work.summary, 
 		Host.host, 
