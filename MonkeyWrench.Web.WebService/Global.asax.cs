@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
@@ -21,6 +22,7 @@ namespace MonkeyWrench.Web.WebService
 {
 	public class Global : System.Web.HttpApplication
 	{
+		private Timer scheduler;
 
 		protected void Application_Start (object sender, EventArgs e)
 		{
@@ -28,6 +30,18 @@ namespace MonkeyWrench.Web.WebService
 			Configuration.LoadConfiguration (new string [] {});
 			Notifications.Start ();
 			Maintenance.Start ();
+
+			if (Configuration.AutomaticScheduler)
+				scheduler = new System.Threading.Timer (Schedule, null, 0, Configuration.AutomaticSchedulerInterval * 1000);
+		}
+
+		private void Schedule (object state)
+		{
+			try {
+				MonkeyWrench.Scheduler.Scheduler.ExecuteSchedulerAsync (false);
+			} catch (Exception e) {
+				Logger.Log ("Automatic scheduler failed: {0}", e.Message);
+			}
 		}
 
 		protected void Session_Start (object sender, EventArgs e)
@@ -52,6 +66,11 @@ namespace MonkeyWrench.Web.WebService
 
 		protected void Application_End (object sender, EventArgs e)
 		{
+			if (scheduler != null) {
+				scheduler.Dispose ();
+				scheduler = null;
+			}
 		}
 	}
 }
+

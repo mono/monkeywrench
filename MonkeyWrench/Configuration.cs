@@ -49,6 +49,8 @@ namespace MonkeyWrench
 		// openid
 		public static string OpenIdProvider = null;
 		public static string OpenIdRoles = null;
+		public static bool AutomaticScheduler = false;
+		public static int AutomaticSchedulerInterval = 60;
 
 		//the following are used by the database manager.
 		public static bool CleanLargeObjects;
@@ -183,6 +185,8 @@ namespace MonkeyWrench
 				AllowAnonymousAccess = bool.Parse(xml.SelectSingleNode("MonkeyWrench/Configuration/AllowAnonymousAccess").GetNodeValue(AllowAnonymousAccess.ToString()));
 				OpenIdProvider = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdProvider").GetNodeValue (OpenIdProvider);
 				OpenIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue (OpenIdRoles);
+				AutomaticScheduler = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticScheduler").GetNodeValue (AutomaticScheduler.ToString ()));
+				AutomaticSchedulerInterval = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticSchedulerInterval").GetNodeValue (AutomaticSchedulerInterval.ToString ()));
 
 				// override from command line
 
@@ -213,6 +217,8 @@ namespace MonkeyWrench
 					{"allowanonymousaccess=", v => AllowAnonymousAccess = bool.Parse (v.Trim ())},
 					{"openidprovider=", v => OpenIdProvider = v },
 					{"openidroles=", v => OpenIdRoles = v },
+					{"automaticscheduler=", v => Boolean.Parse (v.Trim ())},
+					{"automaticschedulerinterval=", v => int.Parse (v.Trim ())},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},
@@ -538,3 +544,4 @@ namespace MonkeyWrench
 		}
 	}
 }
+
