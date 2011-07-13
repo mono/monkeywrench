@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <title></title>
-    <link rel='stylesheet' href='../build.css' type='text/css' />
+    <title>New MonkeyWrench Server</title>
+    <link rel='stylesheet' href='../res/default.css' type='text/css' />
 </head>
 <body>
     <h1>
-        <a href='index.html'>Builder Documentation</a>
+        <a href='index.html'>MonkeyWrench</a>
     </h1>
-    <p><b>How to create a new MonkeyWrench server</b></p>
+    <h2>How to create a new MonkeyWrench server</h2>
     <ul>
 	<li>Install postgresql-server ("zypper install postgresql-server" in OpenSuse, you need at least postgresql 8.3)</li>
         <li>Checkout MonkeyWrench (http://github.com/mono/monkeywrench) to somewhere on your machine (~/monkeywrench for instance)</li>
@@ -18,7 +18,6 @@
 &lt;MonkeyWrench Version="2"&gt;
 	&lt;Configuration&gt;
 		&lt;WebServiceUrl&gt;http://localhost:8123/WebServices/&lt;/WebServiceUrl&gt;
-		&lt;WebServicePassword&gt;hellothere&lt;/WebServicePassword&gt;
 		&lt;AutomaticScheduler&gt;true&lt;/AutomaticScheduler&gt;
 		&lt;DatabasePort&gt;7890&lt;/DatabasePort&gt;
 		&lt;DataDirectory&gt;$HOME_WITH_FULL_PATH/monkeywrench/data&lt;/DataDirectory&gt;

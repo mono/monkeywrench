@@ -2,142 +2,45 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <title></title>
-    <link rel='stylesheet' href='../build.css' type='text/css' />
+    <title>New BuildBot</title>
+    <link rel='stylesheet' href='../res/default.css' type='text/css' />
 </head>
 <body>
     <h1>
-        <a href='index.html'>Builder Documentation</a>
+        <a href='index.html'>MonkeyWrench</a>
     </h1>
-    <p>
-        How to create a new buildbot.</p>
+    <h2>
+        How to create a new buildbot.</h2>
     <ul>
         <li>First you need a machine with some spare cycles.</li>
+        
         <li>Decide where to store files, suggested example which we&#39;ll follow here:
             <pre>
-~/builder/code for the builder
-~/builder/data for the data
+~/monkeywrench/builder for the builder
+~/monkeywrench/data for the data
 </pre>
         </li>
         <li>Checkout the builder:
             <pre>
-cd ~/builder
-svn+ssh://distro@mono-cvs.ximian.com/extras/moonlight-ms/tests/moonbuilder code 
+cd ~/monkeywrench && git clone git://github.com/mono/monkeywrench.git builder
 </pre>
         </li>
-        <li>Copy ~/builder/code/scripts/config.sh.in to ~/builder/code/scripts/config.sh and
-            set:
-            <ul>
-                <li>BUILDER_HOST to something unique.</li>
-                <li>BUILDER_DATA=~/builder/data</li>
-                <li>BUILDER_CONFIG=~/builder/code</li>
-                <li>BUILDER_DATABASE_PORT=5555</li>
-                <li>BUILDER_DATABASE_SERVER=localhost</li></ul>
-        </li>
-        <li>Go to <a href="http://151.155.152.3:8123/EditLanes.aspx">http://151.155.152.3:8123/EditLanes.aspx</a>
-            and add a lane for what you want your buildbot to do (this is obviously not required
-            if there already is a lane configured for what you want to do.)</li>
-        <ul>
-            <li>Add a new lane called &#39;mono-2.2&#39;</li>
-            <li>Repository: the svn repository of the code you want to build. Multiple repositories
-                can be separated by commas. This is used by the scheduler to fetch the revisions
-                to build. The code you want to checkout doesn&#39;t have to be in this repository.
-                Set it to (no spaces neither in the beginning nor at the end, with a comma in the
-                middle):
-                <pre>
-svn://anonsvn.mono-project.com/source/branches/mono-2-2/mono,svn://anonsvn.mono-project.com/source/branches/mono-2-2/mcs
-</pre>
-            </li>
-            <li>Set min revision to:
-                <pre>
-118442
-</pre>
-            </li>
-            <li>Click Save.</li>
-            <li>Now you need to create the commands you want your builder to execute. A minimal
-                example would include checkout, make and cleanup.</li>
-            <li>Now create three commands, named:
-                <ul>
-                    <li>checkout.sh</li>
-                    <li>make.sh</li>
-                    <li>cleanup.sh </li>
-                    <li>For the cleanup.sh command, click on the &#39;no&#39; in the &#39;alwaysexecute&#39;
-                        column, to switch it to &#39;yes&#39;. This makes the command execute always, even
-                        if any of the previous commands failed.</li>
-                    <li>The commands will be executed according to the &#39;sequence&#39; field, lowest
-                        to highest. Two commands with the same sequence means the builder can execute them
-                        simultaneously (won&#39;t necessarily do it though, in which case those commands
-                        are executed in random order).</li>
-                </ul>
-            </li>
-            <li>Now you need to put contents into the commands, or put another way, create the corresponding
-                files for these commands.</li>
-            <li>Create three files:
-                <ul>
-                    <li>checkout.sh</li>
-                    <li>make.sh</li>
-                    <li>cleanup.sh</li>
-                </ul>
-            </li>
-            <li>Edit each command (clicking on the name), and set their contents to:
-                <ul>
-                    <li>cleanup.sh:
-                        <pre>
-#!/bin/bash -ex
-
-INITIAL_DIR=`pwd`
-
-#Update our working copy with the actual revision
-cd $BUILD_DATA_LANE
-mkdir -p $BUILD_DATA_LANE/mono
-mkdir -p $BUILD_DATA_LANE/mcs
-svn co -r $BUILD_REVISION svn://anonsvn.mono-project.com/source/branches/mono-2-2/mono mono
-svn co -r $BUILD_REVISION svn://anonsvn.mono-project.com/source/branches/mono-2-2/mcs mcs
-
-time rsync -a --exclude '.svn/' mono $INITIAL_DIR
-time rsync -a --exclude '.svn/' mcs $INITIAL_DIR
-</pre>
-                    </li>
-                    <li>make.sh:
-                        <pre>
-#!/bin/bash -ex
-cd mono./autogen.sh --prefix=$BUILD_INSTALL
-makemake install
-</pre>
-                    </li>
-                    <li>cleanup.sh:
-                        <pre>
-#!/bin/bash -ex
-
-rm -Rf mono
-rm -Rf mcs
-rm -Rf install
-rm -Rf logs
-rm -Rf source
-
-DIR=`pwd`
-cd ..
-rm -Rf $DIR
-</pre>
-                    </li>
-                </ul>
-        </ul>
-        <li>Go to&nbsp; <a href="http://151.155.152.3:8123/EditHosts.aspx">http://151.155.152.3:8123/EditHosts.aspx</a>
-            and add a new host.
+        <li><a href="../EditLanes.aspx">Add a lane</a> for what you want your buildbot to do (this is obviously not required
+            if there already is a lane configured for what you want to do). You can find more information about lanes <a href="EditLaneHelp.html">here</a>.</li>
+        
+        <li><a href="../EditHosts.aspx">Add a new host</a> for your machine.
             <ul>
                 <li>Select the lane you just created and add it to the lanes to build for your host.</li>
+                <li>At the bottom of the host configuration page there is a configuration file you need to store in ~/.config/MonkeyWrench</li>
+                <li>Make sure 'make build' is executed periodically in ~/monkeywrench/builder (no harm is done if it's executed while another instance is already executing). One way is to add a crontab entry:
+                <pre>
+*/1 * * * * make build -C $HOME/monkeywrench/builder</pre>
+                Until everything is working, you might want to run 'make build' manually, otherwise you might end up with a lot of failed work in a few minutes.</li>
+                <li>The log is in /tmp/MonkeyWrench.log, if anything doesn't work, that's the first place to look for clues.</li>
             </ul>
-        </li>
-        <li>Setup a ssh tunnel on your machine (pwd: builder):
-<pre>
-ssh -L 5555:151.155.152.3:5544 builder@151.155.152.3</pre>
-</li>
-        <li>Add the following line to your crontab:
-            <pre>
-*/1 * * * * ~/builder/code/scripts/build.sh &gt;&gt; /tmp/Builder.Builder.Builder.cronlog 2&gt;&amp;1
-</pre>
         </li>
         <li>And now your machine should start working within a minute.</li>
     </ul>
 </body>
 </html>
+
