@@ -1215,6 +1215,7 @@ FROM HostLane";
 
 				DBHost dbhost = new DBHost ();
 				dbhost.host = host;
+				dbhost.enabled = true;
 				dbhost.Save (db);
 				return dbhost.id;
 			}
