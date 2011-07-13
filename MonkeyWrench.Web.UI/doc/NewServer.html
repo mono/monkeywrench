@@ -11,15 +11,15 @@
     </h1>
     <p><b>How to create a new MonkeyWrench server</b></p>
     <ul>
-	<li>Install postgresql-server ("zypper install postgresql-server" in OpenSuse, you need at least postgresql 8.3</li>
+	<li>Install postgresql-server ("zypper install postgresql-server" in OpenSuse, you need at least postgresql 8.3)</li>
         <li>Checkout MonkeyWrench (http://github.com/mono/monkeywrench) to somewhere on your machine (~/monkeywrench for instance)</li>
-        <li>Configure the server in ~/.config/MonkeyWrench/MonkeyWrench.xml (remember to replace $HOME_WITH_FULL_PATH):
+        <li>Configure the server in /etc/MonkeyWrench.xml:
 <pre>
 &lt;MonkeyWrench Version="2"&gt;
 	&lt;Configuration&gt;
 		&lt;WebServiceUrl&gt;http://localhost:8123/WebServices/&lt;/WebServiceUrl&gt;
 		&lt;WebServicePassword&gt;hellothere&lt;/WebServicePassword&gt;
-		&lt;SchedulerPassword&gt;hellothere&lt;/SchedulerPassword&gt;
+		&lt;AutomaticScheduler&gt;true&lt;/AutomaticScheduler&gt;
 		&lt;DatabasePort&gt;7890&lt;/DatabasePort&gt;
 		&lt;DataDirectory&gt;$HOME_WITH_FULL_PATH/monkeywrench/data&lt;/DataDirectory&gt;
 		&lt;DatabaseDirectory&gt;$HOME_WITH_FULL_PATH/monkeywrench/data/db&lt;/DatabaseDirectory&gt;
@@ -38,7 +38,8 @@ cd ~/monkeywrench/scripts &amp;&amp; ./dbcontrol.sh create
 cd ~/monkeywrench &amp;&amp; make publish web
 </pre>
 </li>
-	<li>You should now be able to open http://localhost:8123/ and view the newly installed MonkeyWrench server.</li>
+	<li>You should now be able to open http://localhost:8123/ and view the newly installed MonkeyWrench server. The default administrator account is 'admin', whose password also is 'admin'.</li>
     </ul>
 </body>
 </html>
+

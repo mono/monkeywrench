@@ -7,6 +7,7 @@
     <a href="ViewServerLog.aspx?maxlength=262144">Last 256kb</a> -
     <a href="ViewServerLog.aspx?maxlength=1048576">Last 1024kb</a>
     <br />
+    <br />
     <asp:Label ID='divLog' runat="server" />
     <br />
     <a href="ViewServerLog.aspx?maxlength=4096">Last 4kb</a> - 
