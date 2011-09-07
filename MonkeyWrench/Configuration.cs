@@ -44,6 +44,7 @@ namespace MonkeyWrench
 		public static string SiteSkin = "wrench";
 		public static int UploadPort = 0; // default = 0 (any port)
 		public static int LogVerbosity = 1; // 0: quiet, 1: some messages, 2: verbose (default: 1)
+		public static bool AllowAnonymousAccess = true;
 
 		//the following are used by the database manager.
 		public static bool CleanLargeObjects;
@@ -175,6 +176,7 @@ namespace MonkeyWrench
 				LogVerbosity = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/LogVerbosity").GetNodeValue (LogVerbosity.ToString ()));
 				SiteSkin = xml.SelectSingleNode ("MonkeyWrench/Configuration/SiteSkin").GetNodeValue (SiteSkin);
 				UploadPort = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/UploadPort").GetNodeValue (UploadPort.ToString ()));
+				AllowAnonymousAccess = bool.Parse(xml.SelectSingleNode("MonkeyWrench/Configuration/AllowAnonymousAccess").GetNodeValue(AllowAnonymousAccess.ToString()));
 
 				// override from command line
 
@@ -202,6 +204,7 @@ namespace MonkeyWrench
 					{"logverbosity=", v => LogVerbosity = int.Parse (v.Trim ())},
 					{"siteskin=", v => SiteSkin = v},
 					{"uploadport=", v => UploadPort = int.Parse (v.Trim ())},
+					{"allowanonymousaccess=", v => AllowAnonymousAccess = bool.Parse (v.Trim ())},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},

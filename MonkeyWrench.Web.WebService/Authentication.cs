@@ -51,6 +51,7 @@ namespace MonkeyWrench.WebServices
 			// Check if credentials were passed in
 			if (login == null || string.IsNullOrEmpty (login.User) || (string.IsNullOrEmpty (login.Password) && string.IsNullOrEmpty (login.Cookie))) {
 				Logger.Log (2, "No credentials.");
+				VerifyAnonymousAllowed ();
 				return;
 			}
 
@@ -69,18 +70,21 @@ namespace MonkeyWrench.WebServices
 						view = DBLoginView_Extensions.VerifyLogin (db, login.User, result.cookie, ip);
 						if (view == null) {
 							Logger.Log (2, "Invalid cookie");
+							VerifyAnonymousAllowed();
 							return;
 						}
 						person_id = view.person_id;
 					}
 				} else {
 					Logger.Log (2, "Invalid user/password");
+					VerifyAnonymousAllowed ();
 					return;
 				}
 			} else {
 				view = DBLoginView_Extensions.VerifyLogin (db, login.User, login.Cookie, ip);
 				if (view == null) {
 					Logger.Log (2, "Invalid cookie");
+					VerifyAnonymousAllowed ();
 					return;
 				}
 				person_id = view.person_id;
@@ -103,6 +107,12 @@ namespace MonkeyWrench.WebServices
 				Logger.Log (2, "Roles are: {0}", string.Join (";", response.UserRoles));
 			}
 			Logger.Log (2, "Authenticate2 Roles are: {0}", response.UserRoles == null ? "null" : string.Join (";", response.UserRoles));
+		}
+
+		public static void VerifyAnonymousAllowed()
+		{
+			if (!Configuration.AllowAnonymousAccess)
+				throw new HttpException(403, "Anonymous access is not permitted.");
 		}
 
 		public static void VerifyUserInRole (HttpContext Context, DB db, WebServiceLogin login, string role, bool @readonly)

@@ -162,6 +162,7 @@ namespace MonkeyWrench.WebServices
 				revision = DBRevision_Extensions.Create (db, revision_id);
 
 				// no access restricion on revision logs/diffs
+				Authentication.VerifyAnonymousAllowed ();
 
 				Response.ContentType = MimeTypes.TXT;
 
@@ -250,6 +251,8 @@ namespace MonkeyWrench.WebServices
 
 					if (view.@internal) // internal files need admin rights
 						Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator, false);
+					else
+						Authentication.VerifyAnonymousAllowed ();
 
 					if (!string.IsNullOrEmpty (filename)) {
 						file = DBWork_Extensions.GetFile (db, view.work_id, filename, false);

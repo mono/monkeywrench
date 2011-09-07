@@ -84,21 +84,28 @@ public partial class Master : System.Web.UI.MasterPage
 		if (this.response != null)
 			return;
 
-		GetLanesResponse response = WebService.GetLanes (WebServiceLogin);
+		GetLanesResponse response;
 		// we need to create a tree of the lanes
-		LaneTreeNode root = LaneTreeNode.BuildTree (response.Lanes, null);
+		LaneTreeNode root;
 		Panel div;
 
-		SetResponse (response);
-		
-		div = new Panel ();
-		div.ID = "tree_root_id";
+		try {
+			response = WebService.GetLanes (WebServiceLogin);
+			root = LaneTreeNode.BuildTree (response.Lanes, null);
 
-		// layout the tree
-		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow ("index.aspx?show_all=true", "All", 0, root.Depth, true, div, true)));
+			SetResponse (response);
 
-		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
-		WriteTree (root, tableMainTree, 1, root.Depth, div);
+			div = new Panel ();
+			div.ID = "tree_root_id";
+
+			// layout the tree
+			tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow ("index.aspx?show_all=true", "All", 0, root.Depth, true, div, true)));
+
+			tableMainTree.Rows.Add (Utils.CreateTableRow (div));
+			WriteTree (root, tableMainTree, 1, root.Depth, div);
+		} catch {
+			tableMainTree.Rows.Add (Utils.CreateTableRow ("[Exception occurred]"));
+		}
 	}
 
 	public void WriteTree (LaneTreeNode node, Table tableMain, int level, int max_level, Panel containing_div)
