@@ -159,10 +159,12 @@ namespace MonkeyWrench.WebServices
 			DBLane lane;
 
 			using (DB db = new DB ()) {
+				WebServiceLogin login = CreateLogin ();
+
 				revision = DBRevision_Extensions.Create (db, revision_id);
 
 				// no access restricion on revision logs/diffs
-				Authentication.VerifyAnonymousAllowed ();
+				Authentication.VerifyAnonymousAccess (Context, db, login);
 
 				Response.ContentType = MimeTypes.TXT;
 
@@ -252,7 +254,7 @@ namespace MonkeyWrench.WebServices
 					if (view.@internal) // internal files need admin rights
 						Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator, false);
 					else
-						Authentication.VerifyAnonymousAllowed ();
+						Authentication.VerifyAnonymousAccess (Context, db, login);
 
 					if (!string.IsNullOrEmpty (filename)) {
 						file = DBWork_Extensions.GetFile (db, view.work_id, filename, false);

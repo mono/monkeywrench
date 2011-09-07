@@ -93,6 +93,9 @@ namespace MonkeyWrench.WebServices
 
 			Logger.Log (2, "Valid credentials");
 
+			if (response == null)
+				return;
+
 			DBPerson person = DBPerson_Extensions.Create (db, person_id);
 			LoginResponse login_response = response as LoginResponse;
 			if (login_response != null) {
@@ -109,7 +112,20 @@ namespace MonkeyWrench.WebServices
 			Logger.Log (2, "Authenticate2 Roles are: {0}", response.UserRoles == null ? "null" : string.Join (";", response.UserRoles));
 		}
 
-		public static void VerifyAnonymousAllowed()
+		/// <summary>
+		/// Verify that the user is a valid user if anonymous access isn't allowed
+		/// </summary>
+		/// <param name="Context"></param>
+		/// <param name="db"></param>
+		/// <param name="login"></param>
+		public static void VerifyAnonymousAccess (HttpContext Context, DB db, WebServiceLogin login)
+		{
+			if (Configuration.AllowAnonymousAccess)
+				return;
+			Authenticate (Context, db, login, null, true);
+		}
+
+		private static void VerifyAnonymousAllowed()
 		{
 			if (!Configuration.AllowAnonymousAccess)
 				throw new HttpException(403, "Anonymous access is not permitted.");
