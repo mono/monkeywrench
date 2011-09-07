@@ -41,7 +41,7 @@ namespace MonkeyWrench
 		public static string ChildProcessAlgorithm = "pgrep";
 		public static string Platform = ""; // detect automatically
 		public static string AllowedCommitReporterIPs = "";
-		public static string SiteSkin = "";
+		public static string SiteSkin = "wrench";
 		public static int UploadPort = 0; // default = 0 (any port)
 		public static int LogVerbosity = 1; // 0: quiet, 1: some messages, 2: verbose (default: 1)
 
