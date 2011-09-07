@@ -120,7 +120,9 @@ case "$CMD" in
 		# wait a bit for the db to finish starting up
 		sleep 1
 		# create the user 'builder' owner is the user 'builder'
-		createuser -s -d -r -e builder
+		if [[ "x$USER" != "xbuilder" ]]; then
+			createuser -s -d -r -e builder
+		fi
 		# create the database
 		psql --user builder --db template1 --file $SCRIPT_DIR/database.sql
 		;;
