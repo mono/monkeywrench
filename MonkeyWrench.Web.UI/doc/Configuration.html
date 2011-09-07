@@ -42,6 +42,7 @@
         &lt;LogVerbosity /&gt;
         &lt;SiteSkin /&gt;
         &lt;UploadPort /&gt;
+        &lt;AllowAnonymousAccess /&gt;
     &lt;/Configuration&gt;
 &lt;/MonkeyWrench&gt;
 </pre>
@@ -101,6 +102,7 @@
     <h3>SiteSkin</h3>The skin used for the web site. Currently supported: moonlight or wrench. Defaults to none.
     <h3>WebSiteUrl</h3>The url for the web site. This is used to create proper links when notifications are sent. It defaults to the root directory of WebServiceUrl.
     <h3>UploadPort</h3>The port used at the web service for file uploads. Defaults to 0 (which means the web service will choose a port).
+    <h3>AllowAnonymousAccess</h3>If anonymous access is allowed for everything that's not specifically marked as internal (default: true).
     <h2>
         Sample configuration</h2>
     This is a sample configuration file for a buildbot:
