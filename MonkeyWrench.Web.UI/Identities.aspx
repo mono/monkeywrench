@@ -2,17 +2,21 @@
     CodeBehind="Identities.aspx.cs" EnableViewState="false" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
+    <script type="text/javascript" src="Identities.js"></script>
     <asp:Table runat="server" CssClass="center">
         <asp:TableRow>
             <asp:TableCell HorizontalAlign="Center">
                 <asp:Table ID="tblIrcIdentities" runat="server" CssClass="buildstatus identity">
                     <asp:TableHeaderRow>
-                        <asp:TableHeaderCell ColumnSpan="5">IRC Identities</asp:TableHeaderCell>
+                        <asp:TableHeaderCell ColumnSpan="8">IRC Identities</asp:TableHeaderCell>
                     </asp:TableHeaderRow>
                     <asp:TableHeaderRow>
                         <asp:TableHeaderCell>Name</asp:TableHeaderCell>
                         <asp:TableHeaderCell>Servers</asp:TableHeaderCell>
+                        <asp:TableHeaderCell>Password</asp:TableHeaderCell>
+                        <asp:TableHeaderCell>Use SSL</asp:TableHeaderCell>
                         <asp:TableHeaderCell>Channels</asp:TableHeaderCell>
+                        <asp:TableHeaderCell>Join Channels</asp:TableHeaderCell>
                         <asp:TableHeaderCell>Nicks</asp:TableHeaderCell>
                         <asp:TableHeaderCell>Actions</asp:TableHeaderCell>
                     </asp:TableHeaderRow>
@@ -24,7 +28,16 @@
                             <asp:TextBox ID="txtIrcServers" runat="server" ToolTip="A comma separated list of irc servers" />
                         </asp:TableCell>
                         <asp:TableCell>
+                            <asp:TextBox ID="txtPassword" runat="server" ToolTip="The password for the server(s) (if any)" />
+                        </asp:TableCell>
+                        <asp:TableCell>
+                            <asp:CheckBox ID="chkUseSsl" Text="" runat="server" ToolTip="If the server(s) require SSL" />
+                        </asp:TableCell>
+                        <asp:TableCell>
                             <asp:TextBox ID="txtIrcChannels" runat="server" ToolTip="A comma separated list of irc channels to join" />
+                        </asp:TableCell>
+                        <asp:TableCell>
+                            <asp:CheckBox ID="chkJoinChannels" Text="" runat="server" ToolTip="If monkeywrench should join the channels." />
                         </asp:TableCell>
                         <asp:TableCell>
                             <asp:TextBox ID="txtIrcNicks" runat="server" ToolTip="A comma separated list of irc nicks to use" />

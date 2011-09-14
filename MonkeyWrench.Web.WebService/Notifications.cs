@@ -280,10 +280,152 @@ LIMIT 1
 
 	public class IrcNotification : NotificationBase
 	{
-		Thread thread;
-		IrcClient irc;
+		IrcState joined_state;
 		DBIrcIdentity identity;
+		string [] channels;
 		bool enabled = true;
+
+		class IrcState
+		{
+			public IrcNotification Notification;
+			public IrcClient Client;
+			public Thread Thread;
+			public ManualResetEvent Connected = new ManualResetEvent (false);
+
+			public IrcState (IrcNotification notification)
+			{
+				this.Notification = notification;
+			}
+
+			public bool WaitForConnected (TimeSpan timeout)
+			{
+				return Connected.WaitOne (timeout);
+			}
+
+			public bool WaitForEmptySendBuffer (TimeSpan timeout)
+			{
+				DateTime start = DateTime.Now;
+
+				while (!Client.IsSendBufferEmpty) {
+					Thread.Sleep (10);
+					if (start.Add (timeout) > DateTime.Now)
+						return false;
+				}
+
+				return true;
+			}
+
+			public void Start ()
+			{
+				Client = new IrcClient ();
+				Thread = new Thread (Loop);
+				Thread.Start ();
+			}
+
+			private void Loop (object obj)
+			{
+				try {
+					IrcClient irc = Client;
+
+					string [] servers;
+					string [] nicks;
+					int port = 6667;
+
+					Logger.Log ("Connecting to irc: {0} joining {1} as {2} using ssl: {3}", Notification.identity.servers, Notification.identity.channels, Notification.identity.nicks, Notification.identity.use_ssl);
+
+					servers = Notification.identity.servers.Split (',', ' ');
+					Notification.channels = Notification.identity.channels.Split (',', ' ');
+					nicks = Notification.identity.nicks.Split (',', ' ');
+
+					for (int i = 0; i < servers.Length; i++) {
+						int colon = servers [i].IndexOf (':');
+						if (colon > 0) {
+							int.TryParse (servers [i].Substring (colon + 1), out port);
+							servers [i] = servers [i].Substring (0, colon);
+							break;
+						}
+					}
+
+					//irc.AutoRetry = true;
+					irc.SendDelay = 200;
+					irc.UseSsl = Notification.identity.use_ssl;
+
+					irc.OnAutoConnectError += new AutoConnectErrorEventHandler (irc_OnAutoConnectError);
+					irc.OnQueryMessage += new IrcEventHandler (irc_OnQueryMessage);
+					irc.OnConnected += new EventHandler (irc_OnConnected);
+					irc.OnDisconnected += new EventHandler (irc_OnDisconnected);
+					irc.OnRawMessage += new IrcEventHandler (irc_OnRawMessage);
+					Logger.Log ("Connecting to servers: {0} : {1}", string.Join (";", servers), port);
+					irc.Connect (servers, port);
+					irc.Login (nicks, "MonkeyWrench", 0, "MonkeyWrench", Notification.identity.password);
+
+					if (Notification.identity.join_channels)
+						irc.RfcJoin (Notification.channels);
+
+					Logger.Log ("Connected to irc: {0} joined {1} as {2}", Notification.identity.servers, Notification.identity.channels, Notification.identity.nicks);
+					Connected.Set ();
+					irc.Listen ();
+				} catch (Exception ex) {
+					Logger.Log ("Exception while connecting to irc: {0}", ex);
+				}
+
+			}
+
+			void irc_OnRawMessage (object sender, IrcEventArgs e)
+			{
+				IrcClient irc = Client;
+
+				switch (e.Data.Type) {
+				case ReceiveType.ChannelMessage:
+					if (e.Data.Message.StartsWith (irc.Nickname)) {
+						string cmd = e.Data.Message.Substring (irc.Nickname.Length).TrimStart (':', ' ', ',');
+						switch (cmd.ToLowerInvariant ()) {
+						case "enable":
+							Notification.enabled = true;
+							break;
+						case "disable":
+							Notification.enabled = false;
+							break;
+						case "state":
+							irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": " + (Notification.enabled ? "enabled" : "disabled"));
+							break;
+						case "help":
+						case "h":
+						case "?":
+						case "/?":
+						case "-?":
+							irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": enable|disable: enable or disable irc notifications temporarily.");
+							break;
+						default:
+							irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": Don't know how to '" + cmd + "'");
+							break;
+						}
+					}
+					break;
+				}
+				Console.WriteLine ("OnRawMessage");
+			}
+
+			void irc_OnQueryMessage (object sender, IrcEventArgs e)
+			{
+				Console.WriteLine ("OnQueryMessage");
+			}
+
+			void irc_OnAutoConnectError (object sender, AutoConnectErrorEventArgs e)
+			{
+				Console.WriteLine ("irc_OnAutoConnectError");
+			}
+
+			void irc_OnDisconnected (object sender, EventArgs e)
+			{
+				Console.WriteLine ("irc_OnDisconnected");
+			}
+
+			void irc_OnConnected (object sender, EventArgs e)
+			{
+				Console.WriteLine ("irc_OnConnected");
+			}
+		}
 
 		public IrcNotification (DBNotification notification)
 			: base (notification)
@@ -302,7 +444,8 @@ LIMIT 1
 				}
 			}
 
-			Connect ();
+			if (identity.join_channels)
+				joined_state = Connect ();
 		}
 
 		public override void Stop ()
@@ -310,19 +453,25 @@ LIMIT 1
 			Disconnect ();
 		}
 
-		private void Connect ()
+		private IrcState Connect ()
 		{
-			irc = new IrcClient ();
-
-			thread = new Thread (Loop);
-			thread.Start ();
+			IrcState state = new IrcState (this);
+			state.Start ();
+			return state;
 		}
 
 		private void Disconnect ()
 		{
+			if (identity.join_channels) {
+				Disconnect (joined_state);
+				joined_state = null;
+			}
+		}
+
+		private void Disconnect (IrcState state)
+		{
 			try {
-				irc.Disconnect ();
-				irc = null;
+				state.Client.Disconnect ();
 			} catch (Exception ex) {
 				Logger.Log ("Exception while disconnecting from irc: {0}", ex.Message);
 			}
@@ -330,6 +479,8 @@ LIMIT 1
 
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message)
 		{
+			IrcState state;
+
 			Logger.Log ("IrcNotification.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) enabled: {4}", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, enabled);
 
 			if (!enabled)
@@ -365,96 +516,28 @@ LIMIT 1
 
 				message = message.Replace ("{red}", "\u00034").Replace ("{bold}", "\u0002").Replace ("{default}", "\u000F");
 
+				if (!identity.join_channels) {
+					state = Connect ();
+					if (!state.WaitForConnected (TimeSpan.FromSeconds (30))) {
+						Logger.Log ("IrcNotification: could not connect to server in 30 seconds.");
+						continue;
+					}
+				} else {
+					state = joined_state;
+				}
 				foreach (var nick in person.irc_nicknames.Split (',')) {
-					foreach (var channel in irc.GetChannels ()) {
-						irc.SendMessage (SendType.Message, channel, nick + ": " + message);
+					foreach (var channel in channels) {
+						state.Client.SendMessage (SendType.Message, channel, nick + ": " + message);
 					}
 				}
-			}
-		}
-
-		private void Loop ()
-		{
-			try {
-				string [] servers;
-				string [] channels;
-				string [] nicks;
-
-				servers = identity.servers.Split (',', ' ');
-				channels = identity.channels.Split (',', ' ');
-				nicks = identity.nicks.Split (',', ' ');
-
-				irc.AutoRetry = true;
-				irc.ActiveChannelSyncing = true;
-				irc.SendDelay = 200;
-
-				irc.OnAutoConnectError += new AutoConnectErrorEventHandler (irc_OnAutoConnectError);
-				irc.OnQueryMessage += new IrcEventHandler (irc_OnQueryMessage);
-				irc.OnConnected += new EventHandler (irc_OnConnected);
-				irc.OnDisconnected += new EventHandler (irc_OnDisconnected);
-				irc.OnRawMessage += new IrcEventHandler (irc_OnRawMessage);
-				irc.Connect (servers, 6667);
-				irc.Login (nicks, "MonkeyWrench");
-				irc.RfcJoin (channels);
-				Logger.Log ("Connected to irc: {0} joined {1} as {2}", identity.servers, identity.channels, identity.nicks);
-				irc.Listen ();
-			} catch (Exception ex) {
-				Logger.Log ("Exception while connecting to irc: {0}", ex.Message);
-			}
-
-		}
-
-		void irc_OnRawMessage (object sender, IrcEventArgs e)
-		{
-			switch (e.Data.Type) {
-			case ReceiveType.ChannelMessage:
-				if (e.Data.Message.StartsWith (irc.Nickname)) {
-					string cmd = e.Data.Message.Substring (irc.Nickname.Length).TrimStart (':', ' ', ',');
-					switch (cmd.ToLowerInvariant ()) {
-					case "enable":
-						enabled = true;
-						break;
-					case "disable":
-						enabled = false;
-						break;
-					case "state":
-						irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": " + (enabled ? "enabled" : "disabled"));
-						break;
-					case "help":
-					case "h":
-					case "?":
-					case "/?":
-					case "-?":
-						irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": enable|disable: enable or disable irc notifications temporarily.");
-						break;
-					default:
-						irc.SendMessage (SendType.Message, e.Data.Channel, e.Data.Nick + ": Don't know how to '" + cmd + "'");
+				if (!identity.join_channels) {
+					while (!state.WaitForEmptySendBuffer (TimeSpan.FromSeconds (30))) {
+						Logger.Log ("IrcNotification: waited for 30 seconds for messages to be sent, disconnecting now");
 						break;
 					}
+					Disconnect ();
 				}
-				break;
 			}
-			Console.WriteLine ("OnRawMessage");
-		}
-
-		void irc_OnQueryMessage (object sender, IrcEventArgs e)
-		{
-			Console.WriteLine ("OnQueryMessage");
-		}
-
-		void irc_OnAutoConnectError (object sender, AutoConnectErrorEventArgs e)
-		{
-			Console.WriteLine ("irc_OnAutoConnectError");
-		}
-
-		void irc_OnDisconnected (object sender, EventArgs e)
-		{
-			Console.WriteLine ("irc_OnDisconnected");
-		}
-
-		void irc_OnConnected (object sender, EventArgs e)
-		{
-			Console.WriteLine ("irc_OnConnected");
 		}
 	}
 

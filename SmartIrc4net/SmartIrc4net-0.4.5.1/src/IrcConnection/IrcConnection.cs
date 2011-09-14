@@ -262,6 +262,17 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        public bool IsSendBufferEmpty {
+            get	{
+                return (((Queue) _SendBuffer [Priority.AboveMedium]).Count +
+                    ((Queue) _SendBuffer [Priority.BelowMedium]).Count +
+                    ((Queue) _SendBuffer [Priority.Critical]).Count +
+                    ((Queue) _SendBuffer [Priority.High]).Count +
+                    ((Queue) _SendBuffer [Priority.Low]).Count +
+                    ((Queue) _SendBuffer [Priority.Medium]).Count) == 0;
+            }
+        }
+
         /// <summary>
         /// Gets the SmartIrc4net version number
         /// </summary>

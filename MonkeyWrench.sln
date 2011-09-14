@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench.Database.Manag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyWrench.Test", "MonkeyWrench.Test\MonkeyWrench.Test.csproj", "{3737EDC2-5785-424C-92BC-7013B931AF21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartIrc4net", "SmartIrc4net\SmartIrc4net-0.4.0-src\VisualStudio\2010\SmartIrc4net.csproj", "{19607F57-B521-4477-9DE0-F0D9B1A68BC7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartIrc4net", "SmartIrc4net\smartirc4net-0.4.5.1\SmartIrc4net.csproj", "{19607F57-B521-4477-9DE0-F0D9B1A68BC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

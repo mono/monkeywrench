@@ -54,6 +54,7 @@
     <Content Include="BuildBotStatus.aspx" />
     <Content Include="BuildBotStatus.js" />
     <Content Include="clientaccesspolicy.xml" />
+    <Content Include="Identities.js" />
     <Content Include="DownloadLatestFile.aspx" />
     <Content Include="Identities.aspx" />
     <Content Include="Master.js" />

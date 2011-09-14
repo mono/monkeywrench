@@ -39,6 +39,24 @@ public partial class Identities {
     protected global::System.Web.UI.WebControls.TextBox txtIrcServers;
     
     /// <summary>
+    /// txtPassword control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.TextBox txtPassword;
+    
+    /// <summary>
+    /// chkUseSsl control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.CheckBox chkUseSsl;
+    
+    /// <summary>
     /// txtIrcChannels control.
     /// </summary>
     /// <remarks>
@@ -46,6 +64,15 @@ public partial class Identities {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.TextBox txtIrcChannels;
+    
+    /// <summary>
+    /// chkJoinChannels control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.CheckBox chkJoinChannels;
     
     /// <summary>
     /// txtIrcNicks control.
