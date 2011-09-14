@@ -1,0 +1,55 @@
+/**
+ * $Id: README 141 2004-11-30 20:05:26Z meebey $
+ * $URL: svn+ssh://svn.qnetp.net/svn/smartirc/SmartIrc4net/trunk/README $
+ * $Rev: 141 $
+ * $Author: meebey $
+ * $Date: 2004-11-30 21:05:26 +0100 (Tue, 30 Nov 2004) $
+ */
+
+SmartIrc4net
+----------------
+What is this?
+SmartIrc4net is a C# class for communication with IRC networks, which
+conforms to the RFC 2812 (IRC Protocol).
+It's orignally a port of SmartIRC (written in PHP),
+but it's much more now (I will backport it to PHP5 some day).
+SmartIrc4net an API that handles all IRC protocol messages and is designed for
+creating IRC bots or even GUI clients.
+
+Please report bugs to:
+http://sourceforge.net/tracker/?group_id=114302&atid=667874
+
+Project Homepage:
+http://smartirc4net.sf.net
+
+files included in SmartIrc4net
+--------------------------
+FEATURES
+A full list of features that SmartIrc4net includes
+
+CHANGELOG
+Listing of changes between all versions.
+
+README
+This file
+
+LICENSE
+The license of SmartIrc4net.
+
+CREDITS
+Creditlist with people that work/help on SmartIrc4net.
+
+src/*.cs
+The SmartIrc4net sourcecode
+
+examples/
+Some examples how SmartIrc4net can be used.
+
+docs/
+Documentation of SmartIrc4net.
+
+CSharpBuilder/
+Project files for Borlands C# Builder.
+
+MonoDevelop/
+Project files for MonoDevelop.

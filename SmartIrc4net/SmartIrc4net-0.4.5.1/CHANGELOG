@@ -1,0 +1,189 @@
+/**
+ * $Id: CHANGELOG 267 2007-04-06 17:02:22Z meebey $
+ * $URL: svn+ssh://svn.qnetp.net/svn/smartirc/SmartIrc4net/trunk/CHANGELOG $
+ * $Rev: 267 $
+ * $Author: meebey $
+ * $Date: 2007-04-06 19:02:22 +0200 (Fri, 06 Apr 2007) $
+ */
+
+v0.4.0 (SVN r266)
+------
+fixes:
+- fixed null reference exception when CTCP PING contains no data
+  (thanks to Nick 'Zaf' Clifford, closes sf.net patch #1199630)
+- fixed NonRfcSupport, it didn't check for NonRfcSupport in _Event_RPL_NAMREPLY
+  (thanks to the anonymous poster on the sf.net forum for reporting this)
+- added sanity checks to the mode change parser in IrcClient._InterpretChannelMode(),
+  otherwise some nasty IRCd servers might break us.
+- catch ObjectDisposedExceptions in connection handling code.
+
+new:
+- IrcConnection now uses an active pinger to better detect network problems,
+  by default every 60 seconds a ping will be send to the server, if it
+  doesn't respond the class will disconnect or reconnect depending on
+  the IrcConnection.AutoReconnect property.
+- added IrcConnection.OnAutoConnectError event, raised when there is a problem
+  with the connection, it passes in AutoConnectErrorEventArgs which server and port
+  was used and which exception was thrown, this way application can display and
+  handle connection errors.
+- reconnect handling will now store/use keys if ActiveChannelSyncing and
+  AutoRejoin is activated.
+- UTF-8 support
+  now you can set IrcConnection.Encoding = Encoding.UTF8 and all messages send
+  and receives will be encoded/decoded to/from UTF-8
+- added lots of documentation stabs
+- added IrcClient.IsAway property.
+- added IrcClient.OnAway, IrcClient.OnAway, IrcClient.OnUnAway and IrcClient.OnNowAway events.
+- added IrcClient.OnPong event.
+- added IrcClient.AutoJoinOnInvite property, if enabled and the class receives an
+  invite it will join that channel automatic (don't worry it will not join "0").
+- added IrcClient.AutoRejoinOnKick property, if enabled and the class was in a
+  channel and got kicked, it will try to rejoin that channel.
+- added IrcClient.AutoNickHandling property, now you can deactivate the
+  automatic nick change when a nick collision happens, so you can handle
+  it on your application instead.
+- added IrcCLient.NicknameList property, set in Login() call, will try the
+  different nicks when the nick was already used, in order.
+- added IrcClient.Login() overload for passing a nickname list.
+- added some documentation.
+- added IrcConnection.Lag property, indicates how much lag is between the
+  IRCd server and the IRC client.
+- added VisualStudio 2005 project files.
+
+changes:
+- IrcConnection.Encoding now uses the system encoding as default!
+  So you might have to set it to Encoding.GetEncoding("ISO-8859-1") manually.
+- IrcClient.Reconnect() now stores channel keys too for rejoining them.
+- IrcClient.OnCtcpRequest and IrcClient.OnCtcpReply events now passes parsed
+  CTCP data as CtcpEventArgs.
+- Removed log4net initialization, as this can conflict with applications using log4net.
+  If you need debug output, use the debug build and add this code to your application:
+  log4net.Config.BasicConfigurator.Configure();
+  or if you want the old config style with a config file:
+  FileInfo fi = new FileInfo("SmartIrc4net_log.config");
+  log4net.Config.DOMConfigurator.ConfigureAndWatch(fi);
+- When IrcClient.CtcpVersion is set, the library will no longer advertise
+  itself in CTCP VERSION replies.
+
+v0.3.5 (SVN r184)
+------
+fixes:
+- fixed bug in channel sync that caused duplicate exception
+  (Closes sf.net bug #1064190)
+- fixed tracking of ops and voices list on join
+  (thanks to Clément Bourgeois, closes sf.net bug #1075942)
+- fixed bug that the initial channel mode is not synced (on join). 
+- fixed a crash bug in the channel sync code
+  when a user was voiced/opped/banned 2 times, an ArgumentException was thrown
+  (thanks to Clément Bourgeois for spotting this)
+- fixed handling of a stalled connection
+  IOException was not catched in the write thread, and in the read thread
+  the IsConnectionError was not set
+- fixed InviteEventArgs, mixed who with channel name
+- fixed OnConnected event
+  now it's raised when the connection is ready for sending data.
+- fixed Reconnect() handling in the Listen() loop, moved to ReadLine().
+- fixed InviteEventArgs.Channel property,
+  initialized with the right value now.
+- fixed nullref exception in _Event_QUIT()
+  added sanity checks, FreshIRC network does very ugly things with the IRC
+  protocol.
+
+changes:
+- improved handling of rejoining channels after reconnect.
+- using keep-alive socket now.
+- removed underscores in parameter names (violates .NET library standards)
+- renamed parameters with "text" to different names
+  (violates .NET library standards)
+- using new case-insensitive hashtables (FxCop spotted this)
+- improved the example/test program
+- main bin/ directory is now used for the example programs
+- changed overrides to new (method hiding is sufficient here).
+- updated all MS VS.NET project files.
+
+new:
+- added Halfop support (with OnHalfop and OnDehalfop events)
+  if you want to use it do:
+  irc.NonRfcSupport = true;
+  NonRfcChannel nchan = GetChannel("#channel");
+  nchan.Halfops....
+  or
+  NonRfcChannelUser nuser = GetChannelUser("#channel", "nick");
+  nuser.Halfop.....
+- added Halfop() and Dehalfop() command to IrcCommands
+- added OnErrorMessage event as general hook for all ERR_ messages
+- added SendReply(), easy way of replying to a message
+  (regardless if its a channel, query or notice message)
+- added OnMotd event (with MotdEventArgs)
+- added IrcClient.Motd property
+- added OnChannelPassiveSynced event
+- added channel sync timings to channels (Channel.ActiveSyncTime).
+- added IrcClient.AutoRelogin setting.
+- added IrcConnection.AutoRetryDelay property.
+- added IrcConnection.OnConnectionError event.
+- added Rfc2812.IsValidNickname() method.
+- added IrcConnection.SocketSendTimeout and IrcConnection.SocketReceiveTimeout
+- added little benchmark program (examples/benchmark).
+- added stresstest program (examples/stresstest).
+- added sign target to the makefile
+
+v0.3.0 (SVN r123)
+-------
+fixes:
+- fine tuned the "#ifdef LOG4NET" statements (thanks to prencher for noticing this
+  log4net is fully optional! (only required for debugging the library)
+- fixed bug, the class changed the Op and Voice list of a copy *boing*
+  (FxCop pointed me to it)
+- added check for "~" userflag on nameslist (thanks to Giacomo Di Ciocco)
+  this broke the library on IRC networks using that userflag on channels
+- fixed channel sync bug, when the connection is re-established
+  (Closes sf.net bug #1043536)
+- fixed rejoining channels when using Reconnect()
+- added sanity checks in _Event_WHOREPLY()
+  this will prevent exceptions when the IRC server voilates the RFC    
+  (like some psybnc version do)
+- fixed string handling in _Event_PRIVMSG() for CTCP messages
+  (Closes sf.net bug #1039286)
+
+changes:
+- making SmartIrc4net CLS and .NET standards conform
+  changed all delegates to use EventArgs
+- made a few constructors "internal"
+- directory struture changed
+  the structure now represents the API layers
+  (IrcConnection, IrcCommands and IrcClient)
+- regex optimizations (thanks to prencher for the hints)
+- renamed all ReplyCodes to conform to .NET standards
+  (e.g. ReyplCode.RPL_Welcome -> ReplyCode.Welcome)
+- renamed IrcConnection.Version to IrcConnection.VersionNumber
+- renamed ChannelSync to ActiveChannelSync
+  later I will introduce PassiveChannelSync, this means only the received
+  data is used for channel sync no extra commands are send to the IRC server.
+
+new:
+- parts of SmartIrc4net have now XML documentation tags
+- added *EventArgs for the events
+- added exception handling for Connect() Reconnect() Disconnect()
+- added VisualStudio project files (thanks to prencher for creating them)
+- added constructors to the exception classes (.NET standards)
+- added log calls for queue, when data could not be sent and is requeued
+- added missing overloads for RFC commands (Closes sf.net bug #1061503)
+  (Join, Part, Kick, List, Names) 
+- added more RFC commands, now all RFC 2812 commands are implemented!
+  (Oper, Motd, Luser, Version, Stats, Service, Squit, Links, Time, Connect,
+   Trace, Admin, Info, Servlist, Squery, Whois, Whowas, Kill, Ping, Pong,
+   Away, Rehash, Die, Restart, Summon, Users, Wallops, Userhost, Ison)
+- WriteLine() will throw an NotConnectedException now when it's used without
+  having a connection to an IRC server
+- added timeout values for the tcp socket (6 minutes), and activated nodelay flag
+- prefixed all IrcCommands that are actually plain RFC commands with "Rfc"
+  e.g. Join() is now called RfcJoin()
+
+v0.2.0 (SVN r83)
+-------
+fixes:
+
+changes:
+
+new:
+ - first public release
