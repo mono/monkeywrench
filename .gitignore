@@ -13,4 +13,6 @@ Builder.dll.mdb
 *.userprefs
 MonkeyWrench.xml
 releases
-
+bin
+obj
+Meebey.SmartIrc4net.xml
