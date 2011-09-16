@@ -19,8 +19,8 @@ REFERENCES = \
 	-r:System.Data.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	@echo "    GMCS $(LIBRARY)"
-	@MONO_PATH=$(OUT_DIR) gmcs -target:exe -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    DMCS $(LIBRARY)"
+	@MONO_PATH=$(OUT_DIR) dmcs -target:exe -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 all: $(OUT)
 

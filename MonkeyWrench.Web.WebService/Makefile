@@ -25,8 +25,8 @@ SOURCES = \
 	$(wildcard *.cs)
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	@echo "    GMCS $(LIBRARY)"
-	@MONO_PATH=$(OUT_DIR):$(MONO_PATH) gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    DMCS $(LIBRARY)"
+	@MONO_PATH=$(OUT_DIR):$(MONO_PATH) dmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 all: $(OUT)
 

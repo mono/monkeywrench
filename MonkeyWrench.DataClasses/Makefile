@@ -19,8 +19,8 @@ REFERENCES = \
 	-r:System.Web.Services.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	@echo "    GMCS $(LIBRARY)"
-	@gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    DMCS $(LIBRARY)"
+	@dmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 generate: ../scripts/database.sql CustomTypes.sql
 	gmcs SqlToCSharp.cs -out:SqlToCSharp.exe -debug+

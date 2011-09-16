@@ -10,8 +10,8 @@ OUT_DIR = $(TOPDIR)/class/lib
 OUT = $(OUT_DIR)/$(LIBRARY)
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	@echo "    GMCS $(LIBRARY)"
-	@gmcs -target:library -debug:full -out:$@ $(SOURCES) -warn:0 -D:NET_2_0
+	@echo "    DMCS $(LIBRARY)"
+	@dmcs -target:library -debug:full -out:$@ $(SOURCES) -warn:0 -D:NET_2_0
 
 all: $(OUT)
 

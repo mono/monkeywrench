@@ -20,8 +20,8 @@ REFERENCES = \
 	-r:System.Data.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	@echo "    GMCS $(LIBRARY)"
-	@gmcs -target:exe -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    DMCS $(LIBRARY)"
+	@dmcs -target:exe -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 all: $(OUT)
 

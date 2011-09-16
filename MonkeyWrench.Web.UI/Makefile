@@ -22,8 +22,8 @@ REFERENCES = \
 	-r:System.Web.Services.dll
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	@echo "    GMCS $(LIBRARY)"
-	@gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    DMCS $(LIBRARY)"
+	@dmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
 
 all: $(OUT)
 

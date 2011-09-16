@@ -32,5 +32,5 @@ generate-assembly-info:
 	@(if ! diff -u AssemblyInfo.cs AssemblyInfo.tmp > /dev/null 2>&1; then echo Updating AssemblyInfo.cs; cp -p AssemblyInfo.tmp AssemblyInfo.cs; else echo AssemblyInfo.cs is up to date; fi)
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	@echo "    GMCS $(LIBRARY)"
-	@gmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
+	@echo "    DMCS $(LIBRARY)"
+	@dmcs -target:library -debug:full -out:$@ $(SOURCES) $(REFERENCES)
