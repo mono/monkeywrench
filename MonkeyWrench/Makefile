@@ -27,8 +27,10 @@ publish install: all
 
 generate-assembly-info:
 	@cp AssemblyInfo.cs.in AssemblyInfo.tmp
-	@sed -i '' "s/.*AssemblyDescription.*/[assembly: AssemblyDescription (@\"MonkeyWrench (branch: `git branch | grep "^[*] " | sed 's/^[*] //'` commit #`git log --pretty=format:''|wc -l` sha: `git log --pretty=format:'%h' -1` date: `git log --pretty=format:'%ci' -1`) subject: `git log --pretty=format:'%s' -1 | sed 's_\\"_\\\\\\\\"_g'`)\")]/" AssemblyInfo.tmp
-	@sed -i '' "s/.*AssemblyVersion.*/[assembly: AssemblyVersion (\"1.0.0.`git log --pretty=format:''|wc -l`\")]/" AssemblyInfo.tmp
+	@sed "s/.*AssemblyDescription.*/[assembly: AssemblyDescription (@\"MonkeyWrench (branch: `git branch | grep "^[*] " | sed 's/^[*] //'` commit #`git log --pretty=format:''|wc -l` sha: `git log --pretty=format:'%h' -1` date: `git log --pretty=format:'%ci' -1`) subject: `git log --pretty=format:'%s' -1 | sed 's_\\"_\\\\\\\\"_g'`)\")]/" < AssemblyInfo.tmp > new
+	mv new AssemblyInfo.tmp
+	@sed "s/.*AssemblyVersion.*/[assembly: AssemblyVersion (\"1.0.0.`git log --pretty=format:''|wc -l`\")]/" < AssemblyInfo.tmp > new
+	mv new AssemblyInfo.tmp
 	@(if ! diff -u AssemblyInfo.cs AssemblyInfo.tmp > /dev/null 2>&1; then echo Updating AssemblyInfo.cs; cp -p AssemblyInfo.tmp AssemblyInfo.cs; else echo AssemblyInfo.cs is up to date; fi)
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
