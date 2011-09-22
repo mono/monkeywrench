@@ -34,7 +34,7 @@ clean:
 install: all
 	@echo "    PUBLISH $(LIBRARY)"
 	@mkdir -p bin
-	@cp -pu $(OUT_DIR)/Npgsql.dll* bin/
-	@cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin/
-	@cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
-	@cp -pu $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/
+	@cp -p $(OUT_DIR)/Npgsql.dll* bin/
+	@cp -p $(OUT_DIR)/MonkeyWrench.dll* bin/
+	@cp -p $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
+	@cp -p $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/

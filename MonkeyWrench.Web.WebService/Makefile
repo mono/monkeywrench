@@ -37,12 +37,12 @@ clean:
 install: all
 	@echo "    PUBLISH $(LIBRARY)"
 	@mkdir -p bin
-	@cp -pu $(OUT)* bin
-	@cp -pu $(OUT_DIR)/Npgsql.dll* bin
-	@cp -pu $(OUT_DIR)/MonkeyWrench.dll* bin
-	@cp -pu $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin
-	@cp -pu $(OUT_DIR)/MonkeyWrench.Database.dll* bin
-	@cp -pu $(OUT_DIR)/Meebey.SmartIrc4net.dll* bin
+	@cp -p $(OUT)* bin
+	@cp -p $(OUT_DIR)/Npgsql.dll* bin
+	@cp -p $(OUT_DIR)/MonkeyWrench.dll* bin
+	@cp -p $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin
+	@cp -p $(OUT_DIR)/MonkeyWrench.Database.dll* bin
+	@cp -p $(OUT_DIR)/Meebey.SmartIrc4net.dll* bin
 
 dataclasses:
 	$(MAKE) -C $(TOPDIR)/MonkeyWrench.DataClasses
