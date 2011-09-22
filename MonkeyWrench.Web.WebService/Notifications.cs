@@ -146,13 +146,16 @@ namespace MonkeyWrench.Web.WebService
 		{
 			DBState newest_state = work.State;
 
-			/* We need to see if the latest completed build is still failing */
+			if (work.State == DBState.Success)
+				return false;
+
+			/* We need to see if there are any successfull builds later than this one */
 			using (DB db = new DB ()) {
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
 SELECT state FROM RevisionWork
 INNER JOIN Revision ON RevisionWork.revision_id = Revision.id
-WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id AND RevisionWork.completed AND Revision.date > (SELECT date FROM Revision WHERE id = @revision_id)
+WHERE RevisionWork.state = 3 AND RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id AND RevisionWork.completed AND Revision.date > (SELECT date FROM Revision WHERE id = @revision_id)
 ORDER BY Revision.date DESC
 LIMIT 1
 ";
@@ -161,13 +164,12 @@ LIMIT 1
 					DB.CreateParameter (cmd, "revision_id", revision_work.revision_id);
 					object obj_state = cmd.ExecuteScalar ();
 
-					if (obj_state is DBState)
-						newest_state = (DBState) obj_state;
+					if (obj_state != DBNull.Value && obj_state != null) {
+						Logger.Log ("NotificationBase.Evaluate: Later work succeeded, nothing to notify");
+						return false;
+					}
 				}
 			}
-
-			if (newest_state == DBState.Success)
-				return false;
 
 			switch (Notification.Type) {
 			case DBNotificationType.AllFailures:
