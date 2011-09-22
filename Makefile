@@ -45,7 +45,12 @@ publish: install
 wsdl: publish
 	$(MAKE) -C MonkeyWrench.Web.WebService $@
 
-build: all
+build:
+	@$(MAKE) -C MonkeyWrench all
+	@$(MAKE) -C MonkeyWrench.DataClasses all
+	@$(MAKE) -C MonkeyWrench.Database all
+	@$(MAKE) -C MonkeyWrench.Database.Manager all
+	@$(MAKE) -C MonkeyWrench.Builder all
 	mono --debug class/lib/MonkeyWrench.Builder.exe
 
 schedule update: all
