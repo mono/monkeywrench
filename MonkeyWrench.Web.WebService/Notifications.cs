@@ -308,7 +308,7 @@ LIMIT 1
 
 				while (!Client.IsSendBufferEmpty) {
 					Thread.Sleep (10);
-					if (start.Add (timeout) > DateTime.Now)
+					if (start.Add (timeout) < DateTime.Now)
 						return false;
 				}
 
@@ -531,11 +531,9 @@ LIMIT 1
 					}
 				}
 				if (!identity.join_channels) {
-					while (!state.WaitForEmptySendBuffer (TimeSpan.FromSeconds (30))) {
+					if (!state.WaitForEmptySendBuffer (TimeSpan.FromSeconds (30)))
 						Logger.Log ("IrcNotification: waited for 30 seconds for messages to be sent, disconnecting now");
-						break;
-					}
-					Disconnect ();
+					Disconnect (state);
 				}
 			}
 		}

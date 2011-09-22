@@ -264,12 +264,14 @@ namespace Meebey.SmartIrc4net
 
         public bool IsSendBufferEmpty {
             get	{
-                return (((Queue) _SendBuffer [Priority.AboveMedium]).Count +
-                    ((Queue) _SendBuffer [Priority.BelowMedium]).Count +
-                    ((Queue) _SendBuffer [Priority.Critical]).Count +
-                    ((Queue) _SendBuffer [Priority.High]).Count +
-                    ((Queue) _SendBuffer [Priority.Low]).Count +
-                    ((Queue) _SendBuffer [Priority.Medium]).Count) == 0;
+				for (Priority i = Priority.Low; i <= Priority.Critical; i++) {
+					Queue q = (Queue) _SendBuffer [i];
+					if (q == null)
+						continue;
+					if (q.Count > 0)
+						return false;
+				}
+				return true;
             }
         }
 
