@@ -132,6 +132,7 @@ namespace MonkeyWrench.WebServices
 			WebServiceLogin login = new WebServiceLogin ();
 
 			login.Cookie = Request ["cookie"];
+			login.Password = Request ["password"];
 			if (string.IsNullOrEmpty (login.Cookie)) {
 				if (Request.Cookies ["cookie"] != null) {
 					login.Cookie = Request.Cookies ["cookie"].Value;
