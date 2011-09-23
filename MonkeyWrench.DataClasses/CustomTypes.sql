@@ -45,9 +45,10 @@ CREATE VIEW RevisionWorkView AS
 CREATE VIEW RevisionWorkView2 AS 
 	SELECT
 		RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWork.revision_id, 
-		RevisionWork.state, RevisionWork.completed,
+		RevisionWork.state, RevisionWork.completed, RevisionWork.endtime,
 		Revision.revision, Revision.date
 	FROM RevisionWork
 	INNER JOIN Revision ON RevisionWork.revision_id = Revision.id
 	ORDER BY 
 		Revision.date DESC;
+

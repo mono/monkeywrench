@@ -147,6 +147,37 @@ public partial class index : System.Web.UI.Page
 		return result;
 	}
 
+	private string TimeDiffToString (DateTime from, DateTime to)
+	{
+		int value;
+		TimeSpan diff = to - from;
+
+		if (diff.TotalHours < 1) {
+			value = (int) diff.TotalMinutes;
+			if (value == 1) {
+				return "1 minute ago";
+			} else {
+				return string.Format ("{0} minutes ago", value);
+			}
+		} else if (diff.TotalDays < 1) {
+			value = (int) diff.TotalHours;
+			if (value == 1) {
+				return "1 hour ago";
+			} else {
+				return string.Format ("{0} hours ago", value);
+			}
+		} else if (diff.TotalDays < 3) {
+			value = (int) diff.TotalDays;
+			if (value == 1) {
+				return "1 day ago";
+			} else {
+				return string.Format ("{0} days ago", value);
+			}
+		} else {
+			return from.ToString ("yyyy-MM-dd");
+		}
+	}
+
 	public string GenerateOverview (FrontPageResponse data)
 	{
 		StringBuilder matrix = new StringBuilder ();
@@ -204,7 +235,11 @@ public partial class index : System.Web.UI.Page
 					bool completed = work.completed;
 					string state_str = state.ToString ().ToLowerInvariant ();
 					bool is_working;
+					string str_date = string.Empty;
 
+					if (work.endtime.Year > 2000)
+						str_date = "</br>" + TimeDiffToString (work.endtime, DateTime.UtcNow);
+					
 					switch (state) {
 					case DBState.Executing:
 						is_working = true;
@@ -229,15 +264,15 @@ public partial class index : System.Web.UI.Page
 								<center>
 									<table class='executing'>
 										<td>
-											<a href='ViewLane.aspx?lane_id={2}&amp;host_id={3}&amp;revision_id={4}' title='{5}'>{0}</a>
+											<a href='ViewLane.aspx?lane_id={2}&amp;host_id={3}&amp;revision_id={4}' title='{5}'>{0}{6}</a>
 										</td>
 									</table>
 								<center>
 							  </td>",
-							revision, state_str, lane_id, host_id, revision_id, "");
+							revision, state_str, lane_id, host_id, revision_id, "", str_date);
 					} else {
-						row.AppendFormat ("<td class='{1}'><a href='ViewLane.aspx?lane_id={2}&amp;host_id={3}&amp;revision_id={4}' title='{5}'>{0}</a></td>",
-							revision, state_str, lane_id, host_id, revision_id, "");
+						row.AppendFormat ("<td class='{1}'><a href='ViewLane.aspx?lane_id={2}&amp;host_id={3}&amp;revision_id={4}' title='{5}'>{0}{6}</a></td>",
+							revision, state_str, lane_id, host_id, revision_id, "", str_date);
 					}
 				} else {
 					row.Append ("<td>-</td>");
