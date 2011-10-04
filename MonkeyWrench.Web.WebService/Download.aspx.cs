@@ -107,6 +107,7 @@ namespace MonkeyWrench.WebServices
 				}
 			}
 			
+			Response.AppendHeader ("Content-Length", new System.IO.FileInfo (fullpath).Length.ToString ());
 			Response.TransmitFile (fullpath);
 		}
 
