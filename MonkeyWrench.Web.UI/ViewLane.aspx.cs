@@ -192,7 +192,14 @@ public partial class ViewLane : System.Web.UI.Page
 			matrix.AppendLine ("<tr>");
 
 			// step
-			matrix.AppendFormat ("\t<td><a href='ViewWorkTable.aspx?lane_id={1}&amp;host_id={2}&amp;command_id={3}'>{0}</a></td>", command.Replace (".sh", ""), lane.id, host.id, step.command_id);
+			DBWorkFileView step_log = files.Find ((v) => v.filename == command + ".log");
+			matrix.Append ("\t<td>");
+			if (step_log != null) {
+				matrix.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> ", step_log.id, Path.GetFileNameWithoutExtension (command));
+			} else {
+				matrix.Append (Path.GetFileNameWithoutExtension (command));
+			}
+			matrix.Append ("</td>");
 
 			// result
 			string result;
@@ -213,7 +220,7 @@ public partial class ViewLane : System.Web.UI.Page
 			}
 
 			// result
-			matrix.AppendFormat ("\t<td class='{0}'>{1}</td>", result, result);
+			matrix.AppendFormat ("\t<td class='{0}'><a href='ViewWorkTable.aspx?lane_id={1}&amp;host_id={2}&amp;command_id={3}'>{0}</a></td>", result, lane.id, host.id, step.command_id);
 
 			if (state > DBState.NotDone && state != DBState.Paused) {
 				matrix.AppendFormat ("<td>{0}</td>", step.starttime.ToString ("yyyy/MM/dd HH:mm:ss UTC"));
