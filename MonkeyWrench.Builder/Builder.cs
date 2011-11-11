@@ -44,11 +44,15 @@ namespace MonkeyWrench.Builder
 			BuildBotStatus status;
 
 			try {
-				if (!Configuration.LoadConfiguration (arguments))
+				if (!Configuration.LoadConfiguration (arguments)) {
+					Logger.Log ("Could not load configuration.");
 					return 1;
+				}
 
-				if (!Configuration.VerifyBuildBotConfiguration ())
+				if (!Configuration.VerifyBuildBotConfiguration ()) {
+					Logger.Log ("Configuration verification failed.");
 					return 1;
+				}
 
 				process_lock = Lock.Create ("MonkeyWrench.Builder");
 				if (process_lock == null) {
