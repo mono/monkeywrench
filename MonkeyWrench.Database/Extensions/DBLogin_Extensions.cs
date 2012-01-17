@@ -1,4 +1,4 @@
-﻿/*
+/*
  * DBLogin_Extensions.cs
  *
  * Authors:
@@ -16,8 +16,10 @@ using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using MonkeyWrench.DataClasses;
+using MonkeyWrench.DataClasses.Logic;
 
 namespace MonkeyWrench.Database
 {
@@ -70,6 +72,82 @@ namespace MonkeyWrench.Database
 			return result;
 		}
 
+		public static void LoginOpenId (DB db, LoginResponse response, string email, string ip4)
+		{
+			Logger.Log (2, "DBLogin.LoginOpenId ({0}, {1})", email, ip4);
+
+			if (string.IsNullOrEmpty (Configuration.OpenIdProvider))
+				throw new Exception ("No OpenId provider available");
+
+			if (string.IsNullOrEmpty (Configuration.OpenIdRoles))
+				throw new Exception ("No OpenId roles specified");
+
+			if (string.IsNullOrEmpty (email))
+				throw new Exception ("OpenId authentication requires an email");
+			
+			string [] specs = Configuration.OpenIdRoles.Split (';');
+			foreach (var spec in specs) {
+				// email:role1,role2
+				string [] split = spec.Split (':');
+				if (split.Length != 2) {
+					Logger.Log ("AuthenticateOpenId: Invalid role spec: {0}", spec);
+					continue;
+				}
+
+				if (string.IsNullOrEmpty (split [1])) {
+					Logger.Log ("AuthenticateOpenId: No roles specified for {0}", split [0]);
+					continue;
+				}
+
+				if (!Regex.IsMatch (email, split [0]))
+					continue;
+
+				// We now create an account with an empty password and the specified roles.
+				// Note that it is not possible to log into an account with an empty password
+				// using the normal login procedure.
+
+				DBPerson open_person = null;
+
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"SELECT * FROM Person WHERE login = @login;";
+					DB.CreateParameter (cmd, "login", email);
+					using (var reader = cmd.ExecuteReader ()) {
+						if (reader.Read ())
+							open_person = new DBPerson (reader);
+					}
+				}
+
+				if (open_person == null) {
+					open_person = new DBPerson ();
+					open_person.login = email;
+					open_person.roles = split [1];
+					open_person.Save (db);
+				} else {
+					// only save if something has changed
+					if (open_person.roles != split [1]) {
+						open_person.roles = split [1];
+						open_person.Save (db);
+					}
+				}
+
+				var result = new DBLogin ();
+				result.person_id = open_person.id;
+				result.ip4 = ip4;
+				result.cookie = CreateCookie ();
+				result.expires = DateTime.Now.AddDays (1);
+				result.Save (db);
+				
+				response.User = email;
+				response.UserName = email;
+				response.UserRoles = open_person.Roles;
+				response.Cookie = result.cookie;
+
+				return;
+			}
+
+			throw new Exception ("The provided email address is not allowed to log in");
+		}
+
 		public static string CreateCookie ()
 		{
 			byte [] data = new byte [32];
@@ -93,3 +171,4 @@ namespace MonkeyWrench.Database
 		}
 	}
 }
+

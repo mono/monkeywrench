@@ -14,4 +14,8 @@
     <br />
     <asp:HiddenField ID="txtReferrer" runat="server" />
     <asp:Button ID="cmdLogin" runat="server" Text="Login" OnClick="cmdLogin_Click" />
+    <hr />
+    <asp:Button ID="cmdLoginOpenId" runat="server" Text="Login using OpenId" OnClick="cmdLoginOpenId_Click" /> <br />
+    <asp:Label ID="lblMessageOpenId" runat="server"></asp:Label>
+    
 </asp:Content>

@@ -103,6 +103,8 @@
     <h3>WebSiteUrl</h3>The url for the web site. This is used to create proper links when notifications are sent. It defaults to the root directory of WebServiceUrl.
     <h3>UploadPort</h3>The port used at the web service for file uploads. Defaults to 0 (which means the web service will choose a port).
     <h3>AllowAnonymousAccess</h3>If anonymous access is allowed for everything that's not specifically marked as internal (default: true).
+    <h3>OpenIdProvider</h3>The OpenId provider to use.
+    <h3>OpenIdRoles</h3>Specifies how OpenId emails are to translate into roles. Format: email:role1,role2;email:role2,role3. Email can be a regex. Sample: .*@xamarin.com:Admin
     <h2>
         Sample configuration</h2>
     This is a sample configuration file for a buildbot:

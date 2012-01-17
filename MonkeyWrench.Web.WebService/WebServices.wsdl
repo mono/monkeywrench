@@ -29,10 +29,12 @@
           <xs:element minOccurs="0" maxOccurs="1" name="Ip4" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-      <xs:element name="Login">
+      <xs:element name="LoginOpenId">
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="email" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="ip4" type="xs:string" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -178,14 +180,15 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBView">
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="state" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="completed" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="endtime" type="xs:dateTime" />
               <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -243,7 +246,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="architecture" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="queuemanagement" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
-              <xs:element minOccurs="1" maxOccurs="1" name="release" nillable="true" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="release_id" nillable="true" type="xs:int" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -461,10 +464,22 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="person_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="0" maxOccurs="1" name="version" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="report_date" type="xs:dateTime" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBRelease">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="version" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -497,8 +512,11 @@
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="servers" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="channels" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="nicks" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="use_ssl" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="join_channels" type="xs:boolean" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -510,18 +528,6 @@
               <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="email" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string" />
-            </xs:sequence>
-          </xs:extension>
-        </xs:complexContent>
-      </xs:complexType>
-      <xs:complexType name="DBRelease">
-        <xs:complexContent mixed="false">
-          <xs:extension base="s0:DBRecord">
-            <xs:sequence>
-              <xs:element minOccurs="0" maxOccurs="1" name="version" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -912,7 +918,12 @@
       </xs:complexType>
       <xs:complexType name="ReportBuildBotStatusResponse">
         <xs:complexContent mixed="false">
-          <xs:extension base="s0:WebServiceResponse" />
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="ConfiguredVersion" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="ConfiguredRevision" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
         </xs:complexContent>
       </xs:complexType>
       <xs:complexType name="GetBuildBotStatusResponse">
@@ -920,6 +931,8 @@
           <xs:extension base="s0:WebServiceResponse">
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="Status" type="s0:ArrayOfDBBuildBotStatus" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Hosts" type="s0:ArrayOfDBHost" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Releases" type="s0:ArrayOfDBRelease" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -927,6 +940,11 @@
       <xs:complexType name="ArrayOfDBBuildBotStatus">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBBuildBotStatus" nillable="true" type="s0:DBBuildBotStatus" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBRelease">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRelease" nillable="true" type="s0:DBRelease" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="GetBuildInfoResponse">
@@ -1014,11 +1032,6 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
-      <xs:complexType name="ArrayOfDBRelease">
-        <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBRelease" nillable="true" type="s0:DBRelease" />
-        </xs:sequence>
-      </xs:complexType>
       <xs:complexType name="GetAdminInfoResponse">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
@@ -1029,6 +1042,20 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:element name="LoginOpenIdResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="LoginOpenIdResult" type="s0:LoginResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Login">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="LoginResponse">
         <xs:complexType>
           <xs:sequence>
@@ -2290,6 +2317,7 @@
       </xs:element>
       <xs:complexType name="BuildBotStatus">
         <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Host" type="xs:string" />
           <xs:element minOccurs="0" maxOccurs="1" name="AssemblyVersion" type="xs:string" />
           <xs:element minOccurs="0" maxOccurs="1" name="AssemblyDescription" type="xs:string" />
         </xs:sequence>
@@ -2582,6 +2610,12 @@
   </message>
   <message name="GetRolesSoapOut">
     <part name="parameters" element="s0:GetRolesResponse" />
+  </message>
+  <message name="LoginOpenIdSoapIn">
+    <part name="parameters" element="s0:LoginOpenId" />
+  </message>
+  <message name="LoginOpenIdSoapOut">
+    <part name="parameters" element="s0:LoginOpenIdResponse" />
   </message>
   <message name="LoginSoapIn">
     <part name="parameters" element="s0:Login" />
@@ -3256,6 +3290,10 @@
       <input message="s0:GetRolesSoapIn" />
       <output message="s0:GetRolesSoapOut" />
     </operation>
+    <operation name="LoginOpenId">
+      <input message="s0:LoginOpenIdSoapIn" />
+      <output message="s0:LoginOpenIdSoapOut" />
+    </operation>
     <operation name="Login">
       <input message="s0:LoginSoapIn" />
       <output message="s0:LoginSoapOut" />
@@ -3693,6 +3731,10 @@
     <operation name="GetRoles">
       <input message="s0:GetRolesSoapIn" />
       <output message="s0:GetRolesSoapOut" />
+    </operation>
+    <operation name="LoginOpenId">
+      <input message="s0:LoginOpenIdSoapIn" />
+      <output message="s0:LoginOpenIdSoapOut" />
     </operation>
     <operation name="Login">
       <input message="s0:LoginSoapIn" />
@@ -4151,6 +4193,15 @@
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <operation name="GetRoles">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetRoles" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="LoginOpenId">
+      <soap:operation soapAction="http://monkeywrench.novell.com/LoginOpenId" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5135,6 +5186,15 @@
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <operation name="GetRoles">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetRoles" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="LoginOpenId">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/LoginOpenId" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

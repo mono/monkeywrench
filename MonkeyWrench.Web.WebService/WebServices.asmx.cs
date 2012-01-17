@@ -74,6 +74,22 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
+		public LoginResponse LoginOpenId (WebServiceLogin login, string email, string ip4)
+		{
+			LoginResponse response = new LoginResponse ();
+
+			using (DB db = new DB ()) {
+				try {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					DBLogin_Extensions.LoginOpenId (db, response, email, ip4);
+				} catch (Exception ex) {
+					response.Exception = new WebServiceException (ex);
+				}
+				return response;
+			}
+		}
+
+		[WebMethod]
 		public LoginResponse Login (WebServiceLogin login)
 		{
 			LoginResponse response = new LoginResponse ();
@@ -2731,3 +2747,4 @@ WHERE Revision.lane_id = @lane_id AND ";
 		#endregion
 	}
 }
+

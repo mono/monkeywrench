@@ -10,6 +10,7 @@ OUT = $(OUT_DIR)/$(LIBRARY)
 
 BUILDABLE_REFS = \
 	$(OUT_DIR)/Npgsql.dll	\
+	$(OUT_DIR)/DotNetOpenAuth.dll	\
 	$(OUT_DIR)/MonkeyWrench.dll	\
 	$(OUT_DIR)/MonkeyWrench.DataClasses.dll
 
@@ -35,6 +36,10 @@ install: all
 	@echo "    PUBLISH $(LIBRARY)"
 	@mkdir -p bin
 	@cp -p $(OUT_DIR)/Npgsql.dll* bin/
+	@cp -p $(OUT_DIR)/DotNetOpenAuth.dll* bin/
+	@cp -p $(OUT_DIR)/log4net.dll* bin/
+	@cp -p $(OUT_DIR)/Contracts.dll* bin/
+	@cp -p $(OUT_DIR)/Microsoft.Contracts.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/

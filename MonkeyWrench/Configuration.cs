@@ -46,6 +46,10 @@ namespace MonkeyWrench
 		public static int LogVerbosity = 1; // 0: quiet, 1: some messages, 2: verbose (default: 1)
 		public static bool AllowAnonymousAccess = true;
 
+		// openid
+		public static string OpenIdProvider = null;
+		public static string OpenIdRoles = null;
+
 		//the following are used by the database manager.
 		public static bool CleanLargeObjects;
 		public static bool CompressFiles;
@@ -177,6 +181,8 @@ namespace MonkeyWrench
 				SiteSkin = xml.SelectSingleNode ("MonkeyWrench/Configuration/SiteSkin").GetNodeValue (SiteSkin);
 				UploadPort = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/UploadPort").GetNodeValue (UploadPort.ToString ()));
 				AllowAnonymousAccess = bool.Parse(xml.SelectSingleNode("MonkeyWrench/Configuration/AllowAnonymousAccess").GetNodeValue(AllowAnonymousAccess.ToString()));
+				OpenIdProvider = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdProvider").GetNodeValue (OpenIdProvider);
+				OpenIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue (OpenIdRoles);
 
 				// override from command line
 
@@ -205,6 +211,8 @@ namespace MonkeyWrench
 					{"siteskin=", v => SiteSkin = v},
 					{"uploadport=", v => UploadPort = int.Parse (v.Trim ())},
 					{"allowanonymousaccess=", v => AllowAnonymousAccess = bool.Parse (v.Trim ())},
+					{"openidprovider=", v => OpenIdProvider = v },
+					{"openidroles=", v => OpenIdRoles = v },
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},
