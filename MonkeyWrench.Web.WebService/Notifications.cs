@@ -142,9 +142,11 @@ namespace MonkeyWrench.Web.WebService
 
 		public DBNotification Notification { get; private set; }
 
-		private bool Evaluate (DBWork work, DBRevisionWork revision_work)
+		private bool Evaluate (DBWork work, DBRevisionWork revision_work, out bool nonfatal)
 		{
 			DBState newest_state = work.State;
+
+			nonfatal = false;
 
 			if (work.State == DBState.Success)
 				return false;
@@ -157,12 +159,23 @@ SELECT state FROM RevisionWork
 INNER JOIN Revision ON RevisionWork.revision_id = Revision.id
 WHERE RevisionWork.state = 3 AND RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id AND RevisionWork.completed AND Revision.date > (SELECT date FROM Revision WHERE id = @revision_id)
 ORDER BY Revision.date DESC
-LIMIT 1
+LIMIT 1;
+
+SELECT nonfatal FROM Command WHERE id = @command_id;
 ";
 					DB.CreateParameter (cmd, "lane_id", revision_work.lane_id);
 					DB.CreateParameter (cmd, "host_id", revision_work.host_id);
 					DB.CreateParameter (cmd, "revision_id", revision_work.revision_id);
-					object obj_state = cmd.ExecuteScalar ();
+					DB.CreateParameter (cmd, "command_id", work.command_id);
+
+					object obj_state = null;
+
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						if (reader.Read ())
+							obj_state = reader [0];
+						if (reader.NextResult () && reader.Read ())
+							nonfatal = reader.GetBoolean (0);
+					}
 
 					if (obj_state != DBNull.Value && obj_state != null) {
 						Logger.Log ("NotificationBase.Evaluate: Later work succeeded, nothing to notify");
@@ -175,9 +188,11 @@ LIMIT 1
 			case DBNotificationType.AllFailures:
 				return work.State == DBState.Issues || work.State == DBState.Failed;
 			case DBNotificationType.FatalFailuresOnly:
+				if (nonfatal)
+					return false;
 				return work.State == DBState.Failed && newest_state == DBState.Failed;
 			case DBNotificationType.NonFatalFailuresOnly:
-				return work.State == DBState.Issues;
+				return work.State == DBState.Issues || nonfatal;
 			default:
 				return false;
 			}
@@ -192,24 +207,21 @@ LIMIT 1
 			DBLane lane;
 			DBHost host;
 			string message;
+			bool nonfatal;
 
 			Logger.Log ("NotificationBase.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 
-			if (!Evaluate (work, revision_work)) {
+			nonfatal = false;
+	
+			if (!Evaluate (work, revision_work, out nonfatal)) {
 				Logger.Log ("NotificationBase.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) = evaluation returned false", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 				return;
 			}
 
-			switch (work.State) {
-			case DBState.Issues:
+			if (nonfatal) {
 				message = "Test failure";
-				break;
-			case DBState.Failed:
+			} else {
 				message = "{red}{bold}Build failure{default}";
-				break;
-			default:
-				message = "Unknown failure";
-				break;
 			}
 
 			using (DB db = new DB ()) {
