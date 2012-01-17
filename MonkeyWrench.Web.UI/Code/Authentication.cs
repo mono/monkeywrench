@@ -91,13 +91,18 @@ public class Authentication
 			Logger.Log ("Login failed");
 			return false;
 		} else {
-			Logger.Log ("Login succeeded, cookie: {0}", response.Cookie);
-			Response.Cookies.Add (new HttpCookie ("cookie", response.Cookie));
-			Response.Cookies ["cookie"].Expires = DateTime.Now.AddDays (1);
-			Response.Cookies.Add (new HttpCookie ("user", login.User));
-			/* Note that the 'roles' cookie is only used to determine the web ui to show, it's not used to authorize anything */
-			Response.Cookies.Add (new HttpCookie ("roles", string.Join (", ", Utils.WebService.GetRoles (login.User))));
+			SetCookies (Response, response);
 			return true;
 		}
+	}
+
+	public static void SetCookies (HttpResponse Response, LoginResponse response)
+	{
+		Logger.Log ("Login succeeded, cookie: {0}", response.Cookie);
+		Response.Cookies.Add (new HttpCookie ("cookie", response.Cookie));
+		Response.Cookies ["cookie"].Expires = DateTime.Now.AddDays (10);
+		Response.Cookies.Add (new HttpCookie ("user", response.User));
+		/* Note that the 'roles' cookie is only used to determine the web ui to show, it's not used to authorize anything */
+		Response.Cookies.Add (new HttpCookie ("roles", response.UserRoles == null ? string.Empty : string.Join (", ", response.UserRoles)));
 	}
 }

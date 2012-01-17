@@ -61,21 +61,26 @@ namespace MonkeyWrench.Database
 			result.ip4 = ip4;
 
 			if (!@readonly) {
-				byte [] data = new byte [32];
-				StringBuilder builder = new StringBuilder (data.Length);
-				random.GetBytes (data);
-
-				for (int i = 0; i < data.Length; i++)
-					builder.Append (string.Format ("{0:x}", data [i]));
-				builder.Append (DateTime.Now.Ticks);
-
 				result.expires = DateTime.Now.AddDays (1);
-				result.cookie = builder.ToString ();
+				result.cookie = CreateCookie ();
 
 				result.Save (db);
 			}
 
 			return result;
+		}
+
+		public static string CreateCookie ()
+		{
+			byte [] data = new byte [32];
+			StringBuilder builder = new StringBuilder (data.Length);
+			random.GetBytes (data);
+
+			for (int i = 0; i < data.Length; i++)
+				builder.Append (string.Format ("{0:x}", data [i]));
+			builder.Append (DateTime.Now.Ticks);
+
+			return builder.ToString ();
 		}
 
 		public static void Logout (DB db, string cookie)

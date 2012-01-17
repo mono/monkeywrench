@@ -31,6 +31,11 @@ namespace MonkeyWrench.DataClasses
 			: base (reader)
 		{
 		}
+
+		public string [] Roles
+		{
+			get { return roles == null ? null : roles.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries); }
+		}
 	}
 }
 

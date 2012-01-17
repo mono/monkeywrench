@@ -105,10 +105,7 @@ namespace MonkeyWrench.WebServices
 			}
 
 			response.UserName = person.login;
-			if (!string.IsNullOrEmpty (person.roles)) {
-				response.UserRoles = person.roles.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-				Logger.Log (2, "Roles are: {0}", string.Join (";", response.UserRoles));
-			}
+			response.UserRoles = person.Roles;
 			Logger.Log (2, "Authenticate2 Roles are: {0}", response.UserRoles == null ? "null" : string.Join (";", response.UserRoles));
 		}
 
