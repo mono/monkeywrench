@@ -322,9 +322,9 @@ CREATE TABLE IrcIdentity (
 	servers    text      NOT NULL DEFAULT '',             -- a comma separated list of irc servers.
 	password   text      NOT NULL DEFAULT '',             -- the password for the irc server
 	channels   text      NOT NULL DEFAULT '',             -- a comma separated list of irc channels to join.
-	nicks      text      NOT NULL DEFAULT 'monkeywrench'  -- a comma separated list of irc nicks to use
+	nicks      text      NOT NULL DEFAULT 'monkeywrench', -- a comma separated list of irc nicks to use
 	use_ssl    boolean   NOT NULL DEFAULT FALSE,          -- if the server requires ssl
-	join_channels boolean   NOT NULL DEFAULT TRUE,           -- if the channel(s) should be joined, or just /msg'ed
+	join_channels boolean   NOT NULL DEFAULT TRUE         -- if the channel(s) should be joined, or just /msg'ed
 );
 -- alter table ircidentity add column use_ssl boolean not null default false;
 -- alter table ircidentity add column join_channels boolean not null default true;
