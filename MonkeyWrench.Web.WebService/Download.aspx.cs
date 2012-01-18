@@ -234,7 +234,6 @@ namespace MonkeyWrench.WebServices
 		{
 			DBWorkFileView view = null;
 			DBFile file = null;
-			string mime;
 			string compressed_mime;
 
 			using (DB db = new DB ()) {
@@ -254,7 +253,6 @@ namespace MonkeyWrench.WebServices
 				if (file == null)
 					throw new HttpException (404, string.Format ("Could not find the filename '{0}'", filename));
 
-				mime = file.mime;
 				compressed_mime = file.compressed_mime;
 
 				Response.ContentType = file.mime;

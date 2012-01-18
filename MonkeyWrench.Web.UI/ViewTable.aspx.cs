@@ -193,7 +193,7 @@ public partial class ViewTable : System.Web.UI.Page
 	class TableNode {
 		public string text;
 		public string @class;
-		public string style;
+		//public string style;
 		public bool is_header;
 
 		public TableNode (string text, string @class, bool is_header)
@@ -371,11 +371,12 @@ public partial class ViewTable : System.Web.UI.Page
 							matrix.Append (node.@class);
 							matrix.Append ("'");
 						}
+						/*
 						if (node.style != null) {
 							matrix.Append (" style='");
 							matrix.Append (node.style);
 							matrix.Append ("'");
-						}
+						}*/
 						matrix.Append (">");
 						matrix.Append (node.text);
 						matrix.Append ("</");
@@ -397,11 +398,12 @@ public partial class ViewTable : System.Web.UI.Page
 							matrix.Append (node.@class);
 							matrix.Append ("'");
 						}
+						/*
 						if (node.style != null) {
 							matrix.Append (" style='");
 							matrix.Append (node.style);
 							matrix.Append ("'");
-						}
+						}*/
 						matrix.Append (">");
 						matrix.Append (node.text);
 						matrix.Append ("</");
