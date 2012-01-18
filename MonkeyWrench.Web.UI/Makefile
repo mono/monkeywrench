@@ -38,7 +38,7 @@ install: all
 	@cp -p $(OUT_DIR)/Npgsql.dll* bin/
 	@cp -p $(OUT_DIR)/DotNetOpenAuth.dll* bin/
 	@cp -p $(OUT_DIR)/log4net.dll* bin/
-	@cp -p $(OUT_DIR)/Contracts.dll* bin/
+	@cp -p $(OUT_DIR)/Contracts_Standalone.dll* bin/
 	@cp -p $(OUT_DIR)/Microsoft.Contracts.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
