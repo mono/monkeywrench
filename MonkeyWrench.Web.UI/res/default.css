@@ -314,7 +314,19 @@ table.lefttree a
 }
 
 .running, .inprogress, .executing {
-	background:yellow
+	background:#FFFF00; /*yellow*/
+}
+
+.running1, .inprogress1, .executing1 {
+    background:#DDDD00;
+}
+
+.running2, .inprogress2, .executing3 {
+    background:#BBBB00;
+}
+
+.running3, .inprogress3, .executing3 {
+    background:#999900;
 }
 
 .notused {
@@ -335,9 +347,20 @@ table.lefttree a
 	background:purple;
 }
 
-.timeout
-{
-	background:gray;
+.timeout {
+	background:#808080; /*gray*/
+}
+
+.timeout1 {
+	background:#707070;
+}
+
+.timeout2 {
+	background:#606060;
+}
+
+.timeout3 {
+	background:#505050;
 }
 
 .new {
@@ -345,26 +368,51 @@ table.lefttree a
 }
 
 .queued, .notdone {
-	background:pink;
+	background:#FAAFBE; /*pink*/
 }
 
+.queued1, .notdone1 {
+	background:#EA9FAE;
+}
+
+.queued2, .notdone2 {
+	background:#DA8F9E;
+}
+
+.queued3, .notdone3 {
+	background:#CA7F8E;
+}
+
+
 .timeout {
-	background:steelblue;
+	background:#4682B4; /*steelblue*/
+}
+
+.timeout1 {
+	background:#3672A4; 
+}
+
+.timeout2 {
+	background:#266294;
+}
+
+.timeout3 {
+	background:#165284;
 }
 
 .testfailure, .issues {
 	background: #FFA500; /* orange */
 }
 
-.issues1 {
+.testfailure1, .issues1 {
 	background: #DD8300;
 }
 
-.issues2 {
+.testfailure2, .issues2 {
 	background: #BB6100;
 }
 
-.issues3 {
+.testfailure3, .issues3 {
 	background: #994000;
 }
 

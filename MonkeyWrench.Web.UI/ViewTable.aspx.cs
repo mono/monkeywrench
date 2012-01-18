@@ -286,7 +286,7 @@ public partial class ViewTable : System.Web.UI.Page
 						revision = revision.Substring (0, 8);
 
 					string clazz = revisionwork_state.ToString ().ToLower ();
-					clazz = DarkenColor (clazz, table.Count);
+					clazz = clazz + " " + DarkenColor (clazz, table.Count);
 					row = new List<TableNode> ();
 
 					tooltip.Length = 0;
@@ -347,8 +347,7 @@ public partial class ViewTable : System.Web.UI.Page
 						} else {
 							row [j] = new TableNode (result);
 						}
-						result = DarkenColor (result, table.Count);
-						row [j].@class = result;
+						row [j].@class = result + " " + DarkenColor (result, table.Count);
 						break;
 					}
 				}
