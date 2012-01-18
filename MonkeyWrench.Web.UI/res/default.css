@@ -282,12 +282,35 @@ table.lefttree a
 }
 
 .success {
-	background:springgreen;
+	background:#00FF7F; /* springgreen */
 }
 
+.success1 {
+	background:#00DD66;
+}
+
+.success2 {
+	background:#00BB44;
+}
+
+.success3 {
+	background:#009922;
+}
 
 .failure, .failed {
-	background:red;
+	background:#FF0000; /* red */
+}
+
+.failure1, .failed1 {
+	background:#DD0000;
+}
+
+.failure2, .failed2 {
+	background:#BB0000;
+}
+
+.failure3, .failed3 {
+	background:#990000;
 }
 
 .running, .inprogress, .executing {
@@ -330,7 +353,19 @@ table.lefttree a
 }
 
 .testfailure, .issues {
-	background: orange;
+	background: #FFA500; /* orange */
+}
+
+.issues1 {
+	background: #DD8300;
+}
+
+.issues2 {
+	background: #BB6100;
+}
+
+.issues3 {
+	background: #994000;
 }
 
 table.legend th {

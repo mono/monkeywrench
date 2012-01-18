@@ -21,6 +21,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.HtmlControls;
 
+using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
@@ -189,17 +190,57 @@ public partial class ViewTable : System.Web.UI.Page
 		return result;
 	}
 
+	class TableNode {
+		public string text;
+		public string @class;
+		public string style;
+		public bool is_header;
+
+		public TableNode (string text, string @class, bool is_header)
+		{
+			this.text = text;
+			this.@class = @class;
+			this.is_header = is_header;
+		}
+
+		public TableNode (string text, string @class)
+			: this (text, @class, false)
+		{
+		}
+
+		public TableNode (string text, bool is_header)
+			: this (text, null, is_header)
+		{
+		}
+
+		public TableNode (string text)
+			: this (text, null, false)
+		{
+		}
+	}
+
+	string DarkenColor (string color, int magic_number)
+	{
+		magic_number--;
+		if (magic_number >= 3) {
+			return color + "3";
+		} else if (magic_number > 0) {
+			return color + magic_number.ToString ();
+		} else {
+			return color;
+		}
+	}
+
 	public string GenerateLaneTable (GetViewTableDataResponse response, DBLane lane, DBHost host, bool horizontal, int page, int limit)
 	{
 		StringBuilder matrix = new StringBuilder ();
+		StringBuilder tooltip = new StringBuilder ();
 		bool new_revision = true;
 		int revision_id = 0;
-		int result_index;
 		List<DBRevisionWorkView> views = response.RevisionWorkViews;
-		List<List<string>> table = new List<List<string>> ();
-		List<string> row = new List<string> ();
-		List<string> header = new List<string> ();
-		List<string> header_classes = new List<string> ();
+		List<List<TableNode>> table = new List<List<TableNode>> ();
+		List<TableNode> row = new List<TableNode> ();
+		List<TableNode> header = new List<TableNode> ();
 
 		try {
 			for (int i = 0; i < views.Count; i++) {
@@ -209,16 +250,17 @@ public partial class ViewTable : System.Web.UI.Page
 				if (header [views [i].sequence] != null)
 					continue;
 
-				header [views [i].sequence] = string.Format ("<a href='ViewWorkTable.aspx?lane_id={0}&amp;host_id={1}&amp;command_id={2}'>{3}</a>", lane.id, host.id, views [i].command_id, views [i].command);
+				header [views [i].sequence] = new TableNode (string.Format ("<a href='ViewWorkTable.aspx?lane_id={0}&amp;host_id={1}&amp;command_id={2}'>{3}</a>", lane.id, host.id, views [i].command_id, views [i].command));
 			}
-			header.RemoveAll (delegate (string match) { return match == null; });
-			header.Insert (0, "Revision");
-			header.Insert (1, "Author");
-			if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-				header.Insert (2, "Select");
-			header.Add ("Host");
-			header.Add ("Duration");
-			result_index = Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator) ? 3 : 2;
+			header.RemoveAll (delegate (TableNode match) { return match == null; });
+			header.Insert (0, new TableNode ("Revision", true));
+			header.Insert (1, new TableNode ("Diff", true));
+			header.Insert (2, new TableNode ("Author", true));
+			//if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+			//    header.Insert (3, new TableNode ("Select", true));
+			//}
+			header.Add (new TableNode ("Host", true));
+			header.Add (new TableNode ("Duration", true));
 			table.Add (header);
 
 			bool failed = false;
@@ -234,9 +276,8 @@ public partial class ViewTable : System.Web.UI.Page
 
 				if (new_revision) {
 					if (i > 0) {
-						// matrix.AppendLine ("</tr>");
 						table.Add (row);
-						row [row.Count - 1] = TimeSpan.FromSeconds (duration).ToString ();
+						row [row.Count - 1] = new TableNode (TimeSpan.FromSeconds (duration).ToString (), row [0].@class);
 					}
 
 					string revision = view.revision;
@@ -244,16 +285,25 @@ public partial class ViewTable : System.Web.UI.Page
 					if (revision.Length > 16 && !long.TryParse (revision, out dummy))
 						revision = revision.Substring (0, 8);
 
-					row = new List<string> ();
-					row.Add (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a></td>", lane.id, host.id, view.revision_id, revision, string.Format ("Author: {1} Build start date: {0}", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"), view.author)));
-					row.Add (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>{1}</a></td>", view.revision_id, view.author));
-					if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-						row.Add (string.Format ("<input type=checkbox id='id_revision_chk_{1}' name='revision_id_{0}' />", view.revision_id, i));
+					string clazz = revisionwork_state.ToString ().ToLower ();
+					clazz = DarkenColor (clazz, table.Count);
+					row = new List<TableNode> ();
+
+					tooltip.Length = 0;
+					tooltip.AppendFormat ("Author: {0}.", view.author);
+					if (view.starttime.Date.Year > 2000)
+						tooltip.AppendFormat (" Build start date: {0}.", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"));
+
+					row.Add (new TableNode (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a>", lane.id, host.id, view.revision_id, revision, tooltip.ToString ()), clazz));
+					row.Add (new TableNode (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>diff</a>", view.revision_id)));
+					row.Add (new TableNode (view.author));
+					
+					//if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
+					//    row.Add (new TableNode (string.Format ("<input type=checkbox id='id_revision_chk_{1}' name='revision_id_{0}' />", view.revision_id, i)));
 					while (row.Count < header.Count - 2)
-						row.Add ("-");
-					row.Add (view.workhost ?? "");
-					row.Add ("");
-					header_classes.Add (revisionwork_state.ToString ().ToLower ());
+						row.Add (new TableNode ("-"));
+					row.Add (new TableNode (view.workhost ?? ""));
+					row.Add (new TableNode (""));
 					failed = false;
 					duration = 0;
 				}
@@ -266,10 +316,13 @@ public partial class ViewTable : System.Web.UI.Page
 
 				// result
 				string result;
+				bool completed = true;
 				switch (state) {
 				case DBState.NotDone:
+					completed = false;
 					result = failed ? "skipped" : "queued"; break;
 				case DBState.Executing:
+					completed = false;
 					result = "running"; break;
 				case DBState.Failed:
 					result = view.nonfatal ? "issues" : "failure"; break;
@@ -280,63 +333,80 @@ public partial class ViewTable : System.Web.UI.Page
 				case DBState.Timeout:
 					result = "timeout"; break;
 				case DBState.Paused:
+					completed = false;
 					result = "paused"; break;
 				default:
+					completed = true;
 					result = "unknown"; break;
 				}
 
 				for (int j = 2; j < header.Count; j++) {
-					if (header [j].Contains (view.command)) {
-						row [j] = result;
+					if (header [j].text.Contains (view.command)) {
+						if (completed) {
+							row [j] = new TableNode (string.Format ("<a href='{0}'>{1}</a>", Utilities.CreateWebServiceDownloadUrl (Request, view.id, view.command + ".log", true), result));
+						} else {
+							row [j] = new TableNode (result);
+						}
+						result = DarkenColor (result, table.Count);
+						row [j].@class = result;
 						break;
 					}
 				}
 			}
 
 			table.Add (row);
-			row [row.Count - 1] = TimeSpan.FromSeconds (duration).ToString ();
+			row [row.Count - 1] = new TableNode (TimeSpan.FromSeconds (duration).ToString (), row [0].@class);
 
 			matrix.AppendLine ("<table class='buildstatus'>");
 			if (horizontal) {
 				for (int i = 0; i < header.Count; i++) {
 					matrix.Append ("<tr>");
 					for (int j = 0; j < table.Count; j++) {
-						string td = j == 0 ? "th" : "td";
-						if ((i == 0 || i == row.Count - 1) && j > 0) {
-							if (i == row.Count - 1) {
-								matrix.AppendFormat ("<{0} class='{1}' style='white-space: nowrap;'>", td, header_classes [j - 1]);
-							} else {
-								matrix.AppendFormat ("<{0} class='{1}'>", td, header_classes [j - 1]);
-							}
-						} else if (i >= result_index && j > 1) {
-							matrix.AppendFormat ("<{0} class='{1}'>", td, table [j] [i]);
-						} else {
-							matrix.AppendFormat ("<{0}>", td);
+						TableNode node = table [j] [i];
+						string td = node.is_header ? "th" : "td";
+						matrix.Append ('<');
+						matrix.Append (td);
+						if (node.@class != null) {
+							matrix.Append (" class='");
+							matrix.Append (node.@class);
+							matrix.Append ("'");
 						}
-						matrix.AppendFormat (table [j] [i]);
-						matrix.AppendFormat ("</{0}>", td);
+						if (node.style != null) {
+							matrix.Append (" style='");
+							matrix.Append (node.style);
+							matrix.Append ("'");
+						}
+						matrix.Append (">");
+						matrix.Append (node.text);
+						matrix.Append ("</");
+						matrix.Append (td);
+						matrix.Append (">");
 					}
 					matrix.AppendLine ("</tr>");
 				}
 			} else {
 				for (int i = 0; i < table.Count; i++) {
-					row = table [i];
-					matrix.Append ("<tr>\n");
+					matrix.Append ("<tr>");
 					for (int j = 0; j < row.Count; j++) {
-						string td = j == 0 ? "th" : "td";
-						if ((j == 0 || j == row.Count - 1) & i > 0) {
-							if (j == row.Count - 1) {
-								matrix.AppendFormat ("\t<{0} class='{1}' style='white-space: nowrap;'>", td, header_classes [i - 1]);
-							} else {
-								matrix.AppendFormat ("\t<{0} class='{1}'>", td, header_classes [i - 1]);
-							}
-						} else if (j >= result_index && row [j] != "-" && i > 0) {
-							matrix.AppendFormat ("\t<{0} class='{1}'>", td, row [j]);
-						} else {
-							matrix.AppendFormat ("\t<{0}>", td);
+						TableNode node = table [i] [j];
+						string td = node.is_header ? "th" : "td";
+						matrix.Append ('<');
+						matrix.Append (td);
+						if (node.@class != null) {
+							matrix.Append (" class='");
+							matrix.Append (node.@class);
+							matrix.Append ("'");
 						}
-						matrix.AppendFormat (row [j]);
-						matrix.AppendFormat ("</{0}>\n", td);
+						if (node.style != null) {
+							matrix.Append (" style='");
+							matrix.Append (node.style);
+							matrix.Append ("'");
+						}
+						matrix.Append (">");
+						matrix.Append (node.text);
+						matrix.Append ("</");
+						matrix.Append (td);
+						matrix.Append (">");
 					}
 					matrix.AppendLine ("</tr>");
 				}

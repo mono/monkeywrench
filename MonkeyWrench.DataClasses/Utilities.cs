@@ -42,6 +42,11 @@ namespace MonkeyWrench
 			return WebServices.CreateWebServiceDownloadUrl (workfile_id, CreateWebServiceLogin (Request), redirect);
 		}
 
+		public static string CreateWebServiceDownloadUrl (HttpRequest Request, int work_id, string filename, bool redirect)
+		{
+			return WebServices.CreateWebServiceDownloadNamedUrl (work_id, filename, CreateWebServiceLogin (Request), redirect);
+		}
+
 		public static WebServiceLogin CreateWebServiceLogin (HttpRequest Request)
 		{
 			WebServiceLogin web_service_login;

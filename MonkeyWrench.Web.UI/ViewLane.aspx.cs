@@ -167,6 +167,7 @@ public partial class ViewLane : System.Web.UI.Page
 		matrix.AppendLine ("\t<th>Summary</th>");
 		matrix.AppendLine ("\t<th>Files</th>");
 		matrix.AppendLine ("\t<th>Host</th>");
+		matrix.AppendLine ("\t<th>Misc</th>");
 		matrix.AppendLine ("</tr>");
 
 		bool failed = false;
@@ -220,7 +221,7 @@ public partial class ViewLane : System.Web.UI.Page
 			}
 
 			// result
-			matrix.AppendFormat ("\t<td class='{0}'><a href='ViewWorkTable.aspx?lane_id={1}&amp;host_id={2}&amp;command_id={3}'>{0}</a></td>", result, lane.id, host.id, step.command_id);
+			matrix.AppendFormat ("\t<td class='{0}'>{0}</td>", result);
 
 			if (state > DBState.NotDone && state != DBState.Paused) {
 				matrix.AppendFormat ("<td>{0}</td>", step.starttime.ToString ("yyyy/MM/dd HH:mm:ss UTC"));
@@ -262,7 +263,7 @@ public partial class ViewLane : System.Web.UI.Page
 			matrix.AppendLine ("</td>");
 
 			// files
-			matrix.AppendLine ("<td>");
+			matrix.AppendLine ("<td style='text-align: left;'>");
 			bool did_first = false;
 			foreach (DBWorkFileView file in files) {
 				if (file.hidden)
@@ -278,6 +279,9 @@ public partial class ViewLane : System.Web.UI.Page
 
 			// host
 			matrix.AppendFormat ("<td>{0}</td>", step.workhost);
+
+			// misc
+			matrix.AppendFormat ("\t<td><a href='ViewWorkTable.aspx?lane_id={1}&amp;host_id={2}&amp;command_id={3}'>History for '{4}'</a></td>", result, lane.id, host.id, step.command_id, command);
 
 			matrix.AppendLine ("</tr>");
 		}

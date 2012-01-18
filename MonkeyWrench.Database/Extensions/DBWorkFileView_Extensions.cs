@@ -36,6 +36,21 @@ namespace MonkeyWrench.Database
 			}
 		}
 
+		public static DBWorkFileView Find (DB db, int work_id, string filename)
+		{
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM WorkFileView WHERE filename = @filename AND work_id = @work_id;";
+				DB.CreateParameter (cmd, "work_id", work_id);
+				DB.CreateParameter (cmd, "filename", filename);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					if (!reader.Read ())
+						return null;
+
+					return new DBWorkFileView (reader);
+				}
+			}
+		}
+
 		public static DBWorkFileView Find (DB db, string filename, string lane, string revision, string host)
 		{
 			DBWorkFileView result;
@@ -92,3 +107,4 @@ namespace MonkeyWrench.Database
 		}
 	}
 }
+

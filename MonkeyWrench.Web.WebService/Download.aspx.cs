@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Download.aspx.cs
  *
  * Authors:
@@ -31,16 +31,22 @@ namespace MonkeyWrench.WebServices
 			try {
 				int workfile_id;
 				int revision_id;
+				int work_id;
 				bool diff;
 				string md5;
+				string filename;
 
 				int.TryParse (Request ["revision_id"], out revision_id);
 				int.TryParse (Request ["workfile_id"], out workfile_id);
+				int.TryParse (Request ["work_id"], out work_id);
 				bool.TryParse (Request ["diff"], out diff);
 				md5 = Request ["md5"];
+				filename = Request ["filename"];
 
 				if (workfile_id != 0 || !string.IsNullOrEmpty (md5)) {
 					DownloadWorkFile (workfile_id, md5);
+				} else if (!string.IsNullOrEmpty (filename) && work_id != 0) {
+					DownloadNamedWorkFile (work_id, filename);
 				} else if (revision_id != 0) {
 					DownloadRevisionLog (revision_id, diff);
 				} else {
@@ -224,6 +230,46 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		private void DownloadNamedWorkFile (int work_id, string filename)
+		{
+			DBWorkFileView view = null;
+			DBFile file = null;
+			string mime;
+			string compressed_mime;
+
+			using (DB db = new DB ()) {
+				WebServiceLogin login = CreateLogin ();
+
+				view = DBWorkFileView_Extensions.Find (db, work_id, filename);
+				
+				if (view == null)
+					throw new HttpException (404, "Could not find the file.");
+
+				if (view.@internal) // internal files need admin rights
+					Authentication.VerifyUserInRole (Context, db, login, Roles.Administrator, false);
+				else
+					Authentication.VerifyAnonymousAccess (Context, db, login);
+
+				file = DBWork_Extensions.GetFile (db, view.work_id, filename, false);
+				if (file == null)
+					throw new HttpException (404, string.Format ("Could not find the filename '{0}'", filename));
+
+				mime = file.mime;
+				compressed_mime = file.compressed_mime;
+
+				Response.ContentType = file.mime;
+				Response.AppendHeader ("Content-Disposition", "filename=\"" + Path.GetFileName (filename) + "\"");
+
+				if (view.file_file_id == null) {
+					DownloadMd5 (view.md5);
+				} else {
+					using (Stream str = db.Download (view)) {
+						DownloadStream (str, compressed_mime);
+					}
+				}
+			}
+		}
+
 		private void DownloadWorkFile (int workfile_id, string md5)
 		{
 			DBWorkFileView view = null;
@@ -295,3 +341,4 @@ namespace MonkeyWrench.WebServices
 		}
 	}
 }
+
