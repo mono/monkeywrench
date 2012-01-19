@@ -48,6 +48,15 @@ public partial class ViewLane : System.Web.UI.Page
 				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
 				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
 
+			if (response.Exception != null) {
+				if (response.Exception.HttpCode == 403) {
+					Master.RequestLogin ();
+					return;
+				}
+				lblMessage.Text = response.Exception.Message;
+				return;
+			}
+
 			if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
 				action = Request ["action"];
 

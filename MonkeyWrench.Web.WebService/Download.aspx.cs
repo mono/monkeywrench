@@ -43,14 +43,26 @@ namespace MonkeyWrench.WebServices
 				md5 = Request ["md5"];
 				filename = Request ["filename"];
 
-				if (workfile_id != 0 || !string.IsNullOrEmpty (md5)) {
-					DownloadWorkFile (workfile_id, md5);
-				} else if (!string.IsNullOrEmpty (filename) && work_id != 0) {
-					DownloadNamedWorkFile (work_id, filename);
-				} else if (revision_id != 0) {
-					DownloadRevisionLog (revision_id, diff);
-				} else {
-					throw new HttpException (404, "Nothing to download.");
+				try {
+					if (workfile_id != 0 || !string.IsNullOrEmpty (md5)) {
+						DownloadWorkFile (workfile_id, md5);
+					} else if (!string.IsNullOrEmpty (filename) && work_id != 0) {
+						DownloadNamedWorkFile (work_id, filename);
+					} else if (revision_id != 0) {
+						DownloadRevisionLog (revision_id, diff);
+					} else {
+						throw new HttpException (404, "Nothing to download.");
+					}
+				} catch (HttpException hex) {
+					if (hex.GetHttpCode () == 403) {
+						Uri webSiteUrl = new Uri (Configuration.WebSiteUrl);
+						Uri relativePath = new Uri ("Login.aspx?referrer=" + HttpUtility.UrlEncode (Request.Url.ToString ()), UriKind.Relative);
+						Uri redirect = new Uri (webSiteUrl, relativePath);
+						Response.Redirect (redirect.AbsoluteUri);
+						return;
+					} else {
+						throw;
+					}
 				}
 
 			} catch (Exception ex) {

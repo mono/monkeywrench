@@ -93,6 +93,15 @@ public partial class ViewTable : System.Web.UI.Page
 				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
 			page, page_size);
 
+			if (response.Exception != null) {
+				if (response.Exception.HttpCode == 403) {
+					Master.RequestLogin ();
+					return;
+				}
+				lblMessage.Text = response.Exception.Message;
+				return;
+			}
+
 			dblane = response.Lane;
 			dbhost = response.Host;
 

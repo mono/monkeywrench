@@ -4,7 +4,8 @@
     <script type="text/javascript" src="ViewTable.js"></script>
 	
 	<div id="header" runat="server" enableviewstate="false"></div>
-	<div id="buildtable" runat="server" enableviewstate="false"></div>
+	<div id="buildtable" runat="server" enableviewstate="false">
+        <asp:Label ID="lblMessage" runat="server" /></div>
 	
 	<br />
 	<div id="pager" runat="server" enableviewstate="false"></div>

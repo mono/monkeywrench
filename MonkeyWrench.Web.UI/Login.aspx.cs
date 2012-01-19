@@ -39,6 +39,16 @@ public partial class Login : System.Web.UI.Page
 	protected void Page_Load (object sender, EventArgs e)
 	{
 		string action = Request ["action"];
+		string referrer = Request ["referrer"];
+
+
+		if (!string.IsNullOrEmpty (referrer))
+			txtReferrer.Value = referrer;
+
+		if (!this.IsPostBack) {
+			if (Request.UrlReferrer != null && string.IsNullOrEmpty (txtReferrer.Value))
+				txtReferrer.Value = Request.UrlReferrer.AbsoluteUri;
+		}
 
 		if (string.IsNullOrEmpty (Configuration.OpenIdProvider)) {
 			cmdLoginOpenId.Visible = false;
@@ -80,8 +90,9 @@ public partial class Login : System.Web.UI.Page
 			}
 		}
 
-		if (!this.IsPostBack && Request.UrlReferrer != null)
-			txtReferrer.Value = Request.UrlReferrer.AbsoluteUri;
+		// can't refer back to itself
+		if (txtReferrer.Value.Contains ("Login.aspx"))
+			txtReferrer.Value = "index.aspx";
 
 		if (!string.IsNullOrEmpty (action) && action == "logout") {
 			if (Request.Cookies ["cookie"] != null) {

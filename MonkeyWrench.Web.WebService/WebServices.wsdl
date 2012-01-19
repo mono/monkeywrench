@@ -63,6 +63,7 @@
           <xs:element minOccurs="0" maxOccurs="1" name="StackTrace" type="xs:string" />
           <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
           <xs:element minOccurs="0" maxOccurs="1" name="AsString" type="xs:string" />
+          <xs:element minOccurs="1" maxOccurs="1" name="HttpCode" type="xs:int" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="GetLaneResponse">

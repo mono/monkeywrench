@@ -926,23 +926,26 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 		public GetViewLaneDataResponse GetViewLaneData2 (WebServiceLogin login, int? lane_id, string lane, int? host_id, string host, int? revision_id, string revision, bool include_hidden_files)
 		{
 			GetViewLaneDataResponse response = new GetViewLaneDataResponse ();
+			try {
+				using (DB db = new DB ()) {
+					Authenticate (db, login, response);
 
-			using (DB db = new DB ()) {
-				Authenticate (db, login, response);
-
-				response.Now = db.Now;
-				response.Lane = FindLane (db, lane_id, lane);
-				response.Host = FindHost (db, host_id, host);
-				response.Revision = FindRevision (db, revision_id, revision);
-				response.RevisionWork = DBRevisionWork_Extensions.Find (db, response.Lane, response.Host, response.Revision);
-				if (response.RevisionWork != null && response.RevisionWork.workhost_id.HasValue) {
-					response.WorkHost = FindHost (db, response.RevisionWork.workhost_id, null);
+					response.Now = db.Now;
+					response.Lane = FindLane (db, lane_id, lane);
+					response.Host = FindHost (db, host_id, host);
+					response.Revision = FindRevision (db, revision_id, revision);
+					response.RevisionWork = DBRevisionWork_Extensions.Find (db, response.Lane, response.Host, response.Revision);
+					if (response.RevisionWork != null && response.RevisionWork.workhost_id.HasValue) {
+						response.WorkHost = FindHost (db, response.RevisionWork.workhost_id, null);
+					}
+					response.WorkViews = db.GetWork (response.RevisionWork);
+					response.WorkFileViews = new List<List<DBWorkFileView>> ();
+					for (int i = 0; i < response.WorkViews.Count; i++) {
+						response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id, include_hidden_files));
+					}
 				}
-				response.WorkViews = db.GetWork (response.RevisionWork);
-				response.WorkFileViews = new List<List<DBWorkFileView>> ();
-				for (int i = 0; i < response.WorkViews.Count; i++) {
-					response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id, include_hidden_files));
-				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -971,91 +974,94 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 
 			limit = Math.Min (limit, 500);
 
-			using (DB db = new DB ()) {
-				Authenticate (db, login, response, true);
+			try {
+				using (DB db = new DB ()) {
+					Authenticate (db, login, response, true);
 
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = DBLane.TableName;
-					cmd.CommandType = CommandType.TableDirect;
-					using (IDataReader reader = cmd.ExecuteReader ()) {
-						while (reader.Read ())
-							Lanes.Add (new DBLane (reader));
-					}
-				}
-
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = DBHost.TableName;
-					cmd.CommandType = CommandType.TableDirect;
-					using (IDataReader reader = cmd.ExecuteReader ()) {
-						while (reader.Read ())
-							Hosts.Add (new DBHost (reader));
-					}
-				}
-
-				// get a list of the lanes to show
-				// note that the logic here is slightly different from the usual "string lane, int? lane_id" logic in other methods,
-				// where we only use the string parameter if the id parameter isn't provided, here we add everything we can to the 
-				// list of selected lanes, so if you provide both a string and an id parameter both are used (assuming they correspond
-				// with different lanes of course).
-				response.SelectedLanes = Lanes.FindAll (delegate (DBLane l)
-				{
-					if (lane_ids != null) {
-						for (int i = 0; i < lane_ids.Length; i++) {
-							if (lane_ids [i] == l.id)
-								return true;
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = DBLane.TableName;
+						cmd.CommandType = CommandType.TableDirect;
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.Read ())
+								Lanes.Add (new DBLane (reader));
 						}
 					}
-					if (lanes != null) {
-						for (int i = 0; i < lanes.Length; i++) {
-							if (!string.IsNullOrEmpty (lanes [i]) && lanes [i] == l.lane)
-								return true;
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = DBHost.TableName;
+						cmd.CommandType = CommandType.TableDirect;
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.Read ())
+								Hosts.Add (new DBHost (reader));
 						}
 					}
-					return false;
-				});
 
-				// backwards compat
-				if (response.SelectedLanes.Count == 1)
-					response.Lane = response.SelectedLanes [0];
+					// get a list of the lanes to show
+					// note that the logic here is slightly different from the usual "string lane, int? lane_id" logic in other methods,
+					// where we only use the string parameter if the id parameter isn't provided, here we add everything we can to the 
+					// list of selected lanes, so if you provide both a string and an id parameter both are used (assuming they correspond
+					// with different lanes of course).
+					response.SelectedLanes = Lanes.FindAll (delegate (DBLane l) {
+						if (lane_ids != null) {
+							for (int i = 0; i < lane_ids.Length; i++) {
+								if (lane_ids [i] == l.id)
+									return true;
+							}
+						}
+						if (lanes != null) {
+							for (int i = 0; i < lanes.Length; i++) {
+								if (!string.IsNullOrEmpty (lanes [i]) && lanes [i] == l.lane)
+									return true;
+							}
+						}
+						return false;
+					});
 
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = @"
+					// backwards compat
+					if (response.SelectedLanes.Count == 1)
+						response.Lane = response.SelectedLanes [0];
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
 SELECT HostLane.*
 FROM HostLane";
 
-					using (IDataReader reader = cmd.ExecuteReader ()) {
-						while (reader.Read ())
-							HostLanes.Add (new DBHostLane (reader));
-					}
-				}
-
-				response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> ();
-				response.RevisionWorkHostLaneRelation = new List<int> ();
-
-				foreach (DBHostLane hl in HostLanes) {
-					RevisionWork = new List<DBRevisionWorkView2> ();
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE R.host_id = @host_id AND R.lane_id = @lane_id LIMIT @limit";
-						DB.CreateParameter (cmd, "host_id", hl.host_id);
-						DB.CreateParameter (cmd, "lane_id", hl.lane_id);
-						DB.CreateParameter (cmd, "limit", limit);
-
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
-								RevisionWork.Add (new DBRevisionWorkView2 (reader));
+								HostLanes.Add (new DBHostLane (reader));
 						}
 					}
 
-					response.RevisionWorkHostLaneRelation.Add (hl.id);
-					response.RevisionWorkViews.Add (RevisionWork);
+					response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> ();
+					response.RevisionWorkHostLaneRelation = new List<int> ();
+
+					foreach (DBHostLane hl in HostLanes) {
+						RevisionWork = new List<DBRevisionWorkView2> ();
+						using (IDbCommand cmd = db.CreateCommand ()) {
+							cmd.CommandText = @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE R.host_id = @host_id AND R.lane_id = @lane_id LIMIT @limit";
+							DB.CreateParameter (cmd, "host_id", hl.host_id);
+							DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+							DB.CreateParameter (cmd, "limit", limit);
+
+							using (IDataReader reader = cmd.ExecuteReader ()) {
+								while (reader.Read ())
+									RevisionWork.Add (new DBRevisionWorkView2 (reader));
+							}
+						}
+
+						response.RevisionWorkHostLaneRelation.Add (hl.id);
+						response.RevisionWorkViews.Add (RevisionWork);
+					}
+
+					response.Lanes = Lanes;
+					response.Hosts = Hosts;
+					response.HostLanes = HostLanes;
 				}
-
-				response.Lanes = Lanes;
-				response.Hosts = Hosts;
-				response.HostLanes = HostLanes;
-
-				return response;
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
 			}
+
+			return response;
 		}
 
 
@@ -1419,14 +1425,18 @@ UPDATE Work SET state = @state WHERE Work.revisionwork_id = (SELECT RevisionWork
 		{
 			GetViewTableDataResponse response = new GetViewTableDataResponse ();
 
-			using (DB db = new DB ()) {
-				Authenticate (db, login, response);
-				response.Lane = FindLane (db, lane_id, lane);
-				response.Host = FindHost (db, host_id, host);
-				response.Count = DBRevisionWork_Extensions.GetCount (db, response.Lane.id, response.Host.id);
-				response.Page = page;
-				response.PageSize = page_size;
-				response.RevisionWorkViews = DBRevisionWorkView_Extensions.Query (db, response.Lane, response.Host, response.PageSize, response.Page);
+			try {
+				using (DB db = new DB ()) {
+					Authenticate (db, login, response);
+					response.Lane = FindLane (db, lane_id, lane);
+					response.Host = FindHost (db, host_id, host);
+					response.Count = DBRevisionWork_Extensions.GetCount (db, response.Lane.id, response.Host.id);
+					response.Page = page;
+					response.PageSize = page_size;
+					response.RevisionWorkViews = DBRevisionWorkView_Extensions.Query (db, response.Lane, response.Host, response.PageSize, response.Page);
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;

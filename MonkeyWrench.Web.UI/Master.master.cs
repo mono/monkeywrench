@@ -50,6 +50,14 @@ public partial class Master : System.Web.UI.MasterPage
 		web_service_login = null;
 	}
 
+	/// <summary>
+	/// Redirects to the login page. Does not end the current request.
+	/// </summary>
+	public void RequestLogin ()
+	{
+		Response.Redirect ("Login.aspx?referrer=" + HttpUtility.UrlEncode (Request.Url.ToString ()));
+	}
+
 	private void SetResponse (WebServiceResponse response)
 	{
 		this.response = response;

@@ -87,6 +87,15 @@ public partial class index : System.Web.UI.Page
 
 			data = Master.WebService.GetFrontPageData2 (Master.WebServiceLogin, limit, lanes, lane_ids != null ? lane_ids.ToArray () : null);
 
+			if (data.Exception != null) {
+				if (data.Exception.HttpCode == 403) {
+					Master.RequestLogin ();
+					return;
+				}
+				lblMessage.Text = data.Exception.Message;
+				return;
+			}
+
 			this.buildtable.InnerHtml = GenerateOverview (data);
 		} catch (Exception ex) {
 			lblMessage.Text = Utils.FormatException (ex, true);

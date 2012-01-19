@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
 
 namespace MonkeyWrench.DataClasses.Logic
 {
@@ -23,6 +24,7 @@ namespace MonkeyWrench.DataClasses.Logic
 		public string StackTrace;
 		public string Type;
 		public string AsString;
+		public int HttpCode;
 
 		public WebServiceException ()
 		{
@@ -39,6 +41,12 @@ namespace MonkeyWrench.DataClasses.Logic
 			StackTrace = ex.StackTrace;
 			Type = ex.GetType ().FullName;
 			AsString = ex.ToString ();
+
+			HttpException hex = ex as HttpException;
+			if (hex != null) {
+				HttpCode = hex.GetHttpCode ();
+			}
 		}
 	}
 }
+
