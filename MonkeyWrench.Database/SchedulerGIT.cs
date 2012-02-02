@@ -97,21 +97,18 @@ namespace MonkeyWrench.Scheduler
 			}
 		}
 
-		protected override bool UpdateRevisionsInDBInternal (DB db, DBLane lane, string repository, Dictionary<string, DBRevision> revisions, List<DBHost> hosts, List<DBHostLane> hostlanes, string min_revision)
+		protected override bool UpdateRevisionsInDBInternal (DB db, DBLane lane, string repository, Dictionary<string, DBRevision> revisions, List<DBHost> hosts, List<DBHostLane> hostlanes, string min_revision, string max_revision)
 		{
-			string max_revision = "remotes/origin/master";
 			string revision;
 			bool update_steps = false;
 			List<DateTime> used_dates;
 			DBRevision r;
 			List<GitEntry> log;
 
-			Log ("Updating lane: '{0}', repository: '{1}'", lane.lane, repository);
+			if (string.IsNullOrEmpty (max_revision))
+				max_revision = "remotes/origin/master";
 
-			if (string.IsNullOrEmpty (min_revision) && !string.IsNullOrEmpty (lane.min_revision))
-				min_revision = lane.min_revision;
-			if (!string.IsNullOrEmpty (lane.max_revision))
-				max_revision = lane.max_revision;
+			Log ("Updating lane: '{0}', repository: '{1}' min revision: '{2}' max revision: '{3}'", lane.lane, repository, min_revision, max_revision);
 
 			log = GetGITLog (lane, repository, min_revision, max_revision);
 

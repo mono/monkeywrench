@@ -104,7 +104,7 @@ namespace MonkeyWrench.Scheduler
 			}
 		}
 
-		protected abstract bool UpdateRevisionsInDBInternal (DB db, DBLane lane, string repository, Dictionary<string, DBRevision> revisions, List<DBHost> hosts, List<DBHostLane> hostlanes, string min_revision);
+		protected abstract bool UpdateRevisionsInDBInternal (DB db, DBLane lane, string repository, Dictionary<string, DBRevision> revisions, List<DBHost> hosts, List<DBHostLane> hostlanes, string min_revision, string max_revision);
 
 		protected abstract int CompareRevisions (string repository, string a, string b);
 
@@ -118,6 +118,7 @@ namespace MonkeyWrench.Scheduler
 			Logger.Log (verbosity, Type + ": " + msg, args);
 		}
 
+		/*
 		/// <summary>
 		/// Checks if a lane has any reported commits.
 		/// If so, min_revision will be the first reported commit (otherwise min_revision will be null).
@@ -155,6 +156,30 @@ namespace MonkeyWrench.Scheduler
 
 			return min_revision != null;
 		}
+		 * */
+
+		string [] splitWithMiniumElements (string toSplit, int min)
+		{
+			string [] result;
+
+			if (string.IsNullOrEmpty (toSplit))
+				return new string [min];
+
+			result = toSplit.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+			if (result.Length < min) {
+				// Not as many elements as requested. Add more and fill new empty
+				// entries with the last element of the provided entries.
+				string [] tmp = new string [min];
+				Array.Copy (result, tmp, min);
+				for (int i = result.Length; i < tmp.Length; i++)
+					tmp [i] = result [result.Length - 1];
+				result = tmp;
+			}
+
+			return result;
+		}
+
+
 		/// <summary>
 		/// This method must return true if a revision was added to the database.
 		/// </summary>
@@ -167,7 +192,9 @@ namespace MonkeyWrench.Scheduler
 		{
 			Dictionary<string, DBRevision> revisions;
 			bool update_steps = false;
-			string min_revision = null;
+			string [] min_revisions;
+			string [] max_revisions;
+			string [] repositories;
 			bool skip_lane;
 
 			Log ("Updating '{0}', ForceFullUpdate: {1}", lane.lane, ForceFullUpdate);
@@ -186,16 +213,22 @@ namespace MonkeyWrench.Scheduler
 					return false;
 				}
 
+				/*
 				// check for commit reports
-				if (!HasCommits (lane, out min_revision)) {
+				if (!HasCommits (lane)) {
 					Log ("Skipping lane {0}, no commits.", lane.lane);
 					return false;
 				}
+				 **/
 
 				revisions = db.GetDBRevisions (lane.id);
 
-				foreach (string repository in lane.repository.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
-					UpdateRevisionsInDBInternal (db, lane, repository, revisions, hosts, hostlanes, min_revision);
+				repositories = lane.repository.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+				min_revisions = splitWithMiniumElements (lane.min_revision, repositories.Length);
+				max_revisions = splitWithMiniumElements (lane.max_revision, repositories.Length);
+
+				for (int i = 0; i < repositories.Length; i++) {
+					UpdateRevisionsInDBInternal (db, lane, repositories [i], revisions, hosts, hostlanes, min_revisions [i], max_revisions [i]);
 				}
 
 				Log ("Updating db for lane '{0}'... [Done], update_steps: {1}", lane.lane, update_steps);

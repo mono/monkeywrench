@@ -41,7 +41,7 @@
                 <asp:TableCell>
                     <asp:TextBox ID="txtMaxRevision" runat="server" Width="600px"></asp:TextBox>
                 </asp:TableCell>
-                <asp:TableCell>Revisions after this one won't get scheduled. Leave blank to include all (future) revisions. Git: If you want to track a branch other than the 'remotes/origin/master', set the revision to the remote branch you want to track.</asp:TableCell>
+                <asp:TableCell>Revisions after this one won't get scheduled. Leave blank to include all (future) revisions. Git: If you want to track a branch other than the 'remotes/origin/master', set the revision to the remote branch you want to track (you need one max revision per repository in this case).</asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>Parent lane:</asp:TableCell>
