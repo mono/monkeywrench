@@ -110,7 +110,7 @@ namespace MonkeyWrench.Scheduler
 				is_executing = true;
 				start = DateTime.Now;
 
-				SVNUpdater.StartDiffThread ();
+				// SVNUpdater.StartDiffThread ();
 
 				// Check reports
 				reports = GetReports (forcefullupdate);
@@ -123,16 +123,18 @@ namespace MonkeyWrench.Scheduler
 					Logger.Log ("Updater will now update {0} lanes.", lanes.Count);
 
 					GITUpdater git_updater = null;
-					SVNUpdater svn_updater = null;
+					// SVNUpdater svn_updater = null;
 
 					foreach (DBLane lane in lanes) {
 						SchedulerBase updater;
 						switch (lane.source_control) {
+							/*
 						case "svn":
 							if (svn_updater == null)
 								svn_updater = new SVNUpdater (forcefullupdate);
 							updater = svn_updater;
 							break;
+							 * */
 						case "git":
 							if (git_updater == null)
 								git_updater = new GITUpdater (forcefullupdate);
@@ -154,7 +156,7 @@ namespace MonkeyWrench.Scheduler
 
 				Logger.Log ("Update done, waiting for diff thread to finish...");
 
-				SVNUpdater.StopDiffThread ();
+				// SVNUpdater.StopDiffThread ();
 
 				Logger.Log ("Update finished successfully in {0} seconds.", (DateTime.Now - start).TotalSeconds);
 
@@ -501,8 +503,10 @@ WHERE
 		{
 			if (lane.source_control == "git") {
 				GITUpdater.FindPeopleForCommit (lane, revision, people);
+				/*
 			} else if (lane.source_control == "svn") {
 				SVNUpdater.FindPeopleForCommit (lane, revision, people);
+				 * */
 			} else {
 				Logger.Log ("FindPeopleForCommit (): unknown source control: '{0}'", lane.source_control);
 			}
