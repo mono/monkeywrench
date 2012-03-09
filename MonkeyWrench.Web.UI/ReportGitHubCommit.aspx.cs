@@ -117,7 +117,6 @@ public partial class ReportGitHubCommit : System.Web.UI.Page
 				writer.WriteEndElement ();
 				writer.Close ();
 
-				WebServices.ExecuteSchedulerAsync ();
 			} else {
 				Logger.Log ("ReportCommit.aspx: Didn't get a file called 'payload'");
 			}
@@ -125,6 +124,8 @@ public partial class ReportGitHubCommit : System.Web.UI.Page
 			Response.Write ("OK\n");
 		} catch (Exception ex) {
 			Logger.Log ("ReportGitHubCommit.aspx: Got exception: {0}", ex);
+		} finally {
+			WebServices.ExecuteSchedulerAsync ();
 		}
 	}
 
