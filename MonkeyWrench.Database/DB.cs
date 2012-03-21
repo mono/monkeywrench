@@ -306,8 +306,8 @@ namespace MonkeyWrench
 
 			try {
 				filesize = new FileInfo (path_to_contents).Length;
-				if (filesize > 1024 * 1024 * 100)
-					throw new Exception ("Max file size is 100 MB");
+				if (filesize > 1024 * 1024 * 200)
+					throw new Exception ("Max file size is 200 MB");
 
 				using (IDbCommand cmd = CreateCommand ()) {
 					cmd.CommandText = "SELECT * FROM File WHERE md5 = '" + md5 + "'";

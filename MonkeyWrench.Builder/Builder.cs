@@ -382,7 +382,7 @@ namespace MonkeyWrench.Builder
 								// Check if step has timedout
 								bool timedout = false;
 								string timeoutReason = null;
-								int timeout = 15;
+								int timeout = 30;
 
 								if ((DateTime.Now > local_starttime.AddMinutes (info.command.timeout))) {
 									timedout = true;
