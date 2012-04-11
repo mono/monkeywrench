@@ -21,7 +21,9 @@ using MonkeyWrench;
 
 namespace MonkeyWrench.Web.WebService {
 	public class Maintenance {
+#pragma warning disable 414 
 		static Timer timer;
+#pragma warning restore 414
 
 		public static void Start ()
 		{
