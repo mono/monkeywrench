@@ -35,6 +35,7 @@
                             <li class="adminitem"><a href='Admin.aspx?action=schedule'>Execute scheduler (full update)</a></li>
                             <li class="adminitem"><a href="BuildBotStatus.aspx">View BuildBot status</a></li>
                             <li class="adminitem"><a href="Releases.aspx">View MonkeyWrench releases</a></li>
+                            <li class="adminitem"><a href="ViewServerLog.aspx">View Server Log</a></li>
                             <li class="adminitem"></li>
                         </ul> 
                     </div>
@@ -52,3 +53,4 @@
     </div>
 </body>
 </html>
+
