@@ -27,7 +27,7 @@ namespace MonkeyWrench.Web.WebService {
 
 		public static void Start ()
 		{
-			timer = new Timer (Maintain, null, TimeSpan.FromHours (0), TimeSpan.FromHours (1));
+			timer = new Timer (Maintain, null, TimeSpan.FromHours (1), TimeSpan.FromHours (1));
 		}
 
 		static void Maintain (object dummy)
