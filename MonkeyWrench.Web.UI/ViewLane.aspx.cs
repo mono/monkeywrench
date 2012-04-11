@@ -141,9 +141,15 @@ public partial class ViewLane : System.Web.UI.Page
 		header.AppendFormat (" - Commit date: {0}", dbr.date.ToString ("yyyy/MM/dd HH:mm:ss UTC"));
 
 		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>reset work</a>", lane.id, dbr.id, host.id);
-			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision'>delete work</a>", lane.id, dbr.id, host.id);
-			header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=abortrevision'>abort work</a>", lane.id, dbr.id, host.id);
+			bool isExecuting = response.RevisionWork.State == DBState.Executing || (response.RevisionWork.State == DBState.Issues && !response.RevisionWork.completed) || response.RevisionWork.State == DBState.Aborted;
+			if (isExecuting) {
+				header.AppendFormat (" - <a href='javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision\", \"clear\");'>reset work</a>", lane.id, dbr.id, host.id);
+				header.AppendFormat (" - <a href='javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision\", \"delete\");'>delete work</a>", lane.id, dbr.id, host.id);
+				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=abortrevision'>abort work</a>", lane.id, dbr.id, host.id);
+			} else {
+				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>reset work</a>", lane.id, dbr.id, host.id);
+				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision'>delete work</a>", lane.id, dbr.id, host.id);
+			}
 		}
 
 		if (response.WorkHost != null) {
