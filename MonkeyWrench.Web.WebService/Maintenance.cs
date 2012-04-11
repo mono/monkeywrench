@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Web;
@@ -41,6 +42,8 @@ namespace MonkeyWrench.Web.WebService {
 		{
 			int r;
 			try {
+				Stopwatch watch = new Stopwatch ();
+				watch.Start ();
 				using (DB db = new DB ()) {
 					r = db.ExecuteNonQuery (
 @"UPDATE revisionwork SET workhost_id = NULL, state = 10 WHERE id IN
@@ -49,7 +52,8 @@ namespace MonkeyWrench.Web.WebService {
     )
 ;");
 				}
-				Logger.Log ("Maintenance: successfully cleaned up empty revision works ({0} affected records)", r);
+				watch.Stop ();
+				Logger.Log ("Maintenance: successfully cleaned up empty revision works ({0} affected records) in {1} seconds", r, watch.Elapsed.TotalSeconds);
 			} catch (Exception ex) {
 				Logger.Log ("Maintenance: failed to cleanup empty revision work: {0}", ex);
 			}
@@ -59,10 +63,13 @@ namespace MonkeyWrench.Web.WebService {
 		{
 			int r;
 			try {
+				Stopwatch watch = new Stopwatch ();
+				watch.Start ();
 				using (DB db = new DB ()) {
 					r = db.ExecuteNonQuery ("DELETE FROM login WHERE expires < now();");
 				}
-				Logger.Log ("Maintenance: successfully cleaned up logins ({0} affected records)", r);
+				watch.Stop ();
+				Logger.Log ("Maintenance: successfully cleaned up logins ({0} affected records) in {1} seconds", r, watch.Elapsed.TotalSeconds);
 			} catch (Exception ex) {
 				Logger.Log ("Maintenance: failed to cleanup logins: {0}", ex);
 			}
