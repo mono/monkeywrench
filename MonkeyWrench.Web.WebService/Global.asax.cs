@@ -27,7 +27,7 @@ namespace MonkeyWrench.Web.WebService
 			Logger.Log ("Web service started"); 
 			Configuration.LoadConfiguration (new string [] {});
 			Notifications.Start ();
-			
+			Maintenance.Start ();
 		}
 
 		protected void Session_Start (object sender, EventArgs e)
