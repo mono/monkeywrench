@@ -49,6 +49,7 @@ namespace MonkeyWrench
 		// openid
 		public static string OpenIdProvider = null;
 		public static string OpenIdRoles = null;
+		public static bool AllowPasswordLogin = true;
 		public static bool AutomaticScheduler = false;
 		public static int AutomaticSchedulerInterval = 60;
 
@@ -187,6 +188,7 @@ namespace MonkeyWrench
 				OpenIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue (OpenIdRoles);
 				AutomaticScheduler = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticScheduler").GetNodeValue (AutomaticScheduler.ToString ()));
 				AutomaticSchedulerInterval = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticSchedulerInterval").GetNodeValue (AutomaticSchedulerInterval.ToString ()));
+				AllowPasswordLogin = bool.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AllowPasswordLogin").GetNodeValue (AllowPasswordLogin.ToString ()));
 
 				// override from command line
 
@@ -219,6 +221,7 @@ namespace MonkeyWrench
 					{"openidroles=", v => OpenIdRoles = v },
 					{"automaticscheduler=", v => Boolean.Parse (v.Trim ())},
 					{"automaticschedulerinterval=", v => int.Parse (v.Trim ())},
+					{"allowpasswordlogin=", v => bool.Parse (v.Trim ())},
 
 					// values for the database manager
 					{"compress-files", v => CompressFiles = true},

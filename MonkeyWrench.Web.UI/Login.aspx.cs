@@ -40,6 +40,7 @@ public partial class Login : System.Web.UI.Page
 	{
 		string action = Request ["action"];
 		string referrer = Request ["referrer"];
+		bool noOpenIdResponse = false;
 
 
 		if (!string.IsNullOrEmpty (referrer))
@@ -55,6 +56,14 @@ public partial class Login : System.Web.UI.Page
 		} else {
 			cmdLoginOpenId.Visible = true;
 			
+			if (!Configuration.AllowPasswordLogin) {
+				cmdLogin.Visible = Configuration.AllowPasswordLogin;
+				txtPassword.Visible = Configuration.AllowPasswordLogin;
+				txtUser.Visible = Configuration.AllowPasswordLogin;
+				lblUser.Visible = Configuration.AllowPasswordLogin;
+				lblPassword.Visible = Configuration.AllowPasswordLogin;
+			}
+		
 			OpenIdRelyingParty openid = new OpenIdRelyingParty ();
 			var oidresponse = openid.GetResponse ();
 			if (oidresponse != null) {
@@ -87,6 +96,8 @@ public partial class Login : System.Web.UI.Page
 					lblMessageOpenId.Text = "Could not login using OpenId: " + oidresponse.Status.ToString ();
 					break;
 				}
+			} else {
+				noOpenIdResponse = true;
 			}
 		}
 
@@ -107,6 +118,9 @@ public partial class Login : System.Web.UI.Page
 			Response.Redirect (txtReferrer.Value, false);
 			return;
 		}
+
+		if (!Configuration.AllowPasswordLogin && string.IsNullOrEmpty (action) && Configuration.AllowAnonymousAccess && noOpenIdResponse)
+			cmdLoginOpenId_Click (null, null);
 	}
 
 	protected void cmdLogin_Click (object sender, EventArgs e)

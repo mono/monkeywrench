@@ -47,6 +47,7 @@
         &lt;AllowAnonymousAccess /&gt;
         &lt;AutomaticScheduler /&gt;
         &lt;AutomaticSchedulerInterval /&gt;
+        &lt;AllowPasswordLogin /&gt;
     &lt;/Configuration&gt;
 &lt;/MonkeyWrench&gt;
 </pre>
@@ -109,6 +110,7 @@
     <h3>AllowAnonymousAccess</h3>If anonymous access is allowed for everything that's not specifically marked as internal (default: true).
     <h3>OpenIdProvider</h3>The OpenId provider to use.
     <h3>OpenIdRoles</h3>Specifies how OpenId emails are to translate into roles. Format: email:role1,role2;email:role2,role3. Email can be a regex. Sample: .*@xamarin.com:Admin
+    <h3>AllowPasswordLogin</h3>If password login is allowed (default: true). Disabling password logins only has an effect if OpenId is enabled (i.e. an OpenIdProvider has been configured).
     <h3>AutomaticScheduler</h3>'true' or 'false'. If the scheduler is invoked automatically. Only relevant for the server. Defaults to false.
     <h3>AutomaticSchedulerInterval</h3>The interval (in seconds) the scheduler is invoked automatically. Only relevant if AutomaticScheduler is set to true. Defaults to 60.
     <h2>
