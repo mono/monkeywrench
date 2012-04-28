@@ -97,9 +97,7 @@
     <Content Include="doc\Faq.htm" />
     <Content Include="doc\Howto.html" />
     <Content Include="doc\index.html" />
-    <Content Include="doc\overview.html" />
     <Content Include="doc\Source.html" />
-    <Content Include="doc\Todo.html" />
     <Content Include="EditHost.aspx" />
     <Content Include="EditHost.js" />
     <Content Include="EditHosts.aspx" />
@@ -353,7 +351,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ChangeLog" />
-    <None Include="doc\INSTALL" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
