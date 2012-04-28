@@ -16,6 +16,7 @@ using System.Xml;
 using System.Net;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -195,6 +196,7 @@ public partial class ViewLane : System.Web.UI.Page
 			bool nonfatal = step.nonfatal;
 			string command = step.command;
 			List<DBWorkFileView> files = response.WorkFileViews [s];
+			IEnumerable<DBFileLink> links = response.Links.Where<DBFileLink> ((DBFileLink link) => link.work_id == step.id);
 
 			if (step.endtime.Year < DateTime.Now.Year - 1 && step.duration == 0) {// Not ended, endtime defaults to year 2000
 				duration = (int) (response.Now - starttime).TotalSeconds;
@@ -288,6 +290,12 @@ public partial class ViewLane : System.Web.UI.Page
 				if (did_first)
 					matrix.Append (", ");
 				matrix.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> ", file.id, file.filename);
+				did_first = true;
+			}
+			foreach (var link in links) {
+				if (did_first)
+					matrix.Append (", ");
+				matrix.Append (link.link);
 				did_first = true;
 			}
 			matrix.AppendLine ("</td>");

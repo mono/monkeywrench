@@ -284,6 +284,13 @@ CREATE INDEX workfile_idx_work_id_key ON WorkFile (work_id);
 CREATE INDEX workfile_idx_filename_key ON WorkFile(filename);
 CREATE INDEX workfile_idx_filename_pattern_key ON WorkFile(filename text_pattern_ops);
 
+CREATE TABLE FileLink (
+	id             serial     PRIMARY KEY,
+	link           text       NOT NULL DEFAULT '', -- this is just html, typically "<a href='http://example.com/file'>file</a>"
+	work_id        int        NOT NULL REFERENCES Work (id) ON DELETE CASCADE
+);
+CREATE INDEX filelink_idx_work_id_key ON FileLink (work_id);
+
 CREATE TABLE Person ( -- 'User' is a reserved word in sql...
 	id             serial    PRIMARY KEY,
 	login          text      NOT NULL,            -- the login name of the user a-zA-Z0-9_-

@@ -147,6 +147,32 @@ SELECT File.id, File.md5, File.file_id, File.mime, File.compressed_mime, File.si
 			return result;
 		}
 
+		public static List<DBFileLink> GetLinks (DB db, IEnumerable<int> work)
+		{
+			List<DBFileLink> result = new List<DBFileLink> ();
+
+			using (var cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM FileLink WHERE ";
+				bool first = true;
+				foreach (var id in work) {
+					if (!first)
+						cmd.CommandText += " OR ";
+					first = false;
+					cmd.CommandText += "work_id = " + id.ToString ();
+				}
+				if (first)
+					return result;
+
+				using (var reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						result.Add (new DBFileLink (reader));
+					}
+				}
+			}
+
+			return result;
+		}
+
 		/// <summary>
 		/// Returns a READ-ONLY list of files
 		/// </summary>

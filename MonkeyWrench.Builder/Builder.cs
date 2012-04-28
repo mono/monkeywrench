@@ -594,6 +594,7 @@ namespace MonkeyWrench.Builder
 			using (FileStream fs = new FileStream (log_file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
 				using (StreamReader reader = new StreamReader (fs)) {
 					List<String> files = new List<string> ();
+					List<string> links = new List<string> ();
 					List<bool> hidden = new List<bool> ();
 
 					while (null != (l = reader.ReadLine ())) {
@@ -640,6 +641,14 @@ namespace MonkeyWrench.Builder
 								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
 							}
 							break;
+						case "AddFileLink":
+							try {
+								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
+								links.Add (line.Trim ());
+							} catch (Exception e) {
+								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
+							}
+							break;
 						case "SetSummary":
 							info.work.summary = line;
 							info.work = WebService.ReportBuildStateSafe (info.work).Work;
@@ -681,6 +690,14 @@ namespace MonkeyWrench.Builder
 						default:
 							Logger.Log ("Invalid @MonkeyWrench command: '{0}', entire line: '{1}'", cmd, l);
 							break;
+						}
+					}
+
+					if (links.Count > 0) {
+						try {
+							WebService.UploadLinks (WebService.WebServiceLogin, info.work, links.ToArray ());
+						} catch (Exception ex) {
+							Logger.Log ("Could not upload links: {0}", ex);
 						}
 					}
 

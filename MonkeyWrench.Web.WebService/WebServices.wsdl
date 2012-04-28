@@ -366,13 +366,13 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="Mode" type="s0:DBNotificationMode" />
-              <xs:element minOccurs="1" maxOccurs="1" name="Type" type="s0:DBNotificationType" />
               <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="ircidentity_id" nillable="true" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="emailidentity_id" nillable="true" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="mode" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="type" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="Mode" type="s0:DBNotificationMode" />
+              <xs:element minOccurs="1" maxOccurs="1" name="Type" type="s0:DBNotificationType" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -413,6 +413,16 @@
               <xs:element minOccurs="1" maxOccurs="1" name="log_file_id" nillable="true" type="xs:int" />
               <xs:element minOccurs="0" maxOccurs="1" name="diff" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="diff_file_id" nillable="true" type="xs:int" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DBFileLink">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="link" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="work_id" type="xs:int" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -699,6 +709,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="RevisionWork" type="s0:DBRevisionWork" />
               <xs:element minOccurs="0" maxOccurs="1" name="WorkViews" type="s0:ArrayOfDBWorkView2" />
               <xs:element minOccurs="0" maxOccurs="1" name="WorkFileViews" type="s0:ArrayOfArrayOfDBWorkFileView" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Links" type="s0:ArrayOfDBFileLink" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -716,6 +727,11 @@
       <xs:complexType name="ArrayOfDBWorkFileView">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBWorkFileView" nillable="true" type="s0:DBWorkFileView" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBFileLink">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBFileLink" nillable="true" type="s0:DBFileLink" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="FrontPageResponse">
@@ -2238,6 +2254,18 @@
       <xs:element name="UploadCompressedFileResponse">
         <xs:complexType />
       </xs:element>
+      <xs:element name="UploadLinks">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="work" type="s0:DBWork" />
+            <xs:element minOccurs="0" maxOccurs="1" name="links" type="s0:ArrayOfString" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UploadLinksResponse">
+        <xs:complexType />
+      </xs:element>
       <xs:element name="UploadFile">
         <xs:complexType>
           <xs:sequence>
@@ -3122,6 +3150,12 @@
   <message name="UploadCompressedFileSoapOut">
     <part name="parameters" element="s0:UploadCompressedFileResponse" />
   </message>
+  <message name="UploadLinksSoapIn">
+    <part name="parameters" element="s0:UploadLinks" />
+  </message>
+  <message name="UploadLinksSoapOut">
+    <part name="parameters" element="s0:UploadLinksResponse" />
+  </message>
   <message name="UploadFileSoapIn">
     <part name="parameters" element="s0:UploadFile" />
   </message>
@@ -3631,6 +3665,10 @@
       <input message="s0:UploadCompressedFileSoapIn" />
       <output message="s0:UploadCompressedFileSoapOut" />
     </operation>
+    <operation name="UploadLinks">
+      <input message="s0:UploadLinksSoapIn" />
+      <output message="s0:UploadLinksSoapOut" />
+    </operation>
     <operation name="UploadFile">
       <input message="s0:UploadFileSoapIn" />
       <output message="s0:UploadFileSoapOut" />
@@ -4072,6 +4110,10 @@
     <operation name="UploadCompressedFile">
       <input message="s0:UploadCompressedFileSoapIn" />
       <output message="s0:UploadCompressedFileSoapOut" />
+    </operation>
+    <operation name="UploadLinks">
+      <input message="s0:UploadLinksSoapIn" />
+      <output message="s0:UploadLinksSoapOut" />
     </operation>
     <operation name="UploadFile">
       <input message="s0:UploadFileSoapIn" />
@@ -4959,6 +5001,15 @@
     </operation>
     <operation name="UploadCompressedFile">
       <soap:operation soapAction="http://monkeywrench.novell.com/UploadCompressedFile" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="UploadLinks">
+      <soap:operation soapAction="http://monkeywrench.novell.com/UploadLinks" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5952,6 +6003,15 @@
     </operation>
     <operation name="UploadCompressedFile">
       <soap12:operation soapAction="http://monkeywrench.novell.com/UploadCompressedFile" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="UploadLinks">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/UploadLinks" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

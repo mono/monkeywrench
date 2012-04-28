@@ -29,5 +29,7 @@ namespace MonkeyWrench.DataClasses.Logic
 		public DBRevisionWork RevisionWork;
 		public List<DBWorkView2> WorkViews;
 		public List<List<DBWorkFileView>> WorkFileViews;
+		public List<DBFileLink> Links;
 	}
 }
+

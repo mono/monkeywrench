@@ -943,6 +943,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 					for (int i = 0; i < response.WorkViews.Count; i++) {
 						response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id, include_hidden_files));
 					}
+					response.Links = DBWork_Extensions.GetLinks (db, response.WorkViews.Select<DBWorkView2, int> ((DBWorkView2 a, int b) => a.id));
 				}
 			} catch (Exception ex) {
 				response.Exception = new WebServiceException (ex);
@@ -1809,6 +1810,23 @@ ORDER BY date DESC LIMIT 250;
 							// ignore exceptions
 						}
 					}
+				}
+			}
+		}
+
+		[WebMethod]
+		public void UploadLinks (WebServiceLogin login, DBWork work, string [] links)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.BuildBot, true);
+				using (var cmd = db.CreateCommand ()) {
+					StringBuilder sql = new StringBuilder ();
+					for (int i = 0; i < links.Length; i++) {
+						sql.AppendFormat ("INSERT INTO FileLink (link, work_id) VALUES (@link{0}, {1});", i, work.id);
+						DB.CreateParameter (cmd, "link" + i.ToString (), links [i]);
+					}
+					cmd.CommandText = sql.ToString ();
+					cmd.ExecuteNonQuery ();
 				}
 			}
 		}

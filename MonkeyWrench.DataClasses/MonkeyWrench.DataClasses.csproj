@@ -65,6 +65,8 @@
   <ItemGroup>
     <Compile Include="Database\DBBuildBotStatus.cs" />
     <Compile Include="Database\DBBuildBotStatus.generated.cs" />
+    <Compile Include="Database\DBFileLink.cs" />
+    <Compile Include="Database\DBFileLink.generated.cs" />
     <Compile Include="Database\DBNotificationType.cs" />
     <Compile Include="Database\DBCommand.cs" />
     <Compile Include="Database\DBCommand.generated.cs" />
