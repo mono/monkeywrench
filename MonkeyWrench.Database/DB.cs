@@ -830,6 +830,25 @@ WHERE id IN (select * from WorkFile_delete_tmpfile);
 			}
 		}
 
+		public void DeleteLinks (int host_id, int lane_id, int revision_id)
+		{
+			using (IDbCommand cmd = CreateCommand ()) {
+				cmd.CommandText = @"
+DELETE FROM FileLink WHERE work_id IN
+	(SELECT id FROM Work WHERE Work.revisionwork_id IN 
+		(SELECT	RevisionWork.id 
+			FROM RevisionWork
+			WHERE RevisionWork.host_id = @host_id AND RevisionWork.lane_id = @lane_id AND RevisionWork.revision_id = @revision_id
+		)
+	);
+";
+				DB.CreateParameter (cmd, "lane_id", lane_id);
+				DB.CreateParameter (cmd, "revision_id", revision_id);
+				DB.CreateParameter (cmd, "host_id", host_id);
+				cmd.ExecuteNonQuery ();
+			}
+		}
+
 		public void DeleteAllWork (int lane_id, int host_id)
 		{
 			using (IDbCommand cmd = CreateCommand ()) {
@@ -1058,3 +1077,4 @@ LIMIT 1
 		}
 	}
 }
+
