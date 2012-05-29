@@ -782,7 +782,7 @@ WHERE
 			WHERE RevisionWork.host_id = @host_id AND RevisionWork.lane_id = @lane_id AND RevisionWork.revision_id = @revision_id);
 
 UPDATE 
-	RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT
+	RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT, endtime = DEFAULT
 WHERE 
 		lane_id = @lane_id
 	AND revision_id = @revision_id 
