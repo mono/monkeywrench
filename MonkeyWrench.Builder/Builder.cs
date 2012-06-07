@@ -447,12 +447,30 @@ namespace MonkeyWrench.Builder
 				// Gather files from logged commands and from the upload_files glob
 				CheckLog (log_file, info);
 				if (!string.IsNullOrEmpty (info.command.upload_files)) {
+					List<string> archive_files = new List<string> ();
 					foreach (string glob in info.command.upload_files.Split (',')) {
 						// TODO: handle globs in directory parts
 						// TODO: allow absolute paths?
 						Logger.Log ("Uploading files from glob {0}", glob);
 						// TODO: allow hidden files also
-						WebService.UploadFilesSafe (info.work, Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName (glob)), Path.GetFileName (glob)), null);
+						var dir = Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName (glob));
+						var files = Directory.GetFiles (dir, Path.GetFileName (glob));
+						if (files.Length > 10) {
+							foreach (string s in files)
+								archive_files.Add (s);
+						} else {
+							WebService.UploadFilesSafe (info.work, files, null);
+						}
+					}
+					if (archive_files.Count > 0) {
+						// Zip them together to make them easier to handle
+						var log_archive = Path.Combine (info.BUILDER_DATA_SOURCE_DIR, "wrench-logs.tar");
+						File.Delete (log_archive);
+						foreach (var f in archive_files) {
+							var p = Process.Start ("tar", "rvf " + log_archive + " " + f);
+							p.WaitForExit ();
+						}
+						WebService.UploadFilesSafe (info.work, new string[] { log_archive }, null);
 					}
 				}
 
