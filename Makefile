@@ -19,7 +19,7 @@ SVN_NO_EXEC_FILES = \
 	$(wildcard */Makefile)		\
 	LICENSE						\
 	README					
-	
+
 SVN_EOL_FILES = $(SVN_EXEC_FILES) $(SVN_NO_EXEC_FILES)
 
 svn:
@@ -28,7 +28,7 @@ svn:
 	svn ps svn:eol-style native $(SVN_EOL_FILES)
 	svn pd svn:executable $(SVN_NO_EXEC_FILES)
 	svn ps svn:executable $(SVN_EXEC_FILES)
-	
+
 all clean install:
 	@$(MAKE) -C SmartIrc4net $@
 	@$(MAKE) -C MonkeyWrench $@
@@ -39,6 +39,7 @@ all clean install:
 	@$(MAKE) -C MonkeyWrench.Builder $@
 	@$(MAKE) -C MonkeyWrench.Web.UI $@
 	@$(MAKE) -C MonkeyWrench.Web.WebService $@
+	@$(MAKE) -C MonkeyWrench.CmdClient $@
 
 publish: install
 
@@ -51,6 +52,7 @@ build:
 	@$(MAKE) -C MonkeyWrench.Database all
 	@$(MAKE) -C MonkeyWrench.Database.Manager all
 	@$(MAKE) -C MonkeyWrench.Builder all
+	@$(MAKE) -C MonkeyWrench.CmdClient all
 	mono --debug class/lib/MonkeyWrench.Builder.exe
 
 schedule update: all

@@ -1,0 +1,23 @@
+Introduction
+============
+
+This is a command line client for wrench.
+
+Setup
+=====
+
+Create a configuration file named MonkeyWrench.xml:
+
+<MonkeyWrench Version='2'>
+    <Configuration>
+	<!-- <WebServiceUrl>http://wrench.mono-project.com/Wrench/WebServices</WebServiceUrl> -->
+	<WebServiceUrl>WRENCH WEBSERVICE URL</WebServiceUrl>
+	<Host>YOUR WRENCH USEDID</Host>
+	<WebServicePassword>YOUR WRENCH PASSWORD</WebServicePassword>
+    </Configuration>
+</MonkeyWrench>
+
+Usage
+=====
+
+mono wrenchcl.exe help
