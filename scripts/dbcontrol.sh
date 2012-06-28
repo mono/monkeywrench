@@ -140,12 +140,12 @@ case "$CMD" in
 		psql --user builder --db builder
 		;;
 	backup-configuration)
-		# -a: only data, -D: add column names to INSERT statements, -d: use INSERT instead of COPY, -F: use postgre custom format
+		# -a: only data, --column-inserts: add column names to INSERT statements, -d: use INSERT instead of COPY, -F: use postgre custom format
 		cd $SCRIPT_DIR
 		mkdir -p backup-configuration
 		cd backup-configuration
 		for i in $CONFIGURATION_TABLES; do
-			pg_dump -aDd -U builder -t $i builder > backup-configuration.$i.sql 
+			pg_dump -a --column-inserts -U builder -t $i builder > backup-configuration.$i.sql 
 		done
 		zip backup-configuration.zip backup-configuration.*.sql
 		N=`date +"%Y-%m-%d"`
