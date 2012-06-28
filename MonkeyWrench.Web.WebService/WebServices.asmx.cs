@@ -590,14 +590,14 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 				VerifyUserInRole (db, login, Roles.Administrator);
 
 				response.Lane = FindLane (db, lane_id, lane);
-				response.Commands = response.Lane.GetCommands (db);
+				response.Lanes = db.GetAllLanes ();
+				response.Commands = response.Lane.GetCommandsInherited (db, response.Lanes);
 				response.Dependencies = response.Lane.GetDependencies (db);
 				response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
 				response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
 				response.Files = response.Lane.GetFiles (db);
 				response.HostLaneViews = response.Lane.GetHosts (db);
 				response.Hosts = db.GetHosts ();
-				response.Lanes = db.GetAllLanes ();
 
 				response.ExistingFiles = new List<DBLanefile> ();
 				using (IDbCommand cmd = db.CreateCommand ()) {

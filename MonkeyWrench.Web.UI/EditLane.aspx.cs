@@ -270,6 +270,9 @@ public partial class EditLane : System.Web.UI.Page
 				string upload_files = "<em>modify</em>";
 				if (!string.IsNullOrEmpty(command.upload_files))
 				    upload_files = command.upload_files;
+
+				bool is_inherited = command.lane_id != lane.id;
+
 				tblCommands.Rows.Add (Utils.CreateTableRow (
 					string.Format ("<a href='javascript:editCommandSequence ({2}, {0}, true, \"{1}\")'>{1}</a>", command.id, command.sequence, lane.id),
 					filename,
@@ -281,7 +284,11 @@ public partial class EditLane : System.Web.UI.Page
 					string.Format ("<a href='javascript:editCommandTimeout ({2}, {0}, true, \"{1}\")'>{1} minutes</a>", command.id, command.timeout, lane.id),
 				    string.Format ("<a href='javascript:editCommandWorkingDirectory ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.working_directory, lane.id, working_directory),
 					string.Format ("<a href='javascript:editCommandUploadFiles ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.upload_files, lane.id, upload_files),
-					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;action=deletecommand&amp;command_id={1}'>Delete</a>", lane.id, command.id)));
+					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;action=deletecommand&amp;command_id={1}'>Delete</a>", lane.id, command.id),
+					is_inherited ?  string.Format ("Inherited from <a href='EditLane.aspx?lane_id={1}'>{0}</a>", response.Lanes.Find ((v) => v.id == command.lane_id).lane, command.lane_id) : string.Empty));
+
+				if (is_inherited)
+					tblCommands.Rows [tblCommands.Rows.Count - 1].BackColor = System.Drawing.Color.LightGray;
 			}
 			tblCommands.Rows.Add (Utils.CreateTableRow (
 				(response.Commands.Count * 10).ToString (),

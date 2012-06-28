@@ -32,12 +32,18 @@ namespace MonkeyWrench.Database
 			return GetFiles (db, me.id);
 		}
 
-		public static List<DBCommand> GetCommands (this DBLane me, DB db)
+		public static List<DBCommand> GetCommandsInherited (this DBLane me, DB db, List<DBLane> all_lanes)
 		{
 			List<DBCommand> result = new List<DBCommand> ();
 			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = "SELECT * FROM Command WHERE lane_id = @lane_id ORDER BY sequence;";
-				DB.CreateParameter (cmd, "lane_id", me.id);
+				cmd.CommandText = "SELECT * FROM Command WHERE lane_id = " + me.id.ToString ();
+
+				DBLane parent = me;
+				while (null != (parent = all_lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
+					cmd.CommandText += " OR lane_id = " + parent.id.ToString ();
+				}
+
+				cmd.CommandText += " ORDER BY sequence;";
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ())
 						result.Add (new DBCommand (reader));
@@ -139,3 +145,4 @@ DELETE FROM Lane WHERE id = @id;
 		}
 	}
 }
+

@@ -478,7 +478,7 @@ namespace MonkeyWrench
 						lane_files.Save (this);
 					}
 
-					foreach (DBCommand cmdmaster in master.GetCommands (this)) {
+					foreach (DBCommand cmdmaster in GetCommands (master.id)) {
 						DBCommand clone = new DBCommand ();
 						clone.lane_id = result.id;
 						clone.alwaysexecute = cmdmaster.alwaysexecute;

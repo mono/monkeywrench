@@ -227,12 +227,20 @@ WHERE HostLane.enabled = true AND
 			}
 		}
 
+		static void CollectWork (List<DBCommand> commands_in_lane, List<DBLane> lanes, DBLane lane, List<DBCommand> commands)
+		{
+			while (lane != null) {
+				commands_in_lane.AddRange (commands.Where (w => w.lane_id == lane.id));
+				lane = lanes.FirstOrDefault ((v) => lane.parent_lane_id == v.id);
+			}
+		}
+
 		private static void AddWork (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes)
 		{
 			DateTime start = DateTime.Now;
 			List<DBCommand> commands = null;
 			List<DBLaneDependency> dependencies = null;
-			IEnumerable<DBCommand> commands_in_lane;
+			List<DBCommand> commands_in_lane;
 			List<DBRevisionWork> revisionwork_without_work = new List<DBRevisionWork> ();
 			DBHostLane hostlane;
 			StringBuilder sql = new StringBuilder ();
@@ -283,8 +291,11 @@ WHERE HostLane.enabled = true AND
 							/* Get commands and dependencies for all lanes only if we know we'll need them */
 							if (commands == null)
 								commands = db.GetCommands (0);
-							if (commands_in_lane == null)
-								commands_in_lane = commands.Where (w => w.lane_id == lane.id);
+							if (commands_in_lane == null) {
+								commands_in_lane = new List<DBCommand> ();
+								CollectWork (commands_in_lane, lanes, lane, commands);
+							}
+
 							if (!fetched_dependencies) {
 								fetched_dependencies = true;
 								dependencies = DBLaneDependency_Extensions.GetDependencies (db, null);

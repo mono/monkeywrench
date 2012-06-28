@@ -104,6 +104,7 @@
                             <asp:TableHeaderCell>Working Directory</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Upload files</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Actions</asp:TableHeaderCell>
+                            <asp:TableHeaderCell>Notes</asp:TableHeaderCell>
                         </asp:TableHeaderRow>
                     </asp:Table>
                 </asp:TableCell>
