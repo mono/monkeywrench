@@ -1972,6 +1972,20 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 
 				MonkeyWrench.Web.WebService.Notifications.Notify (work, rw);
 
+				// Check if any other lane depends on this one
+				if (response.RevisionWorkCompleted) {
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "SELECT id FROM LaneDependency WHERE dependent_lane_id = @lane_id LIMIT 1;";
+						DB.CreateParameter (cmd, "lane_id", rw.lane_id);
+
+						object value = cmd.ExecuteScalar ();
+						if (value != null && value.GetType () == typeof (int)) {
+							// If so, run the scheduler
+							MonkeyWrench.Scheduler.Scheduler.ExecuteSchedulerAsync (false);
+						}
+					}
+				}
+
 				return response;
 			}
 		}
