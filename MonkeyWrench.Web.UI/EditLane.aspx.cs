@@ -294,7 +294,8 @@ public partial class EditLane : System.Web.UI.Page
 				"60 minutes",
 				"-",
 				"-",
-				string.Format ("<a href='javascript:addCommand ({0}, {1})'>Add</a>", lane.id, (response.Commands.Count * 10))));
+				string.Format ("<a href='javascript:addCommand ({0}, {1})'>Add</a>", lane.id, (response.Commands [response.Commands.Count - 1].sequence + 10)),
+				"-"));
 
 			// Show all the hosts
 			List<string> current_hosts = new List<string> ();
