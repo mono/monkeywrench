@@ -113,7 +113,7 @@
                 <asp:TableCell>
                     <asp:Table runat="server" ID="tblFiles" CssClass="commands">
                         <asp:TableHeaderRow CssClass="commands_header">
-                            <asp:TableHeaderCell ColumnSpan="3">Files</asp:TableHeaderCell>
+                            <asp:TableHeaderCell ColumnSpan="4">Files</asp:TableHeaderCell>
                         </asp:TableHeaderRow>
                         <asp:TableHeaderRow>
                             <asp:TableHeaderCell>Filename</asp:TableHeaderCell>
