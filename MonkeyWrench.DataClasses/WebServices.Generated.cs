@@ -183,6 +183,26 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditCommand", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void EditCommand(WebServiceLogin login, DBCommand command) {
+            this.Invoke("EditCommand", new object[] {
+                        login,
+                        command});
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginEditCommand(WebServiceLogin login, DBCommand command, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("EditCommand", new object[] {
+                        login,
+                        command}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public void EndEditCommand(System.IAsyncResult asyncResult) {
+            this.EndInvoke(asyncResult);
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditCommandFilename", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void EditCommandFilename(WebServiceLogin login, int command_id, string filename) {
             this.Invoke("EditCommandFilename", new object[] {

@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.UI;
@@ -35,7 +36,7 @@ public partial class EditLane : System.Web.UI.Page
 
 	private void RedirectToSelf ()
 	{
-		Response.Redirect ("EditLane.aspx?lane_id=" + lane.id.ToString ());
+		Response.Redirect ("EditLane.aspx?lane_id=" + lane.id.ToString (), false);
 	}
 
 	protected override void OnInit (EventArgs e)
@@ -103,7 +104,7 @@ public partial class EditLane : System.Web.UI.Page
 					if (l.parent_lane_id.HasValue && l.parent_lane_id.Value == lane.id) {
 						if (!string.IsNullOrEmpty (lblChildLanes.Text))
 							lblChildLanes.Text += ", ";
-						lblChildLanes.Text += l.lane;
+						lblChildLanes.Text += string.Format ("<a href='EditLane.aspx?lane_id={0}'>{1}</a>", l.id, l.lane);
 					}
 				}
 			}
@@ -221,39 +222,71 @@ public partial class EditLane : System.Web.UI.Page
 						}
 					}
 					break;
+				case "moveCommandToParentLane": {
+						if (int.TryParse (command_id, out id)) {
+							if (response.Lane.parent_lane_id != null) {
+								DBCommand cmd = response.Commands.Find ((v) => v.id == id);
+								if (cmd != null) {
+									cmd.lane_id = response.Lane.parent_lane_id.Value;
+									Master.WebService.EditCommand (Master.WebServiceLogin, cmd);
+								}
+							}
+						}
+					}
+					break;
 				default:
 					break;
 				}
 
 				RedirectToSelf ();
+				return;
 			}
 
 			// Files
+			var shown_files = new HashSet<int> ();
 			foreach (DBLanefile file in response.Files) {
+				if (shown_files.Contains (file.id))
+					continue;
+				shown_files.Add (file.id);
+
 				string text = file.name;
 				if (!string.IsNullOrEmpty (file.mime))
 					text += " (" + file.mime + ")";
 
+				bool is_inherited = !response.LaneFiles.Exists ((v) => v.lane_id == lane.id && v.lanefile_id == file.id);
+
 				tblFiles.Rows.Add (Utils.CreateTableRow (
 					string.Format ("<a href='EditLaneFile.aspx?lane_id={1}&amp;file_id={0}'>{2}</a>", file.id, lane.id, file.name),
 					file.mime,
-					string.Format ("<a href='EditLane.aspx?lane_id={1}&amp;action=deleteFile&amp;file_id={0}'>Delete</a> <a href='ViewLaneFileHistory.aspx?id={0}'>View history</a>", file.id, lane.id)));
+					(is_inherited ? string.Empty : string.Format ("<a href='EditLane.aspx?lane_id={1}&amp;action=deleteFile&amp;file_id={0}'>Delete</a> ", file.id, lane.id)) + string.Format ("<a href='ViewLaneFileHistory.aspx?id={0}'>View history</a>", file.id),
+					string.Join (", ", GetLanesWhereFileIsUsed (file, response).Where ((l) => l.id != lane.id).Select ((l, s) => string.Format ("<a href='EditLane.aspx?lane_id={0}'>{1}</a>", l.id, l.lane)).ToArray ())));
+
+				if (is_inherited)
+					tblFiles.Rows [tblFiles.Rows.Count - 1].BackColor = System.Drawing.Color.LightGray;
 			}
 			tblFiles.Rows.Add (Utils.CreateTableRow (
 				"<input type='text' value='filename' id='txtCreateFileName'></input>",
 				"text/plain",
-				string.Format ("<a href='javascript:createFile ({0})'>Add</a>", lane.id)
+				string.Format ("<a href='javascript:createFile ({0})'>Add</a>", lane.id),
+				"-"
 				));
 			StringBuilder existing_files = new StringBuilder ();
 			existing_files.AppendLine ("<select id='cmbExistingFiles'>");
+			response.ExistingFiles.Sort ((a, b) => string.Compare (a.name, b.name));
+			shown_files.Clear ();
 			foreach (DBLanefile file in response.ExistingFiles) {
-				existing_files.AppendFormat ("<option value='{1}'>{0}</option>\n", file.name, file.id);
+				if (shown_files.Contains (file.id))
+					continue;
+				shown_files.Add (file.id);
+
+				existing_files.AppendFormat ("<option value='{1}'>{0} ({2})</option>\n", file.name, file.id, string.Join (", ", GetLanesWhereFileIsUsed (file, response).Select ((l, s) => l.lane).ToArray ()));
 			}
 			existing_files.AppendLine ("</select>");
 			tblFiles.Rows.Add (Utils.CreateTableRow (
 				existing_files.ToString (),
 				"N/A",
-				string.Format ("<a href='javascript:addFile ({0})'>Add</a>", lane.id)
+				string.Format ("<a href='javascript:addFile ({0})'>Add</a>", lane.id),
+				"-"
 				));
 			tblFiles.Visible = true;
 
@@ -284,8 +317,8 @@ public partial class EditLane : System.Web.UI.Page
 					string.Format ("<a href='javascript:editCommandTimeout ({2}, {0}, true, \"{1}\")'>{1} minutes</a>", command.id, command.timeout, lane.id),
 				    string.Format ("<a href='javascript:editCommandWorkingDirectory ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.working_directory, lane.id, working_directory),
 					string.Format ("<a href='javascript:editCommandUploadFiles ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.upload_files, lane.id, upload_files),
-					string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;action=deletecommand&amp;command_id={1}'>Delete</a>", lane.id, command.id),
-					is_inherited ?  string.Format ("Inherited from <a href='EditLane.aspx?lane_id={1}'>{0}</a>", response.Lanes.Find ((v) => v.id == command.lane_id).lane, command.lane_id) : string.Empty));
+					is_inherited ? "-" : string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;action=deletecommand&amp;command_id={1}'>Delete</a>", lane.id, command.id),
+					is_inherited ? string.Format ("Inherited from <a href='EditLane.aspx?lane_id={1}'>{0}</a>", response.Lanes.Find ((v) => v.id == command.lane_id).lane, command.lane_id) : (lane.parent_lane_id == null ? "-" : string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={1}&amp;action=moveCommandToParentLane'>Move</a> to parent lane", lane.id, command.id, lane.parent_lane_id.Value))));
 
 				if (is_inherited)
 					tblCommands.Rows [tblCommands.Rows.Count - 1].BackColor = System.Drawing.Color.LightGray;
@@ -418,6 +451,13 @@ public partial class EditLane : System.Web.UI.Page
 		} catch (Exception ex) {
 			lblMessage.Text = ex.ToString ().Replace ("\n", "<br/>");
 		}
+	}
+
+	IEnumerable<DBLane> GetLanesWhereFileIsUsed (DBLanefile file, GetLaneForEditResponse response)
+	{
+		IEnumerable<DBLanefiles> lane_files = response.LaneFiles.Where ((v) => v.lanefile_id == file.id);
+		IEnumerable<DBLane> lanes = response.Lanes.Where ((v) => lane_files.FirstOrDefault ((v2) => v2.lane_id == v.id) != null);
+		return lanes;
 	}
 
 	private void AddDeletionDirectiveRow (DBLaneDeletionDirectiveView directive)

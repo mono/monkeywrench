@@ -95,6 +95,25 @@
           <xs:element minOccurs="1" maxOccurs="1" name="id" type="xs:int" />
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="DBCommand">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="command" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="arguments" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="sequence" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="alwaysexecute" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="nonfatal" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="internal" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="timeout" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="working_directory" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="upload_files" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="DBView">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord" />
@@ -308,21 +327,12 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
-      <xs:complexType name="DBCommand">
+      <xs:complexType name="DBLanefiles">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
-              <xs:element minOccurs="0" maxOccurs="1" name="command" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="filename" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="arguments" type="xs:string" />
-              <xs:element minOccurs="1" maxOccurs="1" name="sequence" type="xs:int" />
-              <xs:element minOccurs="1" maxOccurs="1" name="alwaysexecute" type="xs:boolean" />
-              <xs:element minOccurs="1" maxOccurs="1" name="nonfatal" type="xs:boolean" />
-              <xs:element minOccurs="1" maxOccurs="1" name="internal" type="xs:boolean" />
-              <xs:element minOccurs="1" maxOccurs="1" name="timeout" type="xs:int" />
-              <xs:element minOccurs="0" maxOccurs="1" name="working_directory" type="xs:string" />
-              <xs:element minOccurs="0" maxOccurs="1" name="upload_files" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lanefile_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -620,6 +630,7 @@
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
               <xs:element minOccurs="0" maxOccurs="1" name="Files" type="s0:ArrayOfDBLanefile" />
+              <xs:element minOccurs="0" maxOccurs="1" name="LaneFiles" type="s0:ArrayOfDBLanefiles" />
               <xs:element minOccurs="0" maxOccurs="1" name="ExistingFiles" type="s0:ArrayOfDBLanefile" />
               <xs:element minOccurs="0" maxOccurs="1" name="Commands" type="s0:ArrayOfDBCommand" />
               <xs:element minOccurs="0" maxOccurs="1" name="HostLaneViews" type="s0:ArrayOfDBHostLaneView" />
@@ -638,6 +649,11 @@
       <xs:complexType name="ArrayOfDBLanefile">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLanefile" nillable="true" type="s0:DBLanefile" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBLanefiles">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLanefiles" nillable="true" type="s0:DBLanefiles" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ArrayOfDBCommand">
@@ -1124,6 +1140,17 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="DeattachFileFromLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="EditCommand">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="command" type="s0:DBCommand" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditCommandResponse">
         <xs:complexType />
       </xs:element>
       <xs:element name="EditCommandFilename">
@@ -2676,6 +2703,12 @@
   <message name="DeattachFileFromLaneSoapOut">
     <part name="parameters" element="s0:DeattachFileFromLaneResponse" />
   </message>
+  <message name="EditCommandSoapIn">
+    <part name="parameters" element="s0:EditCommand" />
+  </message>
+  <message name="EditCommandSoapOut">
+    <part name="parameters" element="s0:EditCommandResponse" />
+  </message>
   <message name="EditCommandFilenameSoapIn">
     <part name="parameters" element="s0:EditCommandFilename" />
   </message>
@@ -3349,6 +3382,10 @@
       <input message="s0:DeattachFileFromLaneSoapIn" />
       <output message="s0:DeattachFileFromLaneSoapOut" />
     </operation>
+    <operation name="EditCommand">
+      <input message="s0:EditCommandSoapIn" />
+      <output message="s0:EditCommandSoapOut" />
+    </operation>
     <operation name="EditCommandFilename">
       <input message="s0:EditCommandFilenameSoapIn" />
       <output message="s0:EditCommandFilenameSoapOut" />
@@ -3794,6 +3831,10 @@
     <operation name="DeattachFileFromLane">
       <input message="s0:DeattachFileFromLaneSoapIn" />
       <output message="s0:DeattachFileFromLaneSoapOut" />
+    </operation>
+    <operation name="EditCommand">
+      <input message="s0:EditCommandSoapIn" />
+      <output message="s0:EditCommandSoapOut" />
     </operation>
     <operation name="EditCommandFilename">
       <input message="s0:EditCommandFilenameSoapIn" />
@@ -4290,6 +4331,15 @@
     </operation>
     <operation name="DeattachFileFromLane">
       <soap:operation soapAction="http://monkeywrench.novell.com/DeattachFileFromLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommand">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditCommand" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5292,6 +5342,15 @@
     </operation>
     <operation name="DeattachFileFromLane">
       <soap12:operation soapAction="http://monkeywrench.novell.com/DeattachFileFromLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="EditCommand">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditCommand" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

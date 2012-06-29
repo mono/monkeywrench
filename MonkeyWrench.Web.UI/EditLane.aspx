@@ -119,6 +119,7 @@
                             <asp:TableHeaderCell>Filename</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Mime</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Actions</asp:TableHeaderCell>
+                            <asp:TableHeaderCell>Used in</asp:TableHeaderCell>
                         </asp:TableHeaderRow>
                     </asp:Table>
                 </asp:TableCell>

@@ -458,7 +458,7 @@ namespace MonkeyWrench
 					result.parent_lane_id = master.parent_lane_id;
 					result.Save (this);
 
-					foreach (DBLanefile filemaster in master.GetFiles (this)) {
+					foreach (DBLanefile filemaster in master.GetFiles (this, null)) {
 						int fid;
 
 						if (copy_files) {
@@ -589,6 +589,22 @@ namespace MonkeyWrench
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
 						result.Add (new DBLane (reader));
+					}
+				}
+			}
+
+			return result;
+		}
+
+		public List<DBLanefiles> GetAllLaneFiles ()
+		{
+			var result = new List<DBLanefiles> ();
+
+			using (IDbCommand cmd = CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM LaneFiles";
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						result.Add (new DBLanefiles (reader));
 					}
 				}
 			}

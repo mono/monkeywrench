@@ -27,9 +27,27 @@ namespace MonkeyWrench.Database
 			return DBRecord_Extensions.Create (db, new DBLane (), DBLane.TableName, id);
 		}
 
-		public static List<DBLanefile> GetFiles (this DBLane me, DB db)
+		public static List<DBLanefile> GetFiles (this DBLane me, DB db, List<DBLane> all_lanes)
 		{
-			return GetFiles (db, me.id);
+			List<DBLanefile> result = new List<DBLanefile> ();
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT Lanefile.* FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = " + me.id.ToString ();
+
+				DBLane parent = me;
+				while (null != (parent = all_lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
+					cmd.CommandText += " OR LaneFiles.lane_id = " + parent.id.ToString ();
+				}
+
+				cmd.CommandText += " ORDER BY name ASC";
+
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ())
+						result.Add (new DBLanefile (reader));
+				}
+
+				Logger.Log ("Found {0} lane files with {1}", result.Count, cmd.CommandText);
+			}
+			return result;
 		}
 
 		public static List<DBCommand> GetCommandsInherited (this DBLane me, DB db, List<DBLane> all_lanes)
@@ -47,20 +65,6 @@ namespace MonkeyWrench.Database
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ())
 						result.Add (new DBCommand (reader));
-				}
-			}
-			return result;
-		}
-
-		public static List<DBLanefile> GetFiles (DB db, int lane_id)
-		{
-			List<DBLanefile> result = new List<DBLanefile> ();
-			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = "SELECT Lanefile.* FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = @lane_id ORDER BY name ASC";
-				DB.CreateParameter (cmd, "lane_id", lane_id);
-				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ())
-						result.Add (new DBLanefile (reader));
 				}
 			}
 			return result;

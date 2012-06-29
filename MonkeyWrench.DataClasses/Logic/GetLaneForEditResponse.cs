@@ -23,6 +23,7 @@ namespace MonkeyWrench.DataClasses.Logic
 	{
 		public DBLane Lane;
 		public List<DBLanefile> Files;
+		public List<DBLanefiles> LaneFiles;
 		public List<DBLanefile> ExistingFiles;
 		public List<DBCommand> Commands;
 		public List<DBHostLaneView> HostLaneViews;
@@ -36,3 +37,4 @@ namespace MonkeyWrench.DataClasses.Logic
 		public List<DBLaneNotification> LaneNotifications;
 	}
 }
+

@@ -169,6 +169,15 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
+		public void EditCommand (WebServiceLogin login, DBCommand command)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				command.Save (db);
+			}
+		}
+
+		[WebMethod]
 		public void EditCommandFilename (WebServiceLogin login, int command_id, string filename)
 		{
 			using (DB db = new DB ()) {
@@ -595,7 +604,8 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 				response.Dependencies = response.Lane.GetDependencies (db);
 				response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
 				response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
-				response.Files = response.Lane.GetFiles (db);
+				response.Files = response.Lane.GetFiles (db, response.Lanes);
+				response.LaneFiles = db.GetAllLaneFiles ();
 				response.HostLaneViews = response.Lane.GetHosts (db);
 				response.Hosts = db.GetHosts ();
 
@@ -2413,7 +2423,7 @@ ORDER BY id;
 							entry.FilesToDownload = files_to_download;
 							entry.DependentLaneOfFiles = dependent_lanes;
 							entry.Work = DBWork_Extensions.Create (db, work.id);
-							entry.LaneFiles = lane.GetFiles (db);
+							entry.LaneFiles = lane.GetFiles (db, lanes);
 							entry.EnvironmentVariables = environment_variables;
 							entry.Host = host_being_worked_for;
 
