@@ -119,8 +119,8 @@ public partial class Login : System.Web.UI.Page
 			return;
 		}
 
-		if (!Configuration.AllowPasswordLogin && string.IsNullOrEmpty (action) && Configuration.AllowAnonymousAccess && noOpenIdResponse)
-			cmdLoginOpenId_Click (null, null);
+		//if (!Configuration.AllowPasswordLogin && string.IsNullOrEmpty (action) && Configuration.AllowAnonymousAccess && noOpenIdResponse)
+		//	cmdLoginOpenId_Click (null, null);
 	}
 
 	protected void cmdLogin_Click (object sender, EventArgs e)
