@@ -109,7 +109,7 @@ public partial class EditHost : System.Web.UI.Page
 				chkEnabled.Checked = response.Host.enabled;
 				cmbQueueManagement.SelectedIndex = response.Host.queuemanagement;
 				if (response.Person == null) {
-					string valid_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMOPQRSUVWXYZ123456789\\!\"·$%/()=?^*+,.;:-_+";
+					string valid_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMOPQRSUVWXYZ1234567890";
 					System.Text.StringBuilder builder = new System.Text.StringBuilder ();
 					Random random = new Random ();
 					for (int i = 0; i < 64; i++)
