@@ -34,8 +34,10 @@ namespace MonkeyWrench.Database
 				cmd.CommandText = "SELECT Lanefile.* FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = " + me.id.ToString ();
 
 				DBLane parent = me;
-				while (null != (parent = all_lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
-					cmd.CommandText += " OR LaneFiles.lane_id = " + parent.id.ToString ();
+				if (all_lanes != null) {
+					while (null != (parent = all_lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
+						cmd.CommandText += " OR LaneFiles.lane_id = " + parent.id.ToString ();
+					}
 				}
 
 				cmd.CommandText += " ORDER BY name ASC";
