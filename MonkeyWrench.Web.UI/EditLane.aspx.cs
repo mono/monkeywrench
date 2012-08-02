@@ -279,7 +279,7 @@ public partial class EditLane : System.Web.UI.Page
 					continue;
 				shown_files.Add (file.id);
 
-				existing_files.AppendFormat ("<option value='{1}'>{0} ({2})</option>\n", file.name, file.id, string.Join (", ", GetLanesWhereFileIsUsed (file, response).Select ((l, s) => l.lane).ToArray ()));
+				existing_files.AppendFormat ("<option value='{1}' title='Used in: {2}'>{0}</option>\n", file.name, file.id, string.Join (", ", GetLanesWhereFileIsUsed (file, response).Select ((l, s) => l.lane).ToArray ()));
 			}
 			existing_files.AppendLine ("</select>");
 			tblFiles.Rows.Add (Utils.CreateTableRow (
