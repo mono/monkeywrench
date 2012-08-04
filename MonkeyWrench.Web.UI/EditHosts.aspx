@@ -4,17 +4,19 @@
     <script type="text/javascript" src="EditHosts.js"></script>
     <asp:Table ID="tblHosts" CssClass="buildstatus hosts" runat="server">
         <asp:TableHeaderRow>
-            <asp:TableHeaderCell ColumnSpan="4">Hosts</asp:TableHeaderCell>
+            <asp:TableHeaderCell ColumnSpan="5">Hosts</asp:TableHeaderCell>
         </asp:TableHeaderRow>
         <asp:TableHeaderRow>
             <asp:TableHeaderCell>Name</asp:TableHeaderCell>
             <asp:TableHeaderCell>Actions</asp:TableHeaderCell>
             <asp:TableHeaderCell>Description</asp:TableHeaderCell>
             <asp:TableHeaderCell>Architecture</asp:TableHeaderCell>
+            <asp:TableHeaderCell>Last Report Date</asp:TableHeaderCell>
         </asp:TableHeaderRow>
         <asp:TableRow>
             <asp:TableCell><input type='text' value='host' name='txtHost' id='txtHost' /></asp:TableCell>
             <asp:TableCell><a href='javascript:addHost ()'>Add</a></asp:TableCell>
+            <asp:TableCell></asp:TableCell>
             <asp:TableCell></asp:TableCell>
             <asp:TableCell></asp:TableCell>
         </asp:TableRow>
