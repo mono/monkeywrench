@@ -80,16 +80,20 @@ public partial class EditHosts : System.Web.UI.Page
 				}
 			}
 			
-			var color = "gray";
-			if (status != null) {
-				var silence = DateTime.Now - status.report_date;
-				if (silence.TotalHours > 9) {
-					color = "red";
-				} else if (silence.TotalHours > 3) {
-					color = "orange";
-				} else {
-					color = "green";
+			var color = "black";
+			if (host.enabled) {
+				if (status != null) {
+					var silence = DateTime.Now - status.report_date;
+					if (silence.TotalHours > 9) {
+						color = "red";
+					} else if (silence.TotalHours > 3) {
+						color = "orange";
+					} else {
+						color = "green";
+					}
 				}
+			} else {
+				color = "gray";
 			}
 
 			row = new TableRow ();
