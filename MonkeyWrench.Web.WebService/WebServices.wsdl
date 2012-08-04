@@ -209,6 +209,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
               <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
+              <xs:element minOccurs="1" maxOccurs="1" name="author" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
