@@ -118,9 +118,16 @@ public partial class Login : System.Web.UI.Page
 			Response.Redirect (txtReferrer.Value, false);
 			return;
 		}
+		
+		var auto_openid_redirect = false;
+		var auto = Request ["auto-redirect-openid"];
+		if (!string.IsNullOrEmpty (auto) && auto.ToUpperInvariant () == "TRUE")
+			auto_openid_redirect = true;
 
 		//if (!Configuration.AllowPasswordLogin && string.IsNullOrEmpty (action) && Configuration.AllowAnonymousAccess && noOpenIdResponse)
 		//	cmdLoginOpenId_Click (null, null);
+		if (auto_openid_redirect)
+			cmdLoginOpenId_Click (null, null);
 	}
 
 	protected void cmdLogin_Click (object sender, EventArgs e)
@@ -145,7 +152,8 @@ public partial class Login : System.Web.UI.Page
 		try {
 			using (OpenIdRelyingParty openid = new OpenIdRelyingParty ()) {
 				var realm = Request.Url.GetComponents (UriComponents.SchemeAndServer, UriFormat.UriEscaped) + "/";
-				IAuthenticationRequest request = openid.CreateRequest (Configuration.OpenIdProvider, realm, Request.Url);
+				var return_to = Request.Url.StripQueryArgumentsWithPrefix ("auto-redirect-openid");
+				IAuthenticationRequest request = openid.CreateRequest (Configuration.OpenIdProvider, realm, return_to);
 
 				var fetch = new FetchRequest ();
 				fetch.Attributes.Add (new AttributeRequest (WellKnownAttributes.Contact.Email, true));
