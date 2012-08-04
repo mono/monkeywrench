@@ -154,7 +154,7 @@ public partial class Login : System.Web.UI.Page
 				var realm = Request.Url.GetComponents (UriComponents.SchemeAndServer, UriFormat.UriEscaped) + "/";
 				var return_to = Request.Url.StripQueryArgumentsWithPrefix ("auto-redirect-openid");
 
-				if (!string.IsNullOrEmpty (txtReferrer.Value))
+				if (!string.IsNullOrEmpty (txtReferrer.Value) && !return_to.Query.Contains ("referrer"))
 					return_to = new Uri (return_to.ToString () + (string.IsNullOrEmpty (return_to.Query) ? "?" : "&") + "referrer=" + HttpUtility.UrlEncode (txtReferrer.Value));
 
 				IAuthenticationRequest request = openid.CreateRequest (Configuration.OpenIdProvider, realm, return_to);
