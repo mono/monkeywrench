@@ -42,7 +42,6 @@ public partial class Login : System.Web.UI.Page
 		string referrer = Request ["referrer"];
 		bool noOpenIdResponse = false;
 
-
 		if (!string.IsNullOrEmpty (referrer))
 			txtReferrer.Value = referrer;
 
@@ -124,8 +123,9 @@ public partial class Login : System.Web.UI.Page
 		if (!string.IsNullOrEmpty (auto) && auto.ToUpperInvariant () == "TRUE")
 			auto_openid_redirect = true;
 
-		//if (!Configuration.AllowPasswordLogin && string.IsNullOrEmpty (action) && Configuration.AllowAnonymousAccess && noOpenIdResponse)
-		//	cmdLoginOpenId_Click (null, null);
+		if (!Configuration.AllowPasswordLogin && string.IsNullOrEmpty (action) && Configuration.AllowAnonymousAccess && noOpenIdResponse)
+			auto_openid_redirect = true;
+
 		if (auto_openid_redirect)
 			cmdLoginOpenId_Click (null, null);
 	}
@@ -153,6 +153,10 @@ public partial class Login : System.Web.UI.Page
 			using (OpenIdRelyingParty openid = new OpenIdRelyingParty ()) {
 				var realm = Request.Url.GetComponents (UriComponents.SchemeAndServer, UriFormat.UriEscaped) + "/";
 				var return_to = Request.Url.StripQueryArgumentsWithPrefix ("auto-redirect-openid");
+
+				if (!string.IsNullOrEmpty (txtReferrer.Value))
+					return_to = new Uri (return_to.ToString () + (string.IsNullOrEmpty (return_to.Query) ? "?" : "&") + "referrer=" + HttpUtility.UrlEncode (txtReferrer.Value));
+
 				IAuthenticationRequest request = openid.CreateRequest (Configuration.OpenIdProvider, realm, return_to);
 
 				var fetch = new FetchRequest ();
