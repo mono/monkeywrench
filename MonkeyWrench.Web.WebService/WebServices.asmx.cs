@@ -994,9 +994,15 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			}
 		}
 
-		// for some unknown reason we receive all elements in int? [] arrays with HasValue = false:
 		[WebMethod]
 		public FrontPageResponse GetFrontPageData2 (WebServiceLogin login, int limit, string [] lanes, int [] lane_ids)
+		{
+			return GetFrontPageData3 (login, limit, 0, lanes, lane_ids);
+		}
+
+		// for some unknown reason we receive all elements in int? [] arrays with HasValue = false:
+		[WebMethod]
+		public FrontPageResponse GetFrontPageData3 (WebServiceLogin login, int page_size, int page, string [] lanes, int [] lane_ids)
 		{
 			FrontPageResponse response = new FrontPageResponse ();
 			List<DBLane> Lanes = new List<DBLane> ();
@@ -1004,7 +1010,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			List<DBHostLane> HostLanes = new List<DBHostLane> ();
 			List<DBRevisionWorkView2> RevisionWork;
 
-			limit = Math.Min (limit, 500);
+			page_size = Math.Min (page_size, 500);
 
 			try {
 				using (DB db = new DB ()) {
@@ -1071,10 +1077,11 @@ WHERE hidden = false";
 					foreach (DBHostLane hl in HostLanes) {
 						RevisionWork = new List<DBRevisionWorkView2> ();
 						using (IDbCommand cmd = db.CreateCommand ()) {
-							cmd.CommandText = @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE R.host_id = @host_id AND R.lane_id = @lane_id LIMIT @limit";
+							cmd.CommandText = @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE R.host_id = @host_id AND R.lane_id = @lane_id LIMIT @limit OFFSET @offset";
 							DB.CreateParameter (cmd, "host_id", hl.host_id);
 							DB.CreateParameter (cmd, "lane_id", hl.lane_id);
-							DB.CreateParameter (cmd, "limit", limit);
+							DB.CreateParameter (cmd, "limit", page_size);
+							DB.CreateParameter (cmd, "offset", page * page_size);
 
 							using (IDataReader reader = cmd.ExecuteReader ()) {
 								while (reader.Read ())

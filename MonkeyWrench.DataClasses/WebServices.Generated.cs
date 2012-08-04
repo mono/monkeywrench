@@ -1187,6 +1187,34 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetFrontPageData3", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public FrontPageResponse GetFrontPageData3(WebServiceLogin login, int page_size, int page, string[] lanes, int[] lane_ids) {
+            object[] results = this.Invoke("GetFrontPageData3", new object[] {
+                        login,
+                        page_size,
+                        page,
+                        lanes,
+                        lane_ids});
+            return ((FrontPageResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetFrontPageData3(WebServiceLogin login, int page_size, int page, string[] lanes, int[] lane_ids, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetFrontPageData3", new object[] {
+                        login,
+                        page_size,
+                        page,
+                        lanes,
+                        lane_ids}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public FrontPageResponse EndGetFrontPageData3(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((FrontPageResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetLanes", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public GetLanesResponse GetLanes(WebServiceLogin login) {
             object[] results = this.Invoke("GetLanes", new object[] {
