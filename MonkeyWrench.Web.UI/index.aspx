@@ -6,6 +6,13 @@
     <div id="buildtable" runat="server" />
     <div><asp:Label runat="server" ID="lblMessage" ForeColor="Red" /></div>
     <div><a href="SelectLanes.aspx">Select lanes</a></div>
+    <div>
+    <a href="index.aspx?limit=10">View 10 revisions</a> - 
+    <a href="index.aspx?limit=50">View 50 revisions</a> - 
+    <a href="index.aspx?limit=100">View 100 revisions</a> - 
+    <a href="index.aspx?limit=200">View 200 revisions</a> - 
+    <a href="index.aspx?limit=500">View 500 revisions</a>
+    </div>
     <h3>
         Legend</h3>
     <div>
