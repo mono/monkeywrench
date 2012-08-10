@@ -783,13 +783,12 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 				if (!command_id.HasValue) {
 					cmd.CommandText = "SELECT * FROM Command WHERE command = @command";
 					DB.CreateParameter (cmd, "command", command);
+					cmd.CommandText += " AND lane_id = @lane_id";
+					DB.CreateParameter (cmd, "lane_id", lane.id);
 				} else {
 					cmd.CommandText = "SELECT * FROM Command WHERE id = @id";
 					DB.CreateParameter (cmd, "id", command_id.Value);
 				}
-
-				cmd.CommandText += " AND lane_id = @lane_id";
-				DB.CreateParameter (cmd, "lane_id", lane.id);
 
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					if (reader.Read ())
