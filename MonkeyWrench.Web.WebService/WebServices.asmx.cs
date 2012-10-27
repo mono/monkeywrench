@@ -81,6 +81,7 @@ namespace MonkeyWrench.WebServices
 			using (DB db = new DB ()) {
 				try {
 					VerifyUserInRole (db, login, Roles.Administrator);
+					db.Audit (login, "WebServices.LoginOpenId (email: {0}, ip4: {1})", email, ip4);
 					DBLogin_Extensions.LoginOpenId (db, response, email, ip4);
 				} catch (Exception ex) {
 					response.Exception = new WebServiceException (ex);
@@ -107,6 +108,8 @@ namespace MonkeyWrench.WebServices
 				return;
 
 			using (DB db = new DB ()) {
+				db.Audit (login, "WebServices.Logout (login.Cookie: {0})", login.Cookie);
+
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = "DELETE FROM Login WHERE cookie = @cookie;";
 					DB.CreateParameter (cmd, "cookie", login.Cookie);
@@ -126,6 +129,7 @@ namespace MonkeyWrench.WebServices
 
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.CreateLaneFile (lane_id: {0}, filename: {1})", lane_id, filename);
 
 				DBLanefile file = new DBLanefile ();
 				file.name = filename;
@@ -147,6 +151,7 @@ namespace MonkeyWrench.WebServices
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.AttachFileToLane (lane_id: {0}, lanefile_id: {1})", lane_id, lanefile_id);
 				DBLanefiles lanefile = new DBLanefiles ();
 				lanefile.lane_id = lane_id;
 				lanefile.lanefile_id = lanefile_id;
@@ -159,6 +164,7 @@ namespace MonkeyWrench.WebServices
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.DeattachFileFromLane (lane_id: {0}, lanefile_id: {1})", lane_id, lanefile_id);
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = "DELETE FROM Lanefiles WHERE lane_id = @lane_id AND lanefile_id = @lanefile_id;";
 					DB.CreateParameter (cmd, "lane_id", lane_id);
@@ -173,6 +179,7 @@ namespace MonkeyWrench.WebServices
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.EditCommand (command: {0})", command);
 				command.Save (db);
 			}
 		}
@@ -182,6 +189,7 @@ namespace MonkeyWrench.WebServices
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.EditCommandFilename (command_id: {0}, filename: {1})", command_id, filename);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.filename = filename;
 				cmd.Save (db);
@@ -193,6 +201,7 @@ namespace MonkeyWrench.WebServices
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.EditCommandSequence (command_id: {0}, sequence: {1})", command_id, sequence);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.sequence = sequence;
 				cmd.Save (db);
@@ -204,6 +213,7 @@ namespace MonkeyWrench.WebServices
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.EditCommandArguments (command_id: {0}, arguments: {1})", command_id, arguments);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.arguments = arguments;
 				cmd.Save (db);
@@ -215,6 +225,7 @@ namespace MonkeyWrench.WebServices
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.EditCommandTimeout (command_id: {0}, timeout: {1})", command_id, timeout);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.timeout = timeout;
 				cmd.Save (db);
@@ -1277,7 +1288,7 @@ WHERE hidden = false";
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
-
+				db.Audit (login, "WebServices.IgnoreRevision (lane_id: {0}, host_id: {1}, revision_id: {2})", lane_id, host_id, revision_id);
 				db.IgnoreWork (lane_id, revision_id, host_id);
 			}
 		}
@@ -1287,6 +1298,7 @@ WHERE hidden = false";
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.ClearRevision (lane_id: {0}, host_id: {1}, revision_id: {2})", lane_id, host_id, revision_id);
 				db.DeleteFiles (host_id, lane_id, revision_id);
 				db.DeleteLinks (host_id, lane_id, revision_id);
 				db.ClearWork (lane_id, revision_id, host_id);
@@ -1298,6 +1310,7 @@ WHERE hidden = false";
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.RescheduleRevision (lane_id: {0}, host_id: {1}, revision_id: {2})", lane_id, host_id, revision_id);
 				db.DeleteFiles (host_id, lane_id, revision_id);
 				db.DeleteLinks (host_id, lane_id, revision_id);
 				db.ClearWork (lane_id, revision_id, host_id);
@@ -2825,6 +2838,7 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.ExecuteScheduler (forcefullupdate: {0})", forcefullupdate);
 
 				MonkeyWrench.Scheduler.Scheduler.ExecuteSchedulerAsync (forcefullupdate);
 			}

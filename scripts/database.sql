@@ -298,6 +298,15 @@ CREATE TABLE FileLink (
 );
 CREATE INDEX filelink_idx_work_id_key ON FileLink (work_id);
 
+CREATE TABLE Audit (
+	id             serial    PRIMARY KEY,
+        person_id      int       NULL,                     -- the person who performed the action
+        person_login   text      NULL,                     -- the name of the person who performed the action
+        ip             text      NULL,                     -- the ip of the request
+        stamp          timestamp NOT NULL DEFAULT now (),  -- when the action happened
+        action         text      NOT NULL                  -- textual description of what happened.
+);
+
 CREATE TABLE Person ( -- 'User' is a reserved word in sql...
 	id             serial    PRIMARY KEY,
 	login          text      NOT NULL,            -- the login name of the user a-zA-Z0-9_-

@@ -1106,6 +1106,16 @@ LIMIT 1
 			return result;
 		}
 
+		public void Audit (MonkeyWrench.DataClasses.Logic.WebServiceLogin who, string action, params object [] args)
+		{
+			var audit = new DBAudit ();
+			audit.action = string.Format (action, args);
+			audit.person_login = who.User;
+			audit.ip = who.Ip4;
+			audit.stamp = Now;
+			audit.Save (this);
+		}
+
 		/// <summary>
 		/// The current date/time in the database.
 		/// This is used to minimize date/time differences between 
