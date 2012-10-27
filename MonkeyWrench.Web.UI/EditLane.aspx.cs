@@ -107,6 +107,7 @@ public partial class EditLane : System.Web.UI.Page
 						lblChildLanes.Text += string.Format ("<a href='EditLane.aspx?lane_id={0}'>{1}</a>", l.id, l.lane);
 					}
 				}
+				chkTraverseMerges.Checked = lane.traverse_merge;
 			}
 
 			if (!string.IsNullOrEmpty (action)) {
@@ -621,6 +622,7 @@ public partial class EditLane : System.Web.UI.Page
 		lane.commit_filter = txtCommitFilter.Text;
 		lane.source_control = cmbSourceControl.Text;
 		lane.parent_lane_id = (parent_lane_id.HasValue && parent_lane_id.Value != 0) ? parent_lane_id : null;
+		lane.traverse_merge = chkTraverseMerges.Checked;
 		Master.WebService.EditLane (Master.WebServiceLogin, lane);
 		RedirectToSelf ();
 	}

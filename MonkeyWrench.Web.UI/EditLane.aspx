@@ -58,6 +58,13 @@
                 <asp:TableCell></asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
+                <asp:TableCell>Traverse merges:</asp:TableCell>
+                <asp:TableCell>
+                    <asp:CheckBox ID="chkTraverseMerges" runat="server" Width="600px"></asp:CheckBox>
+                </asp:TableCell>
+                <asp:TableCell>If merged-in commits (except the merge commit itself, which is always included) should be included.</asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
                 <asp:TableCell>
                 </asp:TableCell>
                 <asp:TableCell>

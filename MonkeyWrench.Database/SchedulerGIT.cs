@@ -380,7 +380,10 @@ namespace MonkeyWrench.Scheduler
 					DateTime git_start = DateTime.Now;
 					git.StartInfo.FileName = "git";
 					// --reverse: git normally gives commits in newest -> oldest, we want to add them to the db in the reverse order
-					git.StartInfo.Arguments = "rev-list --reverse --header " + range;
+					git.StartInfo.Arguments = "rev-list --reverse --header ";
+					if (!dblane.traverse_merge)
+						git.StartInfo.Arguments += "--first-parent ";
+					git.StartInfo.Arguments += range;
 					Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
 					git.StartInfo.WorkingDirectory = cache_dir;
 					git.StartInfo.UseShellExecute = false;

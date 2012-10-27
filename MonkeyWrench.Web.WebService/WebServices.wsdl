@@ -86,6 +86,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="max_revision" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="parent_lane_id" nillable="true" type="xs:int" />
               <xs:element minOccurs="0" maxOccurs="1" name="commit_filter" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="traverse_merge" type="xs:boolean" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
