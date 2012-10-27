@@ -510,6 +510,13 @@ namespace MonkeyWrench
 						clone.Save (this);
 					}
 
+					foreach (DBLaneNotification notification in master.GetNotifications (this)) {
+						DBLaneNotification clone = new DBLaneNotification ();
+						clone.lane_id = result.id;
+						clone.notification_id = notification.notification_id;
+						clone.Save (this);
+					}
+
 					transaction.Commit ();
 				}
 			} catch {

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * DBLane_Extensions.cs
  *
  * Authors:
@@ -81,6 +81,21 @@ namespace MonkeyWrench.Database
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
 						result.Add (new DBHostLaneView (reader));
+					}
+				}
+			}
+			return result;
+		}
+
+		public static List<DBLaneNotification> GetNotifications (this DBLane me, DB db)
+		{
+			var result = new List<DBLaneNotification> ();
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM LaneNotification WHERE lane_id = @lane_id;";
+				DB.CreateParameter (cmd, "lane_id", me.id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						result.Add (new DBLaneNotification (reader));
 					}
 				}
 			}
