@@ -1288,6 +1288,9 @@ WHERE hidden = false";
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+				db.DeleteFiles (host_id, lane_id, revision_id);
+				db.DeleteLinks (host_id, lane_id, revision_id);
+				db.ClearWork (lane_id, revision_id, host_id);
 				db.DeleteWork (lane_id, revision_id, host_id);
 			}
 		}
