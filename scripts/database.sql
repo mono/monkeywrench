@@ -144,8 +144,12 @@ CREATE TABLE HostLane (
 	id          serial     PRIMARY KEY,
 	host_id     int        NOT NULL REFERENCES Host (id),
 	lane_id     int        NOT NULL REFERENCES Lane (id),
-	enabled     boolean    NOT NULL DEFAULT TRUE                -- if the lane is enabled on this host.
+	enabled     boolean    NOT NULL DEFAULT TRUE,               -- if the lane is enabled on this host.
+	hidden      boolean    NOT NULL DEFAULT FALSE,              -- if a lane is hidden from view by default.
+
+	UNIQUE (host_id, lane_id)
 );
+-- ALTER TABLE HostLane ADD COLUMN hidden boolean NOT NULL DEFAULT FALSE;
 
 CREATE TABLE Lanefile (
 	id             serial     PRIMARY KEY,
@@ -391,7 +395,7 @@ CREATE VIEW WorkView2 AS
 
 
 CREATE VIEW HostLaneView AS
-	SELECT HostLane.id, HostLane.lane_id, HostLane.host_id, HostLane.enabled, Lane.lane, Host.host
+	SELECT HostLane.id, HostLane.lane_id, HostLane.host_id, HostLane.enabled, Lane.lane, Host.host, HostLane.hidden
 	FROM HostLane
 		INNER JOIN Host ON HostLane.host_id = Host.id
 		INNER JOIN Lane ON HostLane.lane_id = Lane.id;

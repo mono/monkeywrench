@@ -105,7 +105,7 @@ public partial class ViewTable : System.Web.UI.Page
 			dblane = response.Lane;
 			dbhost = response.Host;
 
-			this.header.InnerHtml = GenerateHeader (dblane, dbhost , horizontal);
+			this.header.InnerHtml = GenerateHeader (response, dblane, dbhost , horizontal);
 			this.buildtable.InnerHtml = GenerateLaneTable (response, dblane, dbhost, horizontal, page, page_size);
 			this.pager.InnerHtml = GeneratePager (response, dblane, dbhost, page, page_size);
 		} catch (Exception ex) {
@@ -177,15 +177,19 @@ public partial class ViewTable : System.Web.UI.Page
 		return string.Format ("&nbsp;<a href='ViewTable.aspx?host_id={0}&amp;lane_id={1}&amp;page={2}&amp;limit={3}'>{4}</a> ", hostid, laneid, page - 1, limit, page);
 	}
 
-	public string GenerateHeader (DBLane lane, DBHost host, bool horizontal)
+	public string GenerateHeader (GetViewTableDataResponse response, DBLane lane, DBHost host, bool horizontal)
 	{
 		string result;
 		string format;
+		string disabled_msg = string.Empty;
+
+		if (!response.Enabled)
+			disabled_msg = " (Disabled)";
 
 		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			format = @"<h2>Build Matrix for <a href='EditLane.aspx?lane_id={0}'>'{2}'</a> on <a href='EditHost.aspx?host_id={5}'>'{4}'</a></h2><br/>";
+			format = @"<h2>Build Matrix for <a href='EditLane.aspx?lane_id={0}'>'{2}'</a> on <a href='EditHost.aspx?host_id={5}'>'{4}'</a>{6}</h2><br/>";
 		} else {
-			format = @"<h2>Build Matrix for '{2}' on '{4}'</h2><br/>";
+			format = @"<h2>Build Matrix for '{2}' on '{4}'{6}</h2><br/>";
 		}
 
 		format += @"<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}&amp;horizontal={3}'>Reverse x/y axis</a><br/>";
@@ -194,7 +198,7 @@ public partial class ViewTable : System.Web.UI.Page
 
 		format += "<br/>";
 
-		result = string.Format (format, lane.id, host.id, lane.lane, horizontal ? "false" : "true", host.host, host.id);
+		result = string.Format (format, lane.id, host.id, lane.lane, horizontal ? "false" : "true", host.host, host.id, disabled_msg);
 
 		return result;
 	}

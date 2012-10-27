@@ -176,6 +176,10 @@ public partial class EditLane : System.Web.UI.Page
 					if (int.TryParse (Request ["host_id"], out id))
 						Master.WebService.SwitchHostEnabledForLane (Master.WebServiceLogin, lane.id, id);
 					break;
+				case "switchHostHidden":
+					if (int.TryParse (Request ["host_id"], out id))
+						Master.WebService.SwitchHostHiddenForLane (Master.WebServiceLogin, lane.id, id);
+					break;
 				case "removeHost":
 					if (int.TryParse (Request ["host_id"], out id))
 						Master.WebService.RemoveHostForLane (Master.WebServiceLogin, lane.id, id);
@@ -344,12 +348,15 @@ public partial class EditLane : System.Web.UI.Page
 
 			foreach (DBHostLaneView view in response.HostLaneViews) {
 				string ed = view.enabled ? "enabled" : "disabled";
+				string hid = view.hidden ? "hidden" : "visible";
+				string @class = ed + " " + hid;
 				row = new TableRow ();
 
-				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", view.host_id, view.host), view.enabled ? "enabled" : "disabled"));
+				row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", view.host_id, view.host), @class));
 				html = string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;host_id={1}&amp;action=removeHost'>Remove</a> ", lane.id, view.host_id);
-				html = html + string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;host_id={1}&amp;action=switchHostEnabled'>{2}</a>", lane.id, view.host_id, (view.enabled ? "Disable" : "Enable"));
-				row.Cells.Add (Utils.CreateTableCell (html, ed));
+				html = html + string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;host_id={1}&amp;action=switchHostEnabled'>{2}</a> ", lane.id, view.host_id, (view.enabled ? "Disable" : "Enable"));
+				html = html + string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;host_id={1}&amp;action=switchHostHidden'>{2}</a>", lane.id, view.host_id, (view.hidden ? "Show" : "Hide"));
+				row.Cells.Add (Utils.CreateTableCell (html, @class));
 				tblHosts.Rows.Add (row);
 				current_hosts.Add (view.host);
 			}

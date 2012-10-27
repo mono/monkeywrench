@@ -134,7 +134,7 @@ public partial class index : System.Web.UI.Page
 			} else {
 				foreach (DBHostLane hl in target.HostLanes) {
 					hostlane_order.Add (hl.id);
-					matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&amp;host_id={2}'>{0}</a></td>", Utils.FindHost (hosts, hl.host_id).host, hl.lane_id, hl.host_id);
+					matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&amp;host_id={2}' class='{3}'>{0}</a></td>", Utils.FindHost (hosts, hl.host_id).host, hl.lane_id, hl.host_id, hl.enabled ? "enabled-hostlane" : "disabled-hostlane");
 				}
 			}
 		}));
@@ -193,6 +193,9 @@ public partial class index : System.Web.UI.Page
 		LaneTreeNode tree = BuildTree (data);
 		List<StringBuilder> header_rows = new List<StringBuilder> ();
 		List<int> hostlane_order = new List<int> ();
+
+		if (tree == null)
+			return string.Empty;
 
 		WriteLanes (header_rows, tree, 0, tree.Depth);
 

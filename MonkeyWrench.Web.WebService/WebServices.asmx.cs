@@ -327,6 +327,17 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
+		public void SwitchHostHiddenForLane (WebServiceLogin login, int lane_id, int host_id)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				DBHostLane hostlane = db.GetHostLane (host_id, lane_id);
+				hostlane.hidden = !hostlane.hidden;
+				hostlane.Save (db);
+			}
+		}
+
+		[WebMethod]
 		public void RemoveHostForLane (WebServiceLogin login, int lane_id, int host_id)
 		{
 			using (DB db = new DB ()) {
@@ -1034,7 +1045,8 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 					using (IDbCommand cmd = db.CreateCommand ()) {
 						cmd.CommandText = @"
 SELECT HostLane.*
-FROM HostLane";
+FROM HostLane
+WHERE hidden = false";
 
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
@@ -1475,6 +1487,9 @@ UPDATE Work SET state = @state WHERE Work.revisionwork_id = (SELECT RevisionWork
 					response.Page = page;
 					response.PageSize = page_size;
 					response.RevisionWorkViews = DBRevisionWorkView_Extensions.Query (db, response.Lane, response.Host, response.PageSize, response.Page);
+					var hl = db.GetHostLane (response.Host.id, response.Lane.id);
+					if (hl != null)
+						response.Enabled = hl.enabled;
 				}
 			} catch (Exception ex) {
 				response.Exception = new WebServiceException (ex);

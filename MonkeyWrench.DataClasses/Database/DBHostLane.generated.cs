@@ -33,10 +33,12 @@ namespace MonkeyWrench.DataClasses
 		private int _host_id;
 		private int _lane_id;
 		private bool _enabled;
+		private bool _hidden;
 
 		public int @host_id { get { return _host_id; } set { _host_id = value; } }
 		public int @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public bool @enabled { get { return _enabled; } set { _enabled = value; } }
+		public bool @hidden { get { return _hidden; } set { _hidden = value; } }
 
 
 		public override string Table
@@ -49,7 +51,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "host_id", "lane_id", "enabled" };
+				return new string [] { "host_id", "lane_id", "enabled", "hidden" };
 			}
 		}
         

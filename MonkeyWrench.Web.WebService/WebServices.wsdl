@@ -145,6 +145,7 @@
               <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
               <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
               <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="hidden" type="xs:boolean" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -359,6 +360,7 @@
           <xs:enumeration value="Invalid" />
           <xs:enumeration value="DependentLaneSuccess" />
           <xs:enumeration value="DependentLaneSuccessWithFile" />
+          <xs:enumeration value="DependentLaneIssuesOrSuccess" />
         </xs:restriction>
       </xs:simpleType>
       <xs:complexType name="DBFileDeletionDirective">
@@ -446,6 +448,7 @@
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="hidden" type="xs:boolean" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -842,6 +845,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="Lane" type="s0:DBLane" />
               <xs:element minOccurs="0" maxOccurs="1" name="Host" type="s0:DBHost" />
               <xs:element minOccurs="0" maxOccurs="1" name="RevisionWorkViews" type="s0:ArrayOfDBRevisionWorkView" />
+              <xs:element minOccurs="1" maxOccurs="1" name="Enabled" type="xs:boolean" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -1297,6 +1301,18 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="SwitchHostEnabledForLaneResponse">
+        <xs:complexType />
+      </xs:element>
+      <xs:element name="SwitchHostHiddenForLane">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SwitchHostHiddenForLaneResponse">
         <xs:complexType />
       </xs:element>
       <xs:element name="RemoveHostForLane">
@@ -2783,6 +2799,12 @@
   <message name="SwitchHostEnabledForLaneSoapOut">
     <part name="parameters" element="s0:SwitchHostEnabledForLaneResponse" />
   </message>
+  <message name="SwitchHostHiddenForLaneSoapIn">
+    <part name="parameters" element="s0:SwitchHostHiddenForLane" />
+  </message>
+  <message name="SwitchHostHiddenForLaneSoapOut">
+    <part name="parameters" element="s0:SwitchHostHiddenForLaneResponse" />
+  </message>
   <message name="RemoveHostForLaneSoapIn">
     <part name="parameters" element="s0:RemoveHostForLane" />
   </message>
@@ -3436,6 +3458,10 @@
       <input message="s0:SwitchHostEnabledForLaneSoapIn" />
       <output message="s0:SwitchHostEnabledForLaneSoapOut" />
     </operation>
+    <operation name="SwitchHostHiddenForLane">
+      <input message="s0:SwitchHostHiddenForLaneSoapIn" />
+      <output message="s0:SwitchHostHiddenForLaneSoapOut" />
+    </operation>
     <operation name="RemoveHostForLane">
       <input message="s0:RemoveHostForLaneSoapIn" />
       <output message="s0:RemoveHostForLaneSoapOut" />
@@ -3885,6 +3911,10 @@
     <operation name="SwitchHostEnabledForLane">
       <input message="s0:SwitchHostEnabledForLaneSoapIn" />
       <output message="s0:SwitchHostEnabledForLaneSoapOut" />
+    </operation>
+    <operation name="SwitchHostHiddenForLane">
+      <input message="s0:SwitchHostHiddenForLaneSoapIn" />
+      <output message="s0:SwitchHostHiddenForLaneSoapOut" />
     </operation>
     <operation name="RemoveHostForLane">
       <input message="s0:RemoveHostForLaneSoapIn" />
@@ -4450,6 +4480,15 @@
     </operation>
     <operation name="SwitchHostEnabledForLane">
       <soap:operation soapAction="http://monkeywrench.novell.com/SwitchHostEnabledForLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchHostHiddenForLane">
+      <soap:operation soapAction="http://monkeywrench.novell.com/SwitchHostHiddenForLane" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5461,6 +5500,15 @@
     </operation>
     <operation name="SwitchHostEnabledForLane">
       <soap12:operation soapAction="http://monkeywrench.novell.com/SwitchHostEnabledForLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="SwitchHostHiddenForLane">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/SwitchHostHiddenForLane" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

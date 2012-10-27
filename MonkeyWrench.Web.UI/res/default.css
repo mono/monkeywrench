@@ -91,6 +91,26 @@ table.commands th
 	padding: .5em;
 }
 
+table.commands .disabled
+{
+	background: #FFD0D0;
+}
+
+table.commands .enabled
+{
+	background: #C9FFC9;
+}
+
+table.commands td.hidden a
+{
+	color: #444444;
+}
+
+table.commands a .visible
+{
+	color: #0000FF;
+}
+
 tr.commands_header
 {
     background-color: #DDDDDD;
@@ -148,6 +168,15 @@ table.buildstatus .disabled
 table.buildstatus .enabled
 {
 	background: #C9FFC9;
+}
+
+table.buildstatus .disabled-hostlane
+{
+	color: #cdcdcd;
+}
+
+table.buildstatus .enabled-hostlane
+{
 }
 
 table.hosts 

@@ -35,22 +35,24 @@ namespace MonkeyWrench.DataClasses
 		private bool _enabled;
 		private string _lane;
 		private string _host;
+		private bool _hidden;
 
 		public int @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public int @host_id { get { return _host_id; } set { _host_id = value; } }
 		public bool @enabled { get { return _enabled; } set { _enabled = value; } }
 		public string @lane { get { return _lane; } set { _lane = value; } }
 		public string @host { get { return _host; } set { _host = value; } }
+		public bool @hidden { get { return _hidden; } set { _hidden = value; } }
 
 
 		public const string SQL = 
-@"SELECT HostLane.id, HostLane.lane_id, HostLane.host_id, HostLane.enabled, Lane.lane, Host.host 
+@"SELECT HostLane.id, HostLane.lane_id, HostLane.host_id, HostLane.enabled, Lane.lane, Host.host, HostLane.hidden 
 	FROM HostLane 
 		INNER JOIN Host ON HostLane.host_id = Host.id 
 		INNER JOIN Lane ON HostLane.lane_id = Lane.id;";
 
 
-		private static string [] _fields_ = new string [] { "lane_id", "host_id", "enabled", "lane", "host" };
+		private static string [] _fields_ = new string [] { "lane_id", "host_id", "enabled", "lane", "host", "hidden" };
 		public override string [] Fields
 		{
 			get

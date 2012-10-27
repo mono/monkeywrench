@@ -1,4 +1,4 @@
-﻿/*
+/*
  * GetViewTableDataResponse.cs
  *
  * Authors:
@@ -25,5 +25,7 @@ namespace MonkeyWrench.DataClasses.Logic
 		public DBLane Lane;
 		public DBHost Host;
 		public List<DBRevisionWorkView> RevisionWorkViews;
+		public bool Enabled;
 	}
 }
+
