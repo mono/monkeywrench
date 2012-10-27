@@ -63,6 +63,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\DBAudit.cs" />
+    <Compile Include="Database\DBAudit.generated.cs" />
     <Compile Include="Database\DBBuildBotStatus.cs" />
     <Compile Include="Database\DBBuildBotStatus.generated.cs" />
     <Compile Include="Database\DBFileLink.cs" />
