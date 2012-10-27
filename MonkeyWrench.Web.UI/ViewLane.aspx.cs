@@ -79,6 +79,9 @@ public partial class ViewLane : System.Web.UI.Page
 				case "deleterevision":
 					Master.WebService.RescheduleRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
 					break;
+				case "ignorerevision":
+					Master.WebService.IgnoreRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+					break;
 				case "abortrevision":
 					Master.WebService.AbortRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
 					break;
@@ -147,7 +150,11 @@ public partial class ViewLane : System.Web.UI.Page
 				header.AppendFormat (" - <a href='javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision\", \"clear\");'>reset work</a>", lane.id, dbr.id, host.id);
 				header.AppendFormat (" - <a href='javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision\", \"delete\");'>delete work</a>", lane.id, dbr.id, host.id);
 				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=abortrevision'>abort work</a>", lane.id, dbr.id, host.id);
+			} else if (response.RevisionWork.State == DBState.Ignore) {
+				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>build this revision</a>", lane.id, dbr.id, host.id);
 			} else {
+				if (response.RevisionWork.State == DBState.NotDone)
+					header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=ignorerevision'>don't build</a>", lane.id, dbr.id, host.id);
 				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>reset work</a>", lane.id, dbr.id, host.id);
 				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision'>delete work</a>", lane.id, dbr.id, host.id);
 			}
@@ -159,7 +166,7 @@ public partial class ViewLane : System.Web.UI.Page
 			header.AppendFormat (" - Unassigned.");
 		}
 
-		if (!revisionwork.completed && revisionwork.State != DBState.NotDone && revisionwork.State != DBState.Paused) {
+		if (!revisionwork.completed && revisionwork.State != DBState.NotDone && revisionwork.State != DBState.Paused && revisionwork.State != DBState.Ignore) {
 			header.Insert (0, "<center><table class='executing'><td>");
 			header.Append ("</td></table></center>");
 		}
@@ -240,14 +247,14 @@ public partial class ViewLane : System.Web.UI.Page
 			// result
 			matrix.AppendFormat ("\t<td class='{0}'>{0}</td>", result);
 
-			if (state > DBState.NotDone && state != DBState.Paused) {
+			if (state > DBState.NotDone && state != DBState.Paused && state != DBState.Ignore && state != DBState.DependencyNotFulfilled) {
 				matrix.AppendFormat ("<td>{0}</td>", step.starttime.ToString ("yyyy/MM/dd HH:mm:ss UTC"));
 			} else {
 				matrix.AppendLine ("<td>-</td>");
 			}
 			// duration
 			matrix.Append ("\t<td>");
-			if (state >= DBState.Executing && state != DBState.Paused) {
+			if (state >= DBState.Executing && state != DBState.Paused && state != DBState.Ignore && state != DBState.DependencyNotFulfilled && state != DBState.Aborted) {
 				matrix.Append ("[");
 				matrix.Append (TimeSpan.FromSeconds (duration).ToString ());
 				matrix.Append ("]");

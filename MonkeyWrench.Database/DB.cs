@@ -785,6 +785,32 @@ namespace MonkeyWrench
 			}
 		}
 
+		public void IgnoreWork (int lane_id, int revision_id, int host_id)
+		{
+			using (IDbCommand cmd = CreateCommand ()) {
+				cmd.CommandText = @"
+UPDATE 
+	Work SET state = 11, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
+WHERE
+	Work.revisionwork_id IN 
+		(SELECT	RevisionWork.id 
+			FROM RevisionWork
+			WHERE RevisionWork.host_id = @host_id AND RevisionWork.lane_id = @lane_id AND RevisionWork.revision_id = @revision_id);
+
+UPDATE 
+	RevisionWork SET state = 11, lock_expires = DEFAULT, completed = true, workhost_id = DEFAULT, endtime = DEFAULT
+WHERE 
+		lane_id = @lane_id
+	AND revision_id = @revision_id 
+	AND host_id = @host_id;
+";
+				DB.CreateParameter (cmd, "lane_id", lane_id);
+				DB.CreateParameter (cmd, "revision_id", revision_id);
+				DB.CreateParameter (cmd, "host_id", host_id);
+				cmd.ExecuteNonQuery ();
+			}
+		}
+
 		public void ClearWork (int lane_id, int revision_id, int host_id)
 		{
 			using (IDbCommand cmd = CreateCommand ()) {

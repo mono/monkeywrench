@@ -229,6 +229,7 @@
           <xs:enumeration value="Issues" />
           <xs:enumeration value="DependencyNotFulfilled" />
           <xs:enumeration value="NoWorkYet" />
+          <xs:enumeration value="Ignore" />
         </xs:restriction>
       </xs:simpleType>
       <xs:complexType name="DBRevisionWorkView">
@@ -1901,6 +1902,19 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="IgnoreRevision">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="IgnoreRevisionResponse">
+        <xs:complexType />
+      </xs:element>
       <xs:element name="ClearRevision">
         <xs:complexType>
           <xs:sequence>
@@ -3039,6 +3053,12 @@
   <message name="AddHostSoapOut">
     <part name="parameters" element="s0:AddHostResponse" />
   </message>
+  <message name="IgnoreRevisionSoapIn">
+    <part name="parameters" element="s0:IgnoreRevision" />
+  </message>
+  <message name="IgnoreRevisionSoapOut">
+    <part name="parameters" element="s0:IgnoreRevisionResponse" />
+  </message>
   <message name="ClearRevisionSoapIn">
     <part name="parameters" element="s0:ClearRevision" />
   </message>
@@ -3618,6 +3638,10 @@
       <input message="s0:AddHostSoapIn" />
       <output message="s0:AddHostSoapOut" />
     </operation>
+    <operation name="IgnoreRevision">
+      <input message="s0:IgnoreRevisionSoapIn" />
+      <output message="s0:IgnoreRevisionSoapOut" />
+    </operation>
     <operation name="ClearRevision">
       <input message="s0:ClearRevisionSoapIn" />
       <output message="s0:ClearRevisionSoapOut" />
@@ -4071,6 +4095,10 @@
     <operation name="AddHost">
       <input message="s0:AddHostSoapIn" />
       <output message="s0:AddHostSoapOut" />
+    </operation>
+    <operation name="IgnoreRevision">
+      <input message="s0:IgnoreRevisionSoapIn" />
+      <output message="s0:IgnoreRevisionSoapOut" />
     </operation>
     <operation name="ClearRevision">
       <input message="s0:ClearRevisionSoapIn" />
@@ -4840,6 +4868,15 @@
     </operation>
     <operation name="AddHost">
       <soap:operation soapAction="http://monkeywrench.novell.com/AddHost" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="IgnoreRevision">
+      <soap:operation soapAction="http://monkeywrench.novell.com/IgnoreRevision" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5860,6 +5897,15 @@
     </operation>
     <operation name="AddHost">
       <soap12:operation soapAction="http://monkeywrench.novell.com/AddHost" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="IgnoreRevision">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/IgnoreRevision" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

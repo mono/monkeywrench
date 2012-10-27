@@ -348,6 +348,9 @@ public partial class ViewTable : System.Web.UI.Page
 				case DBState.Paused:
 					completed = false;
 					result = "paused"; break;
+				case DBState.Ignore:
+					completed = false;
+					result = "ignore"; break;
 				default:
 					completed = true;
 					result = "unknown"; break;

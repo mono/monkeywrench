@@ -376,6 +376,11 @@ table.lefttree a
 	background:purple;
 }
 
+.ignore
+{
+    background:lightgray;
+}
+
 .timeout {
 	background:#808080; /*gray*/
 }

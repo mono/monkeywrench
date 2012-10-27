@@ -214,6 +214,7 @@ CREATE TABLE RevisionWork (
 	-- no work yet (transitional state until work has been added)
 	-- dependency not fulfilled (any Work.State == dependency not fulfilled)
 	-- paused (any Work.State == paused)
+	-- ignored (any Work.State == ignored)
 	-- queued (all Work.State == queued)
 	-- success (all Work.State == success)
 	-- failed (any fatal Work.State == failed || Work.state == aborted)

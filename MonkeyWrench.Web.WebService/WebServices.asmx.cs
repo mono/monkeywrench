@@ -1273,6 +1273,16 @@ WHERE hidden = false";
 		}
 
 		[WebMethod]
+		public void IgnoreRevision (WebServiceLogin login, int lane_id, int host_id, int revision_id)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+
+				db.IgnoreWork (lane_id, revision_id, host_id);
+			}
+		}
+
+		[WebMethod]
 		public void ClearRevision (WebServiceLogin login, int lane_id, int host_id, int revision_id)
 		{
 			using (DB db = new DB ()) {

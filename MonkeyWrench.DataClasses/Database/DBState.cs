@@ -25,6 +25,7 @@ namespace MonkeyWrench.DataClasses
 		Issues = 8,
 		DependencyNotFulfilled = 9,
 		NoWorkYet = 10,
+		Ignore = 11,
 	}
 
 }

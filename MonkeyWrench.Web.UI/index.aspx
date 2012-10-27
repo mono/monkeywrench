@@ -45,6 +45,9 @@
                 <td class='timeout'>
                     Timeout
                 </td>
+                <td class='ignore'>
+                    Ignore
+                </td>
             </tr>
         </table>
     </div>

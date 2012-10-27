@@ -259,6 +259,7 @@ public partial class index : System.Web.UI.Page
 					case DBState.NotDone:
 					case DBState.Paused:
 					case DBState.DependencyNotFulfilled:
+					case DBState.Ignore:
 						is_working = false;
 						break;
 					default:
