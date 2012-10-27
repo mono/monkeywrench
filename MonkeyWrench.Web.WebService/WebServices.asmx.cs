@@ -1063,6 +1063,35 @@ FROM HostLane";
 						response.RevisionWorkViews.Add (RevisionWork);
 					}
 
+					// Create a list of all the lanes which have hostlanes
+					var enabled_set = new HashSet<int> ();
+					foreach (DBHostLane hl in HostLanes) {
+						if (enabled_set.Contains (hl.lane_id))
+							continue;
+						enabled_set.Add (hl.lane_id);
+
+						// Walk up the tree of parent lanes, marking all the parents too
+						var l = Lanes.First ((v) => v.id == hl.lane_id);
+						while (true) {
+							if (!l.parent_lane_id.HasValue)
+								break;
+
+							if (enabled_set.Contains (l.parent_lane_id.Value))
+								break;
+
+							enabled_set.Add (l.parent_lane_id.Value);
+
+							l = Lanes.First ((v) => v.id == l.parent_lane_id.Value);
+						}
+					}
+					Logger.Log ("{1} marked lanes: {0}", string.Join (",", enabled_set.ToArray ().Select ((v) => v.ToString ()).ToArray ()), enabled_set.Count);
+					// Remove the lanes which aren't marked
+					for (int i = Lanes.Count - 1; i >= 0; i--) {
+						if (!enabled_set.Contains (Lanes [i].id)) {
+							Lanes.RemoveAt (i);
+						}
+					}
+
 					response.Lanes = Lanes;
 					response.Hosts = Hosts;
 					response.HostLanes = HostLanes;
