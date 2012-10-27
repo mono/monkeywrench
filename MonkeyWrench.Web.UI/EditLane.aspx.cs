@@ -383,6 +383,7 @@ public partial class EditLane : System.Web.UI.Page
 					row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='javascript: editDependencyFilename ({0}, {1}, \"{2}\")'>{2}</a>", lane.id, dependency.id, string.IsNullOrEmpty (dependency.filename) ? "(edit)" : dependency.filename)));
 					break;
 				case DBLaneDependencyCondition.DependentLaneSuccess:
+				case DBLaneDependencyCondition.DependentLaneIssuesOrSuccess:
 				default:
 					row.Cells.Add (Utils.CreateTableCell ("-"));
 					break;

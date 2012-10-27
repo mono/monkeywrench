@@ -1,4 +1,4 @@
-﻿/*
+/*
  * DBLaneDependency_Extensions.cs
  *
  * Authors:
@@ -65,8 +65,20 @@ namespace MonkeyWrench.Database
 SELECT RevisionWork.id
 FROM RevisionWork 
 INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
-WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revision.revision = @revision
+WHERE RevisionWork.lane_id = @lane_id AND Revision.revision = @revision 
 ";
+
+				// The state of the dependent revision
+				switch (me.Condition) {
+				case DBLaneDependencyCondition.DependentLaneIssuesOrSuccess:
+					cmd.CommandText += " AND (RevisionWork.state = @success OR RevisionWork.state == @issues)";
+					DB.CreateParameter (cmd, "issues", (int) DBState.Issues);
+					break;
+				default:
+					cmd.CommandText += " AND RevisionWork.state = @success";
+					break;
+				}
+				DB.CreateParameter (cmd, "success", (int) DBState.Success);
 
 				if (me.dependent_host_id.HasValue) {
 					cmd.CommandText += " AND RevisionWork.host_id = @host_id";
@@ -75,6 +87,7 @@ WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revi
 
 				switch (me.Condition) {
 				case DBLaneDependencyCondition.DependentLaneSuccess:
+				case DBLaneDependencyCondition.DependentLaneIssuesOrSuccess:
 					break;
 				case DBLaneDependencyCondition.DependentLaneSuccessWithFile:
 					cmd.CommandText += " AND WorkFile.filename = @filename";
@@ -89,8 +102,7 @@ WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revi
 
 				DB.CreateParameter (cmd, "lane_id", me.dependent_lane_id);
 				DB.CreateParameter (cmd, "revision", revision); // Don't join with id here, if the revision comes from another lane, it might have a different id
-				DB.CreateParameter (cmd, "success", (int) DBState.Success);
-
+				
 				object obj = cmd.ExecuteScalar ();
 				bool result = obj != null && !(obj is DBNull);
 
@@ -101,3 +113,4 @@ WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.state = @success AND Revi
 		}
 	}
 }
+

@@ -16,6 +16,7 @@ namespace MonkeyWrench.DataClasses
 	{
 		Invalid = 0,
 		DependentLaneSuccess = 1,
-		DependentLaneSuccessWithFile = 2
+		DependentLaneSuccessWithFile = 2,
+		DependentLaneIssuesOrSuccess = 3,
 	}
 }
