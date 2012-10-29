@@ -1114,7 +1114,7 @@ WHERE hidden = false";
 							l = Lanes.First ((v) => v.id == l.parent_lane_id.Value);
 						}
 					}
-					Logger.Log ("{1} marked lanes: {0}", string.Join (",", enabled_set.ToArray ().Select ((v) => v.ToString ()).ToArray ()), enabled_set.Count);
+
 					// Remove the lanes which aren't marked
 					for (int i = Lanes.Count - 1; i >= 0; i--) {
 						if (!enabled_set.Contains (Lanes [i].id)) {
