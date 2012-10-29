@@ -2469,22 +2469,31 @@ LIMIT 1;
 
 						List<DBEnvironmentVariable> environment_variables = null;
 						using (IDbCommand cmd = db.CreateCommand ()) {
-							cmd.CommandText = @"
+							foreach (int li in db.GetLaneHierarchy (lane.id)) {
+								cmd.CommandText += string.Format (@"
 SELECT * 
 FROM EnvironmentVariable 
 WHERE 
-    (host_id = @host_id OR host_id = @masterhost_id OR host_id IS NULL) AND (lane_id = @lane_id OR lane_id IS NULL)
+    (host_id = {0} OR host_id = {1} OR host_id IS NULL) AND (lane_id = {2} OR lane_id IS NULL)
 ORDER BY id;
-;";
-							DB.CreateParameter (cmd, "lane_id", lane.id);
-							DB.CreateParameter (cmd, "host_id", revisionwork.workhost_id);
-							DB.CreateParameter (cmd, "masterhost_id", revisionwork.host_id);
+;", revisionwork.workhost_id, revisionwork.host_id, li);
+								Logger.Log ("SQL to execute:\n{0}", cmd.CommandText);
+							}
 							using (IDataReader reader = cmd.ExecuteReader ()) {
-								while (reader.Read ()) {
-									if (environment_variables == null)
-										environment_variables = new List<DBEnvironmentVariable> ();
-									environment_variables.Add (new DBEnvironmentVariable (reader));
-								}
+								var set = new HashSet<string> ();
+								do {
+									Logger.Log ("Reading result... {0} matches so far", environment_variables == null ? 0 : environment_variables.Count);
+									while (reader.Read ()) {
+										if (environment_variables == null)
+											environment_variables = new List<DBEnvironmentVariable> ();
+
+										var ev = new DBEnvironmentVariable (reader);
+										if (!set.Contains (ev.name)) {
+											environment_variables.Add (ev);
+											set.Add (ev.name);
+										}
+									}
+								} while (reader.NextResult ());
 							}
 						}
 

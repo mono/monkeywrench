@@ -668,6 +668,37 @@ namespace MonkeyWrench
 			return result;
 		}
 
+		/// <summary>
+		/// This will return a list of lane ids:
+		/// [0]: input lane_id
+		/// [1]: [0]'s parent lane id
+		/// [2]: [1]'s parent lane id
+		/// etc
+		/// </summary>
+		/// <param name="lane_id"></param>
+		/// <returns></returns>
+		public List<int> GetLaneHierarchy (int lane_id)
+		{
+			var result = new List<int> ();
+
+			using (var cmd = CreateCommand ()) {
+				cmd.CommandText = @"
+WITH RECURSIVE Family AS (
+	SELECT lane.id, lane.parent_lane_id, 0 AS depth FROM lane WHERE lane.id = @lane_id 
+		UNION ALL
+	SELECT lane2.id, lane2.parent_lane_id, depth + 1 FROM lane lane2 JOIN family ON family.parent_lane_id = lane2.id)
+SELECT family.id FROM family ORDER BY depth ASC;";
+				DB.CreateParameter (cmd, "lane_id", lane_id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						result.Add (reader.GetInt32 (0));
+					}
+				}
+			}
+
+			return result;
+		}
+
 		public List<DBLane> GetLanesForHost (int host_id, bool only_enabled)
 		{
 			List<DBLane> result = new List<DBLane> ();
