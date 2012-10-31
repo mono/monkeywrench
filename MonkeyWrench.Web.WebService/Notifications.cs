@@ -151,13 +151,31 @@ namespace MonkeyWrench.Web.WebService
 			if (work.State == DBState.Success)
 				return false;
 
+			if (work.State == DBState.Issues && Notification.Type == DBNotificationType.FatalFailuresOnly)
+				return false;
+
 			/* We need to see if there are any successfull builds later than this one */
 			using (DB db = new DB ()) {
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
 SELECT state FROM RevisionWork
 INNER JOIN Revision ON RevisionWork.revision_id = Revision.id
-WHERE RevisionWork.state = 3 AND RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id AND RevisionWork.completed AND Revision.date > (SELECT date FROM Revision WHERE id = @revision_id)
+WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id AND RevisionWork.completed AND Revision.date > (SELECT date FROM Revision WHERE id = @revision_id) AND";
+
+					switch (Notification.Type) {
+					case DBNotificationType.FatalFailuresOnly:
+						// Success or Issues
+						cmd.CommandText += " (RevisionWork.state = 3 OR RevisionWork.state = 8) ";
+						break;
+					case DBNotificationType.AllFailures:
+					case DBNotificationType.NonFatalFailuresOnly:
+					default:
+						// Just success
+						cmd.CommandText += " RevisionWork.state = 3 ";
+						break;
+					}
+
+	cmd.CommandText += @"
 ORDER BY Revision.date DESC
 LIMIT 1;
 
