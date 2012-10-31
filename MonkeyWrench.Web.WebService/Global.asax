@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="MonkeyWrench.Web.WebService.Global" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="MonkeyWrench.WebServices.Global" Language="C#" %>

@@ -19,7 +19,7 @@ using System.Web;
 
 using MonkeyWrench;
 
-namespace MonkeyWrench.Web.WebService {
+namespace MonkeyWrench.WebServices {
 	public class Maintenance {
 #pragma warning disable 414 
 		static Timer timer;

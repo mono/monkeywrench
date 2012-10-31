@@ -1,4 +1,4 @@
-﻿/*
+/*
  * WebServices.asmx.cs
  *
  * Authors:
@@ -26,7 +26,7 @@ using MonkeyWrench.DataClasses.Logic;
 
 using Meebey.SmartIrc4net;
 
-namespace MonkeyWrench.Web.WebService
+namespace MonkeyWrench.WebServices
 {
 	public static class Notifications
 	{
@@ -590,3 +590,4 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 		}
 	}
 }
+

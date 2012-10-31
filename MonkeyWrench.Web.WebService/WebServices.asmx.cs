@@ -2056,7 +2056,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 				}
 				response.RevisionWorkCompleted = rw.completed;
 
-				MonkeyWrench.Web.WebService.Notifications.Notify (work, rw);
+				Notifications.Notify (work, rw);
 
 				// Check if any other lane depends on this one
 				if (response.RevisionWorkCompleted) {
@@ -2671,6 +2671,7 @@ WHERE Revision.lane_id = @lane_id AND ";
 				using (DB db = new DB ()) {
 					VerifyUserInRole (db, login, Roles.Administrator);
 					notification.Save (db);
+					Notifications.Restart ();
 				}
 			} catch (Exception ex) {
 				response.Exception = new WebServiceException (ex);
@@ -2692,6 +2693,7 @@ WHERE Revision.lane_id = @lane_id AND ";
 						cmd.CommandText = "DELETE FROM Notification WHERE id = @id;";
 						DB.CreateParameter (cmd, "id", id);
 						cmd.ExecuteNonQuery ();
+						Notifications.Restart ();
 					}
 				}
 			} catch (Exception ex) {
@@ -2754,6 +2756,7 @@ WHERE Revision.lane_id = @lane_id AND ";
 						DB.CreateParameter (cmd, "lane_id", lane_id);
 						DB.CreateParameter (cmd, "notification_id", notification_id);
 						cmd.ExecuteNonQuery ();
+						Notifications.Restart ();
 					}
 				}
 			} catch (Exception ex) {
@@ -2776,6 +2779,7 @@ WHERE Revision.lane_id = @lane_id AND ";
 						cmd.CommandText = "DELETE FROM LaneNotification WHERE id = @id;";
 						DB.CreateParameter (cmd, "id", id);
 						cmd.ExecuteNonQuery ();
+						Notifications.Restart ();
 					}
 				}
 			} catch (Exception ex) {

@@ -18,7 +18,7 @@ using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
 
-namespace MonkeyWrench.Web.WebService
+namespace MonkeyWrench.WebServices
 {
 	public class Global : System.Web.HttpApplication
 	{
