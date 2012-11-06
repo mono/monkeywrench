@@ -451,7 +451,7 @@ WHERE HostLane.enabled = true AND
 						CheckDependenciesSlow (db, hosts, lanes, hostlanes, dependencies);
 						return;
 					}
-					if (dep.Condition != DBLaneDependencyCondition.DependentLaneSuccess) {
+					if (dep.Condition != DBLaneDependencyCondition.DependentLaneSuccess && dep.Condition != DBLaneDependencyCondition.DependentLaneIssuesOrSuccess) {
 						CheckDependenciesSlow (db, hosts, lanes, hostlanes, dependencies);
 						return;
 					}
@@ -474,9 +474,15 @@ WHERE
 		SELECT SubRevisionWork.id
 		FROM RevisionWork SubRevisionWork
 		INNER JOIN Revision SubRevision ON SubRevisionWork.revision_id = SubRevision.id
-		WHERE 
-			SubRevisionWork.state = 3
-			AND SubRevision.revision = Revision.revision 
+		WHERE ";
+			if (dependency.Condition == DBLaneDependencyCondition.DependentLaneSuccess) {
+				cmd.CommandText += "SubRevisionWork.state = 3 ";
+			} else if (dependency.Condition == DBLaneDependencyCondition.DependentLaneIssuesOrSuccess) {
+				cmd.CommandText += "(SubRevisionWork.state = 3 OR SubRevisionWork.state = 8) ";
+			}
+			
+			cmd.CommandText +=
+			@"AND SubRevision.revision = Revision.revision 
 			AND SubRevisionWork.lane_id = @dependent_lane_id";
 
 						if (dependency.dependent_host_id.HasValue) {
