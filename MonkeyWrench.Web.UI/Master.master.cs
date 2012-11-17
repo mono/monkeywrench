@@ -132,7 +132,7 @@ public partial class Master : System.Web.UI.MasterPage
 				tableHostStatus.Rows.Add (row);
 			}
 		} catch (Exception ex) {
-			tableHostStatus.Rows.Add (Utils.CreateTableRow (ex.Message));
+			tableHostStatus.Visible = false;
 		}
 	}
 
@@ -161,7 +161,7 @@ public partial class Master : System.Web.UI.MasterPage
 			tableMainTree.Rows.Add (Utils.CreateTableRow (div));
 			WriteTree (root, tableMainTree, 1, root.Depth, div);
 		} catch {
-			tableMainTree.Rows.Add (Utils.CreateTableRow (""));
+			tableMainTree.Visible = false;
 		}
 	}
 
