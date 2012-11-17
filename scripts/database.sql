@@ -431,14 +431,14 @@ CREATE VIEW LaneDeletionDirectiveView AS
 		
 DROP VIEW HostStatusView;
 CREATE VIEW HostStatusView AS
-	SELECT Host.id, Host.host, BuildBotStatus.report_date, RevisionWork.id as revisionwork_id, RevisionWork.lane_id, RevisionWork.revision_id, Revision.revision, Lane.lane
-	FROM Host
-		LEFT JOIN RevisionWork ON RevisionWork.workhost_id = Host.id
-		LEFT JOIN BuildBotStatus ON BuildBotStatus.host_id = Host.id 
-                LEFT JOIN Lane ON Lane.id = RevisionWork.lane_id
-		LEFT JOIN Revision ON Revision.id = RevisionWork.revision_id
-	WHERE (RevisionWork.state = 1 OR RevisionWork.state IS NULL) AND Host.enabled = true
-	ORDER BY Lane.lane IS NULL ASC, BuildBotStatus.report_date DESC;
+	SELECT Host.id, Host.host, BuildBotStatus.report_date, rw2.id AS revisionwork_id, rw2.lane_id AS lane_id, rw2.revision_id, Revision.revision, Lane.lane
+	FROM Host 
+	LEFT JOIN (SELECT id, lane_id, revision_id, workhost_id FROM RevisionWork WHERE state = 1) rw2 ON rw2.workhost_id = Host.id 
+	LEFT JOIN Lane ON Lane.id = lane_id 
+	LEFT JOIN Revision ON Revision.id = revision_id
+	INNER JOIN BuildBotStatus ON BuildBotStatus.host_id = Host.id 
+	WHERE Host.id IN (SELECT DISTINCT workhost_id FROM RevisionWork) AND Host.enabled = true
+	ORDER BY Lane.lane IS NULL ASC, BuildBotStatus.report_date ASC;
 
 -- ignore generator --		
 
