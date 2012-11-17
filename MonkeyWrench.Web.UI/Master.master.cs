@@ -131,7 +131,7 @@ public partial class Master : System.Web.UI.MasterPage
 				row.Attributes ["onclick"] = string.Format ("javascript: window.location = 'ViewHostHistory.aspx?host_id={0}';", status.id);
 				tableHostStatus.Rows.Add (row);
 			}
-		} catch (Exception ex) {
+		} catch {
 			tableHostStatus.Visible = false;
 		}
 	}
