@@ -112,7 +112,7 @@ public partial class Master : System.Web.UI.MasterPage
 			tableMainTree.Rows.Add (Utils.CreateTableRow (div));
 			WriteTree (root, tableMainTree, 1, root.Depth, div);
 		} catch {
-			tableMainTree.Rows.Add (Utils.CreateTableRow ("[Exception occurred]"));
+			tableMainTree.Rows.Add (Utils.CreateTableRow (""));
 		}
 	}
 
