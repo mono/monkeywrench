@@ -156,10 +156,13 @@ public partial class index : System.Web.UI.Page
 		return result;
 	}
 
-	private string TimeDiffToString (DateTime from, DateTime to)
+	public static string TimeDiffToString (DateTime from, DateTime to)
 	{
 		int value;
 		TimeSpan diff = to - from;
+
+		if (from == DateTime.MinValue)
+			return "Never";
 
 		if (diff.TotalHours < 1) {
 			value = (int) diff.TotalMinutes;

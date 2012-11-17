@@ -1174,6 +1174,31 @@ WHERE hidden = false";
 		}
 
 		[WebMethod]
+		public GetHostStatusResponse GetHostStatus (WebServiceLogin login)
+		{
+			var response = new GetHostStatusResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
+
+				response.HostStatus = new List<DBHostStatusView> ();
+
+				using (var cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"HostStatusView";
+					cmd.CommandType = CommandType.TableDirect;
+
+					using (var reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							response.HostStatus.Add (new DBHostStatusView (reader));
+						}
+					}
+				}
+			}
+
+			return response;
+		}
+
+		[WebMethod]
 		public GetRevisionsResponse GetRevisions (WebServiceLogin login, int? lane_id, string lane, int limit, int offset)
 		{
 			GetRevisionsResponse response = new GetRevisionsResponse ();

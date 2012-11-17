@@ -29,6 +29,27 @@ public partial class EditHosts : System.Web.UI.Page
 		get { return base.Master as Master; }
 	}
 
+	public static string GetReportDateColor (bool enabled, DateTime? report_date)
+	{
+		var color = "black";
+		if (enabled) {
+			if (report_date != null) {
+				var silence = DateTime.Now - report_date.Value;
+				if (silence.TotalHours > 9) {
+					color = "red";
+				} else if (silence.TotalHours > 3) {
+					color = "orange";
+				} else {
+					color = "green";
+				}
+			}
+		} else {
+			color = "gray";
+		}
+
+		return color;
+	}
+
 	protected void Page_Load (object sender, EventArgs e)
 	{
 		if (!IsPostBack) {
@@ -79,22 +100,8 @@ public partial class EditHosts : System.Web.UI.Page
 					break;
 				}
 			}
-			
-			var color = "black";
-			if (host.enabled) {
-				if (status != null) {
-					var silence = DateTime.Now - status.report_date;
-					if (silence.TotalHours > 9) {
-						color = "red";
-					} else if (silence.TotalHours > 3) {
-						color = "orange";
-					} else {
-						color = "green";
-					}
-				}
-			} else {
-				color = "gray";
-			}
+
+			var color = GetReportDateColor (host.enabled, status != null ? status.report_date : (DateTime?) null);
 
 			row = new TableRow ();
 			row.Cells.Add (Utils.CreateTableCell (string.Format ("<a style='color:{2}' href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host, color)));

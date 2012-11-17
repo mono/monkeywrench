@@ -269,6 +269,46 @@ table.notifications input
     text-align: center;
 }
 
+table.hoststatus 
+{
+    width: 100%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #aaaaaa;
+    margin-top: 10px;
+}
+
+table.hoststatus th
+{
+    background-color: #e0e0e0;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #aaaaaa;
+    text-align: center;
+    font-weight: normal;
+    padding: 3px;
+}
+
+table.hoststatus td
+{
+    border-style: solid;
+    border-width: 1px;
+    border-color: #aaaaaa;
+    width: 100%;
+    padding: 3px;
+}
+
+.hoststatus_header 
+{
+    text-align: center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #aaaaaa;
+    width: 100%;
+    padding: 3px;
+}
+
+
 table.buildbotstatus
 {
     margin-left: auto;

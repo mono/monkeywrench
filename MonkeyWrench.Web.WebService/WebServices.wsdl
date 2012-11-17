@@ -232,6 +232,21 @@
           <xs:enumeration value="Ignore" />
         </xs:restriction>
       </xs:simpleType>
+      <xs:complexType name="DBHostStatusView">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBView">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="host" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="1" name="report_date" type="xs:dateTime" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revisionwork_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="DBRevisionWorkView">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBView">
@@ -812,6 +827,20 @@
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GetHostStatusResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="HostStatus" type="s0:ArrayOfDBHostStatusView" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDBHostStatusView">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBHostStatusView" nillable="true" type="s0:DBHostStatusView" />
+        </xs:sequence>
       </xs:complexType>
       <xs:complexType name="GetRevisionsResponse">
         <xs:complexContent mixed="false">
@@ -1815,6 +1844,20 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="GetHostsResult" type="s0:GetHostsResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetHostStatus">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetHostStatusResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetHostStatusResult" type="s0:GetHostStatusResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -3035,6 +3078,12 @@
   <message name="GetHostsSoapOut">
     <part name="parameters" element="s0:GetHostsResponse" />
   </message>
+  <message name="GetHostStatusSoapIn">
+    <part name="parameters" element="s0:GetHostStatus" />
+  </message>
+  <message name="GetHostStatusSoapOut">
+    <part name="parameters" element="s0:GetHostStatusResponse" />
+  </message>
   <message name="GetRevisionsSoapIn">
     <part name="parameters" element="s0:GetRevisions" />
   </message>
@@ -3638,6 +3687,10 @@
       <input message="s0:GetHostsSoapIn" />
       <output message="s0:GetHostsSoapOut" />
     </operation>
+    <operation name="GetHostStatus">
+      <input message="s0:GetHostStatusSoapIn" />
+      <output message="s0:GetHostStatusSoapOut" />
+    </operation>
     <operation name="GetRevisions">
       <input message="s0:GetRevisionsSoapIn" />
       <output message="s0:GetRevisionsSoapOut" />
@@ -4099,6 +4152,10 @@
     <operation name="GetHosts">
       <input message="s0:GetHostsSoapIn" />
       <output message="s0:GetHostsSoapOut" />
+    </operation>
+    <operation name="GetHostStatus">
+      <input message="s0:GetHostStatusSoapIn" />
+      <output message="s0:GetHostStatusSoapOut" />
     </operation>
     <operation name="GetRevisions">
       <input message="s0:GetRevisionsSoapIn" />
@@ -4846,6 +4903,15 @@
     </operation>
     <operation name="GetHosts">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetHosts" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetHostStatus">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetHostStatus" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5884,6 +5950,15 @@
     </operation>
     <operation name="GetHosts">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetHosts" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetHostStatus">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetHostStatus" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

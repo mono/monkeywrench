@@ -69,6 +69,7 @@
     <Compile Include="Database\DBBuildBotStatus.generated.cs" />
     <Compile Include="Database\DBFileLink.cs" />
     <Compile Include="Database\DBFileLink.generated.cs" />
+    <Compile Include="Database\DBHostStatusView.generated.cs" />
     <Compile Include="Database\DBNotificationType.cs" />
     <Compile Include="Database\DBCommand.cs" />
     <Compile Include="Database\DBCommand.generated.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="Logic\BuildBotStatus.cs" />
     <Compile Include="Logic\BuildInfoEntry.cs" />
     <Compile Include="Logic\GetBuildBotStatusResponse.cs" />
+    <Compile Include="Logic\GetHostStatusResponse.cs" />
     <Compile Include="Logic\GetIdentitiesResponse.cs" />
     <Compile Include="Logic\GetNotificationsResponse.cs" />
     <Compile Include="Logic\GetReleasesResponse.cs" />

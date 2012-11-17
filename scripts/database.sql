@@ -429,6 +429,17 @@ CREATE VIEW LaneDeletionDirectiveView AS
 	FROM LaneDeletionDirective
 		INNER JOIN FileDeletionDirective ON FileDeletionDirective.id = LaneDeletionDirective.file_deletion_directive_id;
 		
+DROP VIEW HostStatusView;
+CREATE VIEW HostStatusView AS
+	SELECT Host.id, Host.host, BuildBotStatus.report_date, RevisionWork.id as revisionwork_id, RevisionWork.lane_id, RevisionWork.revision_id, Revision.revision, Lane.lane
+	FROM Host
+		LEFT JOIN RevisionWork ON RevisionWork.workhost_id = Host.id
+		LEFT JOIN BuildBotStatus ON BuildBotStatus.host_id = Host.id 
+                LEFT JOIN Lane ON Lane.id = RevisionWork.lane_id
+		LEFT JOIN Revision ON Revision.id = RevisionWork.revision_id
+	WHERE (RevisionWork.state = 1 OR RevisionWork.state IS NULL) AND Host.enabled = true
+	ORDER BY Lane.lane IS NULL ASC, BuildBotStatus.report_date DESC;
+
 -- ignore generator --		
 
 -- method to get id for revisionwork, adding a new record if none is found.
