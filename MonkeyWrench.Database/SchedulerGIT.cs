@@ -174,7 +174,7 @@ namespace MonkeyWrench.Scheduler
 						revisions [revision].Save (db);
 						Log ("Detected wrong date in revision '{0}' in lane '{1}' in repository {2}, fixing it", revision, lane.lane, repository);
 				}
-					Log (2, "Already got {0}", revision);
+					// Log (2, "Already got {0}", revision);
 					continue;
 				}
 
