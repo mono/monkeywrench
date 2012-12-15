@@ -253,7 +253,7 @@ public partial class index : System.Web.UI.Page
 					string str_date = string.Empty;
 
 					if (work.endtime.Year > 2000)
-						str_date = "</br>" + TimeDiffToString (work.endtime, DateTime.UtcNow);
+						str_date = TimeDiffToString (work.endtime, DateTime.UtcNow);
 					
 					switch (state) {
 					case DBState.Executing:
