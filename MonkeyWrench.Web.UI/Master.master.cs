@@ -98,37 +98,42 @@ public partial class Master : System.Web.UI.MasterPage
 			while (tableHostStatus.Rows.Count > 1)
 				tableHostStatus.Rows.RemoveAt (tableHostStatus.Rows.Count - 1);
 
-			bool shown_idle_row = false;
-			bool shown_exec_row = false;
+			var idles = new List<string> ();
+			var working = new List<string> ();
+			TableRow row;
+
 			for (int i = 0; i < response.HostStatus.Count; i++) {
-				TableRow row;
 				var status = response.HostStatus [i];
 				var idle = string.IsNullOrEmpty (status.lane);
-
-				if (idle && !shown_idle_row) {
-					row = Utils.CreateTableRow ("Idle");
-					row.CssClass = "hoststatus_header";
-					tableHostStatus.Rows.Add (row);
-					shown_idle_row = true;
-				}
-				if (!idle && !shown_exec_row) {
-					row = Utils.CreateTableRow ("Working");
-					row.CssClass = "hoststatus_header";
-					tableHostStatus.Rows.Add (row);
-					shown_exec_row = true;
-				}
-
+				
 				string tooltip = string.Empty;
 				var color = EditHosts.GetReportDateColor (true, status.report_date);
-				row = Utils.CreateTableRow (status.host);
 				if (!idle)
 					tooltip = string.Format ("Executing {0}\n", status.lane);
 				tooltip += string.Format ("Last check-in date: {0}", index.TimeDiffToString (status.report_date, DateTime.Now));
 				
-				row.ToolTip = tooltip;
-				row.Style.Add (HtmlTextWriterStyle.Color, color);
-				row.Style.Add (HtmlTextWriterStyle.Cursor, "pointer");
-				row.Attributes ["onclick"] = string.Format ("javascript: window.location = 'ViewHostHistory.aspx?host_id={0}';", status.id);
+				var str = string.Format ("<span style='color: {3}; cursor: pointer;' onclick=\"javascript: window.location = 'ViewHostHistory.aspx?host_id={0}'\" title='{2}'>{1}</span>", status.id, status.host, HttpUtility.HtmlEncode (tooltip), color);
+				if (idle) {
+					idles.Add (str);
+				} else {
+					working.Add (str);
+				}
+			}
+
+
+			if (idles.Count > 0) {
+				row = Utils.CreateTableRow ("Idle");
+				row.CssClass = "hoststatus_header";
+				tableHostStatus.Rows.Add (row);
+				row = Utils.CreateTableRow (string.Join(", ", idles.ToArray ()));
+				tableHostStatus.Rows.Add (row);
+			}
+
+			if (working.Count > 0) {
+				row = Utils.CreateTableRow ("Working");
+				row.CssClass = "hoststatus_header";
+				tableHostStatus.Rows.Add (row);
+				row = Utils.CreateTableRow (string.Join (", ", working.ToArray ()));
 				tableHostStatus.Rows.Add (row);
 			}
 		} catch {
