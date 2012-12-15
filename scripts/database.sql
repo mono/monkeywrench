@@ -433,7 +433,7 @@ DROP VIEW HostStatusView;
 CREATE VIEW HostStatusView AS
 	SELECT Host.id, Host.host, BuildBotStatus.report_date, rw2.id AS revisionwork_id, rw2.lane_id AS lane_id, rw2.revision_id, Revision.revision, Lane.lane
 	FROM Host 
-	LEFT JOIN (SELECT id, lane_id, revision_id, workhost_id FROM RevisionWork WHERE state = 1) rw2 ON rw2.workhost_id = Host.id 
+	LEFT JOIN (SELECT id, lane_id, revision_id, workhost_id FROM RevisionWork WHERE state <> 0 AND NOT completed) rw2 ON rw2.workhost_id = Host.id 
 	LEFT JOIN Lane ON Lane.id = lane_id 
 	LEFT JOIN Revision ON Revision.id = revision_id
 	INNER JOIN BuildBotStatus ON BuildBotStatus.host_id = Host.id 
