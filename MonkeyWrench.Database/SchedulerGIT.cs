@@ -338,6 +338,8 @@ namespace MonkeyWrench.Scheduler
 						git.StartInfo.UseShellExecute = false;
 						git.StartInfo.RedirectStandardOutput = true;
 						git.StartInfo.RedirectStandardError = true;
+						git.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
+						git.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
 						Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
 						git.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e)
 						{
