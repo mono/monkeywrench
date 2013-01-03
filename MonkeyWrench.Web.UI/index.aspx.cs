@@ -114,10 +114,12 @@ public partial class index : System.Web.UI.Page
 		}
 
 		if (node.Children.Count == 0) {
-			for (int i = level; i < depth; i++) {
-				if (header_rows.Count <= i)
-					header_rows.Add (new StringBuilder ());
-				header_rows [i].Append ("<td colspan='1'>-</td>");
+			for (int hl = 0; hl < node.HostLanes.Count; hl++) {
+				for (int i = level; i < depth; i++) {
+					if (header_rows.Count <= i)
+						header_rows.Add (new StringBuilder ());
+					header_rows [i].Append ("<td colspan='1'>-</td>");
+				}
 			}
 		}
 	}
@@ -309,3 +311,4 @@ public partial class index : System.Web.UI.Page
 		return matrix.ToString ();
 	}
 }
+
