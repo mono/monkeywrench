@@ -1126,7 +1126,7 @@ WHERE
         RevisionWork.host_id = @host_id 
 	AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
 	AND RevisionWork.lane_id = @lane_id
-	AND RevisionWork.state <> @dependencynotfulfilled AND RevisionWork.state <> 10
+	AND RevisionWork.state <> @dependencynotfulfilled AND RevisionWork.state <> 10 AND RevisionWork.State <> @ignore
 	AND RevisionWork.completed = false
 ORDER BY RevisionWork.workhost_id IS NULL ASC, Revision.date DESC
 LIMIT 1
@@ -1135,6 +1135,7 @@ LIMIT 1
 				DB.CreateParameter (cmd, "lane_id", lane.id);
 				DB.CreateParameter (cmd, "workhost_id", workhost.id);
 				DB.CreateParameter (cmd, "dependencynotfulfilled", (int) DBState.DependencyNotFulfilled);
+				DB.CreateParameter (cmd, "ignore", (int) DBState.Ignore);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					if (reader.Read ())
 						result = new DBRevisionWork (reader);
