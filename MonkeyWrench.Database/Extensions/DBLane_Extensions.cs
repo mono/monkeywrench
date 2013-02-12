@@ -115,6 +115,7 @@ DELETE FROM HostLane WHERE lane_id = @id;
 DELETE FROM EnvironmentVariable WHERE lane_id = @id;
 DELETE FROM LaneDeletionDirective WHERE lane_id = @id;
 DELETE FROM Lane WHERE id = @id;
+DELETE FROM LaneDependency WHERE lane_id = @id OR dependent_lane_id = @id;
 ";
 					DB.CreateParameter (cmd, "id", lane_id);
 					cmd.ExecuteNonQuery ();
