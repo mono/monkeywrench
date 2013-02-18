@@ -104,7 +104,7 @@ namespace MonkeyWrench.WebServices
 			if (notifications == null)
 				return;
 
-			if (!(work.State == DBState.Failed || work.State == DBState.Issues))
+			if (!(work.State == DBState.Failed || work.State == DBState.Issues || work.State == DBState.Timeout))
 				return;
 
 			ThreadPool.QueueUserWorkItem ((v) => ProcessNotify (work, revision_work));
@@ -151,7 +151,7 @@ namespace MonkeyWrench.WebServices
 			if (work.State == DBState.Success)
 				return false;
 
-			if (work.State == DBState.Issues && Notification.Type == DBNotificationType.FatalFailuresOnly)
+			if ((work.State == DBState.Issues || work.State == DBState.Timeout) && Notification.Type == DBNotificationType.FatalFailuresOnly)
 				return false;
 
 			/* We need to see if there are any successfull builds later than this one */
@@ -204,13 +204,13 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 
 			switch (Notification.Type) {
 			case DBNotificationType.AllFailures:
-				return work.State == DBState.Issues || work.State == DBState.Failed;
+				return work.State == DBState.Issues || work.State == DBState.Failed || work.State == DBState.Timeout;
 			case DBNotificationType.FatalFailuresOnly:
 				if (nonfatal)
 					return false;
 				return work.State == DBState.Failed && newest_state == DBState.Failed;
 			case DBNotificationType.NonFatalFailuresOnly:
-				return work.State == DBState.Issues || nonfatal;
+				return (work.State == DBState.Issues || work.State == DBState.Timeout) || nonfatal;
 			default:
 				return false;
 			}
