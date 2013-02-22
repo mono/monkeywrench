@@ -157,8 +157,6 @@ public partial class EditHost : System.Web.UI.Page
 			}
 
 			foreach (DBHost host in response.Hosts) {
-				if (host.id == response.Host.id)
-					continue; // don't add self
 				if (response.MasterHosts.Find (d => host.id == d.id) != null)
 					continue; // don't add master hosts already added
 				if (response.SlaveHosts.Find (d => host.id == d.id) != null)
