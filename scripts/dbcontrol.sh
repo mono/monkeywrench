@@ -16,6 +16,12 @@
 #
 
 # derive some paths from the config sourced above
+PREFIX=
+if test -d /Library/PostgreSQL/9.0/bin; then
+	PREFIX=/Library/PostgreSQL/9.0/bin/
+fi
+
+
 SCRIPT_DIR=`dirname $0`
 export BUILDER_DATA_DB=`$SCRIPT_DIR/getcfgvar.pl /MonkeyWrench/Configuration/DatabaseDirectory`
 export BUILDER_DATA_PORT=`$SCRIPT_DIR/getcfgvar.pl /MonkeyWrench/Configuration/DatabasePort`
@@ -102,11 +108,11 @@ CONFIGURATION_TABLES="host masterhost lane environmentvariable filedeletiondirec
 # do the work
 case "$CMD" in
 	stop)
-		pg_ctl stop -m fast
+		${PREFIX}pg_ctl stop -m fast
 		;;
 	delete)
 		# try to stop the database first, this may fail if the database has already been stopped
-		pg_ctl stop || true
+		${PREFIX}pg_ctl stop || true
 		rm -Rf $BUILDER_DATA_DB
 		;;
 	create)
@@ -114,30 +120,30 @@ case "$CMD" in
 		mkdir -p $BUILDER_DATA_DB
 		mkdir -p $BUILDER_DATA_DB_DATA
 		mkdir -p $BUILDER_DATA_DB_LOGS
-		initdb
+		${PREFIX}initdb
 		# start the db
-		pg_ctl -w -l $BUILDER_DATA_DB_LOGS/logfile start
+		${PREFIX}pg_ctl -w -l $BUILDER_DATA_DB_LOGS/logfile start
 		# wait a bit for the db to finish starting up
 		sleep 1
 		# create the user 'builder' owner is the user 'builder'
 		if [[ "x$USER" != "xbuilder" ]]; then
-			createuser -s -d -r -e builder
+			${PREFIX}createuser -s -d -r -e builder
 		fi
 		# create the database
-		psql --user builder --db template1 --file $SCRIPT_DIR/database.sql
+		${PREFIX}psql --user builder --db template1 --file $SCRIPT_DIR/database.sql
 		;;
 	dropdata)
 		# drop the database
 		echo "DROP DATABASE IF EXISTS builder;" | psql --user builder --db template1
 		# recreate it
-		psql --user builder --db template1 --file $SCRIPT_DIR/database.sql
+		${PREFIX}psql --user builder --db template1 --file $SCRIPT_DIR/database.sql
 		;;
 	start)
 		# start the database
-		PGDATA=$PGDATA pg_ctl -l $BUILDER_DATA_DB_LOGS/logfile start
+		PGDATA=$PGDATA ${PREFIX}pg_ctl -l $BUILDER_DATA_DB_LOGS/logfile start
 		;;
 	psql)
-		psql --user builder --db builder
+		${PREFIX}psql --user builder --db builder
 		;;
 	backup-configuration)
 		# -a: only data, --column-inserts: add column names to INSERT statements, -d: use INSERT instead of COPY, -F: use postgre custom format
