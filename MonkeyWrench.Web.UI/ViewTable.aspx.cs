@@ -431,7 +431,7 @@ public partial class ViewTable : System.Web.UI.Page
 			matrix.AppendLine ("</table>");
 
 		} catch (Exception ex) {
-			matrix.Append (ex.ToString ().Replace ("\n", "</br>"));
+			matrix.Append (ex.ToString ().Replace ("\n", "<br/>"));
 		}
 		return matrix.ToString ();
 	}
