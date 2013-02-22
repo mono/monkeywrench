@@ -69,7 +69,6 @@
     <Content Include="BuildBotStatus.aspx" />
     <Content Include="BuildBotStatus.js" />
     <Content Include="clientaccesspolicy.xml" />
-    <Content Include="Overview.aspx" />
     <Content Include="Identities.js" />
     <Content Include="DownloadLatestFile.aspx" />
     <Content Include="Identities.aspx" />
@@ -141,12 +140,6 @@
     </Compile>
     <Compile Include="BuildBotStatus.aspx.designer.cs">
       <DependentUpon>BuildBotStatus.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Overview.aspx.cs">
-      <DependentUpon>Overview.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Overview.aspx.designer.cs">
-      <DependentUpon>Overview.aspx</DependentUpon>
     </Compile>
     <Compile Include="DownloadLatestFile.aspx.cs">
       <DependentUpon>DownloadLatestFile.aspx</DependentUpon>
