@@ -429,7 +429,7 @@ CREATE VIEW LaneDeletionDirectiveView AS
 	FROM LaneDeletionDirective
 		INNER JOIN FileDeletionDirective ON FileDeletionDirective.id = LaneDeletionDirective.file_deletion_directive_id;
 		
-DROP VIEW HostStatusView;
+DROP VIEW IF EXISTS HostStatusView;
 CREATE VIEW HostStatusView AS
 	SELECT Host.id, Host.host, BuildBotStatus.report_date, rw2.id AS revisionwork_id, rw2.lane_id AS lane_id, rw2.revision_id, Revision.revision, Lane.lane
 	FROM Host 
@@ -443,7 +443,7 @@ CREATE VIEW HostStatusView AS
 -- ignore generator --		
 
 -- method to get id for revisionwork, adding a new record if none is found.
-CREATE LANGUAGE plpgsql;
+CREATE OR REPLACE LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION add_revisionwork (lane int, host int, revision int) RETURNS INT AS $$ 
 BEGIN 
 	IF 0 = (SELECT COUNT(*) FROM RevisionWork WHERE lane_id = lane AND host_id = host AND revision_id = revision) THEN
