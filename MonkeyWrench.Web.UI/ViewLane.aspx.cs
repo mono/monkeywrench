@@ -222,9 +222,9 @@ public partial class ViewLane : System.Web.UI.Page
 			DBWorkFileView step_log = files.Find ((v) => v.filename == command + ".log");
 			matrix.Append ("\t<td>");
 			if (step_log != null) {
-				matrix.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> ", step_log.id, Path.GetFileNameWithoutExtension (command));
+				matrix.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> ", step_log.id, command);
 			} else {
-				matrix.Append (Path.GetFileNameWithoutExtension (command));
+				matrix.Append (command);
 			}
 			matrix.Append ("</td>");
 
