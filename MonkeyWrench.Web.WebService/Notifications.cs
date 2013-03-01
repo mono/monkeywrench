@@ -118,6 +118,9 @@ namespace MonkeyWrench.WebServices
 
 			try {
 				lock (lock_obj) {
+					// We broadcast the notification to the API endpoint
+					WebNotification.BroadcastBuildNotification (work, revision_work);
+
 					if (!notifications_per_lane.TryGetValue (revision_work.lane_id, out notifications)) {
 						Logger.Log ("Notifications.ProcessNotify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}): Lane doesn't have any notifications enabled", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 						return;

@@ -68,6 +68,10 @@
       <Project>{19607F57-B521-4477-9DE0-F0D9B1A68BC7}</Project>
       <Name>SmartIrc4net</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Newtonsoft.Json\Src\Newtonsoft.Json\Newtonsoft.Json.csproj">
+      <Project>{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}</Project>
+      <Name>Newtonsoft.Json</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
@@ -76,6 +80,7 @@
     <Content Include="Download.aspx" />
     <Content Include="Global.asax" />
     <Content Include="WebServices.asmx" />
+    <Content Include="Notification.ashx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authentication.cs" />
@@ -95,6 +100,10 @@
       <DependentUpon>WebServices.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WebNotification.cs">
+      <DependentUpon>Notification.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="WrenchBuild.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
