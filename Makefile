@@ -31,6 +31,7 @@ svn:
 
 all clean install:
 	@$(MAKE) -C SmartIrc4net $@
+	@$(MAKE) -C Newtonsoft.Json $@
 	@$(MAKE) -C MonkeyWrench $@
 	@$(MAKE) -C MonkeyWrench.DataClasses $@
 	@$(MAKE) -C MonkeyWrench.Database $@
