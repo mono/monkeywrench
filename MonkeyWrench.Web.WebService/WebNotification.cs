@@ -72,6 +72,30 @@ namespace MonkeyWrench.WebServices
 
 		public static void BroadcastBuildNotification (DBWork work, DBRevisionWork revisionWork)
 		{
+			BroadcastBuildNotification (new Lazy<Build> (() => GetBuildFromDBItems (work, revisionWork)));
+		}
+
+		public static void BroadcastBuildNotification (Build aBuild)
+		{
+			BroadcastBuildNotification (new Lazy<Build> (() => aBuild));
+		}
+
+		static void BroadcastBuildNotification (Lazy<Build> build)
+		{
+			List<ObserverSlot> currentSlots = null;
+			lock (slots) {
+				if (slots.Count == 0)
+					return;
+				currentSlots = new List<ObserverSlot> (slots);
+				slots.Clear ();
+			}
+
+			foreach (var slot in currentSlots)
+				slot.Process (build.Value);
+		}
+
+		static Build GetBuildFromDBItems (DBWork work, DBRevisionWork revisionWork)
+		{
 			DBRevision revision;
 			DBLane lane, parentLane;
 			DBHost host;
@@ -86,7 +110,7 @@ namespace MonkeyWrench.WebServices
 			var url = Configuration.GetWebSiteUrl ();
 			url += string.Format ("/ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={2}", lane.id, host.id, revision.id);
 
-			var build = new Build {
+			return new Build {
 				Commit = revision.revision,
 				CommitId = revision.id,
 				Date = revisionWork.completed ? revisionWork.endtime : revision.date,
@@ -97,8 +121,6 @@ namespace MonkeyWrench.WebServices
 				BuildBot = host.host,
 				Url = url
 			};
-
-			BroadcastBuildNotification (build);
 		}
 
 		static DBLane GetTopMostParent (DBLane forLane, DB db)
@@ -107,18 +129,6 @@ namespace MonkeyWrench.WebServices
 			while (parent.parent_lane_id != null)
 				parent = DBLane_Extensions.Create (db, parent.parent_lane_id.Value);
 			return parent;
-		}
-
-		public static void BroadcastBuildNotification (Build aBuild)
-		{
-			List<ObserverSlot> currentSlots = null;
-			lock (slots) {
-				currentSlots = new List<ObserverSlot> (slots);
-				slots.Clear ();
-			}
-
-			foreach (var slot in currentSlots)
-				slot.Process (aBuild);
 		}
 
 		public IAsyncResult BeginProcessRequest (HttpContext context, AsyncCallback cb, object extraData)
