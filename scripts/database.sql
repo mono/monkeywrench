@@ -438,7 +438,7 @@ CREATE VIEW HostStatusView AS
 	LEFT JOIN Revision ON Revision.id = revision_id
 	INNER JOIN BuildBotStatus ON BuildBotStatus.host_id = Host.id 
 	WHERE Host.id IN (SELECT DISTINCT workhost_id FROM RevisionWork) AND Host.enabled = true
-	ORDER BY Lane.lane IS NULL ASC, BuildBotStatus.report_date ASC;
+	ORDER BY Lane.lane IS NULL ASC, host ASC;
 
 -- ignore generator --		
 
