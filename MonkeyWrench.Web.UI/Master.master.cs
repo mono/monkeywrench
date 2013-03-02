@@ -124,7 +124,7 @@ public partial class Master : System.Web.UI.MasterPage
 				row = Utils.CreateTableRow ("Working");
 				row.CssClass = "hoststatus_header";
 				tableHostStatus.Rows.Add (row);
-				row = Utils.CreateTableRow (string.Join (", ", working.ToArray ()));
+				row = Utils.CreateTableRow (string.Join ("<br/> ", working.ToArray ()));
 				tableHostStatus.Rows.Add (row);
 			}
 
@@ -132,7 +132,7 @@ public partial class Master : System.Web.UI.MasterPage
 				row = Utils.CreateTableRow ("Idle");
 				row.CssClass = "hoststatus_header";
 				tableHostStatus.Rows.Add (row);
-				row = Utils.CreateTableRow (string.Join (", ", idles.ToArray ()));
+				row = Utils.CreateTableRow (string.Join ("<br/> ", idles.ToArray ()));
 				tableHostStatus.Rows.Add (row);
 			}
 
