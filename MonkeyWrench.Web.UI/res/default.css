@@ -271,7 +271,6 @@ table.notifications input
 
 table.hoststatus 
 {
-    display: block;
     width: 100%;
     max-width: 150px;
     border-style: solid;
