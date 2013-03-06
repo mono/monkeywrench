@@ -354,6 +354,7 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 			{
 				Client = new IrcClient ();
 				Thread = new Thread (Loop);
+				Thread.IsBackground = true;
 				Thread.Start ();
 			}
 
