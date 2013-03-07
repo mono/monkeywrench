@@ -147,6 +147,7 @@ namespace MonkeyWrench
 		{
 			ExecuteSuspendedProcessHack (arguments);
 
+                        Logger.Log ("Loading configuration from #{0}", file);
 			if (string.IsNullOrEmpty (file))
 				return false;
 
