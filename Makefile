@@ -41,6 +41,7 @@ all clean install:
 	@$(MAKE) -C MonkeyWrench.Web.UI $@
 	@$(MAKE) -C MonkeyWrench.Web.WebService $@
 	@$(MAKE) -C MonkeyWrench.CmdClient $@
+	@$(MAKE) -C MonkeyWrench.Web.ServiceStack $@
 
 publish: install
 
