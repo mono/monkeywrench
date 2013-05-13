@@ -326,6 +326,16 @@ WHERE
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
 UPDATE RevisionWork SET workhost_id = @workhost_id WHERE id = @id AND workhost_id IS NULL;
+";
+				DB.CreateParameter (cmd, "workhost_id", host.id);
+				DB.CreateParameter (cmd, "id", rw.id);
+
+				if (cmd.ExecuteNonQuery () != 1)
+					return false;
+			}
+
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = @"
 SELECT workhost_id FROM RevisionWork where id = @id AND workhost_id = @workhost_id;
 ";
 				DB.CreateParameter (cmd, "workhost_id", host.id);
