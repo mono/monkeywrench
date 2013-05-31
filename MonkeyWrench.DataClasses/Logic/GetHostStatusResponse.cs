@@ -18,6 +18,7 @@ using System.Text;
 namespace MonkeyWrench.DataClasses.Logic {
 	public class GetHostStatusResponse : WebServiceResponse {
 		public List<DBHostStatusView> HostStatus;
+		public string UploadStatus;
 	}
 }
 

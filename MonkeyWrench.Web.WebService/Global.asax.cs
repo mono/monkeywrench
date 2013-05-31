@@ -22,6 +22,8 @@ namespace MonkeyWrench.WebServices
 {
 	public class Global : System.Web.HttpApplication
 	{
+		public static string UploadStatus { get; set; }
+
 		private Timer scheduler;
 
 		protected void Application_Start (object sender, EventArgs e)

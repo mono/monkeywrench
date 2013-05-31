@@ -120,6 +120,9 @@ public partial class Master : System.Web.UI.MasterPage
 				}
 			}
 
+			if (!string.IsNullOrEmpty (response.UploadStatus))
+				cellUploadStatus.Text = response.UploadStatus;
+
 			if (working.Count > 0) {
 				row = Utils.CreateTableRow ("Working");
 				row.CssClass = "hoststatus_header";

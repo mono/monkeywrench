@@ -38,8 +38,15 @@ namespace MonkeyWrench.WebServices
 
 		public static int GetListenPort ()
 		{
-			if (listener == null)
-				StartListener ();
+			if (listener == null) {
+				try {
+					StartListener ();
+					Global.UploadStatus = null;
+				} catch (Exception ex) {
+					Global.UploadStatus = string.Format ("Failed to open port for incoming uploads ({0}). All bots are stuck until this is fixed. Please ask a MonkeyWrench server admin to fix it.", ex.Message);
+					throw;
+				}
+			}
 
 			return ((IPEndPoint) listener.LocalEndpoint).Port;
 		}
@@ -47,15 +54,16 @@ namespace MonkeyWrench.WebServices
 		private static void StartListener ()
 		{
 			lock (lockobj) {
-				if (listener != null)
+				if (Upload.listener != null)
 					return;
 
 				accept_cb = new AsyncCallback (OnAccept);
 
-				listener = new TcpListener (new IPEndPoint (IPAddress.Any, Configuration.UploadPort));
+				var listener = new TcpListener (new IPEndPoint (IPAddress.Any, Configuration.UploadPort));
 				listener.Start ();
 				listener.BeginAcceptTcpClient (accept_cb, null);
-
+				
+				Upload.listener = listener;
 				Logger.Log ("WebService successfully started upload listener on port {0}", ((IPEndPoint) listener.LocalEndpoint).Port);
 			}
 		}

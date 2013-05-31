@@ -630,6 +630,13 @@ table.headertable td.titleimage
     padding: 0px;
 }
 
+table.headertable td.uploadstatus
+{
+	font-size: 12pt;
+	color: yellow;
+	text-align: center;
+}
+
 table.headertable td.rightcolumn
 {
 	font-size: 10pt;

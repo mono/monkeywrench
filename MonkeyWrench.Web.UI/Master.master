@@ -16,13 +16,15 @@
         <asp:Table runat="server" CssClass='headertable' ID="tableHeader">
             <asp:TableRow>
                 <asp:TableCell RowSpan="3" CssClass="titleimage"><a href="index.aspx"><img id="imgLogo" runat="server" alt="logo" src="res/logo.png" /></a></asp:TableCell>
-                <asp:TableCell RowSpan="3" CssClass="title"><a href="index.aspx">MonkeyWrench</a></asp:TableCell>
+                <asp:TableCell></asp:TableCell>
                 <asp:TableCell ID="cellLogin" runat="server" CssClass="rightcolumn" />
             </asp:TableRow>
             <asp:TableRow>
+                <asp:TableCell CssClass="title"><a href="index.aspx">MonkeyWrench</a></asp:TableCell>
                 <asp:TableCell runat="server" CssClass="rightcolumn"><a href="doc/index.html">Help</a></asp:TableCell>
             </asp:TableRow>
             <asp:TableRow ID="rowAdmin" runat="server">
+                <asp:TableCell id="cellUploadStatus" runat="server" CssClass="uploadstatus"></asp:TableCell> 
                 <asp:TableCell id="cellAdmin" runat="server" CssClass="rightcolumn">
                     <div id="adminmenu">
                         <a href='Admin.aspx'>Administration</a>

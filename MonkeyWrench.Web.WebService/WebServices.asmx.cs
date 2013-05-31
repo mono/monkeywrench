@@ -1181,6 +1181,7 @@ WHERE hidden = false";
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
 
+				response.UploadStatus = Global.UploadStatus;
 				response.HostStatus = new List<DBHostStatusView> ();
 
 				using (var cmd = db.CreateCommand ()) {

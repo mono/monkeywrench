@@ -833,6 +833,7 @@
           <xs:extension base="s0:WebServiceResponse">
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="HostStatus" type="s0:ArrayOfDBHostStatusView" />
+              <xs:element minOccurs="0" maxOccurs="1" name="UploadStatus" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
