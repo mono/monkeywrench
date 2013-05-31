@@ -60,6 +60,15 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		public static void StopListening ()
+		{
+			lock (lockobj) {
+				if (listener != null) {
+					listener.Stop ();
+				}
+			}
+		}
+
 		private static void OnAccept (IAsyncResult ares)
 		{
 			TcpClient accepted = null;

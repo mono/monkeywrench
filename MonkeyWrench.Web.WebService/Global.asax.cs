@@ -70,6 +70,8 @@ namespace MonkeyWrench.WebServices
 				scheduler.Dispose ();
 				scheduler = null;
 			}
+
+			Upload.StopListening ();
 		}
 	}
 }
