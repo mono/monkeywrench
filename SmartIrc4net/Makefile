@@ -7,7 +7,7 @@ OUT_DIR = $(TOPDIR)/class/lib
 OUT = $(OUT_DIR)/$(LIBRARY)
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS) external/src/starksoftproxy/.git
-	cd $(DIR) && mdtool -v build -t:Build "-c:Release"
+	cd $(DIR) && xbuild
 	cp $(DIR)/bin/release/*.dll* $(OUT_DIR)
 
 all: $(OUT)
