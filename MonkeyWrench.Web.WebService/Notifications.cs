@@ -337,19 +337,6 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 				return Connected.WaitOne (timeout);
 			}
 
-			public bool WaitForEmptySendBuffer (TimeSpan timeout)
-			{
-				DateTime start = DateTime.Now;
-
-				while (!Client.IsSendBufferEmpty) {
-					Thread.Sleep (100);
-					if (start.Add (timeout) < DateTime.Now)
-						return false;
-				}
-
-				return true;
-			}
-
 			public void Start ()
 			{
 				Client = new IrcClient ();
@@ -563,14 +550,11 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 				}
 				foreach (var nick in person.irc_nicknames.Split (',')) {
 					foreach (var channel in channels) {
-						state.Client.SendMessage (SendType.Message, channel, nick + ": " + message);
+						state.Client.SendMessage (SendType.Message, channel, nick + ": " + message, Priority.Critical);
 					}
 				}
-				if (!identity.join_channels) {
-					if (!state.WaitForEmptySendBuffer (TimeSpan.FromSeconds (30)))
-						Logger.Log ("IrcNotification: waited for 30 seconds for messages to be sent, disconnecting now");
+				if (!identity.join_channels)
 					Disconnect (state);
-				}
 			}
 		}
 	}
