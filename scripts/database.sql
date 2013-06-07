@@ -201,6 +201,7 @@ CREATE TABLE Revision (
 	UNIQUE (lane_id, revision)
 );
 CREATE INDEX Revision_revision_idx ON Revision (revision);
+CREATE INDEX Revision_lane_id_key ON Revision (lane_id);
 
 CREATE TABLE RevisionWork (
 	id             serial     PRIMARY KEY,
