@@ -1,7 +1,4 @@
-DIR = SmartIrc4net-0.4.5.1
-SOURCES = \
-	$(wildcard $(DIR)/src/*.cs) \
-	$(wildcard $(DIR)/src/*/*.cs)
+DIR = external
 
 TOPDIR = ..
 
@@ -9,9 +6,9 @@ LIBRARY = Meebey.SmartIrc4net.dll
 OUT_DIR = $(TOPDIR)/class/lib
 OUT = $(OUT_DIR)/$(LIBRARY)
 
-$(OUT): $(SOURCES) $(BUILDABLE_REFS)
-	@echo "    DMCS $(LIBRARY)"
-	@dmcs -target:library -debug:full -out:$@ $(SOURCES) -warn:0 -D:NET_2_0
+$(OUT): $(SOURCES) $(BUILDABLE_REFS) external/src/starksoftproxy/.git
+	cd $(DIR) && mdtool -v build -t:Build "-c:Release"
+	cp $(DIR)/bin/release/*.dll* $(OUT_DIR)
 
 all: $(OUT)
 
@@ -20,3 +17,6 @@ clean:
 
 publish install: all
 	@:
+
+external/src/starksoftproxy/.git:
+	cd .. && git submodule update --init --recursive 

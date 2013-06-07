@@ -342,7 +342,7 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 				DateTime start = DateTime.Now;
 
 				while (!Client.IsSendBufferEmpty) {
-					Thread.Sleep (10);
+					Thread.Sleep (100);
 					if (start.Add (timeout) < DateTime.Now)
 						return false;
 				}
