@@ -245,6 +245,7 @@ WHERE HostLane.enabled = true AND
 			DBHostLane hostlane;
 			StringBuilder sql = new StringBuilder ();
 			bool fetched_dependencies = false;
+			int lines = 0;
 
 			try {
 				/* Find the revision works which don't have work yet */
@@ -309,8 +310,16 @@ WHERE HostLane.enabled = true AND
 								int work_state = (int) (has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone);
 
 								sql.AppendFormat ("INSERT INTO Work (command_id, revisionwork_id, state) VALUES ({0}, {1}, {2});\n", command.id, revisionwork.id, work_state);
+								lines++;
+
 
 								Logger.Log (2, "Lane '{0}', revisionwork_id '{1}' Added work for command '{2}'", lane.lane, revisionwork.id, command.command);
+
+								if ((lines % 100) == 0) {
+									db.ExecuteNonQuery (sql.ToString ());
+									sql.Clear ();
+									Logger.Log (1, "AddWork: flushed work queue, added {0} items now.", lines);
+								}
 							}
 
 							sql.AppendFormat ("UPDATE RevisionWork SET state = {0} WHERE id = {1} AND state = 10;", (int) (has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone), revisionwork.id);
