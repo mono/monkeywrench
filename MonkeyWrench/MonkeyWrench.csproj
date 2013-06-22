@@ -77,6 +77,8 @@
     <Compile Include="ProcessHelperLinux.cs" />
     <Compile Include="ProcessHelperMac.cs" />
     <Compile Include="ProcessHelperWindows.cs" />
+    <Compile Include="ProcessReader.cs" />
+    <Compile Include="SynchronizedStreamWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
@@ -107,4 +109,3 @@
   </Target>
   -->
 </Project>
-

@@ -29,9 +29,9 @@ namespace MonkeyWrench
 		/// Also waits until the process has actually exited.
 		/// </summary>
 		/// <param name="process"></param>
-		public static void KillTree (this Process process)
+		public static void KillTree (this Process process, SynchronizedStreamWriter log)
 		{
-			GetHelper ().KillTree (process);
+			GetHelper ().KillTree (process, log);
 		}
 
 		private static IProcessHelper GetHelper ()
@@ -120,27 +120,27 @@ namespace MonkeyWrench
 		/// Default KillTree implementation.
 		/// </summary>
 		/// <param name="p"></param>
-		public virtual void KillTree (Process p)
+		public virtual void KillTree (Process p, SynchronizedStreamWriter log)
 		{
 			List<int> processes = new List<int> ();
 			FindChildren (p.Id, processes);
-			Kill (processes);
+			Kill (processes, log);
 		}
 
 		/// <summary>
 		/// Default Kill implementation.
 		/// </summary>
 		/// <param name="pid"></param>
-		protected virtual internal void Kill (int pid)
+		protected virtual internal void Kill (int pid, SynchronizedStreamWriter log)
 		{
 			using (Process p = Process.GetProcessById (pid)) {
 				p.Kill ();
 			}
 		}
-		protected virtual internal void Kill (IEnumerable<int> pids)
+		protected virtual internal void Kill (IEnumerable<int> pids, SynchronizedStreamWriter log)
 		{
 			foreach (int pid in pids) {
-				Kill (pid);
+				Kill (pid, log);
 			}
 		}
 

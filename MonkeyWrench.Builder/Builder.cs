@@ -232,12 +232,12 @@ namespace MonkeyWrench.Builder
 				}
 			}
 		}
+
 		private static void Build (BuildInfo info)
 		{
 			try {
-				object sync_object = new object ();
+				ProcessReader process_reader;
 				string log_file = Path.Combine (info.BUILDER_DATA_LOG_DIR, info.command.command + ".log");
-				DateTime last_stamp = DateTime.Now;
 				DateTime local_starttime = DateTime.Now;
 				DBState result;
 				DBCommand command = info.command;
@@ -262,16 +262,13 @@ namespace MonkeyWrench.Builder
 
 				using (Job p = ProcessHelper.CreateJob ()) {
 					using (FileStream fs = new FileStream (log_file, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)) {
-						using (StreamWriter log = new StreamWriter (fs)) {
+						using (var log = new SynchronizedStreamWriter (new StreamWriter (fs))) {
 							p.StartInfo.FileName = info.command.filename;
 							p.StartInfo.Arguments = string.Format (info.command.arguments, Path.Combine (info.temp_dir, info.command.command), info.temp_dir);
 							if (!string.IsNullOrEmpty (info.command.working_directory))
 								p.StartInfo.WorkingDirectory = Path.Combine (info.BUILDER_DATA_SOURCE_DIR, info.command.working_directory);
 							else
 								p.StartInfo.WorkingDirectory = info.BUILDER_DATA_SOURCE_DIR;
-							p.StartInfo.UseShellExecute = false;
-							p.StartInfo.RedirectStandardError = true;
-							p.StartInfo.RedirectStandardOutput = true;
 
 							// set environment variables
 							p.StartInfo.EnvironmentVariables ["BUILD_LANE"] = info.lane.lane;
@@ -323,42 +320,12 @@ namespace MonkeyWrench.Builder
 								}
 							}
 
-							Thread stdout_thread = new Thread (delegate ()
-							{
-								try {
-									string line;
-									while (null != (line = p.StandardOutput.ReadLine ())) {
-										lock (sync_object) {
-											log.WriteLine (line);
-											log.Flush ();
-										}
-										last_stamp = DateTime.Now;
-									}
-								} catch (Exception ex) {
-									Logger.Log ("{1} Stdin reader thread got exception: {0}", ex.Message, info.number);
-								}
-							});
-
-							Thread stderr_thread = new Thread (delegate ()
-							{
-								try {
-									string line;
-									while (null != (line = p.StandardError.ReadLine ())) {
-										lock (sync_object) {
-											log.WriteLine (line);
-											log.Flush ();
-										}
-										last_stamp = DateTime.Now;
-									}
-								} catch (Exception ex) {
-									Logger.Log ("{1} Stderr reader thread got exception: {0}", ex.Message, info.number);
-								}
-							});
+							process_reader = new ProcessReader (log);
+							process_reader.Setup (p);
 
 							p.Start ();
 
-							stderr_thread.Start ();
-							stdout_thread.Start ();
+							process_reader.Start ();
 
 							while (!p.WaitForExit (60000 /* 1 minute */)) {
 								if (p.HasExited)
@@ -371,8 +338,8 @@ namespace MonkeyWrench.Builder
 									try {
 										exitcode = 255;
 										Logger.Log ("{1} The build step '{0}' has been aborted, terminating it.", info.command.command, info.number);
-										p.Terminate ();
-										log.WriteLine ("{1} The build step '{0}' was aborted, terminated it.", info.command.command, info.number);
+										p.Terminate (log);
+										log.WriteLine (string.Format ("{1} The build step '{0}' was aborted, terminated it.", info.command.command, info.number));
 									} catch (Exception ex) {
 										Logger.Log ("{1} Exception while killing build step: {0}", ex.ToString (), info.number);
 									}
@@ -387,7 +354,7 @@ namespace MonkeyWrench.Builder
 								if ((DateTime.Now > local_starttime.AddMinutes (info.command.timeout))) {
 									timedout = true;
 									timeoutReason = string.Format ("The build step '{0}' didn't finish in {1} minute(s).", info.command.command, info.command.timeout);
-								} else if (last_stamp.AddMinutes (timeout) <= DateTime.Now) {
+								} else if (log.LastStamp.AddMinutes (timeout) <= DateTime.Now) {
 									timedout = true;
 									timeoutReason = string.Format ("The build step '{0}' has had no output for {1} minute(s).", info.command.command, timeout);
 								}
@@ -399,8 +366,9 @@ namespace MonkeyWrench.Builder
 									result = DBState.Timeout;
 									exitcode = 255;
 									Logger.Log ("{0} {1}", info.number, timeoutReason);
-									p.Terminate ();
-									log.WriteLine (timeoutReason);
+									log.WriteLine ("\n*** Timed out. Proceeding to get stack traces for all child processes. ***");
+									p.Terminate (log);
+									log.WriteLine ("\n * " + timeoutReason + " * \n");
 								} catch (Exception ex) {
 									Logger.Log ("{1} Exception while terminating build step: {0}", ex.ToString (), info.number);
 								}
@@ -409,12 +377,8 @@ namespace MonkeyWrench.Builder
 
 							// Sleep a bit so that the process has enough time to finish
 							System.Threading.Thread.Sleep (1000);
-							if (!stdout_thread.Join (TimeSpan.FromSeconds (15))) {
-								Logger.Log ("Waited 15s for stdout thread to finish, but it didn't");
-							}
-							if (!stderr_thread.Join (TimeSpan.FromSeconds (15))) {
-								Logger.Log ("Waited 15s for stderr thread to finish, but it didn't");
-							}
+
+							process_reader.Join ();
 
 							if (p.HasExited) {
 								exitcode = p.ExitCode;

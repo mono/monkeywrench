@@ -30,14 +30,17 @@ namespace MonkeyWrench
 			exit (exitcode);
 		}
 
-		protected internal override void Kill (int pid)
+		protected internal override void Kill (int pid, SynchronizedStreamWriter log)
 		{
-			this.Kill (new int [] { pid });
+			this.Kill (new int [] { pid }, log);
 		}
 
-		protected internal override void Kill (IEnumerable<int> pids)
+		protected internal override void Kill (IEnumerable<int> pids, SynchronizedStreamWriter log)
 		{
-			KillImpl (pids);
+			foreach (var pid in pids)
+				RenderStackTraceWithGdb (pid, log);
+
+			KillImpl (pids, log);
 		}
 
 		protected override List<int> GetChildren (int pid)
@@ -45,30 +48,43 @@ namespace MonkeyWrench
 			return ProcessHelperLinux.GetChildrenImplPS (pid);
 		}
 
+		internal static void RenderStackTraceWithGdb (int pid, SynchronizedStreamWriter log)
+		{
+			log.WriteLine (string.Format ("\n * Fetching stack trace for process {0} * \n", pid));
+
+			using (var gdb = new Job ()) {
+				gdb.StartInfo.FileName = "gdb";
+				gdb.StartInfo.Arguments = string.Format ("-ex attach {0} --ex \"info target\" --ex \"info threads\" --ex \"thread apply all bt\" --batch", pid);
+
+				var reader = new ProcessReader (log);
+				reader.Setup (gdb);
+				gdb.Start ();
+				reader.Start ();
+
+				try {
+					if (!gdb.WaitForExit (1000 * 30 /* 30 seconds */))
+						throw new ApplicationException (string.Format ("The 'gdb' process didn't exit in 30 seconds."));
+				} finally {
+					reader.Join ();
+				}
+			}
+		}
+
 		/// <summary>
 		/// Implementation using kill
 		/// </summary>
 		/// <param name="pids"></param>
-		internal static void KillImpl (IEnumerable<int> pids)
+		internal static void KillImpl (IEnumerable<int> pids, SynchronizedStreamWriter log)
 		{
-			using (Process quit = new Process ()) {
-				quit.StartInfo.FileName = "kill";
-				quit.StartInfo.Arguments = "-QUIT ";
-				foreach (int pid in pids.Reverse()) {
-					quit.StartInfo.Arguments += pid.ToString () + " ";
-				}
-				quit.StartInfo.UseShellExecute = false;
-				quit.Start ();
-
-				if (!quit.WaitForExit (1000 * 15 /* 15 seconds */))
-					throw new ApplicationException (string.Format ("The 'kill -QUIT' process didn't exit in 15 seconds."));
-			}
 			using (Process kill = new Process ()) {
 				kill.StartInfo.FileName = "kill";
 				kill.StartInfo.Arguments = "-9 ";
 				foreach (int pid in pids) {
 					kill.StartInfo.Arguments += pid.ToString () + " ";
 				}
+
+				log.WriteLine (string.Format ("\n * Killing the processes {0} * ", kill.StartInfo.Arguments.Substring (3)));
+
 				kill.StartInfo.UseShellExecute = false;
 				kill.Start ();
 

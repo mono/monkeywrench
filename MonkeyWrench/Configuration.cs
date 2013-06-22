@@ -504,7 +504,16 @@ namespace MonkeyWrench
 				case PlatformID.Unix:
 				case (PlatformID) 128:
 				default:
-					return MonkeyWrench.Platform.Linux;
+					// from here: http://stackoverflow.com/q/10138040/183422
+					// Well, there are chances MacOSX is reported as Unix instead of MacOSX.
+					// Instead of platform check, we'll do a feature checks (Mac specific root folders)
+					if (Directory.Exists("/Applications")
+					    & Directory.Exists("/System")
+					    & Directory.Exists("/Users")
+					    & Directory.Exists("/Volumes"))
+						return MonkeyWrench.Platform.Mac;
+					else
+						return MonkeyWrench.Platform.Linux;
 				}
 			} else {
 				switch (Platform.ToLowerInvariant ()) {

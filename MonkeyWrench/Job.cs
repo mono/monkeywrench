@@ -43,9 +43,9 @@ namespace MonkeyWrench
 		/// <summary>
 		/// Terminate this job and all the processes within.
 		/// </summary>
-		public virtual void Terminate ()
+		public virtual void Terminate (SynchronizedStreamWriter log)
 		{
-			p.KillTree ();
+			p.KillTree (log);
 		}
 
 		/// <summary>

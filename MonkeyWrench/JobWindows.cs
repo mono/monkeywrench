@@ -77,7 +77,7 @@ namespace MonkeyWrench
 			Logger.Log ("JobWindows: mutex released");
 		}
 
-		public override void Terminate ()
+		public override void Terminate (SynchronizedStreamWriter log)
 		{
 			bool success = TerminateJobObject (job_handle, 1);
 			Logger.Log ("JobWindows: terminated job object with status: {0}", success);
