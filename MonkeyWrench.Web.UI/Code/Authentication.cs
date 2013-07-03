@@ -102,7 +102,9 @@ public class Authentication
 		Response.Cookies.Add (new HttpCookie ("cookie", response.Cookie));
 		Response.Cookies ["cookie"].Expires = DateTime.Now.AddDays (10);
 		Response.Cookies.Add (new HttpCookie ("user", response.User));
+		Response.Cookies ["user"].Expires = DateTime.Now.AddDays (10);
 		/* Note that the 'roles' cookie is only used to determine the web ui to show, it's not used to authorize anything */
 		Response.Cookies.Add (new HttpCookie ("roles", response.UserRoles == null ? string.Empty : string.Join (", ", response.UserRoles)));
+		Response.Cookies ["roles"].Expires = DateTime.Now.AddDays (10);
 	}
 }
