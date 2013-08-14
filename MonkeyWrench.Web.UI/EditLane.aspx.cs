@@ -699,4 +699,13 @@ public partial class EditLane : System.Web.UI.Page
 			lblMessage.Text = ex.Message;
 		}
 	}
+
+	protected void cmdDontDoWork_Click (object sender, EventArgs e)
+	{
+		try {
+			Master.WebService.MarkAsDontBuild (Master.WebServiceLogin, lane.id);
+		} catch (Exception ex) {
+			lblMessage.Text = ex.Message;
+		}
+	}
 }

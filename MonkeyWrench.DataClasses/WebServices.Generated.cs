@@ -2626,7 +2626,29 @@ namespace MonkeyWrench.Web.WebServices {
             object[] results = this.EndInvoke(asyncResult);
             return ((WebServiceResponse)(results[0]));
         }
-        
+		
+		/// <remarks/>
+		[System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/MarkAsDontBuild", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+		public WebServiceResponse MarkAsDontBuild(WebServiceLogin login, int lane_id) {
+			object[] results = this.Invoke("MarkAsDontBuild", new object[] {
+				login,
+				lane_id});
+			return ((WebServiceResponse)(results[0]));
+		}
+
+		/// <remarks/>
+		public System.IAsyncResult BeginMarkAsDontBuild(WebServiceLogin login, int lane_id, System.AsyncCallback callback, object asyncState) {
+			return this.BeginInvoke("MarkAsDontBuild", new object[] {
+				login,
+				lane_id}, callback, asyncState);
+		}
+
+		/// <remarks/>
+		public WebServiceResponse EndMarkAsDontBuild(System.IAsyncResult asyncResult) {
+			object[] results = this.EndInvoke(asyncResult);
+			return ((WebServiceResponse)(results[0]));
+		}
+
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/ExecuteScheduler", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void ExecuteScheduler(WebServiceLogin login, bool forcefullupdate) {

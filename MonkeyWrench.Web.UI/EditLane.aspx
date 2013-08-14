@@ -72,6 +72,7 @@
                     <asp:Button ID="cmdDeleteAllWork" runat="server" Text="Delete all work" OnClick="cmdDeleteAllWork_Click" />
                     <asp:Button ID="cmdClearAllWork" runat="server" Text="Clear all work" OnClick="cmdClearAllWork_Click" />
                     <asp:Button ID="cmdDeleteAllRevisions" runat="server" Text="Delete all revisions" OnClick="cmdDeleteAllRevisions_Click" />
+                    <asp:Button id="cmdDontDoWork" runat="server" Text="Mark all pending revisions as 'Don't build'" OnClick="cmdDontDoWork_Click" />
                  </asp:TableCell>
             </asp:TableRow>
         </asp:Table>

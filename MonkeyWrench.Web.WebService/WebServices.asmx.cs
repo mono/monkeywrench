@@ -2877,6 +2877,27 @@ WHERE Revision.lane_id = @lane_id AND ";
 			return response;
 		}
 
+		[WebMethod]
+		public WebServiceResponse MarkAsDontBuild (WebServiceLogin login, int lane_id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			try {
+				using (DB db = new DB ()) {
+					VerifyUserInRole (db, login, Roles.Administrator);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "UPDATE RevisionWork SET state = 11 WHERE state = 0 AND lane_id = @lane_id;";
+						DB.CreateParameter (cmd, "lane_id", lane_id);
+						cmd.ExecuteNonQuery ();
+					}
+				}
+			} catch (Exception ex) {
+				response.Exception = new WebServiceException (ex);
+			}
+
+			return response;
+		}
+
 		#region Adminstration methods
 
 		[WebMethod]

@@ -202,6 +202,7 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBView">
             <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
               <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="host_id" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="revision_id" type="xs:int" />
@@ -211,7 +212,6 @@
               <xs:element minOccurs="0" maxOccurs="1" name="revision" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="date" type="xs:dateTime" />
               <xs:element minOccurs="0" maxOccurs="1" name="author" type="xs:string" />
-              <xs:element minOccurs="1" maxOccurs="1" name="State" type="s0:DBState" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -396,13 +396,13 @@
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
             <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="Mode" type="s0:DBNotificationMode" />
+              <xs:element minOccurs="1" maxOccurs="1" name="Type" type="s0:DBNotificationType" />
               <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="ircidentity_id" nillable="true" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="emailidentity_id" nillable="true" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="mode" type="xs:int" />
               <xs:element minOccurs="1" maxOccurs="1" name="type" type="xs:int" />
-              <xs:element minOccurs="1" maxOccurs="1" name="Mode" type="s0:DBNotificationMode" />
-              <xs:element minOccurs="1" maxOccurs="1" name="Type" type="s0:DBNotificationType" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -2716,6 +2716,21 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="MarkAsDontBuild">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="MarkAsDontBuildResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="MarkAsDontBuildResult" type="s0:WebServiceResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="ExecuteScheduler">
         <xs:complexType>
           <xs:sequence>
@@ -3433,6 +3448,12 @@
   <message name="DeleteReleaseSoapOut">
     <part name="parameters" element="s0:DeleteReleaseResponse" />
   </message>
+  <message name="MarkAsDontBuildSoapIn">
+    <part name="parameters" element="s0:MarkAsDontBuild" />
+  </message>
+  <message name="MarkAsDontBuildSoapOut">
+    <part name="parameters" element="s0:MarkAsDontBuildResponse" />
+  </message>
   <message name="ExecuteSchedulerSoapIn">
     <part name="parameters" element="s0:ExecuteScheduler" />
   </message>
@@ -3924,6 +3945,10 @@
       <input message="s0:DeleteReleaseSoapIn" />
       <output message="s0:DeleteReleaseSoapOut" />
     </operation>
+    <operation name="MarkAsDontBuild">
+      <input message="s0:MarkAsDontBuildSoapIn" />
+      <output message="s0:MarkAsDontBuildSoapOut" />
+    </operation>
     <operation name="ExecuteScheduler">
       <input message="s0:ExecuteSchedulerSoapIn" />
       <output message="s0:ExecuteSchedulerSoapOut" />
@@ -4389,6 +4414,10 @@
     <operation name="DeleteRelease">
       <input message="s0:DeleteReleaseSoapIn" />
       <output message="s0:DeleteReleaseSoapOut" />
+    </operation>
+    <operation name="MarkAsDontBuild">
+      <input message="s0:MarkAsDontBuildSoapIn" />
+      <output message="s0:MarkAsDontBuildSoapOut" />
     </operation>
     <operation name="ExecuteScheduler">
       <input message="s0:ExecuteSchedulerSoapIn" />
@@ -5442,6 +5471,15 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="MarkAsDontBuild">
+      <soap:operation soapAction="http://monkeywrench.novell.com/MarkAsDontBuild" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="ExecuteScheduler">
       <soap:operation soapAction="http://monkeywrench.novell.com/ExecuteScheduler" style="document" />
       <input>
@@ -6482,6 +6520,15 @@
     </operation>
     <operation name="DeleteRelease">
       <soap12:operation soapAction="http://monkeywrench.novell.com/DeleteRelease" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="MarkAsDontBuild">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/MarkAsDontBuild" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>
