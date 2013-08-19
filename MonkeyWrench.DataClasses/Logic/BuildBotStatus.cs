@@ -29,6 +29,7 @@ namespace MonkeyWrench.DataClasses.Logic
 			AssemblyDescriptionAttribute ad;
 			object [] attribs;
 
+			AssemblyDescription = "<unknown>";
 			attribs = typeof (Configuration).Assembly.GetCustomAttributes (typeof (AssemblyDescriptionAttribute), false);
 			if (attribs != null && attribs.Length > 0) {
 				ad = (AssemblyDescriptionAttribute) attribs [0];
