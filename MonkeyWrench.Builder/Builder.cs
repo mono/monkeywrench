@@ -617,6 +617,10 @@ namespace MonkeyWrench.Builder
 							info.work.summary = line;
 							info.work = WebService.ReportBuildStateSafe (info.work).Work;
 							break;
+						case "AddSummary":
+							info.work.summary += line;
+							info.work = WebService.ReportBuildStateSafe (info.work).Work;
+							break;
 						case "SetReleaseVersion":
 							if (release == null)
 								release = new DBRelease ();
