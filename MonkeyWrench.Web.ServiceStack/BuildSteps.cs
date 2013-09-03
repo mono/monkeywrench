@@ -68,7 +68,7 @@ namespace MonkeyWrench.Web.ServiceStack
 					Name = step.command,
 					State = (DBState)step.state,
 					StartDate = step.state > (int)DBState.NotDone && step.state != (int)DBState.Paused ? step.starttime : (DateTime?)null,
-					Duration = step.state >= (int)DBState.Executing && step.state != (int)DBState.Paused ? Utils.GetDurationFromWorkView (step) : (TimeSpan?)null,
+					Duration = step.state >= (int)DBState.Executing && step.state != (int)DBState.Paused ? Utilities.GetDurationFromWorkView (step) : (TimeSpan?)null,
 					Author = step.author,
 					LogId = files[i].Count > 0 ? files[i].FirstOrDefault (f => f.filename.StartsWith (step.command)).id.ToString () : null
 				})
