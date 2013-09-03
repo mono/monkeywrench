@@ -18,6 +18,7 @@ using System.Web;
 
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
+using MonkeyWrench.DataClasses;
 
 namespace MonkeyWrench
 {
@@ -74,6 +75,21 @@ namespace MonkeyWrench
 			result = Array.IndexOf (response.UserRoles, role) >= 0;
 
 			return result;
+		}
+
+		public static TimeSpan GetDurationFromWorkView (DBWorkView2 step)
+		{
+			DateTime starttime = step.starttime.ToLocalTime ();
+			DateTime endtime = step.endtime.ToLocalTime ();
+			int duration = (int) (endtime - starttime).TotalSeconds;
+
+			if (step.endtime.Year < DateTime.Now.Year - 1 && step.duration == 0) {// Not ended, endtime defaults to year 2000
+				duration = (int) (DateTime.Now - starttime).TotalSeconds;
+			} else if (step.endtime == DateTime.MinValue) {
+				duration = step.duration;
+			}
+
+			return TimeSpan.FromSeconds (duration);
 		}
 	}
 }
