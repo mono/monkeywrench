@@ -123,13 +123,10 @@ public partial class ViewWorkTable : System.Web.UI.Page
 				matrix.AppendLine ("<td>-</td>");
 			}
 			// duration
-			DateTime starttime = view.starttime.ToLocalTime ();
-			DateTime endtime = view.endtime.ToLocalTime ();
-			int duration = (int) (endtime - starttime).TotalSeconds;
 			matrix.Append ("\t<td>");
 			if (state >= DBState.Executing && state != DBState.Paused) {
 				matrix.Append ("[");
-				matrix.Append (TimeSpan.FromSeconds (duration).ToString ());
+				matrix.Append (MonkeyWrench.Utilities.GetDurationFromWorkView (view).ToString ());
 				matrix.Append ("]");
 			} else {
 				matrix.Append ("-");
