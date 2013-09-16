@@ -199,19 +199,10 @@ public partial class ViewLane : System.Web.UI.Page
 		for (int s = 0; s < steps.Count; s++) {
 			DBWorkView2 step = steps [s];
 			DBState state = (DBState) step.state;
-			DateTime starttime = step.starttime.ToLocalTime ();
-			DateTime endtime = step.endtime.ToLocalTime ();
-			int duration = (int) (endtime - starttime).TotalSeconds;
 			bool nonfatal = step.nonfatal;
 			string command = step.command;
 			List<DBWorkFileView> files = response.WorkFileViews [s];
 			IEnumerable<DBFileLink> links = response.Links.Where<DBFileLink> ((DBFileLink link) => link.work_id == step.id);
-
-			if (step.endtime.Year < DateTime.Now.Year - 1 && step.duration == 0) {// Not ended, endtime defaults to year 2000
-				duration = (int) (response.Now - starttime).TotalSeconds;
-			} else if (step.endtime == DateTime.MinValue) {
-				duration = step.duration;
-			}
 
 			if (state == DBState.Failed && !nonfatal)
 				failed = true;
@@ -258,7 +249,7 @@ public partial class ViewLane : System.Web.UI.Page
 			matrix.Append ("\t<td>");
 			if (state >= DBState.Executing && state != DBState.Paused && state != DBState.Ignore && state != DBState.DependencyNotFulfilled && state != DBState.Aborted) {
 				matrix.Append ("[");
-				matrix.Append (TimeSpan.FromSeconds (duration).ToString ());
+				matrix.Append (MonkeyWrench.Utilities.GetDurationFromWorkView (step).ToString ());
 				matrix.Append ("]");
 			} else {
 				matrix.Append ("-");
