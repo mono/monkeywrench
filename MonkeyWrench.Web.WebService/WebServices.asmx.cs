@@ -1017,8 +1017,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 					Authenticate (db, login, response, true);
 
 					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = DBLane.TableName;
-						cmd.CommandType = CommandType.TableDirect;
+						cmd.CommandText = "SELECT * FROM Lane WHERE enabled = TRUE;";
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
 								Lanes.Add (new DBLane (reader));
@@ -1063,7 +1062,8 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 						cmd.CommandText = @"
 SELECT HostLane.*
 FROM HostLane
-WHERE hidden = false";
+INNER JOIN Lane ON Lane.id = HostLane.lane_id
+WHERE hidden = false AND Lane.enabled = TRUE";
 
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
@@ -2308,11 +2308,11 @@ INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FR
 
 					// find the enabled hostlane combinations for these hosts
 					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "SELECT * FROM HostLane WHERE enabled = TRUE AND (";
+						cmd.CommandText = "SELECT HostLane.* FROM HostLane INNER JOIN Lane ON Lane.id = HostLane.lane_id WHERE Lane.enabled = TRUE AND HostLane.enabled = TRUE AND (";
 						for (int i = 0; i < hosts.Count; i++) {
 							if (i > 0)
 								cmd.CommandText += " OR ";
-							cmd.CommandText += " host_id = " + hosts [i].id;
+							cmd.CommandText += " HostLane.host_id = " + hosts [i].id;
 						}
 						cmd.CommandText += ")";
 						using (IDataReader reader = cmd.ExecuteReader ()) {

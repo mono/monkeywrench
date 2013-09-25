@@ -65,6 +65,13 @@
                 <asp:TableCell>If merged-in commits (except the merge commit itself, which is always included) should be included.</asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
+                <asp:TableCell>Enabled:</asp:TableCell>
+                <asp:TableCell>
+                    <asp:CheckBox ID="chkEnabled" runat="server" Width="600px"></asp:CheckBox>
+                </asp:TableCell>
+                <asp:TableCell>If a lane is enabled. If not enabled nothing will be done for it and it won't show up on the front page.</asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
                 <asp:TableCell>
                 </asp:TableCell>
                 <asp:TableCell>

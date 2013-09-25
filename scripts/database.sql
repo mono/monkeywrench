@@ -75,11 +75,13 @@ CREATE TABLE Lane (
 	max_revision   text       NOT NULL DEFAULT '',    -- the last revision to do. '' defaults to all revisions
 	parent_lane_id int        NULL DEFAULT NULL,      -- the parent lane (if any) of this lane
 	commit_filter  text       NOT NULL DEFAULT '',    -- a filter to filter out commits. Syntax not decided yet. An empty filter means include all commits to the repository.
-        traverse_merge boolean    NOT NULL DEFAULT FALSE, -- if commits from a merge (besides the merge commit itself) should be included.
+	traverse_merge boolean    NOT NULL DEFAULT FALSE, -- if commits from a merge (besides the merge commit itself) should be included.
+	enabled        boolean    NOT NULL DEFAULT TRUE,  -- if a lane is enabled or not.
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
 -- ALTER TABLE Lane ADD COLUMN traverse_merge boolean NOT NULL DEFAULT FALSE;
+-- ALTER TABLE Lane ADD COLUMN enabled boolean NOT NULL DEFAULT TRUE;
 
 CREATE TABLE EnvironmentVariable (
 	id              serial    PRIMARY KEY,

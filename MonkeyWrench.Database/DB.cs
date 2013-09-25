@@ -456,6 +456,7 @@ namespace MonkeyWrench
 					result.repository = master.repository;
 					result.source_control = master.source_control;
 					result.parent_lane_id = master.parent_lane_id;
+					result.enabled = master.enabled;
 					result.Save (this);
 
 					foreach (DBLanefile filemaster in master.GetFiles (this, null)) {

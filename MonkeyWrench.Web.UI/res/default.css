@@ -179,6 +179,15 @@ table.buildstatus .enabled-hostlane
 {
 }
 
+table.lanes .lane-enabled a
+{
+}
+
+table.lanes .lane-disabled a
+{
+	color: #cdcdcd;
+}
+
 table.hosts 
 {
     margin-left: auto;

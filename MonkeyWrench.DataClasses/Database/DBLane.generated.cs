@@ -38,6 +38,7 @@ namespace MonkeyWrench.DataClasses
 		private int? _parent_lane_id;
 		private string _commit_filter;
 		private bool _traverse_merge;
+		private bool _enabled;
 
 		public string @lane { get { return _lane; } set { _lane = value; } }
 		public string @source_control { get { return _source_control; } set { _source_control = value; } }
@@ -47,6 +48,7 @@ namespace MonkeyWrench.DataClasses
 		public int? @parent_lane_id { get { return _parent_lane_id; } set { _parent_lane_id = value; } }
 		public string @commit_filter { get { return _commit_filter; } set { _commit_filter = value; } }
 		public bool @traverse_merge { get { return _traverse_merge; } set { _traverse_merge = value; } }
+		public bool @enabled { get { return _enabled; } set { _enabled = value; } }
 
 
 		public override string Table
@@ -59,7 +61,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "lane", "source_control", "repository", "min_revision", "max_revision", "parent_lane_id", "commit_filter", "traverse_merge" };
+				return new string [] { "lane", "source_control", "repository", "min_revision", "max_revision", "parent_lane_id", "commit_filter", "traverse_merge", "enabled" };
 			}
 		}
         

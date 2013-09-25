@@ -83,6 +83,7 @@ public partial class EditLanes : System.Web.UI.Page
 		TableRow row;
 		foreach (DBLane lane in response.Lanes) {
 			row = new TableRow ();
+			row.CssClass = lane.enabled ? "lane-enabled" : "lane-disabled";
 			row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='EditLane.aspx?lane_id={0}'>{1}</a>", lane.id, lane.lane)));
 			row.Cells.Add (Utils.CreateTableCell (
 				string.Format ("<a href='EditLanes.aspx?lane_id={0}&amp;action=remove'>Delete</a> ", lane.id) +

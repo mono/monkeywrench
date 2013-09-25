@@ -126,6 +126,11 @@ namespace MonkeyWrench.Scheduler
 					// SVNUpdater svn_updater = null;
 
 					foreach (DBLane lane in lanes) {
+						if (!lane.enabled) {
+							Logger.Log ("Schedule: lane {0} is disabled, skipping it.", lane.lane);
+							continue;
+						}
+
 						SchedulerBase updater;
 						switch (lane.source_control) {
 							/*

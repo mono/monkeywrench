@@ -156,7 +156,15 @@ public partial class Master : System.Web.UI.MasterPage
 
 		try {
 			response = WebService.GetLanes (WebServiceLogin);
-			root = LaneTreeNode.BuildTree (response.Lanes, null);
+
+			// Reomve disabled lanes.
+			var lanes = new List<DBLane> (response.Lanes);
+			for (int i = lanes.Count -1; i >= 0; i--) {
+				if (lanes [i].enabled)
+					continue;
+				lanes.RemoveAt (i);
+			}
+			root = LaneTreeNode.BuildTree (lanes, null);
 
 			SetResponse (response);
 
