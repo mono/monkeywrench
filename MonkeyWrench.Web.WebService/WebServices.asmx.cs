@@ -896,6 +896,24 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 		}
 
 		[WebMethod]
+		public FindLaneWithDependenciesResponse FindLaneWithDependencies (WebServiceLogin login, int? lane_id, string lane)
+		{
+			var response = new FindLaneWithDependenciesResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
+
+				response.lane = FindLane (db, lane_id, lane);
+				if (response.lane != null)
+					response.dependencies = response.lane.GetDependentLanes (db);
+
+				Logger.Log ("*** * *** FindLaneWithDependencies for {0}: {1} results\n", response.lane.id, response.dependencies.Count);
+
+				return response;
+			}
+		}
+
+		[WebMethod]
 		public void EditLane (WebServiceLogin login, DBLane lane)
 		{
 			//WebServiceResponse response = new WebServiceResponse ();

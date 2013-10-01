@@ -87,6 +87,7 @@
               <xs:element minOccurs="1" maxOccurs="1" name="parent_lane_id" nillable="true" type="xs:int" />
               <xs:element minOccurs="0" maxOccurs="1" name="commit_filter" type="xs:string" />
               <xs:element minOccurs="1" maxOccurs="1" name="traverse_merge" type="xs:boolean" />
+              <xs:element minOccurs="1" maxOccurs="1" name="enabled" type="xs:boolean" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -730,6 +731,16 @@
           <xs:extension base="s0:WebServiceResponse">
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="lane" type="s0:DBLane" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="FindLaneWithDependenciesResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="lane" type="s0:DBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="dependencies" type="s0:ArrayOfDBLaneDependency" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -1671,6 +1682,22 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="FindLaneResult" type="s0:FindLaneResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindLaneWithDependencies">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="lane_id" nillable="true" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindLaneWithDependenciesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="FindLaneWithDependenciesResult" type="s0:FindLaneWithDependenciesResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -3028,6 +3055,12 @@
   <message name="FindLaneSoapOut">
     <part name="parameters" element="s0:FindLaneResponse" />
   </message>
+  <message name="FindLaneWithDependenciesSoapIn">
+    <part name="parameters" element="s0:FindLaneWithDependencies" />
+  </message>
+  <message name="FindLaneWithDependenciesSoapOut">
+    <part name="parameters" element="s0:FindLaneWithDependenciesResponse" />
+  </message>
   <message name="EditLaneSoapIn">
     <part name="parameters" element="s0:EditLane" />
   </message>
@@ -3665,6 +3698,10 @@
       <input message="s0:FindLaneSoapIn" />
       <output message="s0:FindLaneSoapOut" />
     </operation>
+    <operation name="FindLaneWithDependencies">
+      <input message="s0:FindLaneWithDependenciesSoapIn" />
+      <output message="s0:FindLaneWithDependenciesSoapOut" />
+    </operation>
     <operation name="EditLane">
       <input message="s0:EditLaneSoapIn" />
       <output message="s0:EditLaneSoapOut" />
@@ -4134,6 +4171,10 @@
     <operation name="FindLane">
       <input message="s0:FindLaneSoapIn" />
       <output message="s0:FindLaneSoapOut" />
+    </operation>
+    <operation name="FindLaneWithDependencies">
+      <input message="s0:FindLaneWithDependenciesSoapIn" />
+      <output message="s0:FindLaneWithDependenciesSoapOut" />
     </operation>
     <operation name="EditLane">
       <input message="s0:EditLaneSoapIn" />
@@ -4834,6 +4875,15 @@
     </operation>
     <operation name="FindLane">
       <soap:operation soapAction="http://monkeywrench.novell.com/FindLane" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindLaneWithDependencies">
+      <soap:operation soapAction="http://monkeywrench.novell.com/FindLaneWithDependencies" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5890,6 +5940,15 @@
     </operation>
     <operation name="FindLane">
       <soap12:operation soapAction="http://monkeywrench.novell.com/FindLane" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="FindLaneWithDependencies">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/FindLaneWithDependencies" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

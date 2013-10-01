@@ -1005,7 +1005,31 @@ namespace MonkeyWrench.Web.WebServices {
             object[] results = this.EndInvoke(asyncResult);
             return ((FindLaneResponse)(results[0]));
         }
-        
+		
+		/// <remarks/>
+		[System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/FindLaneWithDependencies", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+		public FindLaneWithDependenciesResponse FindLaneWithDependencies(WebServiceLogin login, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> lane_id, string lane) {
+			object[] results = this.Invoke("FindLaneWithDependencies", new object[] {
+				login,
+				lane_id,
+				lane});
+			return ((FindLaneWithDependenciesResponse)(results[0]));
+		}
+
+		/// <remarks/>
+		public System.IAsyncResult BeginFindLaneWitDependencies(WebServiceLogin login, System.Nullable<int> lane_id, string lane, System.AsyncCallback callback, object asyncState) {
+			return this.BeginInvoke("FindLane", new object[] {
+				login,
+				lane_id,
+				lane}, callback, asyncState);
+		}
+
+		/// <remarks/>
+		public FindLaneWithDependenciesResponse EndFindLaneWithDependencies(System.IAsyncResult asyncResult) {
+			object[] results = this.EndInvoke(asyncResult);
+			return ((FindLaneWithDependenciesResponse)(results[0]));
+		}
+
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/EditLane", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void EditLane(WebServiceLogin login, DBLane lane) {

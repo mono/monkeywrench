@@ -114,8 +114,8 @@ DELETE FROM Command WHERE lane_id = @id;
 DELETE FROM HostLane WHERE lane_id = @id;
 DELETE FROM EnvironmentVariable WHERE lane_id = @id;
 DELETE FROM LaneDeletionDirective WHERE lane_id = @id;
-DELETE FROM Lane WHERE id = @id;
 DELETE FROM LaneDependency WHERE lane_id = @id OR dependent_lane_id = @id;
+DELETE FROM Lane WHERE id = @id;
 ";
 					DB.CreateParameter (cmd, "id", lane_id);
 					cmd.ExecuteNonQuery ();
@@ -135,6 +135,21 @@ DELETE FROM LaneDependency WHERE lane_id = @id OR dependent_lane_id = @id;
 						result.Add (new DBLaneDependency (reader));
 				}
 			}
+			return result;
+		}
+
+		public static List<DBLane> GetDependentLanes (this DBLane me, DB db)
+		{
+			var result = new List<DBLane> ();
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT Lane.* FROM Lane INNER JOIN LaneDependency ON LaneDependency.lane_id = Lane.id WHERE LaneDependency.dependent_lane_id = @lane_id ORDER BY Lane.lane;";
+				DB.CreateParameter (cmd, "lane_id", me.id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ())
+						result.Add (new DBLane (reader));
+				}
+			}
+			Logger.Log ("*** * *** GetDependentLanes for {0}: {1} results\n", me.id, result.Count);
 			return result;
 		}
 

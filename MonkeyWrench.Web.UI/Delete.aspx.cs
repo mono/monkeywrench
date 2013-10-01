@@ -39,9 +39,18 @@ public partial class Delete : System.Web.UI.Page
 					return;
 				}
 
-				FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
+				var lane = Master.WebService.FindLaneWithDependencies (Master.WebServiceLogin, lane_id, null);
+				var text = new System.Text.StringBuilder ();
 
-				lblMessage.Text = string.Format ("Are you sure you want to delete the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
+				text.AppendFormat ("Are you sure you want to delete the lane '{0}' (ID: {1}) Count: {2}?<br/>", lane.lane.lane, lane.lane.id, lane.dependencies == null ? "N/A" : lane.dependencies.Count.ToString ());
+				if (lane.dependencies != null && lane.dependencies.Count > 0) {
+					text.AppendFormat ("<br/>There are {0} other lane(s) depending on this lane:<br/>", lane.dependencies.Count);
+					foreach (var dl in lane.dependencies) {
+						text.AppendFormat ("<a href=EditLane.aspx?lane_id={0}>{1}</a><br/>", dl.id, dl.lane);
+					}
+					text.AppendFormat ("<br/>These dependencies will also be removed.<br/>");
+				}
+				lblMessage.Text = text.ToString ();
 				cmdConfirm.Enabled = true;
 				break;
 			}

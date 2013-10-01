@@ -183,6 +183,7 @@
     <Compile Include="Utilities.cs" />
     <Compile Include="WebServices.cs" />
     <Compile Include="WebServices.Generated.cs" />
+    <Compile Include="Logic\FindLaneWithDependenciesResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CustomTypes.sql" />
@@ -223,4 +224,3 @@
   </Target>
   -->
 </Project>
-
