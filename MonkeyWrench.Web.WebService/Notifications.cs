@@ -95,6 +95,8 @@ namespace MonkeyWrench.WebServices
 					}
 					notifications.Clear ();
 				}
+				if (notifications_per_lane != null)
+					notifications_per_lane.Clear ();
 			}
 		}
 
