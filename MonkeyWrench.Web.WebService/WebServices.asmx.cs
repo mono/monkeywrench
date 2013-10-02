@@ -532,7 +532,7 @@ INNER JOIN Work ON RevisionWork.id = Work.revisionwork_id
 INNER JOIN Host ON RevisionWork.host_id = Host.id
 WHERE RevisionWork.workhost_id = @host_id 
 GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWork.workhost_id, RevisionWork.revision_id, RevisionWork.state, RevisionWork.lock_expires, RevisionWork.completed, RevisionWork.endtime, Lane.lane, Revision.revision, Host.host ";
-					cmd.CommandText += " ORDER BY order_date DESC ";
+					cmd.CommandText += " ORDER BY RevisionWork.completed ASC, order_date DESC ";
 					if (limit > 0)
 						cmd.CommandText += " LIMIT " + limit.ToString ();
 					if (offset > 0)
