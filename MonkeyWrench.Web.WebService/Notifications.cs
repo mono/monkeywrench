@@ -15,6 +15,7 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Text;
 using System.Threading;
 using System.Web;
@@ -321,6 +322,7 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 		DBIrcIdentity identity;
 		string [] channels;
 		bool enabled = true;
+		ObjectCache cache = new MemoryCache ("IrcCache");
 
 		class IrcState
 		{
@@ -552,6 +554,10 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 				}
 				foreach (var nick in person.irc_nicknames.Split (',')) {
 					foreach (var channel in channels) {
+						var msg = nick + ": " + message;
+						if (cache [msg] != null)
+							continue;
+						cache.Add (msg, string.Empty, new DateTimeOffset (DateTime.UtcNow.AddHours (1), TimeSpan.Zero));
 						state.Client.SendMessage (SendType.Message, channel, nick + ": " + message, Priority.Critical);
 					}
 				}

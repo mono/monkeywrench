@@ -20,6 +20,7 @@ REFERENCES = \
 	-r:Npgsql.dll	\
 	-r:System.Data.dll	\
 	-r:System.Web.dll	\
+	-r:System.Runtime.Caching.dll \
 	-r:System.Web.Services.dll
 
 SOURCES = \
