@@ -96,8 +96,10 @@ public partial class GetRevisionLog : System.Web.UI.Page
 				} else if (line.StartsWith ("@@")) {
 					// line numbers
 					string [] nl = line.Replace ("@@", "").Trim ().Split (' ');
-					old_ln = int.Parse (nl [0].Substring (1, nl [0].IndexOf (',') - 1));
-					new_ln = int.Parse (nl [1].Substring (1, nl [1].IndexOf (',') - 1));
+					var oldc = nl [0].IndexOf (',');
+					var newc = nl [1].IndexOf (',');
+					old_ln = int.Parse (nl [0].Substring (1, oldc > 0 ? oldc - 1 : nl [0].Length - 1));
+					new_ln = int.Parse (nl [1].Substring (1, newc > 0 ? newc - 1 : nl [1].Length - 1));
 					result.AppendFormat ("<tr><td class='diff_view_line_number'><pre class='diff_view_pre'>&nbsp;</pre></td><td class='diff_view_line_number'><pre class='diff_view_pre'>&nbsp;</pre></td><td class='diff_view_at_td'><pre class='diff_view_pre'>{0}</pre></td></tr>\n", line);
 				} else {
 					string cl;
