@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -30,6 +31,9 @@ namespace MonkeyWrench
 		NpgsqlConnection dbcon;
 		LargeObjectManager manager;
 		TimeSpan db_time_difference;
+
+		List<string> log;
+		Stopwatch watch;
 
 		public LargeObjectManager Manager
 		{
@@ -59,6 +63,8 @@ namespace MonkeyWrench
 		{
 			NpgsqlCommand result = dbcon.CreateCommand ();
 			result.CommandTimeout = (int) Timeout.TotalSeconds;
+			if (log != null)
+				return new LoggingCommand (this, result);
 			return result;
 		}
 
@@ -69,13 +75,31 @@ namespace MonkeyWrench
 
 		public DB ()
 		{
+			Initialize ();
 			Connect ();
 		}
 
 		public DB (bool Connect)
 		{
+			Initialize ();
 			if (Connect)
 				this.Connect ();
+		}
+
+		void Initialize ()
+		{
+			if (Configuration.LogVerbosity > 2) {
+				log = new List<string> ();
+				watch = new Stopwatch ();
+				watch.Start ();
+			}
+		}
+
+		public void Log (string format, params object[] args)
+		{
+			if (log == null)
+				return;
+			log.Add (string.Format ("[{0:yyyy/MM/dd HH:mm:ss.ffff}] {1}", DateTime.Now, string.Format (format, args)));
 		}
 
 		public static void CreateParameter (IDbCommand cmd, string name, object value)
@@ -96,25 +120,18 @@ namespace MonkeyWrench
 
 				dbcon = new NpgsqlConnection (connectionString);
 
-				Logger.Log (2, "Database connection string: {0}", connectionString);
+				Log ("Connecting to database, connection string: {0}", connectionString);
 
 				dbcon.Open ();
 
 				object db_now_obj = ExecuteScalar ("SELECT now();");
 				DateTime db_now;
 				DateTime machine_now = DateTime.Now;
-				const string format = "yyyy/MM/dd HH:mm:ss.ffff";
 
-				if (db_now_obj is DateTime) {
-					db_now = (DateTime) db_now_obj;
-				} else {
-					Logger.Log ("now () function return value of type: {0}", db_now_obj == null ? "null" : db_now_obj.GetType ().FullName);
-					db_now = machine_now;
-				}
-
+				db_now = (DateTime) db_now_obj;
 				db_time_difference = db_now - machine_now;
 
-				Logger.Log (2, "DB now: {0}, current machine's now: {1}, adjusted now: {3}, diff: {2} ms", db_now.ToString (format), machine_now.ToString (format), db_time_difference.TotalMilliseconds, Now.ToString (format));
+				Logger.Log (2, "DB now: {0:yyyy/MM/dd HH:mm:ss.ffff}, current machine's now: {1:yyyy/MM/dd HH:mm:ss.ffff}, adjusted now: {3}, diff: {2:yyyy/MM/dd HH:mm:ss.ffff} ms", db_now, machine_now, db_time_difference.TotalMilliseconds, Now);
 			} catch {
 				if (dbcon != null) {
 					dbcon.Dispose ();
@@ -129,6 +146,12 @@ namespace MonkeyWrench
 			if (dbcon != null) {
 				dbcon.Close ();
 				dbcon = null;
+			}
+			if (log != null) {
+				watch.Stop ();
+				Log ("Closed database connection. Total duration: {0} ms", watch.ElapsedMilliseconds);
+				log.Add (string.Empty);
+				Logger.LogRaw (string.Join ("\n", log.ToArray ()));
 			}
 		}
 
@@ -251,7 +274,6 @@ namespace MonkeyWrench
 
 		public int GetLargeObjectSize (int oid)
 		{
-			Console.WriteLine ("GetLargeObjectSize ({0})", oid);
 			using (IDbTransaction transaction = BeginTransaction ()) {
 				int result;
 				LargeObject obj = Manager.Open (oid);

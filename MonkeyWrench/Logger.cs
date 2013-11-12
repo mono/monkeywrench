@@ -49,25 +49,27 @@ namespace MonkeyWrench
 
 		public static void Log (int verbosity, string format, params object [] args)
 		{
-			string message;
-
 			try {
 				if (!IsVerbosityIncluded (verbosity))
 					return;
 
-				message = FormatLog (format, args);
-				if (string.IsNullOrEmpty (Configuration.LogFile)) {
-					Console.Write (message);
-				} else {
-					using (FileStream fs = new FileStream (Configuration.LogFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)) {
-						using (StreamWriter st = new StreamWriter (fs)) {
-							st.Write (message);
-						}
-					}
-				}
+				LogRaw (FormatLog (format, args));
 			} catch (Exception ex) {
 				Console.WriteLine (FormatLog ("Builder.Logger: An exception occurred while logging: {0}", ex.ToString ()));
 				throw;
+			}
+		}
+
+		public static void LogRaw (string message)
+		{
+			if (string.IsNullOrEmpty (Configuration.LogFile)) {
+				Console.Write (message);
+			} else {
+				using (FileStream fs = new FileStream (Configuration.LogFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)) {
+					using (StreamWriter st = new StreamWriter (fs)) {
+						st.Write (message);
+					}
+				}
 			}
 		}
 	}

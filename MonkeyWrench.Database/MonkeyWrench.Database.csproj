@@ -92,6 +92,7 @@
     <Compile Include="SchedulerBase.cs" />
     <Compile Include="SchedulerGIT.cs" />
     <Compile Include="SchedulerSVN.cs" />
+    <Compile Include="LoggingCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonkeyWrench.DataClasses\MonkeyWrench.DataClasses.csproj">
