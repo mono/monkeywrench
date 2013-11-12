@@ -1088,45 +1088,47 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 						}
 					}
 
-					response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> ();
-					response.RevisionWorkHostLaneRelation = new List<int> ();
+					response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> (HostLanes.Count);
+					response.RevisionWorkHostLaneRelation = new List<int> (HostLanes.Count);
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						var revisionworklists = new Queue<List<DBRevisionWorkView2>> ();
+					if (HostLanes.Count > 0) {
+						using (IDbCommand cmd = db.CreateCommand ()) {
+							var revisionworklists = new Queue<List<DBRevisionWorkView2>> ();
 
-						for (int i = 0; i < HostLanes.Count; i++) {
-							DBHostLane hl = HostLanes [i];
-							var RevisionWork = new List<DBRevisionWorkView2> ();
-							revisionworklists.Enqueue (RevisionWork);
+							for (int i = 0; i < HostLanes.Count; i++) {
+								DBHostLane hl = HostLanes [i];
+								var RevisionWork = new List<DBRevisionWorkView2> ();
+								revisionworklists.Enqueue (RevisionWork);
 
-							var stri = i.ToString ();
-							cmd.CommandText += @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE " +
-								"R.host_id = @host_id" + stri + " AND R.lane_id = @lane_id" + stri + " LIMIT @limit OFFSET @offset;\n";
-							DB.CreateParameter (cmd, "host_id" + stri, hl.host_id);
-							DB.CreateParameter (cmd, "lane_id" + stri, hl.lane_id);
+								var stri = i.ToString ();
+								cmd.CommandText += @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE " +
+									"R.host_id = @host_id" + stri + " AND R.lane_id = @lane_id" + stri + " LIMIT @limit OFFSET @offset;\n";
+								DB.CreateParameter (cmd, "host_id" + stri, hl.host_id);
+								DB.CreateParameter (cmd, "lane_id" + stri, hl.lane_id);
 
-							response.RevisionWorkHostLaneRelation.Add (hl.id);
-							response.RevisionWorkViews.Add (RevisionWork);
-						}
-
-						DB.CreateParameter (cmd, "limit", page_size);
-						DB.CreateParameter (cmd, "offset", page * page_size);
-
-						using (IDataReader reader = cmd.ExecuteReader ()) {
-							while (reader.NextResult ()) {
-								if (revisionworklists.Count == 0)
-									throw new Exception ("GetFrontPageData3: got more datasets back for revision works than expected. This is most likely a bug, not a configuration issue.");
-
-								var RevisionWork = revisionworklists.Dequeue ();
-								while (reader.Read ())
-									RevisionWork.Add (new DBRevisionWorkView2 (reader));
+								response.RevisionWorkHostLaneRelation.Add (hl.id);
+								response.RevisionWorkViews.Add (RevisionWork);
 							}
 
-							if (revisionworklists.Count != 0)
-								throw new Exception ("GetFrontPageData3: got fewer datasets back for revision works than expected. This is most likely a bug, not a configuration issue.");
+							DB.CreateParameter (cmd, "limit", page_size);
+							DB.CreateParameter (cmd, "offset", page * page_size);
 
+							using (IDataReader reader = cmd.ExecuteReader ()) {
+								do {
+									if (revisionworklists.Count == 0)
+										throw new Exception ("GetFrontPageData3: got more datasets back for revision works than expected. This is most likely a bug, not a configuration issue.");
+
+									var RevisionWork = revisionworklists.Dequeue ();
+									while (reader.Read ())
+										RevisionWork.Add (new DBRevisionWorkView2 (reader));
+								} while (reader.NextResult ());
+
+								if (revisionworklists.Count != 0)
+									throw new Exception (string.Format ("GetFrontPageData3: got fewer datasets back for revision works than expected (expected {0} data sets, got {1})."
+										+ " This is most likely a bug, not a configuration issue.", response.RevisionWorkViews.Count, response.RevisionWorkViews.Count - revisionworklists.Count));
+
+							}
 						}
-
 					}
 
 					// Create a list of all the lanes which have hostlanes
