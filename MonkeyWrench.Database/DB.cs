@@ -34,6 +34,7 @@ namespace MonkeyWrench
 
 		List<string> log;
 		Stopwatch watch;
+		string who;
 
 		public LargeObjectManager Manager
 		{
@@ -88,11 +89,14 @@ namespace MonkeyWrench
 
 		void Initialize ()
 		{
-			if (Configuration.LogVerbosity > 2) {
-				log = new List<string> ();
-				watch = new Stopwatch ();
-				watch.Start ();
-			}
+			if (Configuration.LogVerbosity <= 2)
+				return;
+
+			log = new List<string> ();
+			watch = new Stopwatch ();
+			watch.Start ();
+			var fr = new StackFrame (2, false).GetMethod ();
+			who = fr == null ? "?" : fr.Name;
 		}
 
 		public void Log (string format, params object[] args)
@@ -120,7 +124,7 @@ namespace MonkeyWrench
 
 				dbcon = new NpgsqlConnection (connectionString);
 
-				Log ("Connecting to database, connection string: {0}", connectionString);
+				Log ("Connecting to database ({1}), connection string: {0}", connectionString, who);
 
 				dbcon.Open ();
 
@@ -149,7 +153,7 @@ namespace MonkeyWrench
 			}
 			if (log != null) {
 				watch.Stop ();
-				Log ("Closed database connection. Total duration: {0} ms", watch.ElapsedMilliseconds);
+				Log ("Closed database connection ({1}). Total duration: {0} ms", watch.ElapsedMilliseconds, who);
 				log.Add (string.Empty);
 				Logger.LogRaw (string.Join ("\n", log.ToArray ()));
 			}
