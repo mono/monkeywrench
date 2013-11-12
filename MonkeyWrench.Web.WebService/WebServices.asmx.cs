@@ -1026,7 +1026,6 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			List<DBLane> Lanes = new List<DBLane> ();
 			List<DBHost> Hosts = new List<DBHost> ();
 			List<DBHostLane> HostLanes = new List<DBHostLane> ();
-			List<DBRevisionWorkView2> RevisionWork;
 
 			page_size = Math.Min (page_size, 500);
 
@@ -1092,23 +1091,42 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 					response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> ();
 					response.RevisionWorkHostLaneRelation = new List<int> ();
 
-					foreach (DBHostLane hl in HostLanes) {
-						RevisionWork = new List<DBRevisionWorkView2> ();
-						using (IDbCommand cmd = db.CreateCommand ()) {
-							cmd.CommandText = @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE R.host_id = @host_id AND R.lane_id = @lane_id LIMIT @limit OFFSET @offset";
-							DB.CreateParameter (cmd, "host_id", hl.host_id);
-							DB.CreateParameter (cmd, "lane_id", hl.lane_id);
-							DB.CreateParameter (cmd, "limit", page_size);
-							DB.CreateParameter (cmd, "offset", page * page_size);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						var revisionworklists = new Queue<List<DBRevisionWorkView2>> ();
 
-							using (IDataReader reader = cmd.ExecuteReader ()) {
+						for (int i = 0; i < HostLanes.Count; i++) {
+							DBHostLane hl = HostLanes [i];
+							var RevisionWork = new List<DBRevisionWorkView2> ();
+							revisionworklists.Enqueue (RevisionWork);
+
+							var stri = i.ToString ();
+							cmd.CommandText += @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE " +
+								"R.host_id = @host_id" + stri + " AND R.lane_id = @lane_id" + stri + " LIMIT @limit OFFSET @offset;\n";
+							DB.CreateParameter (cmd, "host_id" + stri, hl.host_id);
+							DB.CreateParameter (cmd, "lane_id" + stri, hl.lane_id);
+
+							response.RevisionWorkHostLaneRelation.Add (hl.id);
+							response.RevisionWorkViews.Add (RevisionWork);
+						}
+
+						DB.CreateParameter (cmd, "limit", page_size);
+						DB.CreateParameter (cmd, "offset", page * page_size);
+
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.NextResult ()) {
+								if (revisionworklists.Count == 0)
+									throw new Exception ("GetFrontPageData3: got more datasets back for revision works than expected. This is most likely a bug, not a configuration issue.");
+
+								var RevisionWork = revisionworklists.Dequeue ();
 								while (reader.Read ())
 									RevisionWork.Add (new DBRevisionWorkView2 (reader));
 							}
+
+							if (revisionworklists.Count != 0)
+								throw new Exception ("GetFrontPageData3: got fewer datasets back for revision works than expected. This is most likely a bug, not a configuration issue.");
+
 						}
 
-						response.RevisionWorkHostLaneRelation.Add (hl.id);
-						response.RevisionWorkViews.Add (RevisionWork);
 					}
 
 					// Create a list of all the lanes which have hostlanes
