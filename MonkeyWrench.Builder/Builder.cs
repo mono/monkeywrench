@@ -275,7 +275,7 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_COMMAND"] = info.command.command;
 							p.StartInfo.EnvironmentVariables ["BUILD_REVISION"] = info.revision.revision;
 							p.StartInfo.EnvironmentVariables ["BUILD_INSTALL"] = Configuration.CygwinizePath (info.BUILDER_DATA_INSTALL_DIR);
-							p.StartInfo.EnvironmentVariables ["BUILD_DATA_LANE"] = Configuration.GetDataLane (info.lane.lane);
+							p.StartInfo.EnvironmentVariables ["BUILD_DATA_LANE"] = Configuration.GetDataLane (info.lane.id);
 							p.StartInfo.EnvironmentVariables ["BUILD_DATA_SOURCE"] = info.BUILDER_DATA_SOURCE_DIR;
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY"] = info.lane.repository;
 							p.StartInfo.EnvironmentVariables ["BUILD_HOST"] = Configuration.Host;
@@ -292,11 +292,11 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["BUILD_REPOSITORY_SPACE"] = info.lane.repository.Replace (',', ' ');
 							p.StartInfo.EnvironmentVariables ["BUILD_SEQUENCE"] = "0";
 							p.StartInfo.EnvironmentVariables ["BUILD_SCRIPT_DIR"] = info.temp_dir;
-							p.StartInfo.EnvironmentVariables ["LD_LIBRARY_PATH"] = Configuration.CygwinizePath (Configuration.GetLdLibraryPath (info.lane.lane, info.revision.revision));
-							p.StartInfo.EnvironmentVariables ["PKG_CONFIG_PATH"] = Configuration.CygwinizePath (Configuration.GetPkgConfigPath (info.lane.lane, info.revision.revision));
-							p.StartInfo.EnvironmentVariables ["PATH"] = Configuration.CygwinizePath (Configuration.GetPath (info.lane.lane, info.revision.revision));
-							p.StartInfo.EnvironmentVariables ["C_INCLUDE_PATH"] = Configuration.CygwinizePath (Configuration.GetCIncludePath (info.lane.lane, info.revision.revision));
-							p.StartInfo.EnvironmentVariables ["CPLUS_INCLUDE_PATH"] = Configuration.CygwinizePath (Configuration.GetCPlusIncludePath (info.lane.lane, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["LD_LIBRARY_PATH"] = Configuration.CygwinizePath (Configuration.GetLdLibraryPath (info.lane.id, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["PKG_CONFIG_PATH"] = Configuration.CygwinizePath (Configuration.GetPkgConfigPath (info.lane.id, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["PATH"] = Configuration.CygwinizePath (Configuration.GetPath (info.lane.id, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["C_INCLUDE_PATH"] = Configuration.CygwinizePath (Configuration.GetCIncludePath (info.lane.id, info.revision.revision));
+							p.StartInfo.EnvironmentVariables ["CPLUS_INCLUDE_PATH"] = Configuration.CygwinizePath (Configuration.GetCPlusIncludePath (info.lane.id, info.revision.revision));
 
 							// We need to remove all paths from environment variables that were
 							// set for this executable to work so that they don't mess with 
@@ -422,7 +422,7 @@ namespace MonkeyWrench.Builder
 
 				if (response.RevisionWorkCompleted) {
 					// Cleanup after us.
-					string base_dir = Configuration.GetDataRevisionDir (info.lane.lane, info.revision.revision);
+					string base_dir = Configuration.GetDataRevisionDir (info.lane.id, info.revision.revision);
 					FileUtilities.TryDeleteDirectoryRecursive (base_dir);
 				}
 
@@ -490,14 +490,14 @@ namespace MonkeyWrench.Builder
 						for (int f = 0; f < entry.FilesToDownload.Count; f++) {
 							DBWorkFile file = entry.FilesToDownload [f];
 							DBLane dependent_lane = entry.DependentLaneOfFiles [f];
-							WebService.DownloadFileSafe (file, Configuration.GetDependentDownloadDirectory (info.lane.lane, dependent_lane.lane, info.revision.revision));
+							WebService.DownloadFileSafe (file, Configuration.GetDependentDownloadDirectory (info.lane.id, dependent_lane.lane, info.revision.revision));
 						}
 					}
 
 					// Set revision-specific paths
-					info.BUILDER_DATA_INSTALL_DIR = Configuration.GetDataInstallDir (entry.Lane.lane, entry.Revision.revision);
-					info.BUILDER_DATA_LOG_DIR = Configuration.GetDataLogDir (entry.Lane.lane, entry.Revision.revision);
-					info.BUILDER_DATA_SOURCE_DIR = Configuration.GetDataSourceDir (entry.Lane.lane, entry.Revision.revision);
+					info.BUILDER_DATA_INSTALL_DIR = Configuration.GetDataInstallDir (entry.Lane.id, entry.Revision.revision);
+					info.BUILDER_DATA_LOG_DIR = Configuration.GetDataLogDir (entry.Lane.id, entry.Revision.revision);
+					info.BUILDER_DATA_SOURCE_DIR = Configuration.GetDataSourceDir (entry.Lane.id, entry.Revision.revision);
 					info.environment_variables = entry.EnvironmentVariables;
 
 					if (!Directory.Exists (info.BUILDER_DATA_SOURCE_DIR))

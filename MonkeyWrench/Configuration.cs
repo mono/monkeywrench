@@ -320,9 +320,9 @@ namespace MonkeyWrench
 			}
 		}
 
-		public static string GetDataLane (string lane)
+		public static string GetDataLane (int lane_id)
 		{
-			return Path.Combine (Path.Combine (DataDirectory, "lanes"), lane);
+			return Path.Combine (Path.Combine (DataDirectory, "lanes"), lane_id.ToString ());
 		}
 
 		/// <summary>
@@ -331,9 +331,9 @@ namespace MonkeyWrench
 		/// <param name="lane"></param>
 		/// <param name="revision"></param>
 		/// <returns></returns>
-		public static string GetDataRevisionDir (string lane, string revision)
+		public static string GetDataRevisionDir (int lane_id, string revision)
 		{
-			return Path.Combine (Path.Combine (RevDataDirectory, lane), revision.Length > 8 ? revision.Substring (0, 8) : revision);
+			return Path.Combine (Path.Combine (RevDataDirectory, lane_id.ToString ()), revision.Length > 8 ? revision.Substring (0, 8) : revision);
 		}
 
 		/// <summary>
@@ -342,14 +342,14 @@ namespace MonkeyWrench
 		/// <param name="lane"></param>
 		/// <param name="revision"></param>
 		/// <returns></returns>
-		public static string GetDataLogDir (string lane, string revision)
+		public static string GetDataLogDir (int lane_id, string revision)
 		{
-			return Path.Combine (GetDataRevisionDir (lane, revision), "logs");
+			return Path.Combine (GetDataRevisionDir (lane_id, revision), "logs");
 		}
 
-		public static string GetDependentDownloadDirectory (string lane, string dependent_lane, string revision)
+		public static string GetDependentDownloadDirectory (int lane_id, string dependent_lane, string revision)
 		{
-			return Path.Combine (Path.Combine (GetDataRevisionDir (lane, revision), "dependencies"), dependent_lane);
+			return Path.Combine (Path.Combine (GetDataRevisionDir (lane_id, revision), "dependencies"), dependent_lane);
 		}
 
 		/// <summary>
@@ -358,9 +358,9 @@ namespace MonkeyWrench
 		/// <param name="lane"></param>
 		/// <param name="revision"></param>
 		/// <returns></returns>
-		public static string GetDataSourceDir (string lane, string revision)
+		public static string GetDataSourceDir (int lane_id, string revision)
 		{
-			return Path.Combine (GetDataRevisionDir (lane, revision), "source");
+			return Path.Combine (GetDataRevisionDir (lane_id, revision), "source");
 		}
 
 		/// <summary>
@@ -369,51 +369,51 @@ namespace MonkeyWrench
 		/// <param name="lane"></param>
 		/// <param name="revision"></param>
 		/// <returns></returns>
-		public static string GetDataInstallDir (string lane, string revision)
+		public static string GetDataInstallDir (int lane_id, string revision)
 		{
-			return Path.Combine (GetDataRevisionDir (lane, revision), "install");
+			return Path.Combine (GetDataRevisionDir (lane_id, revision), "install");
 		}
 
-		public static string GetPkgConfigPath (string lane, string revision)
+		public static string GetPkgConfigPath (int lane_id, string revision)
 		{
 			string current = Environment.GetEnvironmentVariable ("PKG_CONFIG_PATH");
-			string result = Path.Combine (Path.Combine (GetDataInstallDir (lane, revision), "lib"), "pkgconfig");
+			string result = Path.Combine (Path.Combine (GetDataInstallDir (lane_id, revision), "lib"), "pkgconfig");
 			if (!string.IsNullOrEmpty (current))
 				result += ":" + current;
 			return result;
 		}
 
-		public static string GetLdLibraryPath (string lane, string revision)
+		public static string GetLdLibraryPath (int lane_id, string revision)
 		{
 			string current = Environment.GetEnvironmentVariable ("LD_LIBRARY_PATH");
-			string result = Path.Combine (GetDataInstallDir (lane, revision), "lib");
+			string result = Path.Combine (GetDataInstallDir (lane_id, revision), "lib");
 			if (!string.IsNullOrEmpty (current))
 				result += ":" + current;
 			return result;
 		}
 
-		public static string GetPath (string lane, string revision)
+		public static string GetPath (int lane_id, string revision)
 		{
 			string current = Environment.GetEnvironmentVariable ("PATH");
-			string result = Path.Combine (GetDataInstallDir (lane, revision), "bin");
+			string result = Path.Combine (GetDataInstallDir (lane_id, revision), "bin");
 			if (!string.IsNullOrEmpty (current))
 				result += ":" + current;
 			return result;
 		}
 
-		public static string GetCIncludePath (string lane, string revision)
+		public static string GetCIncludePath (int lane_id, string revision)
 		{
 			string current = Environment.GetEnvironmentVariable ("C_INCLUDE_PATH");
-			string result = Path.Combine (GetDataInstallDir (lane, revision), "include");
+			string result = Path.Combine (GetDataInstallDir (lane_id, revision), "include");
 			if (!string.IsNullOrEmpty (current))
 				result += ":" + current;
 			return result;
 		}
 
-		public static string GetCPlusIncludePath (string lane, string revision)
+		public static string GetCPlusIncludePath (int lane_id, string revision)
 		{
 			string current = Environment.GetEnvironmentVariable ("CPLUS_INCLUDE_PATH");
-			string result = Path.Combine (GetDataInstallDir (lane, revision), "include");
+			string result = Path.Combine (GetDataInstallDir (lane_id, revision), "include");
 			if (!string.IsNullOrEmpty (current))
 				result += ":" + current;
 			return result;
