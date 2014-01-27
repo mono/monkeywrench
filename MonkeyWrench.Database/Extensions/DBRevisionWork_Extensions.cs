@@ -323,15 +323,19 @@ WHERE
 		public static bool SetWorkHost (this DBRevisionWork rw, DB db, DBHost host)
 		{
 			object result;
-			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = @"
-UPDATE RevisionWork SET workhost_id = @workhost_id WHERE id = @id AND workhost_id IS NULL;
-";
-				DB.CreateParameter (cmd, "workhost_id", host.id);
-				DB.CreateParameter (cmd, "id", rw.id);
+			string update_cmd = string.Format (@"
+UPDATE RevisionWork SET workhost_id = {0} WHERE id = {1} AND workhost_id IS NULL;
+", host.id, rw.id);
 
-				if (cmd.ExecuteNonQuery () != 1)
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = update_cmd;
+
+				var rv = cmd.ExecuteNonQuery ();
+
+				if (rv != 1) {
+					Logger.Log ("{0}: {1} (failed)", cmd.CommandText, rv);
 					return false;
+				}
 			}
 
 			using (IDbCommand cmd = db.CreateCommand ()) {
@@ -344,8 +348,10 @@ SELECT workhost_id FROM RevisionWork where id = @id AND workhost_id = @workhost_
 				result = cmd.ExecuteScalar ();
 				if (result != null && (result is int || result is long)) {
 					rw.workhost_id = host.id;
+					Logger.Log ("{0}: {1} (succeeded)", update_cmd, result);
 					return true;
 				}
+				Logger.Log ("{0}: {1} (failed 2)", update_cmd, result);
 				return false;
 			}
 		}
