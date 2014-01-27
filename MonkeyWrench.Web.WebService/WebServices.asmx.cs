@@ -2477,8 +2477,10 @@ LIMIT 1;
 						if (revisionwork == null)
 							continue;
 
-						if (revisionwork.workhost_id != response.Host.id)
+						if (!revisionwork.workhost_id.HasValue || revisionwork.workhost_id != response.Host.id)
 							continue; // couldn't lock this revisionwork.
+
+						Logger.Log ("Found work for host {0} {4}: {1} (lane: {2} {3})", response.Host.id, revisionwork.id, revisionwork.lane_id, lane.lane, response.Host.host);
 
 						DBRevision revision = DBRevision_Extensions.Create (db, revisionwork.revision_id);
 						List<DBWorkFile> files_to_download = null;
