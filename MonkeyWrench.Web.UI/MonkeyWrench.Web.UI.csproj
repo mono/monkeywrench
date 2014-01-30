@@ -50,6 +50,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\class\lib\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\class\lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -125,6 +128,7 @@
     <Content Include="ViewWorkTable.aspx" />
     <Content Include="Master.master" />
     <Content Include="web.config" />
+    <Content Include="Json.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.aspx.cs">
@@ -348,6 +352,12 @@
     <Compile Include="ViewWorkTable.aspx.designer.cs">
       <DependentUpon>ViewWorkTable.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Json.aspx.cs">
+      <DependentUpon>Json.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Json.aspx.designer.cs">
+      <DependentUpon>Json.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ChangeLog" />
@@ -374,6 +384,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

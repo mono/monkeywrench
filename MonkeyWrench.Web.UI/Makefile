@@ -10,6 +10,7 @@ OUT = $(OUT_DIR)/$(LIBRARY)
 
 BUILDABLE_REFS = \
 	$(OUT_DIR)/Npgsql.dll	\
+	$(OUT_DIR)/Newtonsoft.Json.dll \
 	$(OUT_DIR)/DotNetOpenAuth.dll	\
 	$(OUT_DIR)/MonkeyWrench.dll	\
 	$(OUT_DIR)/MonkeyWrench.DataClasses.dll
@@ -43,3 +44,4 @@ install: all
 	@cp -p $(OUT_DIR)/MonkeyWrench.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/
+	@cp -p $(OUT_DIR)/Newtonsoft.Json.dll* bin/
