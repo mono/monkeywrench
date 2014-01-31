@@ -25,15 +25,23 @@ namespace MonkeyWrench.Web.UI
 
 		private GetHostStatusResponse hoststatusresponse;
 
-		protected override void OnInit (EventArgs e)
-		{
-			web_service_login = Utilities.CreateWebServiceLogin (Context.Request);
-			hoststatusresponse = Utils.WebService.GetHostStatus (web_service_login);
-		}
-
 		protected override void OnLoad (EventArgs e)
 		{
+			if (Request.QueryString ["username"] != null) {
+				try {
+					if (!Authentication.Login (Request.QueryString ["username"], Request.QueryString ["pw"], Request, Response)) {
+						return;
+					}
+				} catch (Exception) {
+					return;
+				}
+			}
+
 			base.OnLoad (e);
+
+			web_service_login = Utilities.CreateWebServiceLogin (Context.Request);
+			hoststatusresponse = Utils.WebService.GetHostStatus (web_service_login);
+
 
 			var node_information = new Dictionary<string, object> {
 				{ "inactiveNodes", GetInactiveNodes(web_service_login, hoststatusresponse) },
@@ -89,11 +97,7 @@ namespace MonkeyWrench.Web.UI
 		private bool NodeIsDead (DBHostStatusView status) {
 			if (status.report_date != null) {
 				var silence = DateTime.Now - status.report_date;
-				if (silence.TotalHours < 3) {
-					return false;
-				} else {
-					return true;
-				}
+				return silence.TotalHours >= 3;
 			}
 		}
 
