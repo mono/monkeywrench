@@ -221,7 +221,7 @@ namespace MonkeyWrench.Scheduler
 				}
 				 **/
 
-				revisions = db.GetDBRevisions (lane.id);
+				revisions = db.GetDBRevisions (lane.id, false);
 
 				repositories = lane.repository.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 				min_revisions = splitWithMiniumElements (lane.min_revision, repositories.Length);

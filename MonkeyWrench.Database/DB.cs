@@ -783,28 +783,30 @@ SELECT family.id FROM family ORDER BY depth ASC;";
 			return result;
 		}
 
-		public Dictionary<string, DBRevision> GetDBRevisions (int lane_id)
+		public Dictionary<string, DBRevision> GetDBRevisions (int lane_id, bool ordered)
 		{
 			Dictionary<string, DBRevision> result = new Dictionary<string, DBRevision> ();
 
-			foreach (DBRevision rev in GetDBRevisions (lane_id, 0)) {
+			foreach (DBRevision rev in GetDBRevisions (lane_id, 0, false)) {
 				result.Add (rev.revision, rev);
 			}
 
 			return result;
 		}
 
-		public List<DBRevision> GetDBRevisions (int lane_id, int limit)
+		public List<DBRevision> GetDBRevisions (int lane_id, int limit, bool ordered = true)
 		{
-			return GetDBRevisions (lane_id, limit, 0);
+			return GetDBRevisions (lane_id, limit, 0, ordered);
 		}
 
-		public List<DBRevision> GetDBRevisions (int lane_id, int limit, int offset)
+		public List<DBRevision> GetDBRevisions (int lane_id, int limit, int offset, bool ordered = true)
 		{
 			List<DBRevision> result = new List<DBRevision> ();
 
 			using (IDbCommand cmd = CreateCommand ()) {
-				cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @lane_id ORDER BY date DESC";
+				cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @lane_id";
+				if (ordered)
+					cmd.CommandText += " ORDER BY date DESC";
 				if (limit > 0)
 					cmd.CommandText += " LIMIT " + limit.ToString ();
 				if (offset > 0)
