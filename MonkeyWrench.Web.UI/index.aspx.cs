@@ -95,12 +95,50 @@ public partial class index : System.Web.UI.Page
 				lblMessage.Text = data.Exception.Message;
 				return;
 			}
-
+			excludeOldLanes(data);
 			this.buildtable.InnerHtml = GenerateOverview (data);
 		} catch (Exception ex) {
 			lblMessage.Text = Utils.FormatException (ex, true);
 		}
 	}
+
+	private void excludeOldLanes (FrontPageResponse data) {
+		var lanes_to_keep = new List<int> ();
+		var lanes_to_disable = new List<int> ();
+
+		foreach (var workview in data.RevisionWorkViews) {
+			var v = workview [0];
+			if (IsPink (v)) {
+				lanes_to_keep.Add (v.lane_id);
+				continue;
+			}
+			if (IsOld (v) && !lanes_to_keep.Contains (v.lane_id)) {
+				lanes_to_disable.Add (v.lane_id);
+				continue;
+			}
+		}
+
+		foreach (var lane in lanes_to_disable) {
+			DisableLane (lane);
+		};
+	}
+
+	private void DisableLane (int lane_id) {
+		var lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
+		lane.lane.enabled = false;
+		Master.WebService.EditLane (Master.WebServiceLogin, lane.lane);
+	}
+
+	private bool IsPink (DBRevisionWorkView2 view) {
+		return view.state == 0;
+	}
+
+	private bool IsOld (DBRevisionWorkView2 view) {
+		DateTime one_month_ago = DateTime.Now - TimeSpan.FromDays (30);
+		return view.endtime < one_month_ago;
+	}
+
+
 
 	private void WriteLanes (List<StringBuilder> header_rows, LaneTreeNode node, int level, int depth)
 	{
