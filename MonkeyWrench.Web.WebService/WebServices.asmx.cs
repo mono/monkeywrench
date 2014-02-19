@@ -1017,15 +1017,10 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 		{
 			return GetFrontPageData3 (login, limit, 0, lanes, lane_ids);
 		}
-		[WebMethod]
-		public FrontPageResponse GetFrontPageData3 (WebServiceLogin login, int page_size, int page, string [] lanes, int [] lane_ids)
-		{
-			return GetFrontPageData4 (login, page_size, page, lanes, lane_ids, 30);
-		}
 
 		// for some unknown reason we receive all elements in int? [] arrays with HasValue = false:
 		[WebMethod]
-		public FrontPageResponse GetFrontPageData4 (WebServiceLogin login, int page_size, int page, string [] lanes, int [] lane_ids, int latest_days)
+		public FrontPageResponse GetFrontPageData3 (WebServiceLogin login, int page_size, int page, string [] lanes, int [] lane_ids)
 		{
 			FrontPageResponse response = new FrontPageResponse ();
 			List<DBLane> Lanes = new List<DBLane> ();
@@ -1033,53 +1028,25 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			List<DBHostLane> HostLanes = new List<DBHostLane> ();
 
 			page_size = Math.Min (page_size, 500);
-			int number_of_lanes = lanes == null ? 0 : lanes.Count ();
-
-			if ((number_of_lanes != 0) || (lane_ids != null && lane_ids.Count () != 1)) {
-				latest_days = 0;
-			}
 
 			try {
 				using (DB db = new DB ()) {
 					Authenticate (db, login, response, true);
 
 					using (IDbCommand cmd = db.CreateCommand ()) {
-						var latest_only = latest_days != 0;
-						var last_month = @"
-			AND (
-				EXISTS (SELECT id FROM Revision WHERE date > @afterdate AND lane_id = Lane.id)
-					OR
-				EXISTS (SELECT id FROM RevisionWork WHERE lane_id = Lane.id AND ((completed = TRUE AND endtime > @afterdate) OR (completed = FALSE)))
-					OR
-				NOT EXISTS (SELECT id FROM Revision WHERE lane_id = Lane.id)
-			)";
-						/*
-						 */
-
-						cmd.CommandText = "SELECT * FROM Lane WHERE enabled = TRUE";
-						if (latest_only)
-							cmd.CommandText += last_month;
-						cmd.CommandText += ";\n";
-						cmd.CommandText += "SELECT * FROM Host;\n";
-						cmd.CommandText += @"
-SELECT HostLane.*
-FROM HostLane
-INNER JOIN Lane ON Lane.id = HostLane.lane_id
-WHERE hidden = false AND Lane.enabled = TRUE";
-						if (latest_only)
-							cmd.CommandText += last_month;
-						cmd.CommandText += ";\n";
-						if (latest_only)
-							DB.CreateParameter (cmd, "afterdate", DateTime.Now.AddDays (-latest_days));
+						cmd.CommandText = "SELECT * FROM Lane WHERE enabled = TRUE;";
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
 								Lanes.Add (new DBLane (reader));
-							reader.NextResult ();
+						}
+					}
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = DBHost.TableName;
+						cmd.CommandType = CommandType.TableDirect;
+						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
 								Hosts.Add (new DBHost (reader));
-							reader.NextResult ();
-							while (reader.Read ())
-								HostLanes.Add (new DBHostLane (reader));
 						}
 					}
 
@@ -1107,6 +1074,19 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 					// backwards compat
 					if (response.SelectedLanes.Count == 1)
 						response.Lane = response.SelectedLanes [0];
+
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
+SELECT HostLane.*
+FROM HostLane
+INNER JOIN Lane ON Lane.id = HostLane.lane_id
+WHERE hidden = false AND Lane.enabled = TRUE";
+
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							while (reader.Read ())
+								HostLanes.Add (new DBHostLane (reader));
+						}
+					}
 
 					response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> (HostLanes.Count);
 					response.RevisionWorkHostLaneRelation = new List<int> (HostLanes.Count);
