@@ -1058,7 +1058,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			(
 				EXISTS (SELECT id FROM Revision WHERE date > @afterdate AND lane_id = Lane.id)
 					OR
-				EXISTS (SELECT id FROM RevisionWork WHERE lane_id = Lane.id AND ((completed = TRUE AND endtime > @afterdate) OR (state <> 11 AND completed = FALSE)))
+				EXISTS (SELECT id FROM RevisionWork WHERE lane_id = Lane.id AND ((completed = TRUE AND endtime > @afterdate) OR (state <> 9 AND state <> 11 AND completed = FALSE)))
 					OR
 				NOT EXISTS (SELECT id FROM Revision WHERE lane_id = Lane.id)
 					OR
