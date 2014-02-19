@@ -93,6 +93,7 @@ public partial class index : System.Web.UI.Page
 					return;
 				}
 				lblMessage.Text = data.Exception.Message;
+				MonkeyWrench.Logger.Log ("index.aspx exception: {0}", data.Exception.AsString);
 				return;
 			}
 
