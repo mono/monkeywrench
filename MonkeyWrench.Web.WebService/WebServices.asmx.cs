@@ -1032,6 +1032,8 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
 			List<DBHost> Hosts = new List<DBHost> ();
 			List<DBHostLane> HostLanes = new List<DBHostLane> ();
 
+			string log = "/tmp/wrench-perf-log";
+
 			page_size = Math.Min (page_size, 500);
 
 			string single_lane = string.Empty;
@@ -1082,6 +1084,7 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 						cmd.CommandText += ";\n";
 						if (latest_only)
 							DB.CreateParameter (cmd, "afterdate", DateTime.Now.AddDays (-latest_days));
+						File.AppendAllText (log, cmd.CommandText);
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
 								Lanes.Add (new DBLane (reader));
@@ -1145,7 +1148,8 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 
 							DB.CreateParameter (cmd, "limit", page_size);
 							DB.CreateParameter (cmd, "offset", page * page_size);
-
+							File.AppendAllText (log, "\n\n\n\n");
+							File.AppendAllText (log, cmd.CommandText);
 							using (IDataReader reader = cmd.ExecuteReader ()) {
 								do {
 									if (revisionworklists.Count == 0)
