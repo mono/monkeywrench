@@ -6,44 +6,34 @@
 <head runat="server">
     <title>MonkeyWrench</title>
     <link rel='stylesheet' href='res/default.css' type='text/css' />
-    <link rel='stylesheet' href='res/skin.css' type='text/css' id='cssSkin' />
+    <link rel='stylesheet' href='res/skin.css' type='text/css' runat="server" id='cssSkin' />
     <link rel='icon' id='idFavicon' runat='server' href='res/favicon.ico' />
     <meta http-equiv='Content-Type' content='text/html;charset=utf-8' />
     <script type="text/javascript" src="Master.js"> </script>
 </head>
 <body>
     <div id="siteheader">
-        <asp:Table runat="server" CssClass='headertable' ID="tableHeader">
-            <asp:TableRow>
-                <asp:TableCell RowSpan="3" CssClass="titleimage"><a href="index.aspx"><img id="imgLogo" runat="server" alt="logo" src="res/logo.png" /></a></asp:TableCell>
-                <asp:TableCell></asp:TableCell>
-                <asp:TableCell ID="cellLogin" runat="server" CssClass="rightcolumn" />
-            </asp:TableRow>
-            <asp:TableRow>
-                <asp:TableCell CssClass="title"><a href="index.aspx">MonkeyWrench</a></asp:TableCell>
-                <asp:TableCell runat="server" CssClass="rightcolumn"><a href="doc/index.html">Help</a></asp:TableCell>
-            </asp:TableRow>
-            <asp:TableRow ID="rowAdmin" runat="server">
-                <asp:TableCell id="cellUploadStatus" runat="server" CssClass="uploadstatus"></asp:TableCell> 
-                <asp:TableCell id="cellAdmin" runat="server" CssClass="rightcolumn">
-                    <div id="adminmenu">
-                        <a href='Admin.aspx'>Administration</a>
-                        <ul>
-                            <li class="adminitem"><a href='EditHosts.aspx'>Edit Hosts</a></li> 
-                            <li class="adminitem"><a href='EditLanes.aspx'>Edit Lanes</a></li> 
-                            <li class="adminitem"><a href='Users.aspx'>Edit Users</a></li> 
-                            <li class="adminitem"><a href='Identities.aspx'>Edit Identities</a></li> 
-                            <li class="adminitem"><a href='Notifications.aspx'>Edit Notifications</a></li> 
-                            <li class="adminitem"><a href='Admin.aspx?action=schedule'>Execute scheduler (full update)</a></li>
-                            <li class="adminitem"><a href="BuildBotStatus.aspx">View BuildBot status</a></li>
-                            <li class="adminitem"><a href="Releases.aspx">View MonkeyWrench releases</a></li>
-                            <li class="adminitem"><a href="ViewServerLog.aspx">View Server Log</a></li>
-                            <li class="adminitem"></li>
-                        </ul> 
-                    </div>
-                </asp:TableCell>
-            </asp:TableRow>
-        </asp:Table>
+	    <a href="index.aspx" id="logo"><img id="imgLogo" runat="server" alt="logo" src="res/logo.png" /></a>
+	    <a id="title" href="index.aspx">MonkeyWrench</a>
+        <ul id="nav">
+	        <asp:Literal ID="cellLogin" runat="server" />
+	        <li><a href="doc/index.html">Help</a></li>
+            <asp:Literal id="cellUploadStatus" runat="server"></asp:Literal> 
+            <li id="adminmenu" runat="server"><a href='Admin.aspx'>Administration</a>
+                <ul>
+                    <li class="adminitem"><a href='EditHosts.aspx'>Edit Hosts</a></li> 
+                    <li class="adminitem"><a href='EditLanes.aspx'>Edit Lanes</a></li> 
+                    <li class="adminitem"><a href='Users.aspx'>Edit Users</a></li> 
+                    <li class="adminitem"><a href='Identities.aspx'>Edit Identities</a></li> 
+                    <li class="adminitem"><a href='Notifications.aspx'>Edit Notifications</a></li> 
+                    <li class="adminitem"><a href='Admin.aspx?action=schedule'>Execute scheduler (full update)</a></li>
+                    <li class="adminitem"><a href="BuildBotStatus.aspx">View BuildBot status</a></li>
+                    <li class="adminitem"><a href="Releases.aspx">View MonkeyWrench releases</a></li>
+                    <li class="adminitem"><a href="ViewServerLog.aspx">View Server Log</a></li>
+                </ul>
+			</li>
+			<asp:Literal ID="cellLogout" runat="server" />
+		</ul>
     </div>
     <div id="left-content" class="left-content">
         <asp:Table ID="tableMainTree" runat="server" CellPadding="0" CellSpacing="0" CssClass="lefttree" />

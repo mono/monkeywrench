@@ -537,65 +537,93 @@ li
 {
 	padding: 3px;
 }
-
+/* topbar */
 #siteheader
 {
     width: 100%;
-    height: 70px;
-	border: 0;
-	margin: 0;
-	background-color: #666666;
+    height: 40px;
+	background-color: #666;
+	font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/* admin menu */
-#adminmenu ul
+#siteheader a
 {
-    list-style: none;
-    padding: 0px;
-    margin: 0px;
-    position: absolute;
-    width: 100%;
+	text-decoration: none;
+	color: white;
 }
-#adminmenu li
-{
-    padding: 0px;
-    margin: 0px;
-    padding-right: 10px;
-    background-color: transparent;
+
+#logo {
+	float: left;
+	margin: 2px 20px 0 10%;
 }
-#adminmenu ul
-{
-    display:none;
-    list-style: none;
-    font-size: 12px;
-    padding-top: 4px;
-    z-index: 2;
+
+#logo img {
+	height: 35px;
 }
-#adminmenu a:hover + ul
-{
-    display:block;
-	background-color: inherit;
+
+#title {
+	font-size: 1.7em;
+	display: inline-block;
+	padding-top: 7px;
+	font-weight: 100;
 }
-#adminmenu ul:hover
-{
-    display:block;
-	background-color: transparent;
+
+#siteheader #nav {
+	list-style: none;
+	right: 0;
+	display: table;
+	margin: 0 10% 0 0;
+	font-weight: bold;
+	position: absolute;
+	display: inline-block;
 }
-#adminmenu
-{
-    background-color: transparent;
-    padding: 0px;
-    margin: 0px;
-    position: relative;
+#nav > * {
+	display: inline-block;
+	padding-top: 10px;
 }
-#adminmenu li a:hover
-{
-    color: #666666;
+#nav ul {
+	background: #fff;
+	background: transparent;
+	list-style: none;
+	position: absolute;
+	left: -9999px;
+	padding: 0;
+	z-index: 2;
 }
-#adminmenu li a
-{
-	color: black;
-    background-color: white;
+
+#nav li {
+	margin-right: 10px;
+	position: relative;
+}
+#nav a {
+	display: block;
+	padding: 5px;
+	background: #666;
+	text-decoration: none;
+}
+#nav a:hover {
+	text-decoration: underline;
+}
+#nav ul li {
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 0;
+}
+#nav ul a {
+	white-space: nowrap;
+}
+#nav li:hover ul { 
+	left: 0;
+}
+#nav li:hover a {
+	background: #666;
+	text-decoration: underline;
+}
+#nav li:hover ul a { 
+	text-decoration:none;
+}
+#nav li:hover ul li a:hover {
+	text-decoration: underline;
 }
 
 /* headertable */

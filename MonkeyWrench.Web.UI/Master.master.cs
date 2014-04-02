@@ -77,11 +77,12 @@ public partial class Master : System.Web.UI.MasterPage
 	private void LoadView ()
 	{
 		if (!Authentication.IsLoggedIn (response)) {
-			cellLogin.Text = "<a href='User.aspx'>Create account</a> <a href='Login.aspx'>Login</a>";
-			rowAdmin.Visible = false;
+			cellLogin.Text = "<li><a href='User.aspx'>Create account</a></li><li><a href='Login.aspx'>Login</a></li>";
+			adminmenu.Visible = false;
 		} else {
-			cellLogin.Text = string.Format ("<a href='User.aspx?username={0}'>My Account ({0})</a> <a href='Login.aspx?action=logout'>Log out</a>", Utilities.GetCookie (Request, "user"));
-			rowAdmin.Visible = true;
+			cellLogin.Text = string.Format ("<li><a href='User.aspx?username={0}'>My Account ({0})</a></li>", Utilities.GetCookie (Request, "user"));
+			cellLogout.Text = "<li><a href='Login.aspx?action=logout'>Log out</a></li>";
+			adminmenu.Visible = true;
 		}
 
 		CreateTree ();
@@ -121,7 +122,7 @@ public partial class Master : System.Web.UI.MasterPage
 			}
 
 			if (!string.IsNullOrEmpty (response.UploadStatus))
-				cellUploadStatus.Text = response.UploadStatus;
+				cellUploadStatus.Text = "<span class='uploadstatus'>" + response.UploadStatus + "</span>";
 
 			if (working.Count > 0) {
 				row = Utils.CreateTableRow ("Working");
