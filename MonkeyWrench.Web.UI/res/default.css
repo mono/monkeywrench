@@ -577,6 +577,12 @@ li
 	position: absolute;
 	display: inline-block;
 }
+
+#siteheader a, #siteheader a img {
+  outline: none;
+  border: 0;
+}
+
 #nav > * {
 	display: inline-block;
 	padding-top: 10px;
