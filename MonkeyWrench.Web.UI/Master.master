@@ -8,6 +8,7 @@
     <link rel='stylesheet' href='res/default.css' type='text/css' />
     <link rel='stylesheet' href='res/skin.css' type='text/css' runat="server" id='cssSkin' />
     <link rel='icon' id='idFavicon' runat='server' href='res/favicon.ico' />
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
     <meta http-equiv='Content-Type' content='text/html;charset=utf-8' />
     <script type="text/javascript" src="Master.js"> </script>
 </head>

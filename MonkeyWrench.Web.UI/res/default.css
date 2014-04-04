@@ -543,7 +543,6 @@ li
     width: 100%;
     height: 40px;
 	background-color: #666;
-	font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #siteheader a
@@ -566,6 +565,7 @@ li
 	display: inline-block;
 	padding-top: 7px;
 	font-weight: 100;
+	font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #siteheader #nav {
@@ -573,9 +573,9 @@ li
 	right: 0;
 	display: table;
 	margin: 0;
-	font-weight: bold;
 	position: absolute;
 	display: inline-block;
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #siteheader a, #siteheader a img {
