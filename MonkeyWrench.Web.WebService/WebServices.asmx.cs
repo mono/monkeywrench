@@ -620,48 +620,157 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 				Authenticate (db, login, response);
 				VerifyUserInRole (db, login, Roles.Administrator);
 
-				response.Lane = FindLane (db, lane_id, lane);
-				response.Lanes = db.GetAllLanes ();
-				response.Commands = response.Lane.GetCommandsInherited (db, response.Lanes);
-				response.Dependencies = response.Lane.GetDependencies (db);
-				response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
-				response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
-				response.Files = response.Lane.GetFiles (db, response.Lanes);
-				response.LaneFiles = db.GetAllLaneFiles ();
-				response.HostLaneViews = response.Lane.GetHosts (db);
-				response.Hosts = db.GetHosts ();
+				// We do 2 trips to the database: first to get a list of all the lanes,
+				// then to get all the rest of the information.
 
-				response.ExistingFiles = new List<DBLanefile> ();
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = @"
+				response.Lanes = db.GetAllLanes ();
+
+				if (lane_id > 0) {
+					response.Lane = response.Lanes.Find ((l) => l.id == lane_id);
+				} else {
+					response.Lane = response.Lanes.Find ((l) => l.lane == lane);
+				}
+
+				var cmdText = new StringBuilder ();
+
+				using (var cmd = db.CreateCommand ()) {
+					// 1: db.GetAllLanes
+					cmdText.AppendLine ("SELECT * FROM Lane ORDER BY lane;");
+
+					// 2: response.Lane.GetCommandsInherited (db, response.Lanes);
+					List<DBCommand> result = new List<DBCommand> ();
+					cmdText.Append ("SELECT * FROM Command WHERE lane_id = ").Append (response.Lane.id);
+					DBLane parent = response.Lane;
+					while (null != (parent = response.Lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
+						cmdText.Append (" OR lane_id = ").Append (parent.id);
+					}
+					cmdText.AppendLine (" ORDER BY sequence;");
+
+					// 3: response.Dependencies = response.Lane.GetDependencies (db);
+					cmdText.AppendFormat ("SELECT * FROM LaneDependency WHERE lane_id = {0} ORDER BY dependent_lane_id;", response.Lane.id).AppendLine ();
+
+					// 4: response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
+					cmdText.AppendLine ("SELECT * FROM FileDeletionDirective;");
+
+					// 5: response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
+					cmdText.AppendFormat ("SELECT * FROM LaneDeletionDirectiveView WHERE lane_id = {0};", response.Lane.id).AppendLine ();
+
+					// 6: response.Files = response.Lane.GetFiles (db, response.Lanes);
+					cmdText.Append ("SELECT Lanefile.* FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = ").Append (response.Lane.id);
+					parent = response.Lane;
+					while (null != (parent = response.Lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
+						cmdText.Append (" OR LaneFiles.lane_id = ").Append (parent.id);
+					}
+					cmdText.AppendLine (" ORDER BY name ASC;");
+
+					// 7: response.LaneFiles = db.GetAllLaneFiles ();
+					cmdText.AppendLine ("SELECT * FROM LaneFiles;");
+
+					// 8: response.HostLaneViews = response.Lane.GetHosts (db);
+					cmdText.AppendFormat ("SELECT * FROM HostLaneView WHERE lane_id = {0} ORDER BY host;", response.Lane.id).AppendLine ();
+
+					// 9: response.Hosts = db.GetHosts ();
+					cmdText.AppendLine ("SELECT * FROM Host ORDER BY host;");
+
+					// 10: response.ExistingFiles = new List<DBLanefile> (); [...]
+					cmdText.AppendFormat (@"
 SELECT Lanefile.*
 FROM Lanefile
 INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id
-WHERE Lanefiles.lane_id <> @lane_id 
-ORDER BY Lanefiles.lane_id, Lanefile.name ASC";
-					DB.CreateParameter (cmd, "lane_id", response.Lane.id);
+WHERE Lanefiles.lane_id <> {0}
+ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ();
+
+					// 11: response.Variables = DBEnvironmentVariable_Extensions.Find (db, response.Lane.id, null, null);
+					cmdText.AppendFormat ("SELECT * FROM EnvironmentVariable WHERE lane_id = {0} AND host_id IS NULL ORDER BY id ASC;", response.Lane.id).AppendLine ();
+
+					// 12: response.Notifications = new List<DBNotification> ();
+					cmdText.AppendLine ("SELECT * FROM Notification;");
+
+					// 13: response.LaneNotifications = new List<DBLaneNotification> ();
+					cmdText.AppendFormat ("SELECT * FROM LaneNotification WHERE lane_id = {0};", response.Lane.id).AppendLine ();
+
+					cmd.CommandText = cmdText.ToString ();
+
 					using (IDataReader reader = cmd.ExecuteReader ()) {
+						// 1: db.GetAllLanes
+						response.Lanes = new List<DBLane> ();
+						while (reader.Read ())
+							response.Lanes.Add (new DBLane (reader));
+
+						// 2: response.Lane.GetCommandsInherited (db, response.Lanes);
+						reader.NextResult ();
+						response.Commands = new List<DBCommand> ();
+						while (reader.Read ())
+							response.Commands.Add (new DBCommand (reader));
+						
+						// 3: response.Dependencies = response.Lane.GetDependencies (db);
+						reader.NextResult ();
+						response.Dependencies = new List<DBLaneDependency> ();
+						while (reader.Read ())
+							response.Dependencies.Add (new DBLaneDependency (reader));
+
+						// 4: response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
+						reader.NextResult ();
+						response.FileDeletionDirectives = new List<DBFileDeletionDirective> ();
+						while (reader.Read ()) {
+							response.FileDeletionDirectives.Add (new DBFileDeletionDirective (reader));
+						}
+
+						// 5: response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
+						reader.NextResult ();
+						response.LaneDeletionDirectives = new List<DBLaneDeletionDirectiveView> ();
+						while (reader.Read ())
+							response.LaneDeletionDirectives.Add (new DBLaneDeletionDirectiveView (reader));
+					
+						// 6: response.Files = response.Lane.GetFiles (db, response.Lanes);
+						reader.NextResult ();
+						response.Files = new List<DBLanefile> ();
+						while (reader.Read ())
+							response.Files.Add (new DBLanefile (reader));
+
+						// 7: response.LaneFiles = db.GetAllLaneFiles ();
+						reader.NextResult ();
+						response.LaneFiles = new List<DBLanefiles> ();
+						while (reader.Read ())
+							response.LaneFiles.Add (new DBLanefiles (reader));
+
+						// 8: response.HostLaneViews = response.Lane.GetHosts (db);
+						reader.NextResult ();
+						response.HostLaneViews = new List<DBHostLaneView> ();
+						while (reader.Read ()) {
+							response.HostLaneViews.Add (new DBHostLaneView (reader));
+						}
+
+						// 9: response.Hosts = db.GetHosts ();
+						reader.NextResult ();
+						response.Hosts = new List<DBHost> ();
+						while (reader.Read ())
+							response.Hosts.Add (new DBHost (reader));
+
+						// 10: response.ExistingFiles = new List<DBLanefile> (); [...]
+						reader.NextResult ();
+						response.ExistingFiles = new List<DBLanefile> ();
 						while (reader.Read ())
 							response.ExistingFiles.Add (new DBLanefile (reader));
-					}
-				}
 
-				response.Variables = DBEnvironmentVariable_Extensions.Find (db, response.Lane.id, null, null);
+						// 11: response.Variables = DBEnvironmentVariable_Extensions.Find (db, response.Lane.id, null, null);
+						reader.NextResult ();
+						response.Variables = new List<DBEnvironmentVariable> ();
+						while (reader.Read ())
+							response.Variables.Add (new DBEnvironmentVariable (reader));
 
-				response.Notifications = new List<DBNotification> ();
-				response.LaneNotifications = new List<DBLaneNotification> ();
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = "SELECT * FROM Notification; SELECT * FROM LaneNotification WHERE lane_id = @lane_id;";
-					DB.CreateParameter (cmd, "lane_id", response.Lane.id);
-					using (IDataReader reader = cmd.ExecuteReader ()) {
-						while (reader.Read ()) {
+						// 12: response.Notifications = new List<DBNotification> ();
+						reader.NextResult ();
+						response.Notifications = new List<DBNotification> ();
+						while (reader.Read ())
 							response.Notifications.Add (new DBNotification (reader));
-						}
-						if (reader.NextResult ()) {
-							while (reader.Read ()) {
-								response.LaneNotifications.Add (new DBLaneNotification (reader));
-							}
-						}
+
+						// 13: response.LaneNotifications = new List<DBLaneNotification> ();
+						reader.NextResult ();
+						response.LaneNotifications = new List<DBLaneNotification> ();
+						while (reader.Read ())
+							response.LaneNotifications.Add (new DBLaneNotification (reader));
+
 					}
 				}
 
