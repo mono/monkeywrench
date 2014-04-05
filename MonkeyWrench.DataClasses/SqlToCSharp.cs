@@ -5,6 +5,7 @@
  *   Rolf Bjarne Kvinge (RKvinge@novell.com)
  *   
  * Copyright 2009 Novell, Inc. (http://www.novell.com)
+ * Copyright 2014 Xamarin Inc. (http://www.xamarin.com)
  *
  * See the LICENSE file included with the distribution for details.
  *
@@ -35,9 +36,9 @@ namespace MonkeyWrench.DataClasses
  * {0}
  *
  * Authors:
- *   Rolf Bjarne Kvinge (RKvinge@novell.com)
+ *   Rolf Bjarne Kvinge (rolf@xamarin.com)
  *   
- * Copyright 2009 Novell, Inc. (http://www.novell.com)
+ * Copyright {1} Xamarin Inc. (http://www.xamarin.com)
  *
  * See the LICENSE file included with the distribution for details.
  *
@@ -48,7 +49,7 @@ namespace MonkeyWrench.DataClasses
  * This file has been generated. 
  * If you modify it you'll loose your changes.
  */ 
-", filename);
+", filename, DateTime.Now.Year);
 
 		}
 
