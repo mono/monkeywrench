@@ -1166,14 +1166,24 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			return GetFrontPageData4 (login, page_size, page, lanes, lane_ids, 30);
 		}
 
-		// for some unknown reason we receive all elements in int? [] arrays with HasValue = false:
 		[WebMethod]
 		public FrontPageResponse GetFrontPageData4 (WebServiceLogin login, int page_size, int page, string [] lanes, int [] lane_ids, int latest_days)
+		{
+			return GetFrontPageDataWithTags (login, page_size, page, lanes, lane_ids, latest_days, null);
+		}
+
+		// for some unknown reason we receive all elements in int? [] arrays with HasValue = false:
+		[WebMethod]
+		public FrontPageResponse GetFrontPageDataWithTags (WebServiceLogin login, int page_size, int page, string [] lanes, int [] lane_ids, int latest_days, string[] tags)
 		{
 			FrontPageResponse response = new FrontPageResponse ();
 			List<DBLane> Lanes = new List<DBLane> ();
 			List<DBHost> Hosts = new List<DBHost> ();
 			List<DBHostLane> HostLanes = new List<DBHostLane> ();
+			List<int> TaggedLaneIds = null;
+
+			Logger.Log ("GetFrontPageDataWithTags (page_size: {0} page: {1} lanes: {2} lane_ids: {3} latest_days: {4} tags: {5})",
+				page_size, page, lanes == null ? "null" : lanes.Length.ToString (), lane_ids == null ? "null" : lane_ids.Length.ToString (), latest_days, tags == null ? "null" : tags.Length.ToString ());
 
 			page_size = Math.Min (page_size, 500);
 
@@ -1225,6 +1235,16 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 						cmd.CommandText += ";\n";
 						if (latest_only)
 							DB.CreateParameter (cmd, "afterdate", DateTime.Now.AddDays (-latest_days));
+						if (tags != null && tags.Length > 0) {
+							cmd.CommandText += "SELECT DISTINCT lane_id FROM LaneTag WHERE ";
+							for (int i = 0; i < tags.Length; i++) {
+								if (i > 0)
+									cmd.CommandText += " OR ";
+								cmd.CommandText += " tag = @tag" + i.ToString ();
+								DB.CreateParameter (cmd, "tag" + i.ToString (), tags [i]);
+							}
+							cmd.CommandText += ";";
+						}
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
 								Lanes.Add (new DBLane (reader));
@@ -1234,6 +1254,12 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 							reader.NextResult ();
 							while (reader.Read ())
 								HostLanes.Add (new DBHostLane (reader));
+							if (tags != null && tags.Length > 0) {
+								reader.NextResult ();
+								TaggedLaneIds = new List<int> (tags.Length);
+								while (reader.Read ())
+									TaggedLaneIds.Add (reader.GetInt32 (0));
+							}
 						}
 					}
 
@@ -1255,8 +1281,14 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 									return true;
 							}
 						}
+						if (TaggedLaneIds != null) {
+							if (TaggedLaneIds.Contains (l.id))
+								return true;
+						}
 						return false;
 					});
+
+					Logger.Log ("We have {0} selected lanes", response.SelectedLanes.Count);
 
 					// backwards compat
 					if (response.SelectedLanes.Count == 1)
