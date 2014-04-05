@@ -184,6 +184,8 @@
     <Compile Include="WebServices.cs" />
     <Compile Include="WebServices.Generated.cs" />
     <Compile Include="Logic\FindLaneWithDependenciesResponse.cs" />
+    <Compile Include="Database\DBLaneTag.cs" />
+    <Compile Include="Database\DBLaneTag.generated.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CustomTypes.sql" />

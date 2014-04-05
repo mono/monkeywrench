@@ -44,6 +44,13 @@
                 <asp:TableCell>Revisions after this one won't get scheduled. Leave blank to include all (future) revisions. Git: If you want to track a branch other than the 'remotes/origin/master', set the revision to the remote branch you want to track (you need one max revision per repository in this case).</asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
+                <asp:TableCell>Tags:</asp:TableCell>
+                <asp:TableCell>
+                    <asp:TextBox ID="txtTags" runat="server" Width="600px"></asp:TextBox>
+                </asp:TableCell>
+                <asp:TableCell>Comma-separated list of tags for this lane. Descendant lanes do not inherit tags. Tags can contain any character except commas (in particular spaces are allowed).</asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
                 <asp:TableCell>Parent lane:</asp:TableCell>
                 <asp:TableCell>
                     <asp:DropDownList ID="lstParentLane" runat="server" Width="600px"></asp:DropDownList>
