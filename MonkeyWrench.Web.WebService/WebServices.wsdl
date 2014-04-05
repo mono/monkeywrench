@@ -1880,6 +1880,26 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="GetFrontPageDataWithTags">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="page_size" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="page" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lanes" type="s0:ArrayOfString" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane_ids" type="s0:ArrayOfInt1" />
+            <xs:element minOccurs="1" maxOccurs="1" name="latest_days" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="tags" type="s0:ArrayOfString" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetFrontPageDataWithTagsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetFrontPageDataWithTagsResult" type="s0:FrontPageResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="GetLanes">
         <xs:complexType>
           <xs:sequence>
@@ -3168,6 +3188,12 @@
   <message name="GetFrontPageData4SoapOut">
     <part name="parameters" element="s0:GetFrontPageData4Response" />
   </message>
+  <message name="GetFrontPageDataWithTagsSoapIn">
+    <part name="parameters" element="s0:GetFrontPageDataWithTags" />
+  </message>
+  <message name="GetFrontPageDataWithTagsSoapOut">
+    <part name="parameters" element="s0:GetFrontPageDataWithTagsResponse" />
+  </message>
   <message name="GetLanesSoapIn">
     <part name="parameters" element="s0:GetLanes" />
   </message>
@@ -3801,6 +3827,10 @@
       <input message="s0:GetFrontPageData4SoapIn" />
       <output message="s0:GetFrontPageData4SoapOut" />
     </operation>
+    <operation name="GetFrontPageDataWithTags">
+      <input message="s0:GetFrontPageDataWithTagsSoapIn" />
+      <output message="s0:GetFrontPageDataWithTagsSoapOut" />
+    </operation>
     <operation name="GetLanes">
       <input message="s0:GetLanesSoapIn" />
       <output message="s0:GetLanesSoapOut" />
@@ -4282,6 +4312,10 @@
     <operation name="GetFrontPageData4">
       <input message="s0:GetFrontPageData4SoapIn" />
       <output message="s0:GetFrontPageData4SoapOut" />
+    </operation>
+    <operation name="GetFrontPageDataWithTags">
+      <input message="s0:GetFrontPageDataWithTagsSoapIn" />
+      <output message="s0:GetFrontPageDataWithTagsSoapOut" />
     </operation>
     <operation name="GetLanes">
       <input message="s0:GetLanesSoapIn" />
@@ -5049,6 +5083,15 @@
     </operation>
     <operation name="GetFrontPageData4">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData4" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetFrontPageDataWithTags">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetFrontPageDataWithTags" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -6132,6 +6175,15 @@
     </operation>
     <operation name="GetFrontPageData4">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData4" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetFrontPageDataWithTags">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetFrontPageDataWithTags" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

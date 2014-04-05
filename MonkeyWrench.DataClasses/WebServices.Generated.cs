@@ -1291,6 +1291,38 @@ namespace MonkeyWrench.Web.WebServices {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetFrontPageDataWithTags", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public FrontPageResponse GetFrontPageDataWithTags(WebServiceLogin login, int page_size, int page, string[] lanes, int[] lane_ids, int latest_days, string[] tags) {
+            object[] results = this.Invoke("GetFrontPageDataWithTags", new object[] {
+                        login,
+                        page_size,
+                        page,
+                        lanes,
+                        lane_ids,
+                        latest_days,
+                        tags});
+            return ((FrontPageResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public System.IAsyncResult BeginGetFrontPageDataWithTags(WebServiceLogin login, int page_size, int page, string[] lanes, int[] lane_ids, int latest_days, string[] tags, System.AsyncCallback callback, object asyncState) {
+            return this.BeginInvoke("GetFrontPageDataWithTags", new object[] {
+                        login,
+                        page_size,
+                        page,
+                        lanes,
+                        lane_ids,
+                        latest_days,
+                        tags}, callback, asyncState);
+        }
+        
+        /// <remarks/>
+        public FrontPageResponse EndGetFrontPageDataWithTags(System.IAsyncResult asyncResult) {
+            object[] results = this.EndInvoke(asyncResult);
+            return ((FrontPageResponse)(results[0]));
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://monkeywrench.novell.com/GetLanes", RequestNamespace="http://monkeywrench.novell.com/", ResponseNamespace="http://monkeywrench.novell.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public GetLanesResponse GetLanes(WebServiceLogin login) {
             object[] results = this.Invoke("GetLanes", new object[] {

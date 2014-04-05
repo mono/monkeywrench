@@ -1,4 +1,4 @@
-﻿<%@ OutputCache Duration="45" VaryByParam="lane;lane_id;limit;show_all" %>
+﻿<%@ OutputCache Duration="45" VaryByParam="lane;lane_id;limit;show_all;tags" %>
 <%@ Page Language="C#" MasterPageFile="~/Master.master" AutoEventWireup="true" Inherits="index" Codebehind="index.aspx.cs" EnableViewState="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="content" runat="Server" EnableViewState="False">

@@ -52,9 +52,12 @@ public partial class index : System.Web.UI.Page
 
 			string [] lanes = null;
 			List<int> lane_ids = null;
+			string [] tags = null;
 
 			if (!string.IsNullOrEmpty (Request ["show_all"])) {
 				// do nothing, default is to show all
+			} else if (!string.IsNullOrEmpty (Request ["tags"])) {
+				tags = Request ["tags"].Split (',');
 			} else {
 				HttpCookie cookie;
 
@@ -85,7 +88,7 @@ public partial class index : System.Web.UI.Page
 				Response.Cookies.Set (new HttpCookie ("index:lane_id", HttpUtility.UrlEncode (lane_ids_str)));
 			}
 
-			data = Master.WebService.GetFrontPageData2 (Master.WebServiceLogin, limit, lanes, lane_ids != null ? lane_ids.ToArray () : null);
+			data = Master.WebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, 30, tags);
 
 			if (data.Exception != null) {
 				if (data.Exception.HttpCode == 403) {
