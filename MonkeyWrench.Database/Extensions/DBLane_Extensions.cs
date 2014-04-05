@@ -180,6 +180,19 @@ DELETE FROM Lane WHERE id = @id;
 			}
 			return result;
 		}
+
+		public static List<DBLaneTag> GetTags (this DBLane me, DB db)
+		{
+			var result = new List<DBLaneTag> ();
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM LaneTag WHERE lane_id = " + me.id.ToString () + ";";
+				using (var reader = cmd.ExecuteReader ()) {
+					while (reader.Read ())
+						result.Add (new DBLaneTag (reader));
+				}
+			}
+			return result;
+		}
 	}
 }
 
