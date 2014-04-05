@@ -83,6 +83,13 @@ INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git
 -- ALTER TABLE Lane ADD COLUMN traverse_merge boolean NOT NULL DEFAULT FALSE;
 -- ALTER TABLE Lane ADD COLUMN enabled boolean NOT NULL DEFAULT TRUE;
 
+CREATE TABLE LaneTag (
+	id             serial     PRIMARY KEY,
+	lane_id        int        NOT NULL,     -- the lane for the tag
+	tag            text       NOT NULL,     -- the tag
+	UNIQUE (lane_id, tag)
+);
+
 CREATE TABLE EnvironmentVariable (
 	id              serial    PRIMARY KEY,
 	host_id         int       NULL REFERENCES Host (id),

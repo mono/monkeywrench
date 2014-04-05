@@ -30,12 +30,14 @@ public partial class EditLane {
 	
 	protected System.Web.UI.WebControls.TextBox txtMaxRevision;
 	
+	protected System.Web.UI.WebControls.TextBox txtTags;
+	
 	protected System.Web.UI.WebControls.DropDownList lstParentLane;
 	
 	protected System.Web.UI.WebControls.Label lblChildLanes;
 	
 	protected System.Web.UI.WebControls.CheckBox chkTraverseMerges;
-
+	
 	protected System.Web.UI.WebControls.CheckBox chkEnabled;
 	
 	protected System.Web.UI.WebControls.Button cmdSave;

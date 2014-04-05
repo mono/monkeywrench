@@ -689,6 +689,9 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 					// 13: response.LaneNotifications = new List<DBLaneNotification> ();
 					cmdText.AppendFormat ("SELECT * FROM LaneNotification WHERE lane_id = {0};", response.Lane.id).AppendLine ();
 
+					// 14
+					cmdText.AppendFormat ("SELECT * FROM LaneTag WHERE lane_id = {0};", response.Lane.id).AppendLine ();
+
 					cmd.CommandText = cmdText.ToString ();
 
 					using (IDataReader reader = cmd.ExecuteReader ()) {
@@ -771,6 +774,14 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 						while (reader.Read ())
 							response.LaneNotifications.Add (new DBLaneNotification (reader));
 
+						// 14
+						reader.NextResult ();
+						if (reader.Read ()) {
+							response.Tags = new List<DBLaneTag> ();
+							do {
+								response.Tags.Add (new DBLaneTag (reader));
+							} while (reader.Read ());
+						}
 					}
 				}
 
@@ -1029,6 +1040,29 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				lane.Save (db);
+			}
+		}
+
+		[WebMethod]
+		public void EditLaneWithTags (WebServiceLogin login, DBLane lane, string[] tags)
+		{
+			Logger.Log ("EditLaneWithTags ({0}, {1})", lane.id, tags == null ? "null" : tags.Length.ToString ());
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				lane.Save (db);
+
+				using (var cmd = db.CreateCommand ()) {
+					var cmdText = new StringBuilder ();
+					cmdText.AppendFormat ("DELETE FROM LaneTag WHERE lane_id = {0};", lane.id).AppendLine ();
+					if (tags != null) {
+						for (int i = 0; i < tags.Length; i++) {
+							cmdText.AppendFormat ("INSERT INTO LaneTag (lane_id, tag) VALUES ({0}, @tag{1});", lane.id, i).AppendLine ();
+							DB.CreateParameter (cmd, "tag" + i.ToString (), tags [i]);
+						}
+					}
+					cmd.CommandText = cmdText.ToString ();
+					cmd.ExecuteNonQuery ();
+				}
 			}
 		}
 
