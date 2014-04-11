@@ -95,10 +95,8 @@ namespace MonkeyWrench.Web.UI
 		}
 
 		private bool NodeIsDead (DBHostStatusView status) {
-			if (status.report_date != null) {
-				var silence = DateTime.Now - status.report_date;
-				return silence.TotalHours >= 3;
-			}
+			var silence = DateTime.Now - status.report_date;
+			return silence.TotalHours >= 3;
 		}
 
 	}
