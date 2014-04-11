@@ -488,7 +488,7 @@ WHERE
 		SELECT SubRevisionWork.id
 		FROM RevisionWork SubRevisionWork
 		INNER JOIN Revision SubRevision ON SubRevisionWork.revision_id = SubRevision.id
-		WHERE ";
+		WHERE SubRevisionWork.completed = true AND ";
 			if (dependency.Condition == DBLaneDependencyCondition.DependentLaneSuccess) {
 				cmd.CommandText += "SubRevisionWork.state = 3 ";
 			} else if (dependency.Condition == DBLaneDependencyCondition.DependentLaneIssuesOrSuccess) {
