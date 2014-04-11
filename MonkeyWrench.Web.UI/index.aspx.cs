@@ -100,7 +100,7 @@ public partial class index : System.Web.UI.Page
 				return;
 			}
 
-			this.buildtable.InnerHtml = GenerateOverview (data);
+			this.buildtable.InnerHtml = tags != null ? GenerateTaggedOverview (data) : GenerateOverview (data);
 		} catch (Exception ex) {
 			lblMessage.Text = Utils.FormatException (ex, true);
 		}
@@ -199,6 +199,45 @@ public partial class index : System.Web.UI.Page
 		} else {
 			return from.ToString ("yyyy-MM-dd");
 		}
+	}
+
+	public string GenerateTaggedOverview (FrontPageResponse data)
+	{
+		StringBuilder matrix = new StringBuilder ();
+
+		matrix.AppendLine ("<table class='buildstatus'>");
+
+		var lane_row = new StringBuilder ();
+		var hl_row = new StringBuilder ();
+		var rows = new List<StringBuilder> ();
+
+		for (int i = 0; i < data.SelectedLanes.Count; i++) {
+			var lane = data.SelectedLanes [i];
+			var hls = data.HostLanes.FindAll ((hl) => hl.lane_id == lane.id);
+			lane_row.AppendFormat ("<td colspan='{1}'>{0}</td>", data.SelectedLanes [i].lane, hls.Count == 0 ? 1 : hls.Count).AppendLine ();
+			foreach (var hl in hls) {
+				WriteHostLane (hl_row, data.Hosts, hl);
+
+				var work_views = FindRevisionWorkViews (data, hl.id);
+				// Create more rows if needed.
+				if (rows.Count < work_views.Count) {
+					rows.Capacity = work_views.Count;
+					for (int r = rows.Count; r < work_views.Count; r++)
+						rows.Add (new StringBuilder ());
+				}
+				for (int r = 0; r < work_views.Count; r++) {
+					WriteWorkCell (rows [r], work_views [r]);
+				}
+			}
+		}
+		matrix.Append ("<tr>").Append (lane_row).AppendLine ("</tr>");
+		matrix.Append ("<tr>").Append (hl_row).AppendLine ("</tr>");
+		for (int r = 0; r < rows.Count; r++) {
+			matrix.Append ("<tr>").Append (rows [r]).AppendLine ("</tr>");
+		}
+		matrix.AppendLine ("</table>");
+
+		return matrix.ToString ();
 	}
 
 	void WriteWorkCell (StringBuilder row, DBRevisionWorkView2 work)
