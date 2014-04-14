@@ -870,6 +870,18 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBHostStatusView" nillable="true" type="s0:DBHostStatusView" />
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="GetLeftTreeDataResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="HostStatus" type="s0:ArrayOfDBHostStatusView" />
+              <xs:element minOccurs="0" maxOccurs="1" name="UploadStatus" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Tags" type="s0:ArrayOfString1" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="GetRevisionsResponse">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
@@ -1953,6 +1965,20 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="GetHostStatusResult" type="s0:GetHostStatusResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLeftTreeData">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLeftTreeDataResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetLeftTreeDataResult" type="s0:GetLeftTreeDataResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -3218,6 +3244,12 @@
   <message name="GetHostStatusSoapOut">
     <part name="parameters" element="s0:GetHostStatusResponse" />
   </message>
+  <message name="GetLeftTreeDataSoapIn">
+    <part name="parameters" element="s0:GetLeftTreeData" />
+  </message>
+  <message name="GetLeftTreeDataSoapOut">
+    <part name="parameters" element="s0:GetLeftTreeDataResponse" />
+  </message>
   <message name="GetRevisionsSoapIn">
     <part name="parameters" element="s0:GetRevisions" />
   </message>
@@ -3847,6 +3879,10 @@
       <input message="s0:GetHostStatusSoapIn" />
       <output message="s0:GetHostStatusSoapOut" />
     </operation>
+    <operation name="GetLeftTreeData">
+      <input message="s0:GetLeftTreeDataSoapIn" />
+      <output message="s0:GetLeftTreeDataSoapOut" />
+    </operation>
     <operation name="GetRevisions">
       <input message="s0:GetRevisionsSoapIn" />
       <output message="s0:GetRevisionsSoapOut" />
@@ -4332,6 +4368,10 @@
     <operation name="GetHostStatus">
       <input message="s0:GetHostStatusSoapIn" />
       <output message="s0:GetHostStatusSoapOut" />
+    </operation>
+    <operation name="GetLeftTreeData">
+      <input message="s0:GetLeftTreeDataSoapIn" />
+      <output message="s0:GetLeftTreeDataSoapOut" />
     </operation>
     <operation name="GetRevisions">
       <input message="s0:GetRevisionsSoapIn" />
@@ -5128,6 +5168,15 @@
     </operation>
     <operation name="GetHostStatus">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetHostStatus" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLeftTreeData">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetLeftTreeData" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -6220,6 +6269,15 @@
     </operation>
     <operation name="GetHostStatus">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetHostStatus" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLeftTreeData">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetLeftTreeData" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

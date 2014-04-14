@@ -1446,6 +1446,43 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 		}
 
 		[WebMethod]
+		public GetLeftTreeDataResponse GetLeftTreeData (WebServiceLogin login)
+		{
+			var response = new GetLeftTreeDataResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
+				using (var cmd = db.CreateCommand ()) {
+					var sql = new StringBuilder ();
+					sql.AppendLine ("SELECT * FROM Lane ORDER BY lane;");
+					sql.AppendLine ("SELECT * FROM HostStatusView;");
+					sql.AppendLine ("SELECT DISTINCT tag FROM LaneTag ORDER BY tag;");
+					cmd.CommandText = sql.ToString ();
+
+					using (var reader = cmd.ExecuteReader ()) {
+						response.Lanes = new List<DBLane> ();
+						while (reader.Read ())
+							response.Lanes.Add (new DBLane (reader));
+
+						reader.NextResult ();
+						response.HostStatus = new List<DBHostStatusView> ();
+						while (reader.Read ())
+							response.HostStatus.Add (new DBHostStatusView (reader));
+
+						reader.NextResult ();
+						response.Tags = new List<string> ();
+						while (reader.Read ())
+							response.Tags.Add (reader.GetString (0));
+					}
+
+					response.UploadStatus = Global.UploadStatus;
+				}
+			}
+
+			return response;
+		}
+
+		[WebMethod]
 		public GetRevisionsResponse GetRevisions (WebServiceLogin login, int? lane_id, string lane, int limit, int offset)
 		{
 			GetRevisionsResponse response = new GetRevisionsResponse ();
