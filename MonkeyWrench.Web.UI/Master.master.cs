@@ -86,7 +86,12 @@ public partial class Master : System.Web.UI.MasterPage
 			adminmenu.Visible = true;
 		}
 
-		tree_response = WebService.GetLeftTreeData (WebServiceLogin);
+		try {
+			tree_response = WebService.GetLeftTreeData (WebServiceLogin);
+		} catch {
+			tree_response = null;
+		}
+
 		CreateTree ();
 		CreateHostStatus ();
 	}
