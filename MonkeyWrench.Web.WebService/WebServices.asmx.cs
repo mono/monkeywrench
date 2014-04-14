@@ -638,7 +638,6 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 					cmdText.AppendLine ("SELECT * FROM Lane ORDER BY lane;");
 
 					// 2: response.Lane.GetCommandsInherited (db, response.Lanes);
-					List<DBCommand> result = new List<DBCommand> ();
 					cmdText.Append ("SELECT * FROM Command WHERE lane_id = ").Append (response.Lane.id);
 					DBLane parent = response.Lane;
 					while (null != (parent = response.Lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
