@@ -432,6 +432,16 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:complexType name="DBLaneTag">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:DBRecord">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="lane_id" type="xs:int" />
+              <xs:element minOccurs="0" maxOccurs="1" name="tag" type="xs:string" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
       <xs:complexType name="DBRevision">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:DBRecord">
@@ -664,6 +674,7 @@
               <xs:element minOccurs="0" maxOccurs="1" name="Variables" type="s0:ArrayOfDBEnvironmentVariable" />
               <xs:element minOccurs="0" maxOccurs="1" name="Notifications" type="s0:ArrayOfDBNotification" />
               <xs:element minOccurs="0" maxOccurs="1" name="LaneNotifications" type="s0:ArrayOfDBLaneNotification" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Tags" type="s0:ArrayOfDBLaneTag" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -708,6 +719,11 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLaneNotification" nillable="true" type="s0:DBLaneNotification" />
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="ArrayOfDBLaneTag">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DBLaneTag" nillable="true" type="s0:DBLaneTag" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="FindHostResponse">
         <xs:complexContent mixed="false">
           <xs:extension base="s0:WebServiceResponse">
@@ -740,7 +756,7 @@
           <xs:extension base="s0:WebServiceResponse">
             <xs:sequence>
               <xs:element minOccurs="0" maxOccurs="1" name="lane" type="s0:DBLane" />
-              <xs:element minOccurs="0" maxOccurs="1" name="dependencies" type="s0:ArrayOfDBLaneDependency" />
+              <xs:element minOccurs="0" maxOccurs="1" name="dependencies" type="s0:ArrayOfDBLane" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -853,6 +869,18 @@
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="DBHostStatusView" nillable="true" type="s0:DBHostStatusView" />
         </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GetLeftTreeDataResponse">
+        <xs:complexContent mixed="false">
+          <xs:extension base="s0:WebServiceResponse">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Lanes" type="s0:ArrayOfDBLane" />
+              <xs:element minOccurs="0" maxOccurs="1" name="HostStatus" type="s0:ArrayOfDBHostStatusView" />
+              <xs:element minOccurs="0" maxOccurs="1" name="UploadStatus" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="Tags" type="s0:ArrayOfString1" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
       </xs:complexType>
       <xs:complexType name="GetRevisionsResponse">
         <xs:complexContent mixed="false">
@@ -1712,6 +1740,18 @@
       <xs:element name="EditLaneResponse">
         <xs:complexType />
       </xs:element>
+      <xs:element name="EditLaneWithTags">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane" type="s0:DBLane" />
+            <xs:element minOccurs="0" maxOccurs="1" name="tags" type="s0:ArrayOfString" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="EditLaneWithTagsResponse">
+        <xs:complexType />
+      </xs:element>
       <xs:element name="EditHost">
         <xs:complexType>
           <xs:sequence>
@@ -1833,6 +1873,45 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="GetFrontPageData4">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="page_size" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="page" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lanes" type="s0:ArrayOfString" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane_ids" type="s0:ArrayOfInt1" />
+            <xs:element minOccurs="1" maxOccurs="1" name="latest_days" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetFrontPageData4Response">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetFrontPageData4Result" type="s0:FrontPageResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetFrontPageDataWithTags">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+            <xs:element minOccurs="1" maxOccurs="1" name="page_size" type="xs:int" />
+            <xs:element minOccurs="1" maxOccurs="1" name="page" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lanes" type="s0:ArrayOfString" />
+            <xs:element minOccurs="0" maxOccurs="1" name="lane_ids" type="s0:ArrayOfInt1" />
+            <xs:element minOccurs="1" maxOccurs="1" name="latest_days" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="1" name="tags" type="s0:ArrayOfString" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetFrontPageDataWithTagsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetFrontPageDataWithTagsResult" type="s0:FrontPageResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="GetLanes">
         <xs:complexType>
           <xs:sequence>
@@ -1886,6 +1965,20 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="1" name="GetHostStatusResult" type="s0:GetHostStatusResponse" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLeftTreeData">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="login" type="s0:WebServiceLogin" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetLeftTreeDataResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="GetLeftTreeDataResult" type="s0:GetLeftTreeDataResponse" />
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -3067,6 +3160,12 @@
   <message name="EditLaneSoapOut">
     <part name="parameters" element="s0:EditLaneResponse" />
   </message>
+  <message name="EditLaneWithTagsSoapIn">
+    <part name="parameters" element="s0:EditLaneWithTags" />
+  </message>
+  <message name="EditLaneWithTagsSoapOut">
+    <part name="parameters" element="s0:EditLaneWithTagsResponse" />
+  </message>
   <message name="EditHostSoapIn">
     <part name="parameters" element="s0:EditHost" />
   </message>
@@ -3109,6 +3208,18 @@
   <message name="GetFrontPageData3SoapOut">
     <part name="parameters" element="s0:GetFrontPageData3Response" />
   </message>
+  <message name="GetFrontPageData4SoapIn">
+    <part name="parameters" element="s0:GetFrontPageData4" />
+  </message>
+  <message name="GetFrontPageData4SoapOut">
+    <part name="parameters" element="s0:GetFrontPageData4Response" />
+  </message>
+  <message name="GetFrontPageDataWithTagsSoapIn">
+    <part name="parameters" element="s0:GetFrontPageDataWithTags" />
+  </message>
+  <message name="GetFrontPageDataWithTagsSoapOut">
+    <part name="parameters" element="s0:GetFrontPageDataWithTagsResponse" />
+  </message>
   <message name="GetLanesSoapIn">
     <part name="parameters" element="s0:GetLanes" />
   </message>
@@ -3132,6 +3243,12 @@
   </message>
   <message name="GetHostStatusSoapOut">
     <part name="parameters" element="s0:GetHostStatusResponse" />
+  </message>
+  <message name="GetLeftTreeDataSoapIn">
+    <part name="parameters" element="s0:GetLeftTreeData" />
+  </message>
+  <message name="GetLeftTreeDataSoapOut">
+    <part name="parameters" element="s0:GetLeftTreeDataResponse" />
   </message>
   <message name="GetRevisionsSoapIn">
     <part name="parameters" element="s0:GetRevisions" />
@@ -3706,6 +3823,10 @@
       <input message="s0:EditLaneSoapIn" />
       <output message="s0:EditLaneSoapOut" />
     </operation>
+    <operation name="EditLaneWithTags">
+      <input message="s0:EditLaneWithTagsSoapIn" />
+      <output message="s0:EditLaneWithTagsSoapOut" />
+    </operation>
     <operation name="EditHost">
       <input message="s0:EditHostSoapIn" />
       <output message="s0:EditHostSoapOut" />
@@ -3734,6 +3855,14 @@
       <input message="s0:GetFrontPageData3SoapIn" />
       <output message="s0:GetFrontPageData3SoapOut" />
     </operation>
+    <operation name="GetFrontPageData4">
+      <input message="s0:GetFrontPageData4SoapIn" />
+      <output message="s0:GetFrontPageData4SoapOut" />
+    </operation>
+    <operation name="GetFrontPageDataWithTags">
+      <input message="s0:GetFrontPageDataWithTagsSoapIn" />
+      <output message="s0:GetFrontPageDataWithTagsSoapOut" />
+    </operation>
     <operation name="GetLanes">
       <input message="s0:GetLanesSoapIn" />
       <output message="s0:GetLanesSoapOut" />
@@ -3749,6 +3878,10 @@
     <operation name="GetHostStatus">
       <input message="s0:GetHostStatusSoapIn" />
       <output message="s0:GetHostStatusSoapOut" />
+    </operation>
+    <operation name="GetLeftTreeData">
+      <input message="s0:GetLeftTreeDataSoapIn" />
+      <output message="s0:GetLeftTreeDataSoapOut" />
     </operation>
     <operation name="GetRevisions">
       <input message="s0:GetRevisionsSoapIn" />
@@ -4180,6 +4313,10 @@
       <input message="s0:EditLaneSoapIn" />
       <output message="s0:EditLaneSoapOut" />
     </operation>
+    <operation name="EditLaneWithTags">
+      <input message="s0:EditLaneWithTagsSoapIn" />
+      <output message="s0:EditLaneWithTagsSoapOut" />
+    </operation>
     <operation name="EditHost">
       <input message="s0:EditHostSoapIn" />
       <output message="s0:EditHostSoapOut" />
@@ -4208,6 +4345,14 @@
       <input message="s0:GetFrontPageData3SoapIn" />
       <output message="s0:GetFrontPageData3SoapOut" />
     </operation>
+    <operation name="GetFrontPageData4">
+      <input message="s0:GetFrontPageData4SoapIn" />
+      <output message="s0:GetFrontPageData4SoapOut" />
+    </operation>
+    <operation name="GetFrontPageDataWithTags">
+      <input message="s0:GetFrontPageDataWithTagsSoapIn" />
+      <output message="s0:GetFrontPageDataWithTagsSoapOut" />
+    </operation>
     <operation name="GetLanes">
       <input message="s0:GetLanesSoapIn" />
       <output message="s0:GetLanesSoapOut" />
@@ -4223,6 +4368,10 @@
     <operation name="GetHostStatus">
       <input message="s0:GetHostStatusSoapIn" />
       <output message="s0:GetHostStatusSoapOut" />
+    </operation>
+    <operation name="GetLeftTreeData">
+      <input message="s0:GetLeftTreeDataSoapIn" />
+      <output message="s0:GetLeftTreeDataSoapOut" />
     </operation>
     <operation name="GetRevisions">
       <input message="s0:GetRevisionsSoapIn" />
@@ -4900,6 +5049,15 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="EditLaneWithTags">
+      <soap:operation soapAction="http://monkeywrench.novell.com/EditLaneWithTags" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="EditHost">
       <soap:operation soapAction="http://monkeywrench.novell.com/EditHost" style="document" />
       <input>
@@ -4963,6 +5121,24 @@
         <soap:body use="literal" />
       </output>
     </operation>
+    <operation name="GetFrontPageData4">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData4" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetFrontPageDataWithTags">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetFrontPageDataWithTags" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="GetLanes">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetLanes" style="document" />
       <input>
@@ -4992,6 +5168,15 @@
     </operation>
     <operation name="GetHostStatus">
       <soap:operation soapAction="http://monkeywrench.novell.com/GetHostStatus" style="document" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLeftTreeData">
+      <soap:operation soapAction="http://monkeywrench.novell.com/GetLeftTreeData" style="document" />
       <input>
         <soap:body use="literal" />
       </input>
@@ -5965,6 +6150,15 @@
         <soap12:body use="literal" />
       </output>
     </operation>
+    <operation name="EditLaneWithTags">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/EditLaneWithTags" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
     <operation name="EditHost">
       <soap12:operation soapAction="http://monkeywrench.novell.com/EditHost" style="document" />
       <input>
@@ -6028,6 +6222,24 @@
         <soap12:body use="literal" />
       </output>
     </operation>
+    <operation name="GetFrontPageData4">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetFrontPageData4" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetFrontPageDataWithTags">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetFrontPageDataWithTags" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
     <operation name="GetLanes">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetLanes" style="document" />
       <input>
@@ -6057,6 +6269,15 @@
     </operation>
     <operation name="GetHostStatus">
       <soap12:operation soapAction="http://monkeywrench.novell.com/GetHostStatus" style="document" />
+      <input>
+        <soap12:body use="literal" />
+      </input>
+      <output>
+        <soap12:body use="literal" />
+      </output>
+    </operation>
+    <operation name="GetLeftTreeData">
+      <soap12:operation soapAction="http://monkeywrench.novell.com/GetLeftTreeData" style="document" />
       <input>
         <soap12:body use="literal" />
       </input>

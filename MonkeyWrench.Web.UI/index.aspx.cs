@@ -52,9 +52,12 @@ public partial class index : System.Web.UI.Page
 
 			string [] lanes = null;
 			List<int> lane_ids = null;
+			string [] tags = null;
 
 			if (!string.IsNullOrEmpty (Request ["show_all"])) {
 				// do nothing, default is to show all
+			} else if (!string.IsNullOrEmpty (Request ["tags"])) {
+				tags = Request ["tags"].Split (',');
 			} else {
 				HttpCookie cookie;
 
@@ -85,7 +88,7 @@ public partial class index : System.Web.UI.Page
 				Response.Cookies.Set (new HttpCookie ("index:lane_id", HttpUtility.UrlEncode (lane_ids_str)));
 			}
 
-			data = Master.WebService.GetFrontPageData2 (Master.WebServiceLogin, limit, lanes, lane_ids != null ? lane_ids.ToArray () : null);
+			data = Master.WebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, 30, tags);
 
 			if (data.Exception != null) {
 				if (data.Exception.HttpCode == 403) {
@@ -97,7 +100,7 @@ public partial class index : System.Web.UI.Page
 				return;
 			}
 
-			this.buildtable.InnerHtml = GenerateOverview (data);
+			this.buildtable.InnerHtml = tags != null ? GenerateTaggedOverview (data) : GenerateOverview (data);
 		} catch (Exception ex) {
 			lblMessage.Text = Utils.FormatException (ex, true);
 		}
@@ -125,6 +128,11 @@ public partial class index : System.Web.UI.Page
 		}
 	}
 
+	void WriteHostLane (StringBuilder matrix, IEnumerable<DBHost> hosts, DBHostLane hl)
+	{
+		matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&amp;host_id={2}' class='{3}'>{0}</a></td>", Utils.FindHost (hosts, hl.host_id).host, hl.lane_id, hl.host_id, hl.enabled ? "enabled-hostlane" : "disabled-hostlane");
+	}
+
 	private void WriteHostLanes (StringBuilder matrix, LaneTreeNode node, IEnumerable<DBHost> hosts, List<int> hostlane_order)
 	{
 		node.ForEach (new Action<LaneTreeNode> (delegate (LaneTreeNode target)
@@ -137,7 +145,7 @@ public partial class index : System.Web.UI.Page
 			} else {
 				foreach (DBHostLane hl in target.HostLanes) {
 					hostlane_order.Add (hl.id);
-					matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&amp;host_id={2}' class='{3}'>{0}</a></td>", Utils.FindHost (hosts, hl.host_id).host, hl.lane_id, hl.host_id, hl.enabled ? "enabled-hostlane" : "disabled-hostlane");
+					WriteHostLane (matrix, hosts, hl);
 				}
 			}
 		}));
@@ -193,6 +201,112 @@ public partial class index : System.Web.UI.Page
 		}
 	}
 
+	public string GenerateTaggedOverview (FrontPageResponse data)
+	{
+		StringBuilder matrix = new StringBuilder ();
+
+		matrix.AppendLine ("<table class='buildstatus'>");
+
+		var lane_row = new StringBuilder ();
+		var hl_row = new StringBuilder ();
+		var rows = new List<StringBuilder> ();
+
+		for (int i = 0; i < data.SelectedLanes.Count; i++) {
+			var lane = data.SelectedLanes [i];
+			var hls = data.HostLanes.FindAll ((hl) => hl.lane_id == lane.id);
+			lane_row.AppendFormat ("<td colspan='{1}'>{0}</td>", data.SelectedLanes [i].lane, hls.Count == 0 ? 1 : hls.Count).AppendLine ();
+			foreach (var hl in hls) {
+				WriteHostLane (hl_row, data.Hosts, hl);
+
+				var work_views = FindRevisionWorkViews (data, hl.id);
+				// Create more rows if needed.
+				if (rows.Count < work_views.Count) {
+					rows.Capacity = work_views.Count;
+					for (int r = rows.Count; r < work_views.Count; r++)
+						rows.Add (new StringBuilder ());
+				}
+				for (int r = 0; r < work_views.Count; r++) {
+					WriteWorkCell (rows [r], work_views [r]);
+				}
+			}
+		}
+		matrix.Append ("<tr>").Append (lane_row).AppendLine ("</tr>");
+		matrix.Append ("<tr>").Append (hl_row).AppendLine ("</tr>");
+		for (int r = 0; r < rows.Count; r++) {
+			matrix.Append ("<tr>").Append (rows [r]).AppendLine ("</tr>");
+		}
+		matrix.AppendLine ("</table>");
+
+		return matrix.ToString ();
+	}
+
+	void WriteWorkCell (StringBuilder row, DBRevisionWorkView2 work)
+	{
+		if (work == null) {
+			row.Append ("<td>-</td>");
+			return;
+		}
+
+		string revision = work.revision;
+		int lane_id = work.lane_id;
+		int host_id = work.host_id;
+		int revision_id = work.revision_id;
+		DBState state = work.State;
+		bool completed = work.completed;
+		string state_str = state.ToString ().ToLowerInvariant ();
+		bool is_working;
+		string str_date = string.Empty;
+
+		if (work.endtime.Year > 2000)
+			str_date = "<br/>" + TimeDiffToString (work.endtime, DateTime.UtcNow);
+
+		switch (state) {
+		case DBState.Executing:
+			is_working = true;
+			break;
+		case DBState.NotDone:
+		case DBState.Paused:
+		case DBState.DependencyNotFulfilled:
+		case DBState.Ignore:
+			is_working = false;
+			break;
+		default:
+			is_working = !completed;
+			break;
+		}
+
+		long dummy;
+		if (revision.Length > 16 && !long.TryParse (revision, out dummy))
+			revision = revision.Substring (0, 8);
+
+		if (is_working) {
+			row.AppendFormat (
+				@"<td class='{1}'>
+							<center>
+								<table class='executing'>
+									<td>
+										<a href='ViewLane.aspx?lane_id={2}&amp;host_id={3}&amp;revision_id={4}' title='{5}'>{0}{6}</a>
+									</td>
+								</table>
+							<center>
+						  </td>",
+				revision, state_str, lane_id, host_id, revision_id, "", str_date);
+		} else {
+			row.AppendFormat ("<td class='{1}'><a href='ViewLane.aspx?lane_id={2}&amp;host_id={3}&amp;revision_id={4}' title='{5}'>{0}{6}</a></td>",
+				revision, state_str, lane_id, host_id, revision_id, "", str_date);
+		}
+	}
+
+	List<DBRevisionWorkView2> FindRevisionWorkViews (FrontPageResponse data, int hostlane_id)
+	{
+		for (int k = 0; k < data.RevisionWorkHostLaneRelation.Count; k++) {
+			if (data.RevisionWorkHostLaneRelation [k] == hostlane_id)
+				return data.RevisionWorkViews [k];
+		}
+
+		return null;
+	}
+
 	public string GenerateOverview (FrontPageResponse data)
 	{
 		StringBuilder matrix = new StringBuilder ();
@@ -229,73 +343,15 @@ public partial class index : System.Web.UI.Page
 			for (int i = 0; i < hostlane_order.Count; i++) {
 				int hl_id = hostlane_order [i];
 
-				List<DBRevisionWorkView2> rev = null;
+				var rev = FindRevisionWorkViews (data, hl_id);
 				DBRevisionWorkView2 work = null;
-
-				for (int k = 0; k < data.RevisionWorkHostLaneRelation.Count; k++) {
-					if (data.RevisionWorkHostLaneRelation [k] == hl_id) {
-						rev = data.RevisionWorkViews [k];
-						break;
-					}
-				}
 
 				if (rev != null && rev.Count > counter) {
 					work = rev [counter];
 					added++;
 				}
 
-				if (work != null) {
-					string revision = work.revision;
-					int lane_id = work.lane_id;
-					int host_id = work.host_id;
-					int revision_id = work.revision_id;
-					DBState state = work.State;
-					bool completed = work.completed;
-					string state_str = state.ToString ().ToLowerInvariant ();
-					bool is_working;
-					string str_date = string.Empty;
-
-					if (work.endtime.Year > 2000)
-						str_date = "<br/>" + TimeDiffToString (work.endtime, DateTime.UtcNow);
-					
-					switch (state) {
-					case DBState.Executing:
-						is_working = true;
-						break;
-					case DBState.NotDone:
-					case DBState.Paused:
-					case DBState.DependencyNotFulfilled:
-					case DBState.Ignore:
-						is_working = false;
-						break;
-					default:
-						is_working = !completed;
-						break;
-					}
-
-					long dummy;
-					if (revision.Length > 16 && !long.TryParse (revision, out dummy))
-						revision = revision.Substring (0, 8);
-
-					if (is_working) {
-						row.AppendFormat (
-							@"<td class='{1}'>
-								<center>
-									<table class='executing'>
-										<td>
-											<a href='ViewLane.aspx?lane_id={2}&amp;host_id={3}&amp;revision_id={4}' title='{5}'>{0}{6}</a>
-										</td>
-									</table>
-								<center>
-							  </td>",
-							revision, state_str, lane_id, host_id, revision_id, "", str_date);
-					} else {
-						row.AppendFormat ("<td class='{1}'><a href='ViewLane.aspx?lane_id={2}&amp;host_id={3}&amp;revision_id={4}' title='{5}'>{0}{6}</a></td>",
-							revision, state_str, lane_id, host_id, revision_id, "", str_date);
-					}
-				} else {
-					row.Append ("<td>-</td>");
-				}
+				WriteWorkCell (row, work);
 			}
 
 			if (added > 0 && row.Length > 0) {

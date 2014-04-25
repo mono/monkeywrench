@@ -544,6 +544,13 @@ namespace MonkeyWrench
 						clone.Save (this);
 					}
 
+					foreach (var tag in master.GetTags (this)) {
+						var clone = new DBLaneTag ();
+						clone.lane_id = result.id;
+						clone.tag = tag.tag;
+						clone.Save (this);
+					}
+
 					transaction.Commit ();
 				}
 			} catch {

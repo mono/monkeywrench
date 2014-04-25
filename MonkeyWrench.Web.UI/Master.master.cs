@@ -25,6 +25,7 @@ public partial class Master : System.Web.UI.MasterPage
 {
 	private WebServiceLogin web_service_login;
 	private WebServiceResponse response;
+	private GetLeftTreeDataResponse tree_response;
 
 	public WebServices WebService
 	{
@@ -85,16 +86,20 @@ public partial class Master : System.Web.UI.MasterPage
 			adminmenu.Visible = true;
 		}
 
+		try {
+			tree_response = WebService.GetLeftTreeData (WebServiceLogin);
+		} catch {
+			tree_response = null;
+		}
+
 		CreateTree ();
 		CreateHostStatus ();
 	}
 
 	private void CreateHostStatus ()
 	{
-		GetHostStatusResponse response;
-
 		try {
-			response = WebService.GetHostStatus (WebServiceLogin);
+			var response = tree_response;
 
 			while (tableHostStatus.Rows.Count > 1)
 				tableHostStatus.Rows.RemoveAt (tableHostStatus.Rows.Count - 1);
@@ -150,15 +155,14 @@ public partial class Master : System.Web.UI.MasterPage
 		if (this.response != null)
 			return;
 
-		GetLanesResponse response;
 		// we need to create a tree of the lanes
 		LaneTreeNode root;
 		Panel div;
 
 		try {
-			response = WebService.GetLanes (WebServiceLogin);
+			var response = tree_response;
 
-			// Reomve disabled lanes.
+			// Remove disabled lanes.
 			var lanes = new List<DBLane> (response.Lanes);
 			for (int i = lanes.Count -1; i >= 0; i--) {
 				if (lanes [i].enabled)
@@ -169,16 +173,35 @@ public partial class Master : System.Web.UI.MasterPage
 
 			SetResponse (response);
 
+			// layout the tree
 			div = new Panel ();
 			div.ID = "tree_root_id";
 
-			// layout the tree
 			tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow ("index.aspx?show_all=true", "All", 0, root.Depth, true, div, true)));
 
 			tableMainTree.Rows.Add (Utils.CreateTableRow (div));
 			WriteTree (root, tableMainTree, 1, root.Depth, div);
+
+			// layout the tags
+			div = new Panel ();
+			div.ID = "tags_root_id";
+
+			tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow (null, "Tags", 0, 1, true, div, true)));
+			tableMainTree.Rows.Add (Utils.CreateTableRow (div));
+			WriteTags (response.Tags, tableMainTree, 1, div);
+
 		} catch {
 			tableMainTree.Visible = false;
+		}
+	}
+
+	public void WriteTags (List<string> tags, Table tableMain, int level, Panel containing_div)
+	{
+		Panel div = new Panel ();
+		div.ID = "tag_node_" + (++counter).ToString ();
+
+		foreach (var tag in tags) {
+			containing_div.Controls.Add (CreateTreeViewRow (string.Format ("index.aspx?tags={0}", HttpUtility.UrlEncode (tag)), tag, 1, 1, false, div, false));
 		}
 	}
 
@@ -232,10 +255,15 @@ public partial class Master : System.Web.UI.MasterPage
 			}
 		}
 		row.Cells.Add (cell);
-		row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='{0}'>{1}</a>", target, name)));
+		if (!string.IsNullOrEmpty (target)) {
+			row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='{0}'>{1}</a>", target, name)));
+		} else {
+			row.Cells.Add (Utils.CreateTableCell (name));
+		}
 
 		tbl.Rows.Add (row);
 
 		return tbl;
 	}
 }
+

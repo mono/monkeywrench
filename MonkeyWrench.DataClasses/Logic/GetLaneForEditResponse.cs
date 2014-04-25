@@ -35,6 +35,7 @@ namespace MonkeyWrench.DataClasses.Logic
 		public List<DBEnvironmentVariable> Variables;
 		public List<DBNotification> Notifications;
 		public List<DBLaneNotification> LaneNotifications;
+		public List<DBLaneTag> Tags;
 	}
 }
 
