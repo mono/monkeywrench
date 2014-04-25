@@ -10,6 +10,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 
 using MonkeyWrench.DataClasses;
@@ -31,5 +32,6 @@ namespace MonkeyWrench.Builder
 		public string BUILDER_DATA_INSTALL_DIR;
 		public string BUILDER_DATA_SOURCE_DIR;
 		public string temp_dir;
+		public DateTime progress_stamp;
 	}
 }

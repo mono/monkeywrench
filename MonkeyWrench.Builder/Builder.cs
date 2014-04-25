@@ -328,6 +328,8 @@ namespace MonkeyWrench.Builder
 							process_reader.Start ();
 
 							while (!p.WaitForExit (60000 /* 1 minute */)) {
+								info.progress_stamp = DateTime.Now;
+
 								if (p.HasExited)
 									break;
 
@@ -406,6 +408,7 @@ namespace MonkeyWrench.Builder
 				response = WebService.ReportBuildStateSafe (info.work);
 				info.work = response.Work;
 
+				info.progress_stamp = DateTime.Now;
 				WebService.UploadFilesSafe (info.work, new string [] { log_file }, new bool [] { false });
 
 				// Gather files from logged commands and from the upload_files glob
@@ -415,6 +418,7 @@ namespace MonkeyWrench.Builder
 						// TODO: handle globs in directory parts
 						// TODO: allow absolute paths?
 						Logger.Log ("Uploading files from glob {0}", glob);
+						info.progress_stamp = DateTime.Now;
 						// TODO: allow hidden files also
 						WebService.UploadFilesSafe (info.work, Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName (glob)), Path.GetFileName (glob)), null);
 					}
@@ -534,8 +538,18 @@ namespace MonkeyWrench.Builder
 				// Don't try to abort the threads after a certain time has passed
 				// when threads are aborted they leave things in a pretty messed-up state,
 				// and that pain is worse than the one caused if something hangs.
-				for (int i = 0; i < threads.Count; i++)
-					threads [i].Join ();
+				for (int i = 0; i < threads.Count; i++) {
+					do {
+						if (threads [i].Join (TimeSpan.FromMinutes (Configuration.NoProgressTimeout)))
+							break;
+						
+						if (infos [i].progress_stamp.AddMinutes (Configuration.NoProgressTimeout) < DateTime.Now) {
+							// No progress for Configuration.NoProgressTimeout minutes.
+							// Commit suicide.
+							ProcessHelper.KillTree (Process.GetCurrentProcess (), null);
+						}
+					} while (true);
+				}
 
 				Logger.Log ("Finished building {0} work items", list.Count);
 
@@ -669,6 +683,7 @@ namespace MonkeyWrench.Builder
 						}
 					}
 
+					info.progress_stamp = DateTime.Now;
 					WebService.UploadFilesSafe (info.work, files.ToArray (), hidden.ToArray ());
 				}
 			}

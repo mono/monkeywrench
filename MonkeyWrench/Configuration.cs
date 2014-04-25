@@ -45,6 +45,7 @@ namespace MonkeyWrench
 		public static int UploadPort = 0; // default = 0 (any port)
 		public static int LogVerbosity = 1; // 0: quiet, 1: some messages, 2: verbose (default: 1)
 		public static bool AllowAnonymousAccess = true;
+		public static int NoProgressTimeout = 60; // timeout after this many minutes if the test thread(s) don't seem to be progressing.
 
 		// openid
 		public static string OpenIdProvider = null;
