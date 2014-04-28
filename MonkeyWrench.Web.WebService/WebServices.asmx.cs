@@ -2577,6 +2577,9 @@ INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FR
 
 					response.Host = FindHost (db, null, host);
 
+					if (!response.Host.enabled)
+						return response;
+
 					// find the master hosts for this host (if any)
 					response.MasterHosts = FindMasterHosts (db, response.Host);
 
