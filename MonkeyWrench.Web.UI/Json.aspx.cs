@@ -27,20 +27,30 @@ namespace MonkeyWrench.Web.UI
 
 		protected override void OnLoad (EventArgs e)
 		{
-			if (Request.QueryString ["username"] != null) {
-				try {
-					if (!Authentication.Login (Request.QueryString ["username"], Request.QueryString ["pw"], Request, Response)) {
-						return;
-					}
-				} catch (Exception) {
-					return;
-				}
-			}
-
 			base.OnLoad (e);
 
-			web_service_login = Utilities.CreateWebServiceLogin (Context.Request);
+			if (Request.Params ["Password"] != null) {
+				try {
+					web_service_login = new WebServiceLogin ();
+					web_service_login.User = Request.Params ["User"];
+					web_service_login.Password = Request.Params ["Password"];
+					web_service_login.Ip4 = Utilities.GetExternalIP (Request);
+				} catch (Exception) {
+					Response.Write ("401");
+					return;
+				}
+			} else {
+				web_service_login = Utilities.CreateWebServiceLogin (Context.Request);
+			}
+
+
 			hoststatusresponse = Utils.WebService.GetHostStatus (web_service_login);
+
+			if (!Authentication.IsLoggedIn (hoststatusresponse)) {
+
+				Response.Write ("401");
+				return;
+			}
 
 
 			var node_information = new Dictionary<string, object> {
