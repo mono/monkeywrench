@@ -29,29 +29,10 @@ namespace MonkeyWrench.Web.UI
 		{
 			base.OnLoad (e);
 
-			if (Request.Params ["Password"] != null) {
-				try {
-					web_service_login = new WebServiceLogin ();
-					web_service_login.User = Request.Params ["User"];
-					web_service_login.Password = Request.Params ["Password"];
-					web_service_login.Ip4 = Utilities.GetExternalIP (Request);
-				} catch (Exception) {
-					Response.Write ("401");
-					return;
-				}
-			} else {
-				web_service_login = Utilities.CreateWebServiceLogin (Context.Request);
-			}
+      web_service_login = Authentication.CreateLogin (Request);
 
 
 			hoststatusresponse = Utils.WebService.GetHostStatus (web_service_login);
-
-			if (!Authentication.IsLoggedIn (hoststatusresponse)) {
-
-				Response.Write ("401");
-				return;
-			}
-
 
 			var node_information = new Dictionary<string, object> {
 				{ "inactiveNodes", GetInactiveNodes(web_service_login, hoststatusresponse) },
