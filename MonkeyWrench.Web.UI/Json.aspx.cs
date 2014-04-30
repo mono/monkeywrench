@@ -27,21 +27,11 @@ namespace MonkeyWrench.Web.UI
 
 		protected override void OnLoad (EventArgs e)
 		{
-			if (Request.QueryString ["username"] != null) {
-				try {
-					if (!Authentication.Login (Request.QueryString ["username"], Request.QueryString ["pw"], Request, Response)) {
-						return;
-					}
-				} catch (Exception) {
-					return;
-				}
-			}
-
 			base.OnLoad (e);
+			web_service_login = Authentication.CreateLogin (Request);
 
-			web_service_login = Utilities.CreateWebServiceLogin (Context.Request);
+
 			hoststatusresponse = Utils.WebService.GetHostStatus (web_service_login);
-
 
 			var node_information = new Dictionary<string, object> {
 				{ "inactiveNodes", GetInactiveNodes(web_service_login, hoststatusresponse) },
