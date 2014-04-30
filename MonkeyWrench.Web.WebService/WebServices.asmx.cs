@@ -1079,7 +1079,6 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		[WebMethod]
 		public void EditHostWithPassword (WebServiceLogin login, DBHost host, string password)
 		{
-			//WebServiceLogin response = new WebServiceLogin ();
 			using (DB db = new DB ()) {
 				using (IDbTransaction transaction = db.BeginTransaction ()) {
 					VerifyUserInRole (db, login, Roles.Administrator);

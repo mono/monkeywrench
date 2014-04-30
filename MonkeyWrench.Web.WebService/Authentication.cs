@@ -149,5 +149,32 @@ namespace MonkeyWrench.WebServices
 				throw new HttpException (403, "You don't have the required permissions.");
 			}
 		}
+
+		public static WebServiceLogin CreateLogin (HttpRequest Request)
+		{
+			WebServiceLogin login = new WebServiceLogin ();
+
+			login.Cookie = Request ["cookie"];
+			login.Password = Request ["password"];
+			if (string.IsNullOrEmpty (login.Cookie)) {
+				if (Request.Cookies ["cookie"] != null) {
+					login.Cookie = Request.Cookies ["cookie"].Value;
+				}
+			}
+
+			login.User = Request ["user"];
+			if (string.IsNullOrEmpty (login.User)) {
+				if (Request.Cookies ["user"] != null) {
+					login.User = Request.Cookies ["user"].Value;
+				}
+			}
+
+			login.Ip4 = Request ["ip4"];
+			if (string.IsNullOrEmpty (login.Ip4)) {
+				login.Ip4 = Utilities.GetExternalIP (Request);
+			}
+
+			return login;
+		}
 	}
 }

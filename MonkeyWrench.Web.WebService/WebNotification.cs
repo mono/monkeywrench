@@ -133,7 +133,7 @@ namespace MonkeyWrench.WebServices
 
 		public IAsyncResult BeginProcessRequest (HttpContext context, AsyncCallback cb, object extraData)
 		{
-			var login = CreateLogin (context.Request);
+			var login = Authentication.CreateLogin (context.Request);
 			using (var db = new DB ())
 				Authentication.VerifyUserInRole (context, db, login, Roles.Administrator, @readonly: true);
 
@@ -162,33 +162,6 @@ namespace MonkeyWrench.WebServices
 			get {
 				return false;
 			}
-		}
-
-		WebServiceLogin CreateLogin (HttpRequest request)
-		{
-			WebServiceLogin login = new WebServiceLogin ();
-			
-			login.Cookie = request ["cookie"];
-			login.Password = request ["password"];
-			if (string.IsNullOrEmpty (login.Cookie)) {
-				if (request.Cookies ["cookie"] != null) {
-					login.Cookie = request.Cookies ["cookie"].Value;
-				}
-			}
-
-			login.User = request ["user"];
-			if (string.IsNullOrEmpty (login.User)) {
-				if (request.Cookies ["user"] != null) {
-					login.User = request.Cookies ["user"].Value;
-				}
-			}
-			
-			login.Ip4 = request ["ip4"];
-			if (string.IsNullOrEmpty (login.Ip4)) {
-				login.Ip4 = Utilities.GetExternalIP (request);
-			}
-			
-			return login;
 		}
 	}
 }
