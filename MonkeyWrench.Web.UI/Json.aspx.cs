@@ -28,8 +28,7 @@ namespace MonkeyWrench.Web.UI
 		protected override void OnLoad (EventArgs e)
 		{
 			base.OnLoad (e);
-
-      web_service_login = Authentication.CreateLogin (Request);
+			web_service_login = Authentication.CreateLogin (Request);
 
 
 			hoststatusresponse = Utils.WebService.GetHostStatus (web_service_login);
