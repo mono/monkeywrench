@@ -375,7 +375,7 @@ namespace MonkeyWrench.Scheduler
 				if (string.IsNullOrEmpty (min_revision)) {
 					range = max_revision;
 				} else {
-					range = min_revision + ".." + max_revision;
+					range = min_revision + "^.." + max_revision;
 				}
 
 				using (Process git = new Process ()) {
