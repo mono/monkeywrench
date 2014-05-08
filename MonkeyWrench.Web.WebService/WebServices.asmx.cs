@@ -655,7 +655,11 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 					cmdText.AppendFormat ("SELECT * FROM LaneDeletionDirectiveView WHERE lane_id = {0};", response.Lane.id).AppendLine ();
 
 					// 6: response.Files = response.Lane.GetFiles (db, response.Lanes);
-					cmdText.Append ("SELECT Lanefile.* FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = ").Append (response.Lane.id);
+					cmdText.Append (@"
+SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date 
+FROM Lanefile 
+INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id 
+WHERE Lanefile.original_id IS NULL AND Lanefiles.lane_id = ").Append (response.Lane.id);
 					parent = response.Lane;
 					while (null != (parent = response.Lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
 						cmdText.Append (" OR LaneFiles.lane_id = ").Append (parent.id);
@@ -673,10 +677,10 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 
 					// 10: response.ExistingFiles = new List<DBLanefile> (); [...]
 					cmdText.AppendFormat (@"
-SELECT Lanefile.*
+SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date 
 FROM Lanefile
 INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id
-WHERE Lanefiles.lane_id <> {0}
+WHERE Lanefile.original_id IS NULL AND Lanefiles.lane_id <> {0}
 ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ();
 
 					// 11: response.Variables = DBEnvironmentVariable_Extensions.Find (db, response.Lane.id, null, null);
