@@ -68,10 +68,6 @@
       <Project>{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}</Project>
       <Name>Newtonsoft.Json</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SmartIrc4net\external\SmartIrc4net.csproj">
-      <Project>{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}</Project>
-      <Name>SmartIrc4net</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
