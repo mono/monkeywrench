@@ -15,6 +15,7 @@ BUILD_REPOSITORY:   The svn repository of this lane. (Exactly as configured for 
 BUILD_REPOSITORY_0: Each individial repository of BUILD_REPOSITORY (named _0, _1, etc)
 BUILD_REPOSITORY_SPACE: Same as BUILD_REPOSITORY, just with space instead of comma separating repositories.
 BUILD_DATA_LANE:    The directory where this lane puts its data.
+BUILD_DATA_SOURCE   The directory where this lane puts its source.
 BUILD_LANE_MIN_REVISION: The lane's min revision.
 BUILD_LANE_MAX_REVISION: The lane's max revision.
 BUILD_LANE_COMMIT_FILTER: The lane's commit filter.
