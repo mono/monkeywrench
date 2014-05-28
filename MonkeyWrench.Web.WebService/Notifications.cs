@@ -455,21 +455,6 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 			var reader = new StreamReader (stream);
 			var writer = new StreamWriter (stream);
 
-//			var t = new Thread (() => {
-//				try {
-//					var output = reader.ReadToEnd ();
-//					if (!string.IsNullOrEmpty (output))
-//						Logger.Log ("IRC output: \n{0}", output);
-//				} catch (ThreadInterruptedException) {
-//					// do nothing.
-//				} catch (Exception ex) {
-//					Logger.Log ("IrcNotification.SendMessages: exception while reading irc output: {0}", ex);
-//				}
-//			}) {
-//				IsBackground = true,
-//			};
-//			t.Start ();
-
 			writer.WriteLine ("PASS {0}", Password);
 			writer.WriteLine ("NICK {0}", Nick);
 			writer.WriteLine ("USER {0} 0 * :{1}", Nick, "MonkeyWrench");
@@ -483,10 +468,6 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 			writer.Dispose ();
 			stream.Dispose ();
 			client.Close ();
-
-//			t.Interrupt ();
-//			if (!t.Join (TimeSpan.FromSeconds (5)))
-//				Logger.Log ("IrcNotification.SendMessages: reader thread did not finish within 30 seconds.");
 		}
 
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message)
