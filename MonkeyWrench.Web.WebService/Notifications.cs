@@ -472,7 +472,7 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message)
 		{
-			Logger.Log ("IrcNotification.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) enabled: {4}", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, enabled);
+			Logger.Log ("IrcNotification.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) enabled: {4}, {5} people", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, enabled, people.Count);
 
 			if (!enabled)
 				return;
