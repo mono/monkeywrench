@@ -428,6 +428,8 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 						}
 					}
 				}
+			} catch (ThreadAbortException) {
+				// App is shutting down. No need to spam the logs.
 			} catch (Exception ex) {
 				Logger.Log ("IrcNotification.MessagePump: Unexpected error. No more messages will be processed: {0}", ex);
 			}
