@@ -43,6 +43,7 @@ namespace MonkeyWrench.DataClasses
 			string id, file;
 			char [] tr = new char [] { '(', ')', ' ' };
 			List<string> failures = new List<string> ();
+			List<string> test_runs = new List<string> ();
 
 			try {
 				while ((line = reader.ReadLine ()) != null) {
@@ -65,21 +66,26 @@ namespace MonkeyWrench.DataClasses
 						}
 						failures.Add (file + " " + id);
 					}
-					if (line.StartsWith ("Tests run")) {
-						summary = line;
+					if (line.StartsWith ("Tests run:")) {
+						var test_run = line;
 						if (failures.Count > 0) {
-							summary += " (Failures: ";
+							test_run += " (Failures: ";
 							for (int i = 0; i < failures.Count; i++) {
-								summary += failures [i];
+								test_run += failures [i];
 								if (i < failures.Count - 1)
-									summary += ", ";
+									test_run += ", ";
 							}
-							summary += ")";
+							test_run += ")";
+							failures.Clear ();
 						}
-						return;
+						test_runs.Add (test_run);
 					}
 				}
-				summary = "-";
+				if (test_runs.Count == 0) {
+					summary = "-";
+				} else {
+					summary = string.Join ("<br/>", test_runs.ToArray ());
+				}
 			} catch (Exception ex) {
 				summary = ex.Message;
 			}
