@@ -337,6 +337,11 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 			public string[] Channels;
 			public int Port;
 			public IEnumerable<string> Messages;
+
+			public override string ToString ()
+			{
+				return string.Format ("IrcMessage [ Server: {0} Nick: {1} Channels: {2} Messages: {3} ]", Server, Nick, string.Join (";", Channels), string.Join (";", Messages.ToArray ()));
+			}
 		}
 
 		public IrcNotification (DBNotification notification)
@@ -422,9 +427,9 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 							watch.Start ();
 							SendMessages (message.Server, message.Password, message.UseSSL, message.Nick, message.Channels, message.Port, message.Messages);
 							watch.Stop ();
-							Logger.Log ("IrcNotification.MessagePump: sent message in {0} ms", watch.ElapsedMilliseconds);
+							Logger.Log ("IrcNotification.MessagePump: sent message in {0} ms ({1})", watch.ElapsedMilliseconds, message);
 						} catch (Exception ex) {
-							Logger.Log ("IrcNotification.MessagePump: failed to send message: {0}", ex);
+							Logger.Log ("IrcNotification.MessagePump: failed to send message {1}: {0}", ex, message);
 						}
 					}
 				}
