@@ -12,7 +12,6 @@ BUILDABLE_REFS = \
 	$(OUT_DIR)/MonkeyWrench.dll	\
 	$(OUT_DIR)/MonkeyWrench.DataClasses.dll	\
 	$(OUT_DIR)/MonkeyWrench.Database.dll \
-	$(OUT_DIR)/Meebey.SmartIrc4net.dll \
 	$(OUT_DIR)/Newtonsoft.Json.dll
 
 REFERENCES = \
@@ -44,7 +43,6 @@ install: all
 	@cp -p $(OUT_DIR)/MonkeyWrench.dll* bin
 	@cp -p $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin
 	@cp -p $(OUT_DIR)/MonkeyWrench.Database.dll* bin
-	@cp -p $(OUT_DIR)/Meebey.SmartIrc4net.dll* bin
 	@cp -p $(OUT_DIR)/Newtonsoft.Json.dll* bin
 	@cp -p $(OUT_DIR)/StarkSoftProxy.dll* bin
 
