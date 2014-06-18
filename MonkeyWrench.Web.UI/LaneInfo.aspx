@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" Inherits="MonkeyWrench.Web.UI.LaneInfo" CodeBehind="LaneInfo.aspx.cs" ContentType="application/json"%>
