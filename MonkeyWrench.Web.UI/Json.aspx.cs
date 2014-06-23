@@ -16,78 +16,147 @@ namespace MonkeyWrench.Web.UI
 
 	public partial class Json : System.Web.UI.Page
 	{
+		private struct HostHistoryEntry
+		{
+			public string date;
+			public int duration;
+			public string revision;
+			public string lane;
+
+			public HostHistoryEntry(GetWorkHostHistoryResponse hr, int i)
+			{
+				this.date = hr.StartTime[i].ToString("u");
+				this.duration = hr.Durations[i];
+				this.revision = hr.Revisions[i];
+				this.lane = hr.Lanes[i];
+			}
+		}
+		private string requestType;
+		private int limit;
+		private int offset;
+
 		private new Master Master
 		{
 			get { return base.Master as Master; }
 		}
 
-		private WebServiceLogin web_service_login;
-
-		private GetHostStatusResponse hoststatusresponse;
+		private WebServiceLogin login;
 
 		protected override void OnLoad (EventArgs e)
 		{
 			base.OnLoad (e);
-			web_service_login = Authentication.CreateLogin (Request);
+			login = Authentication.CreateLogin (Request);
 
+			requestType = Request.QueryString ["type"];
+			limit = Utils.TryParseInt32 (Request.QueryString ["limit"]) ?? 50;
+			offset = Utils.TryParseInt32 (Request.QueryString ["offset"]) ?? 0;
 
-			hoststatusresponse = Utils.WebService.GetHostStatus (web_service_login);
+			Response.AppendHeader("Access-Control-Allow-Origin", "*");
+			switch (requestType) {				
+				case "laneinfo":
+					Response.Write (GetLaneInfo (login));
+					break;
+				case "botinfo":
+				default:
+					Response.Write (GetBotInfo (login));
+					break;
+			}
+		}
 
+		private string GetBotInfo (WebServiceLogin login) {
+			var hoststatusresponse = Utils.WebService.GetHostStatus (login);
 			var node_information = new Dictionary<string, object> {
-				{ "inactiveNodes", GetInactiveNodes(web_service_login, hoststatusresponse) },
-				{ "activeNodes", GetActiveNodes(web_service_login, hoststatusresponse) },
-				{ "downNodes", GetDownNodes(web_service_login, hoststatusresponse) },
+				{ "inactiveNodes", GetInactiveHosts (login, hoststatusresponse) },
+				{ "activeNodes",   GetActiveHosts (login, hoststatusresponse) },
+				{ "downNodes",     GetDownHosts (login, hoststatusresponse) },
+				{ "hostHistory",   GetHostHistory (login, limit, offset)}
 				// { "pendingJobs", "asdf" }
 			};
-
-			Response.Write (JsonConvert.SerializeObject (node_information, Formatting.Indented));
+			return JsonConvert.SerializeObject (node_information, Formatting.Indented);
 		}
 
-		private List<string> GetActiveNodes (WebServiceLogin web_service_login, GetHostStatusResponse hoststatusresponse) {
-			var working = new List<string> ();
+		private Dictionary<string, IEnumerable<HostHistoryEntry>> GetHostHistory (WebServiceLogin web_service_login, int limit, int offset) {
+			var hosts = Utils.WebService.GetHosts (login).Hosts.OrderBy(h => h.host);
+			var hostHistoryResponses = hosts.Select (host => 
+				Utils.WebService.GetWorkHostHistory (login, host.id, "", limit, offset));
 
-			for (int i = 0; i < hoststatusresponse.HostStatus.Count; i++) {
-				var status = hoststatusresponse.HostStatus [i];
-				var idle = string.IsNullOrEmpty (status.lane);
-
-				if (!idle && !NodeIsDead(status)) {
-					working.Add (status.host);
-				}
-			}
-			return working;
+			var hostHistories = hostHistoryResponses.ToDictionary (
+				hr => hr.Host.host,
+				hr => Enumerable.Range(0, hr.RevisionWorks.Count)
+					.Select(i =>  new HostHistoryEntry (hr, i))
+			);
+			return hostHistories;
 		}
 
-		private List<string> GetInactiveNodes (WebServiceLogin web_service_login, GetHostStatusResponse hoststatusresponse) {
-			var idles = new List<string> ();
+		private string GetLastJob (WebServiceLogin login, DBLane lane)
+		{
+//			return Utils.WebService.GetRevisions (login, null, lane.lane, 1, 0).Revisions
+//				.Select(rev => rev.date.ToString ("yyyy/MM/dd HH:mm:ss UTC")).FirstOrDefault();
 
-			for (int i = 0; i < hoststatusresponse.HostStatus.Count; i++) {
-				var status = hoststatusresponse.HostStatus [i];
-				var idle = string.IsNullOrEmpty (status.lane);
+			var revisions = Utils.WebService.GetRevisions (login, null, lane.lane, 1, 0).Revisions;
 
-				if (idle && !NodeIsDead(status)) {
-					idles.Add (status.host);
-				}
-			}
-			return idles;
+			return revisions.Any () ? revisions.First().date.ToString ("u") : "";
 		}
 
-		private List<string> GetDownNodes (WebServiceLogin web_service_login, GetHostStatusResponse hoststatusresponse) {
-			var down = new List<string> ();
+		private string GetLaneInfo (WebServiceLogin login) {
+			var lanesResponse = Utils.WebService.GetLanes (login);
 
-			for (int i = 0; i < hoststatusresponse.HostStatus.Count; i++) {
-				var status = hoststatusresponse.HostStatus [i];
+			var lanes = lanesResponse.Lanes.ToDictionary (
+				l => l.lane, 
+				l => new { 
+					branch     = BranchFromRevision (l.max_revision),
+					repository = l.repository,
+					lastJob    = GetLastJob(login, l)
+				});
 
-				if (NodeIsDead(status)) {
-					down.Add (status.host);
-				}
-			}
-			return down;
+			var count = lanes.Where ((kv) => !String.IsNullOrEmpty (kv.Value.repository)).Count();
+
+			var results = new Dictionary<string, object> {
+				{ "count", count },
+				{ "lanes", lanes }			
+			};
+
+			return JsonConvert.SerializeObject (results, Formatting.Indented);
 		}
 
-		private bool NodeIsDead (DBHostStatusView status) {
+		string BranchFromRevision (string revision) {
+			return String.IsNullOrEmpty (revision) ? "remotes/origin/master" : revision;
+		}
+
+		private IEnumerable<string> GetActiveHosts (WebServiceLogin login, GetHostStatusResponse hoststatusresponse) {
+			return (hoststatusresponse.HostStatus)
+				.Where (IsHostActive)
+				.Select (status => status.host)
+				.OrderBy(h => h);
+		}
+
+		private IEnumerable<string> GetInactiveHosts (WebServiceLogin login, GetHostStatusResponse hoststatusresponse) {
+			return hoststatusresponse.HostStatus
+				.Where (IsHostInactive)
+				.Select (status => status.host)
+				.OrderBy(h => h);
+		}
+
+		private IEnumerable<string> GetDownHosts (WebServiceLogin login, GetHostStatusResponse hoststatusresponse) {
+			return hoststatusresponse.HostStatus
+				.Where (IsHostDead)
+				.Select (status => status.host)
+				.OrderBy(h => h);
+		}
+
+		private bool IsHostActive (DBHostStatusView host) {
+			var has_lanes = !String.IsNullOrEmpty (host.lane);
+			return has_lanes && !IsHostDead (host);
+		}
+
+		private bool IsHostInactive (DBHostStatusView host) {
+			var has_no_lanes = String.IsNullOrEmpty (host.lane);
+			return has_no_lanes && !IsHostDead (host);
+		}
+
+		private bool IsHostDead (DBHostStatusView status) {
 			var silence = DateTime.Now - status.report_date;
 			return silence.TotalHours >= 3;
 		}
-
 	}
 }
