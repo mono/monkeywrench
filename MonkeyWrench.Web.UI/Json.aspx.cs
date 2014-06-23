@@ -57,21 +57,24 @@ namespace MonkeyWrench.Web.UI
 					Response.Write (GetLaneInfo (login));
 					break;
 				case "botinfo":
+					Response.Write (GetBotInfo (login, true));
+					break;
 				default:
-					Response.Write (GetBotInfo (login));
+					Response.Write (GetBotInfo (login, false));
 					break;
 			}
 		}
 
-		private string GetBotInfo (WebServiceLogin login) {
+		private string GetBotInfo (WebServiceLogin login, bool showHostHistory) {
 			var hoststatusresponse = Utils.WebService.GetHostStatus (login);
 			var node_information = new Dictionary<string, object> {
 				{ "inactiveNodes", GetInactiveHosts (login, hoststatusresponse) },
 				{ "activeNodes",   GetActiveHosts (login, hoststatusresponse) },
-				{ "downNodes",     GetDownHosts (login, hoststatusresponse) },
-				{ "hostHistory",   GetHostHistory (login, limit, offset)}
+				{ "downNodes",     GetDownHosts (login, hoststatusresponse) }
 				// { "pendingJobs", "asdf" }
 			};
+			if (showHostHistory)
+				node_information.Add ("hostHistory", GetHostHistory (login, limit, offset));
 			return JsonConvert.SerializeObject (node_information, Formatting.Indented);
 		}
 
