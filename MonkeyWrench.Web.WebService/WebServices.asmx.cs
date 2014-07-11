@@ -516,7 +516,7 @@ namespace MonkeyWrench.WebServices
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
-SELECT RevisionWork.*, Host.host, Lane.lane, Revision.revision, MAX (Work.starttime) AS order_date,
+SELECT RevisionWork.*, Host.host, Lane.lane, Revision.revision, MIN (Work.starttime) AS order_date,
 -- calculate the duration of each work and add them up
    SUM (EXTRACT (EPOCH FROM (
 		(CASE
@@ -530,7 +530,7 @@ INNER JOIN Revision ON RevisionWork.revision_id = Revision.id
 INNER JOIN Lane ON RevisionWork.lane_id = Lane.id
 INNER JOIN Work ON RevisionWork.id = Work.revisionwork_id
 INNER JOIN Host ON RevisionWork.host_id = Host.id
-WHERE RevisionWork.workhost_id = @host_id 
+WHERE RevisionWork.workhost_id = @host_id AND (Work.starttime > '2001-01-01' AND Work.endtime > '2001-01-01') 
 GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWork.workhost_id, RevisionWork.revision_id, RevisionWork.state, RevisionWork.lock_expires, RevisionWork.completed, RevisionWork.endtime, Lane.lane, Revision.revision, Host.host ";
 					cmd.CommandText += " ORDER BY RevisionWork.completed ASC, order_date DESC ";
 					if (limit > 0)
