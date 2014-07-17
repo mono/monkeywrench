@@ -533,6 +533,7 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 	{
 		DBEmailIdentity identity;
 		string[] emails;
+		ObjectCache cache = new MemoryCache ("EmailCache");
 
 		public EMailNotification (DBNotification notification)
 			: base (notification)
@@ -634,6 +635,10 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 			var rooms = actionableEmails.Select (email => email.Split ('@') [0]).ToList ();
 			var prefixNames = string.Join (", ", people.SelectMany (x => x.irc_nicknames.Split (',')).Distinct ().Select (x => string.Format("@{0}", x)));
 			var finalMessage = prefixNames + ": " + message;
+
+			if (cache [finalMessage] != null)
+				return;
+			cache.Add (finalMessage, string.Empty, new DateTimeOffset (DateTime.UtcNow.AddHours (1), TimeSpan.Zero));
 
 			const string finalApi = "https://hipchat.xamarin.com/v1/rooms/message";
 
