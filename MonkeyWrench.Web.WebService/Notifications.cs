@@ -633,18 +633,27 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 
 			var apiToken = identity.password;
 			var rooms = actionableEmails.Select (email => email.Split ('@') [0]).ToList ();
-			var prefixNames = string.Join (", ", people.SelectMany (x => x.irc_nicknames.Split (',')).Distinct ().Select (x => string.Format("@{0}", x)));
-			var finalMessage = prefixNames + ": " + message;
-
-			if (cache [finalMessage] != null)
-				return;
-			cache.Add (finalMessage, string.Empty, new DateTimeOffset (DateTime.UtcNow.AddHours (1), TimeSpan.Zero));
-
 			const string finalApi = "https://hipchat.xamarin.com/v1/rooms/message";
 
 			var webClient = new WebClient ();
 
-			foreach (var room in rooms) {
+			foreach (var r in rooms) {
+				string prefix;
+				string room = r;
+				if (room.StartsWith ("*")) {
+					room = room.Substring (1);
+					prefix = "";
+				} else {
+					prefix = "@";
+				}
+
+				var prefixNames = string.Join (", ", people.SelectMany (x => x.irc_nicknames.Split (',')).Distinct ().Select (x => string.Format("{1}{0}", x, prefix)));
+				var finalMessage = prefixNames + ": " + message;
+
+				if (cache [room + "|" + finalMessage] != null)
+					continue;
+				cache.Add (room + "|" + finalMessage, string.Empty, new DateTimeOffset (DateTime.UtcNow.AddHours (1), TimeSpan.Zero));
+
 				var postData = new NameValueCollection ();
 				postData.Add ("auth_token", apiToken);
 				postData.Add ("room_id", room);
