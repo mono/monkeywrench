@@ -10,7 +10,7 @@ namespace MonkeyWrench.Web.UI
 	using MonkeyWrench.DataClasses;
 	using MonkeyWrench.DataClasses.Logic;
 	using MonkeyWrench.Web.WebServices;
-	
+
 	public partial class GetLatest : System.Web.UI.Page
 	{
 
@@ -28,23 +28,43 @@ namespace MonkeyWrench.Web.UI
 
 			var laneName = Request.QueryString ["laneName"];
 			var baseURL = Request.QueryString ["url"] ?? "http://storage.bos.internalx.com";
+			var updateRequest = false;
+			var step =  10;
+			var limit =  200;
 
-			var revision = getLatestRevision (webServiceLogin, laneName);
-			var URL = String.Format ("{0}/{1}/{2}/{3}/manifest", baseURL, laneName, revision.Substring(0,2), revision);
+			var revision = getLatestRevision (webServiceLogin, laneName, step, 0, limit);
 
+			Action handleGetLatest = () => {
+				var homePage = Page.ResolveUrl ("~/index.aspx");
+				var URL = revision != "" ? String.Format ("{0}/{1}/{2}/{3}/manifest", baseURL, laneName, revision.Substring (0, 2), revision) : homePage;
+				Response.AppendHeader ("Access-Control-Allow-Origin", "*");
+				Response.Redirect (URL);
+			};
 
-			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
-			Response.Redirect (URL);
+			Action handleUpdate = () => {
+				Response.Write("");
+			};
+
+			if (updateRequest) {
+				handleUpdate ();
+			} else {
+				handleGetLatest ();
+			}
 		}
-			
 
-
-		string getLatestRevision (WebServiceLogin login, string laneName){
+		string getLatestRevision (WebServiceLogin login, string laneName, int step, int offset, int limit){
 			var lane = Utils.WebService.FindLane (login, null, laneName).lane;
-			var revisions = Utils.WebService.GetRevisions (login, null, laneName, 50, 0).Revisions;
+			var revisions = Utils.WebService.GetRevisions (login, null, laneName, step, offset).Revisions;
 			var revisionWorks = revisions.Select (r => Utils.WebService.GetRevisionWorkForLane (login, lane.id, r.id, -1).RevisionWork).ToList ();
-		
-			return getRevisionName (revisions, revisionWorks.Find (wl => validRevision (login, wl)).First ().revision_id);
+			var validRevisions = revisionWorks.Find (wl => validRevision (login, wl));
+
+			if (validRevisions != null) {
+				return getRevisionName (revisions, validRevisions.First ().revision_id);
+			} else if (offset < limit) {
+				return getLatestRevision (login, laneName, step, offset + step, limit);
+			} else {
+				return "";
+			}
 		}
 
 		string getRevisionName (List<DBRevision> revisions, int revision_id) {

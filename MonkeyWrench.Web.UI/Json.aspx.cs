@@ -22,12 +22,16 @@ namespace MonkeyWrench.Web.UI
 			public int duration;
 			public string revision;
 			public string lane;
+			public string state;
+			public bool completed;
 
 			public HostHistoryEntry(GetWorkHostHistoryResponse hr, int i)
 			{
 				this.date = hr.StartTime[i].ToString("u");
 				this.duration = hr.Durations[i];
 				this.revision = hr.Revisions[i];
+				this.completed = hr.RevisionWorks[i].completed;
+				this.state = hr.RevisionWorks[i].State.ToString();
 				this.lane = hr.Lanes[i];
 			}
 		}
@@ -109,7 +113,7 @@ namespace MonkeyWrench.Web.UI
 				l => new { 
 					branch     = BranchFromRevision (l.max_revision),
 					repository = l.repository,
-					lastJob    = GetLastJob(login, l)
+					id         = l.id
 				});
 
 			var count = lanes.Where ((kv) => !String.IsNullOrEmpty (kv.Value.repository)).Count();
