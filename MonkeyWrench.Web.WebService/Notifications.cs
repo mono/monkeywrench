@@ -165,30 +165,31 @@ namespace MonkeyWrench.WebServices
 
 			/* We need to see if there are any successfull builds later than this one */
 			using (DB db = new DB ()) {
+				using (var cmd = db.CreateCommand ()) {
+					cmd.CommandText += @"SELECT nonfatal FROM Command WHERE id = @command_id;";
+					DB.CreateParameter (cmd, "command_id", work.command_id);
+
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						if (reader.Read ())
+							nonfatal = reader.GetBoolean (0);
+					}
+				}
+
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
 SELECT state FROM RevisionWork
 INNER JOIN Revision ON RevisionWork.revision_id = Revision.id
 WHERE RevisionWork.lane_id = @lane_id AND RevisionWork.host_id = @host_id AND RevisionWork.completed AND Revision.date > (SELECT date FROM Revision WHERE id = @revision_id) AND";
 
-					switch (Notification.Type) {
-					case DBNotificationType.FatalFailuresOnly:
-						// Success or Issues
-						cmd.CommandText += " (RevisionWork.state = 3 OR RevisionWork.state = 8) ";
-						break;
-					case DBNotificationType.AllFailures:
-					case DBNotificationType.NonFatalFailuresOnly:
-					default:
-						// Just success
+					if (nonfatal) {
 						cmd.CommandText += " RevisionWork.state = 3 ";
-						break;
+					} else {
+						cmd.CommandText += " (RevisionWork.state = 3 OR RevisionWork.state = 8) ";
 					}
 
 	cmd.CommandText += @"
 ORDER BY Revision.date DESC
 LIMIT 1;
-
-SELECT nonfatal FROM Command WHERE id = @command_id;
 ";
 					DB.CreateParameter (cmd, "lane_id", revision_work.lane_id);
 					DB.CreateParameter (cmd, "host_id", revision_work.host_id);
@@ -200,8 +201,6 @@ SELECT nonfatal FROM Command WHERE id = @command_id;
 					using (IDataReader reader = cmd.ExecuteReader ()) {
 						if (reader.Read ())
 							obj_state = reader [0];
-						if (reader.NextResult () && reader.Read ())
-							nonfatal = reader.GetBoolean (0);
 					}
 
 					if (obj_state != DBNull.Value && obj_state != null) {
