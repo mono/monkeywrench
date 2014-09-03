@@ -112,12 +112,43 @@ public class LaneTreeNode
 		return null;
 	}
 
+	static List<DBLane> FilterToLatestMonth (IEnumerable<DBLane> lanes)
+	{
+		var rv = new List<DBLane> ();
+		var already_in = new HashSet<int> ();
+		var map = new Dictionary<int, DBLane> ();
+
+		// find all the modified lanes in the last month, or never modified at all
+		foreach (var lane in lanes) {
+			map [lane.id] = lane;
+			if (lane.changed_date.HasValue && lane.changed_date.Value.AddMonths (1) < DateTime.Now)
+				continue;
+			rv.Add (lane);
+			already_in.Add (lane.id);
+		}
+
+		// include all the parent lanes, recursively
+		for (int i = 0; i < rv.Count; i++) {
+			var lane = rv [i];
+
+			while (lane.parent_lane_id.HasValue) {
+				lane = map [lane.parent_lane_id.Value];
+				if (!already_in.Contains (lane.id)) {
+					rv.Add (lane);
+					already_in.Add (lane.id);
+				}
+			}
+		}
+
+		return rv;
+	}
+
 	public static LaneTreeNode BuildTree (IEnumerable<DBLane> lanes, IEnumerable<DBHostLane> host_lanes)
 	{
 		// we need to create a tree of the lanes
 		LaneTreeNode root = new LaneTreeNode (null);
 		Dictionary<int, LaneTreeNode> nodes = new Dictionary<int, LaneTreeNode> ();
-		List<DBLane> lanes_clone = new List<DBLane> (lanes);
+		List<DBLane> lanes_clone = FilterToLatestMonth (lanes);
 
 		while (lanes_clone.Count != 0) {
 			int c = lanes_clone.Count;

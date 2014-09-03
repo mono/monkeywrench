@@ -2367,6 +2367,13 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 				}
 				response.RevisionWorkCompleted = rw.completed;
 
+				using (var cmd = db.CreateCommand ()) {
+					cmd.CommandText = "UPDATE Lane SET changed_date = @date WHERE id = @id;";
+					DB.CreateParameter (cmd, "date", DateTime.UtcNow);
+					DB.CreateParameter (cmd, "id", rw.lane_id);
+					cmd.ExecuteNonQuery ();
+				}
+
 				Notifications.Notify (work, rw);
 
 				// Check if any other lane depends on this one
