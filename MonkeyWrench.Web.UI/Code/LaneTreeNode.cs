@@ -30,6 +30,13 @@ public class LaneTreeNode
 	{
 	}
 
+	public void Sort ()
+	{
+		foreach (var child in Children)
+			child.Sort ();
+		Children.Sort ((a, b) => string.Compare (a.Lane.lane, b.Lane.lane));
+	}
+
 	public LaneTreeNode (DBLane lane, IEnumerable<DBHostLane> hostlanes){
 		this.Lane = lane;
 		if (hostlanes != null && lane != null) {
@@ -137,6 +144,8 @@ public class LaneTreeNode
 				break;
 			}
 		}
+
+		root.Sort ();
 
 		return root;
 	}
