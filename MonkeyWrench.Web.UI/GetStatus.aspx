@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" Inherits="MonkeyWrench.Web.UI.GetStatus" CodeBehind="GetStatus.aspx.cs" ContentType="application/json" %>

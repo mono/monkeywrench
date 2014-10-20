@@ -128,6 +128,7 @@
     <Content Include="Master.master" />
     <Content Include="web.config" />
     <Content Include="Json.aspx" />
+    <Content Include="GetStatus.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.aspx.cs">
@@ -356,6 +357,12 @@
     </Compile>
     <Compile Include="Json.aspx.designer.cs">
       <DependentUpon>Json.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GetStatus.aspx.cs">
+      <DependentUpon>GetStatus.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GetStatus.aspx.designer.cs">
+      <DependentUpon>GetStatus.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
