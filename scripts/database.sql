@@ -85,6 +85,9 @@ INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git
 -- ALTER TABLE Lane ADD COLUMN enabled boolean NOT NULL DEFAULT TRUE;
 -- ALTER TABLE Lane ADD COLUMN changed_date timestamp NULL DEFAULT NULL;
 
+-- Command to set the latest changed_date on every lane.
+-- UPDATE Lane SET changed_date = (SELECT MAX(endtime) FROM RevisionWork WHERE RevisionWork.lane_id = Lane.id);
+
 CREATE TABLE LaneTag (
 	id             serial     PRIMARY KEY,
 	lane_id        int        NOT NULL,     -- the lane for the tag
