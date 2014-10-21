@@ -80,13 +80,13 @@ namespace MonkeyWrench.Web.UI
 
 		private string BuildLink(int laneId, int revId, int hostId)
 		{
-			return string.Format ("{0}/ViewLane.aspx?lane_id={1}&host_id={2}&revision_id={3}",
+			return string.Format ("{0}ViewLane.aspx?lane_id={1}&host_id={2}&revision_id={3}",
 				Configuration.WebSiteUrl, laneId, hostId, revId);
 		}
 
 		private string BuildFileLink(int fileId)
 		{
-			return string.Format ("{0}/GetFile.aspx?id={1}", Configuration.WebSiteUrl, fileId);
+			return string.Format ("{0}GetFile.aspx?id={1}", Configuration.WebSiteUrl, fileId);
 		}
 
 		private Dictionary<String, Object> BuildStatusFrom(int laneId, int revId, DBRevisionWork work, DBHost host)
