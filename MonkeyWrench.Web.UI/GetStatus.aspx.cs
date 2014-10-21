@@ -68,7 +68,7 @@ namespace MonkeyWrench.Web.UI
 			var lane = Utils.WebService.FindLane (login, null, laneName).lane;
 			if (lane == null)
 				throw new HttpException(404, string.Format ("Lane could not be found with name {0}", laneName));
-			var revision = Utils.WebService.FindRevisionForLane (login, 0, commit, lane.id, "").Revision;
+			var revision = Utils.WebService.FindRevisionForLane (login, null, commit, lane.id, "").Revision;
 			if (revision == null)
 				throw new HttpException(404,
 					string.Format ("Revision with commit hash of {0} was not found for lane {1}", commit, laneName));
