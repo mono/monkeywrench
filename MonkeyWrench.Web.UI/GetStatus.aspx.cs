@@ -29,6 +29,7 @@ namespace MonkeyWrench.Web.UI
 
 		protected override void OnLoad(EventArgs e)
 		{
+			var start = DateTime.Now;
 			base.OnLoad (e);
 			login = Authentication.CreateLogin (Request);
 			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
@@ -46,6 +47,7 @@ namespace MonkeyWrench.Web.UI
 					throw new HttpException(400, "Either lane_name+commit or lane_id+revision_id must be provided to resolve build.");
 				buildStatusResponse = FetchBuildStatus (laneName, commit);
 			}
+			buildStatusResponse.Add ("generation_time", (DateTime.Now - start).TotalMilliseconds);
 			Response.Write (JsonConvert.SerializeObject (buildStatusResponse));
 		}
 
@@ -123,6 +125,7 @@ namespace MonkeyWrench.Web.UI
 
 			d.Add ("step", step.command);
 			d.Add ("status", step.State.ToString ().ToLowerInvariant ());
+			// TODO: Duration returns a 0, need to figure out where to query or even calculate it.
 			d.Add ("duration", step.duration);
 
 			if (logFile != null) {
