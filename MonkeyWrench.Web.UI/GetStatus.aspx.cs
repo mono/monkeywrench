@@ -75,7 +75,7 @@ namespace MonkeyWrench.Web.UI
 			var work = Utils.WebService.GetRevisionWorkForLane (login, lane.id, revision.id, 0).RevisionWork.First ();
 			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
 
-			return BuildStatusFrom (lane, revision, work, host);
+			return BuildStatusFrom (lane.id, revision.id, work, host);
 		}
 
 		private string BuildLink(int laneId, int revId, int hostId)
