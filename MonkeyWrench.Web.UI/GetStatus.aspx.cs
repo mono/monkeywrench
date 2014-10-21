@@ -99,8 +99,12 @@ namespace MonkeyWrench.Web.UI
 				steps.Add (BuildStepStatus (buildView.WorkViews [s], buildView.WorkFileViews [s]));
 			}
 			d.Add ("status", work.State.ToString ());
+			d.Add ("status", work.State.ToString ().ToLowerInvariant ());
 			d.Add ("steps", steps);
-			d.Add ("start_time", work.endtime.ToString ());
+			if (buildView.WorkViews [0].date != null)
+				d.Add ("start_time", buildView.WorkViews [0].starttime);
+			if (work.endtime != null)
+				d.Add ("end_time", work.endtime);
 			d.Add ("url", BuildLink (laneId, revId, host.id));
 			d.Add ("build_bot", host.host);
 			return d;
