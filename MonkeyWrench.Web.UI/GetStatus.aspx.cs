@@ -32,63 +32,89 @@ namespace MonkeyWrench.Web.UI
 			base.OnLoad (e);
 			login = Authentication.CreateLogin (Request);
 			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
-			Dictionary<String, String> buildStatusResponse = null;
+			Dictionary<String, Object> buildStatusResponse = null;
 
-			if (Request.Params.Get ("lane_id") != null) {
-				var laneId = Utils.TryParseInt32 (Request.Params.Get ("lane_id"));
-				var revisionId = Utils.TryParseInt32 (Request.Params.Get ("revision_id"));
+			if (!string.IsNullOrEmpty (Request ["lane_id"])) {
+				var laneId = Utils.TryParseInt32 (Request ["lane_id"]);
+				var revisionId = Utils.TryParseInt32 (Request ["revision_id"]);
 				if (laneId.HasValue && revisionId.HasValue)
-					buildStatusResponse = FetchBuildByIds (laneId.Value, revisionId.Value);
+					buildStatusResponse = FetchBuildStatus (laneId.Value, revisionId.Value);
 			} else {
-				var laneName = Request.Params.Get ("lane_name");
-				var commit = Request.Params.Get ("commit");
-				if (laneName != null && commit != null)
-					buildStatusResponse = FetchBuildByName (laneName, commit);
+				var laneName = Request ["lane_name"];
+				var commit = Request ["commit"];
+				if (string.IsNullOrEmpty (laneName) || string.IsNullOrEmpty (commit))
+					throw new HttpException(400, "Either lanename+commit or lane_id+revision_id must be provided to resolve build.");
+				buildStatusResponse = FetchBuildStatus (laneName, commit);
 			}
-			if (buildStatusResponse != null)
-				Response.Write (JsonConvert.SerializeObject (buildStatusResponse));
-			else
-				Response.Write ("{\"error\": \"Build could not be resolved. Check your arguments.\"}");
-           
+			Response.Write (JsonConvert.SerializeObject (buildStatusResponse));
 		}
 
 		// Handles requests:
 		// https://<wrenchhost>/GetStatus.aspx?lane_id=9939&host_id=883&revision_id=484848
-		protected Dictionary<String, String> FetchBuildByIds(int laneId, int revisionId)
+		protected Dictionary<String, Object> FetchBuildStatus(int laneId, int revisionId)
 		{
-			var lane = Utils.WebService.GetLane (login, laneId).lane;
-			var revision = Utils.WebService.FindRevision (login, revisionId, "").Revision;
-			var work = Utils.WebService.GetRevisionWorkForLane (login, lane.id, revision.id, 0).RevisionWork.First ();
+			var work = Utils.WebService.GetRevisionWorkForLane (login, laneId, revisionId, 0).RevisionWork.First ();
+			if (work == null)
+				throw new HttpException(404, "Build not found. Invalid revision_id or lane_id");
 			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
 
-			return BuildStatusFrom (lane, revision, work, host);
+			return BuildStatusFrom (laneId, revisionId, work, host);
 		}
 
 		// Handles requests:
 		// https://<wrenchhost>/GetStatus.aspx?lane_name=some-lane-name-master&commit=aff123
-		protected Dictionary<String, String> FetchBuildByName(string laneName, string commit)
+		protected Dictionary<String, Object> FetchBuildStatus(string laneName, string commit)
 		{
 			var lane = Utils.WebService.FindLane (login, null, laneName).lane;
+			if (lane == null)
+				throw new HttpException(404, string.Format ("Lane could not be found with name {0}", laneName));
 			var revision = Utils.WebService.FindRevisionForLane (login, 0, commit, lane.id, "").Revision;
+			if (revision == null)
+				throw new HttpException(404,
+					string.Format ("Revision with commit hash of {0} was not found for lane {1}", commit, laneName));
 			var work = Utils.WebService.GetRevisionWorkForLane (login, lane.id, revision.id, 0).RevisionWork.First ();
 			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
 
 			return BuildStatusFrom (lane, revision, work, host);
 		}
 
-		private string BuildLink(int lane_id, int rev_id, int host_id)
+		private string BuildLink(int laneId, int revId, int hostId)
 		{
 			return string.Format ("{0}/ViewLane.aspx?lane_id={1}&host_id={2}&revision_id={3}",
-				Configuration.WebSiteUrl, lane_id, host_id, rev_id);
+				Configuration.WebSiteUrl, laneId, hostId, revId);
 		}
 
-		private Dictionary<String, String> BuildStatusFrom(DBLane lane, DBRevision rev, DBRevisionWork work, DBHost host)
+		private string BuildFileLink(int fileId)
+		{
+			return string.Format ("{0}/GetFile.aspx?id={1}", Configuration.WebSiteUrl, fileId);
+		}
+
+		private Dictionary<String, Object> BuildStatusFrom(int laneId, int revId, DBRevisionWork work, DBHost host)
+		{
+			var d = new Dictionary<String, Object>();
+
+			var buildView = Utils.WebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
+			List<Dictionary<String, String>> steps = buildView.WorkViews.Select (s => BuildStepStatus (s, buildView.Links));
+
+			d.Add ("status", work.State.ToString ());
+			d.Add ("steps", steps);
+			d.Add ("start_time", work.endtime.ToString ());
+			d.Add ("url", BuildLink (laneId, revId, host.id));
+			d.Add ("build_bot", host.host);
+			return d;
+		}
+
+		private Dictionary<String, String> BuildStepStatus(DBWorkView2 step, List<DBWorkFileView> files)
 		{
 			var d = new Dictionary<String, String>();
-			d.Add ("status", work.State.ToString ());
-			d.Add ("start_time", work.endtime.ToString ());
-			d.Add ("url", BuildLink (lane.id, rev.id, host.id));
-			d.Add ("build_bot", host.host);
+			var logFile = files.Find (f => f.filename == step.command + ".log");
+
+			d.Add ("step", step.command);
+			d.Add ("status", step.State.ToString ());
+			if (logFile != null) {
+				d.Add ("log", BuildFileLink (logFile.id));
+			}
+
 			return d;
 		}
 	}
