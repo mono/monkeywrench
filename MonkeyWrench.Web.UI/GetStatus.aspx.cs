@@ -113,6 +113,8 @@ namespace MonkeyWrench.Web.UI
 
 			d.Add ("step", step.command);
 			d.Add ("status", step.State.ToString ());
+			d.Add ("duration", step.duration);
+
 			if (logFile != null) {
 				d.Add ("log", BuildFileLink (logFile.id));
 			}
