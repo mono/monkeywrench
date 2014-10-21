@@ -94,8 +94,10 @@ namespace MonkeyWrench.Web.UI
 			var d = new Dictionary<String, Object>();
 
 			var buildView = Utils.WebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
-			List<Dictionary<String, String>> steps = buildView.WorkViews.Select (s => BuildStepStatus (s, buildView.Links));
-
+			var steps = new List<Dictionary<String, String>>();
+			for (int s = 0; s < buildView.WorkViews.Count; s++) {
+				steps.Add (BuildStepStatus (buildView.WorkViews [s], buildView.WorkFileViews [s]));
+			}
 			d.Add ("status", work.State.ToString ());
 			d.Add ("steps", steps);
 			d.Add ("start_time", work.endtime.ToString ());
