@@ -43,7 +43,7 @@ namespace MonkeyWrench.Web.UI
 				var laneName = Request ["lane_name"];
 				var commit = Request ["commit"];
 				if (string.IsNullOrEmpty (laneName) || string.IsNullOrEmpty (commit))
-					throw new HttpException(400, "Either lanename+commit or lane_id+revision_id must be provided to resolve build.");
+					throw new HttpException(400, "Either lane_name+commit or lane_id+revision_id must be provided to resolve build.");
 				buildStatusResponse = FetchBuildStatus (laneName, commit);
 			}
 			Response.Write (JsonConvert.SerializeObject (buildStatusResponse));
@@ -91,14 +91,20 @@ namespace MonkeyWrench.Web.UI
 
 		private Dictionary<String, Object> BuildStatusFrom(int laneId, int revId, DBRevisionWork work, DBHost host)
 		{
+			if (host == null)
+				throw new HttpException(404, "Build has not been assigned yet, cannot generate status.");
+
 			var d = new Dictionary<String, Object>();
 
 			var buildView = Utils.WebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
-			var steps = new List<Dictionary<String, String>>();
+			var steps = new List<Dictionary<String, Object>>();
 			for (int s = 0; s < buildView.WorkViews.Count; s++) {
 				steps.Add (BuildStepStatus (buildView.WorkViews [s], buildView.WorkFileViews [s]));
 			}
-			d.Add ("status", work.State.ToString ());
+			d.Add ("lane_id", laneId);
+			d.Add ("revision_id", revId);
+			d.Add ("host_id", host.id);
+
 			d.Add ("status", work.State.ToString ().ToLowerInvariant ());
 			d.Add ("steps", steps);
 			if (buildView.WorkViews [0].date != null)
@@ -110,13 +116,13 @@ namespace MonkeyWrench.Web.UI
 			return d;
 		}
 
-		private Dictionary<String, String> BuildStepStatus(DBWorkView2 step, List<DBWorkFileView> files)
+		private Dictionary<String, Object> BuildStepStatus(DBWorkView2 step, List<DBWorkFileView> files)
 		{
-			var d = new Dictionary<String, String>();
+			var d = new Dictionary<String, Object>();
 			var logFile = files.Find (f => f.filename == step.command + ".log");
 
 			d.Add ("step", step.command);
-			d.Add ("status", step.State.ToString ());
+			d.Add ("status", step.State.ToString ().ToLowerInvariant ());
 			d.Add ("duration", step.duration);
 
 			if (logFile != null) {
