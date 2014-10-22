@@ -66,19 +66,6 @@ namespace MonkeyWrench.Web.UI
 		}
 
 		// Handles requests:
-		// https://<wrenchhost>/GetStatus.aspx?lane_id=9939&host_id=883&revision_id=484848
-		protected Dictionary<String, Object> FetchBuildStatus(int laneId, int revisionId)
-		{
-			var workResponse = Utils.WebService.GetRevisionWorkForLane (login, laneId, revisionId, 0).RevisionWork;
-			if (workResponse.Count == 0)
-				ThrowJsonError (404, "Build not found. Invalid revision_id or lane_id");
-			var work = workResponse.First ();
-			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
-
-			return BuildStatusFrom (laneId, revisionId, work, host);
-		}
-
-		// Handles requests:
 		// https://<wrenchhost>/GetStatus.aspx?lane_name=some-lane-name-master&commit=aff123
 		protected Dictionary<String, Object> FetchBuildStatus(string laneName, string commit)
 		{
@@ -89,14 +76,20 @@ namespace MonkeyWrench.Web.UI
 			if (revision == null)
 				ThrowJsonError (404,
 					string.Format ("Revision with commit='{0}' was not found for lane_name='{1}'", commit, laneName));
-			var workResponse = Utils.WebService.GetRevisionWorkForLane (login, lane.id, revision.id, 0).RevisionWork;
-			if (workResponse.Count == 0)
-				ThrowJsonError (404, "Build not found. Invalid revision or lane_name");
+			return FetchBuildStatus (lane.id, revision.id);
+		}
 
+		// Handles requests:
+		// https://<wrenchhost>/GetStatus.aspx?lane_id=9939&host_id=883&revision_id=484848
+		protected Dictionary<String, Object> FetchBuildStatus(int laneId, int revisionId)
+		{
+			var workResponse = Utils.WebService.GetRevisionWorkForLane (login, laneId, revisionId, 0).RevisionWork;
+			if (workResponse.Count == 0)
+				ThrowJsonError (404, "Build not found. Invalid revision_id or lane_id");
 			var work = workResponse.First ();
 			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
 
-			return BuildStatusFrom (lane.id, revision.id, work, host);
+			return BuildStatusFrom (work, revisionId, work, host);
 		}
 
 		private string ThrowJsonError(int code, string msg)
@@ -119,26 +112,26 @@ namespace MonkeyWrench.Web.UI
 		{
 			if (host == null)
 				throw new HttpException(404, "Build has not been assigned yet, cannot generate status.");
-
 			var d = new Dictionary<String, Object>();
-
 			var buildView = Utils.WebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
 			var steps = new List<Dictionary<String, Object>>();
 			for (int s = 0; s < buildView.WorkViews.Count; s++) {
 				steps.Add (BuildStepStatus (s, buildView.WorkViews [s], buildView.WorkFileViews [s]));
 			}
-			d.Add ("lane_id", laneId);
-			d.Add ("revision_id", revId);
-			d.Add ("host_id", host.id);
 
-			d.Add ("status", work.State.ToString ().ToLowerInvariant ());
-			d.Add ("steps", steps);
-			if (buildView.WorkViews [0].date != null)
-				d.Add ("start_time", buildView.WorkViews [0].starttime);
 			if (work.endtime != null)
 				d.Add ("end_time", work.endtime);
+			d.Add ("host", host.host);
+			d.Add ("host_id", host.id);
+			d.Add ("lane_id", laneId);
+			d.Add ("revision_id", revId);
+
+			if (buildView.WorkViews [0].date != null)
+				d.Add ("start_time", buildView.WorkViews [0].starttime);
+			d.Add ("status", work.State.ToString ().ToLowerInvariant ());
+			d.Add ("steps", steps);
 			d.Add ("url", BuildLink (laneId, revId, host.id));
-			d.Add ("build_bot", host.host);
+
 			return d;
 		}
 
