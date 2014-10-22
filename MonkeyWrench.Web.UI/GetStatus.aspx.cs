@@ -112,27 +112,25 @@ namespace MonkeyWrench.Web.UI
 		{
 			if (host == null)
 				throw new HttpException(404, "Build has not been assigned yet, cannot generate status.");
-			var d = new Dictionary<String, Object>();
 			var buildView = Utils.WebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
 			var steps = new List<Dictionary<String, Object>>();
 			for (int s = 0; s < buildView.WorkViews.Count; s++) {
 				steps.Add (BuildStepStatus (s, buildView.WorkViews [s], buildView.WorkFileViews [s]));
 			}
-
-			if (work.endtime != null)
-				d.Add ("end_time", work.endtime);
-			d.Add ("host", host.host);
-			d.Add ("host_id", host.id);
-			d.Add ("lane_id", laneId);
-			d.Add ("revision_id", revId);
-
-			if (buildView.WorkViews [0].date != null)
-				d.Add ("start_time", buildView.WorkViews [0].starttime);
-			d.Add ("status", work.State.ToString ().ToLowerInvariant ());
-			d.Add ("steps", steps);
-			d.Add ("url", BuildLink (laneId, revId, host.id));
-
-			return d;
+			return new Dictionary<String, Object> {
+				{ "build_host", buildView.WorkHost.host },
+				{ "build_host_id", buildView.WorkHost.id },
+				{ "commit", buildView.Revision.revision },
+				{ "end_time", work.endtime },
+				{ "host", host.host },
+				{ "host_id", host.id },
+				{ "lane_id", laneId },
+				{ "revision_id", revId },
+				{ "start_time", buildView.WorkViews [0].starttime },
+				{ "status", work.State.ToString ().ToLowerInvariant () },
+				{ "steps", steps },
+				{ "url", BuildLink (laneId, revId, host.id) }
+			};
 		}
 
 		private Dictionary<String, Object> BuildStepStatus(int idx, DBWorkView2 step, List<DBWorkFileView> files)
@@ -140,15 +138,13 @@ namespace MonkeyWrench.Web.UI
 			var d = new Dictionary<String, Object>();
 			var logFile = files.Find (f => f.filename == step.command + ".log");
 
-			d.Add ("order", idx);
-			d.Add ("step", step.command);
-			d.Add ("status", step.State.ToString ().ToLowerInvariant ());
-			// TODO: Duration returns a 0, need to figure out where to query or even calculate it.
-			d.Add ("duration", step.duration);
-
+			d.Add ("duration", MonkeyWrench.Utilities.GetDurationFromWorkView (step).TotalSeconds);
 			if (logFile != null) {
 				d.Add ("log", BuildFileLink (logFile.id));
 			}
+			d.Add ("order", idx);
+			d.Add ("step", step.command);
+			d.Add ("status", step.State.ToString ().ToLowerInvariant ());
 
 			return d;
 		}
