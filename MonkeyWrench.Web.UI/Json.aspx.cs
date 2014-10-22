@@ -56,7 +56,7 @@ namespace MonkeyWrench.Web.UI
 			offset = Utils.TryParseInt32 (Request.QueryString ["offset"]) ?? 0;
 
 			Response.AppendHeader("Access-Control-Allow-Origin", "*");
-			switch (requestType) {				
+			switch (requestType) {
 				case "laneinfo":
 					Response.Write (GetLaneInfo (login));
 					break;
@@ -84,7 +84,7 @@ namespace MonkeyWrench.Web.UI
 
 		private Dictionary<string, IEnumerable<HostHistoryEntry>> GetHostHistory (WebServiceLogin web_service_login, int limit, int offset) {
 			var hosts = Utils.WebService.GetHosts (login).Hosts.OrderBy(h => h.host);
-			var hostHistoryResponses = hosts.Select (host => 
+			var hostHistoryResponses = hosts.Select (host =>
 				Utils.WebService.GetWorkHostHistory (login, host.id, "", limit, offset));
 
 			var hostHistories = hostHistoryResponses.ToDictionary (
@@ -109,8 +109,8 @@ namespace MonkeyWrench.Web.UI
 			var lanesResponse = Utils.WebService.GetLanes (login);
 
 			var lanes = lanesResponse.Lanes.ToDictionary (
-				l => l.lane, 
-				l => new { 
+				l => l.lane,
+				l => new {
 					branch     = BranchFromRevision (l.max_revision),
 					repository = l.repository,
 					id         = l.id
@@ -120,7 +120,7 @@ namespace MonkeyWrench.Web.UI
 
 			var results = new Dictionary<string, object> {
 				{ "count", count },
-				{ "lanes", lanes }			
+				{ "lanes", lanes }
 			};
 
 			return JsonConvert.SerializeObject (results, Formatting.Indented);

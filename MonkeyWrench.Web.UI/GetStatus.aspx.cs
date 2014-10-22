@@ -89,7 +89,7 @@ namespace MonkeyWrench.Web.UI
 			var work = workResponse.First ();
 			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
 
-			return BuildStatusFrom (work, revisionId, work, host);
+			return BuildStatusFrom (laneId, revisionId, work, host);
 		}
 
 		private string ThrowJsonError(int code, string msg)
