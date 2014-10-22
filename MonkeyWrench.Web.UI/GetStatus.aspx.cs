@@ -34,30 +34,45 @@ namespace MonkeyWrench.Web.UI
 			login = Authentication.CreateLogin (Request);
 			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
 			Dictionary<String, Object> buildStatusResponse = null;
-
-			if (!string.IsNullOrEmpty (Request ["lane_id"])) {
-				var laneId = Utils.TryParseInt32 (Request ["lane_id"]);
-				var revisionId = Utils.TryParseInt32 (Request ["revision_id"]);
-				if (laneId.HasValue && revisionId.HasValue)
-					buildStatusResponse = FetchBuildStatus (laneId.Value, revisionId.Value);
-			} else {
-				var laneName = Request ["lane_name"];
-				var commit = Request ["commit"];
-				if (string.IsNullOrEmpty (laneName) || string.IsNullOrEmpty (commit))
-					throw new HttpException(400, "Either lane_name+commit or lane_id+revision_id must be provided to resolve build.");
-				buildStatusResponse = FetchBuildStatus (laneName, commit);
+			try {
+				if (!string.IsNullOrEmpty (Request ["lane_id"])) {
+					var laneId = Utils.TryParseInt32 (Request ["lane_id"]);
+					var revisionId = Utils.TryParseInt32 (Request ["revision_id"]);
+					if (laneId.HasValue && revisionId.HasValue)
+						buildStatusResponse = FetchBuildStatus (laneId.Value, revisionId.Value);
+				} else {
+					var laneName = Request ["lane_name"];
+					var commit = Request ["commit"];
+					if (string.IsNullOrEmpty (laneName) || string.IsNullOrEmpty (commit))
+						ThrowJsonError (400, "Either lane_name+commit or lane_id+revision_id must be provided to resolve build.");
+					buildStatusResponse = FetchBuildStatus (laneName, commit);
+				}
+				buildStatusResponse.Add ("generation_time", (DateTime.Now - start).TotalMilliseconds);
+				Response.Write (JsonConvert.SerializeObject (buildStatusResponse));
+			} catch (System.Web.Services.Protocols.SoapException) {
+				Response.StatusCode = 403;
+				Response.Write (JsonConvert.SerializeObject (new Dictionary<String, String> { {
+						"error",
+						"You are not authorized to use this resource."
+					}
+				}));
+			} catch (HttpException exp) {
+				Response.StatusCode = exp.GetHttpCode ();
+				Response.Write (exp.Message);
+			} finally {
+				Response.Flush ();
+				Response.Close ();
 			}
-			buildStatusResponse.Add ("generation_time", (DateTime.Now - start).TotalMilliseconds);
-			Response.Write (JsonConvert.SerializeObject (buildStatusResponse));
 		}
 
 		// Handles requests:
 		// https://<wrenchhost>/GetStatus.aspx?lane_id=9939&host_id=883&revision_id=484848
 		protected Dictionary<String, Object> FetchBuildStatus(int laneId, int revisionId)
 		{
-			var work = Utils.WebService.GetRevisionWorkForLane (login, laneId, revisionId, 0).RevisionWork.First ();
-			if (work == null)
-				throw new HttpException(404, "Build not found. Invalid revision_id or lane_id");
+			var workResponse = Utils.WebService.GetRevisionWorkForLane (login, laneId, revisionId, 0).RevisionWork;
+			if (workResponse.Count == 0)
+				ThrowJsonError (404, "Build not found. Invalid revision_id or lane_id");
+			var work = workResponse.First ();
 			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
 
 			return BuildStatusFrom (laneId, revisionId, work, host);
@@ -69,15 +84,24 @@ namespace MonkeyWrench.Web.UI
 		{
 			var lane = Utils.WebService.FindLane (login, null, laneName).lane;
 			if (lane == null)
-				throw new HttpException(404, string.Format ("Lane could not be found with name {0}", laneName));
+				ThrowJsonError (404, string.Format ("Lane could not be found with lane_name='{0}'", laneName));
 			var revision = Utils.WebService.FindRevisionForLane (login, null, commit, lane.id, "").Revision;
 			if (revision == null)
-				throw new HttpException(404,
-					string.Format ("Revision with commit hash of {0} was not found for lane {1}", commit, laneName));
-			var work = Utils.WebService.GetRevisionWorkForLane (login, lane.id, revision.id, 0).RevisionWork.First ();
+				ThrowJsonError (404,
+					string.Format ("Revision with commit='{0}' was not found for lane_name='{1}'", commit, laneName));
+			var workResponse = Utils.WebService.GetRevisionWorkForLane (login, lane.id, revision.id, 0).RevisionWork;
+			if (workResponse.Count == 0)
+				ThrowJsonError (404, "Build not found. Invalid revision or lane_name");
+
+			var work = workResponse.First ();
 			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
 
 			return BuildStatusFrom (lane.id, revision.id, work, host);
+		}
+
+		private string ThrowJsonError(int code, string msg)
+		{
+			throw new HttpException(code, "{\"error\": \"" + msg + "\"}");
 		}
 
 		private string BuildLink(int laneId, int revId, int hostId)
