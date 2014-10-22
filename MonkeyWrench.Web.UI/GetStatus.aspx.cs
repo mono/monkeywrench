@@ -125,7 +125,7 @@ namespace MonkeyWrench.Web.UI
 			var buildView = Utils.WebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
 			var steps = new List<Dictionary<String, Object>>();
 			for (int s = 0; s < buildView.WorkViews.Count; s++) {
-				steps.Add (BuildStepStatus (buildView.WorkViews [s], buildView.WorkFileViews [s]));
+				steps.Add (BuildStepStatus (s, buildView.WorkViews [s], buildView.WorkFileViews [s]));
 			}
 			d.Add ("lane_id", laneId);
 			d.Add ("revision_id", revId);
@@ -142,11 +142,12 @@ namespace MonkeyWrench.Web.UI
 			return d;
 		}
 
-		private Dictionary<String, Object> BuildStepStatus(DBWorkView2 step, List<DBWorkFileView> files)
+		private Dictionary<String, Object> BuildStepStatus(int idx, DBWorkView2 step, List<DBWorkFileView> files)
 		{
 			var d = new Dictionary<String, Object>();
 			var logFile = files.Find (f => f.filename == step.command + ".log");
 
+			d.Add ("order", idx);
 			d.Add ("step", step.command);
 			d.Add ("status", step.State.ToString ().ToLowerInvariant ());
 			// TODO: Duration returns a 0, need to figure out where to query or even calculate it.
