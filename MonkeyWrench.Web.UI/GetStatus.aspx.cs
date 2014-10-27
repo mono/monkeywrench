@@ -121,6 +121,7 @@ namespace MonkeyWrench.Web.UI
 				{ "build_host", buildView.WorkHost.host },
 				{ "build_host_id", buildView.WorkHost.id },
 				{ "commit", buildView.Revision.revision },
+				{ "completed", buildView.RevisionWork.completed },
 				{ "end_time", work.endtime },
 				{ "host", host.host },
 				{ "host_id", host.id },
