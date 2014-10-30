@@ -126,6 +126,7 @@ namespace MonkeyWrench.Web.UI
 				{ "host", host.host },
 				{ "host_id", host.id },
 				{ "lane_id", laneId },
+				{ "lane_name", buildView.Lane.lane },
 				{ "revision_id", revId },
 				{ "start_time", buildView.WorkViews [0].starttime },
 				{ "status", work.State.ToString ().ToLowerInvariant () },
