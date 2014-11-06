@@ -1349,7 +1349,15 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 						enabled_set.Add (hl.lane_id);
 
 						// Walk up the tree of parent lanes, marking all the parents too
-						var l = Lanes.First ((v) => v.id == hl.lane_id);
+						var l = Lanes.FirstOrDefault ((v) => v.id == hl.lane_id);
+						if (l == null) {
+							Logger.Log ("GetFrontPageDataWithTags: could not find lane {0} for host lane {1}", hl.lane_id, hl.id);
+							l = DBLane_Extensions.Create (db, hl.lane_id);
+							l.enabled = true; // This will prevent us from having to load the lane manually again.
+							l.Save (db);
+							Lanes.Add (l);
+							continue;
+						}
 						while (true) {
 							if (!l.parent_lane_id.HasValue)
 								break;
@@ -1359,7 +1367,16 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 
 							enabled_set.Add (l.parent_lane_id.Value);
 
-							l = Lanes.First ((v) => v.id == l.parent_lane_id.Value);
+							var old_l = l;
+							l = Lanes.FirstOrDefault ((v) => v.id == l.parent_lane_id.Value);
+							if (l == null) {
+								Logger.Log ("GetFrontPageDataWithTags: could not find parent lane {0} for lane {1} (host lane {2})", old_l.parent_lane_id.Value, old_l.id, hl.id);
+								l = DBLane_Extensions.Create (db, old_l.parent_lane_id.Value);
+								l.enabled = true; // This will prevent us from having to load the lane manually again.
+								l.Save (db);
+								Lanes.Add (l);
+								break;
+							}
 						}
 					}
 
