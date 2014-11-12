@@ -128,6 +128,7 @@ namespace MonkeyWrench.Web.UI
 				{ "lane_id", laneId },
 				{ "lane_name", buildView.Lane.lane },
 				{ "revision_id", revId },
+				{ "repository", buildView.Lane.repository },
 				{ "start_time", buildView.WorkViews [0].starttime },
 				{ "status", work.State.ToString ().ToLowerInvariant () },
 				{ "steps", steps },
