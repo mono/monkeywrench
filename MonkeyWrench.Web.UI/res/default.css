@@ -540,7 +540,6 @@ li
 /* topbar */
 #siteheader
 {
-    width: 100%;
     height: 40px;
 	background-color: #666;
 }
@@ -701,18 +700,31 @@ table.headertable img
     border-width: 0px;
 }
 
+body {
+	display: flex;
+	flex-flow: column;
+}
+
+#content-container {
+	flex: 1 0px;
+	display: flex;
+	flex-flow: row;
+	align-items: stretch;
+}
+
 #left-content
 {
-	float: left;
-	margin: 5px;
+	padding: 5px;
+	overflow: auto;
+	flex-basis: 300px;
 }
 
 #right-content
 {
 	padding: 0px;
 	overflow: auto;
-	position: relative;
 	margin: 0px;
+	flex: 1 0px;
 }
 
 iframe 
