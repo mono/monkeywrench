@@ -701,13 +701,23 @@ table.headertable img
 }
 
 body {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-flow: column;
 }
 
 #content-container {
-	flex: 1 0px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex: 1 0px;
+	-webkit-flex-direction: row;
+	-webkit-align-items: stretch;
+	flex: 1 0px;
 	flex-flow: row;
 	align-items: stretch;
 }
@@ -716,7 +726,8 @@ body {
 {
 	padding: 5px;
 	overflow: auto;
-	flex-basis: 300px;
+	-webkit-flex: 0 1 260px;
+	flex: 0 1 260px;
 }
 
 #right-content
@@ -724,7 +735,8 @@ body {
 	padding: 0px;
 	overflow: auto;
 	margin: 0px;
-	flex: 1 0px;
+	-webkit-flex: 1 1 0px;
+	flex: 1 1 0px;
 }
 
 iframe 
