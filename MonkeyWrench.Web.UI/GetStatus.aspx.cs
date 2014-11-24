@@ -62,6 +62,9 @@ namespace MonkeyWrench.Web.UI
 			} catch (HttpException exp) {
 				Response.StatusCode = exp.GetHttpCode ();
 				Response.Write (exp.Message);
+			} catch (Exception exp) {
+				Response.StatusCode = 500;
+				Response.Write ("{\"error\": \"" + exp.Message.Replace ("\"", "\\\"") + "\"}");
 			} finally {
 				Response.Flush ();
 				Response.Close ();
@@ -95,7 +98,7 @@ namespace MonkeyWrench.Web.UI
 			return BuildStatusFrom (laneId, revisionId, work, host);
 		}
 
-		private string ThrowJsonError(int code, string msg)
+		private void ThrowJsonError(int code, string msg)
 		{
 			throw new HttpException(code, "{\"error\": \"" + msg + "\"}");
 		}
@@ -164,9 +167,16 @@ namespace MonkeyWrench.Web.UI
 		private Dictionary<String, String> BuildStepFilesAndLinks(List<DBWorkFileView> files, IEnumerable<DBFileLink> links)
 		{
 			var d = new Dictionary<String, String>();
-			files.ForEach ((DBWorkFileView f) => {
-				d.Add (f.filename, BuildFileLink (f.id));
-			});
+			foreach (var f in files) {
+				// Work around duplicate files produced by builds; ideally
+				// this shouldn't occur, but when it does we replace.
+				if (d.ContainsKey (f.filename)) {
+					d [f.filename] = BuildFileLink (f.id);
+				} else {
+					d.Add (f.filename, BuildFileLink (f.id));
+				}
+			}
+
 			foreach (var l in links) {
 				var link = FileLinkActual (l);
 				d.Add (link.Item1, link.Item2);
