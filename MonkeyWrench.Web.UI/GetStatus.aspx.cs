@@ -182,7 +182,7 @@ namespace MonkeyWrench.Web.UI
 
 		private string MaxRevisionToBranch(string maxRevision)
 		{
-			return maxRevision.IsNullOrEmpty ? "master" : maxRevision.Split ('/').Last ();
+			return maxRevision.IsNullOrEmpty () ? "master" : maxRevision.Split ('/').Last ();
 		}
 	}
 }
