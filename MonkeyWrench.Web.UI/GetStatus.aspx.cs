@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Linq;
 using MonkeyWrench.DataClasses;
+using System.Text.RegularExpressions;
 
 namespace MonkeyWrench.Web.UI
 {
@@ -24,6 +25,8 @@ namespace MonkeyWrench.Web.UI
 		private new Master Master {
 			get { return base.Master as Master; }
 		}
+
+		private static Regex FileLinkMatcher = new Regex("='(.*)'>(.*)<");
 
 		private WebServiceLogin login;
 
@@ -113,10 +116,15 @@ namespace MonkeyWrench.Web.UI
 			if (host == null)
 				throw new HttpException(404, "Build has not been assigned yet, cannot generate status.");
 			var buildView = Utils.WebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
+
 			var steps = new List<Dictionary<String, Object>>();
-			for (int s = 0; s < buildView.WorkViews.Count; s++) {
-				steps.Add (BuildStepStatus (s, buildView.WorkViews [s], buildView.WorkFileViews [s]));
+			for (int sidx = 0; sidx < buildView.WorkViews.Count; sidx++) {
+				var step = buildView.WorkViews [sidx];
+				var files = buildView.WorkFileViews [sidx];
+				var links = buildView.Links.Where (l => l.id == step.id);
+				steps.Add (BuildStepStatus (sidx, step, files, links));
 			}
+
 			return new Dictionary<String, Object> {
 				{ "build_host", buildView.WorkHost.host },
 				{ "build_host_id", buildView.WorkHost.id },
@@ -136,10 +144,10 @@ namespace MonkeyWrench.Web.UI
 			};
 		}
 
-		private Dictionary<String, Object> BuildStepStatus(int idx, DBWorkView2 step, List<DBWorkFileView> files)
+		private Dictionary<String, Object> BuildStepStatus(int idx, DBWorkView2 step, List<DBWorkFileView> files, IEnumerable<DBFileLink> links)
 		{
 			var d = new Dictionary<String, Object>();
-			var fs = BuildStepFiles (files);
+			var fs = BuildStepFilesAndLinks (files, links);
 
 			d.Add ("duration", MonkeyWrench.Utilities.GetDurationFromWorkView (step).TotalSeconds);
 			if (fs.Count != 0) {
@@ -152,13 +160,23 @@ namespace MonkeyWrench.Web.UI
 			return d;
 		}
 
-		private Dictionary<String, String> BuildStepFiles(List<DBWorkFileView> files)
+		private Dictionary<String, String> BuildStepFilesAndLinks(List<DBWorkFileView> files, IEnumerable<DBFileLink> links)
 		{
 			var d = new Dictionary<String, String>();
 			files.ForEach ((DBWorkFileView f) => {
 				d.Add (f.filename, BuildFileLink (f.id));
 			});
+			foreach (var l in links) {
+				var link = FileLinkActual (l);
+				d.Add (link.Item1, link.Item2);
+			}
 			return d;
+		}
+
+		private Tuple<String, String> FileLinkActual(DBFileLink link)
+		{
+			var matches = FileLinkMatcher.Match (link.link).Groups;
+			return Tuple.Create (matches [2].ToString (), matches [1].ToString ());
 		}
 	}
 }
