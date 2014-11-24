@@ -139,16 +139,25 @@ namespace MonkeyWrench.Web.UI
 		private Dictionary<String, Object> BuildStepStatus(int idx, DBWorkView2 step, List<DBWorkFileView> files)
 		{
 			var d = new Dictionary<String, Object>();
-			var logFile = files.Find (f => f.filename == step.command + ".log");
+			var fs = BuildStepFiles (files);
 
 			d.Add ("duration", MonkeyWrench.Utilities.GetDurationFromWorkView (step).TotalSeconds);
-			if (logFile != null) {
-				d.Add ("log", BuildFileLink (logFile.id));
+			if (fs.Count != 0) {
+				d.Add ("files", fs);
 			}
 			d.Add ("order", idx);
 			d.Add ("step", step.command);
 			d.Add ("status", step.State.ToString ().ToLowerInvariant ());
 
+			return d;
+		}
+
+		private Dictionary<String, String> BuildStepFiles(List<DBWorkFileView> files)
+		{
+			var d = new Dictionary<String, String>();
+			files.ForEach ((DBWorkFileView f) => {
+				d.Add (f.filename, BuildFileLink (f.id));
+			});
 			return d;
 		}
 	}
