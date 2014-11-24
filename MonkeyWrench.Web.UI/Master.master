@@ -36,19 +36,21 @@
 			<asp:Literal ID="cellLogout" runat="server" />
 		</ul>
     </div>
-    <div id="left-content" class="left-content">
+	<div id="content-container">
+      <div id="left-content" class="left-content">
         <asp:Table ID="tableMainTree" runat="server" CellPadding="0" CellSpacing="0" CssClass="lefttree" />
         <asp:Table ID="tableHostStatus" runat="server" CellPadding="0" CellSpacing="0" CssClass="hoststatus">
-            <asp:TableHeaderRow>
-                <asp:TableHeaderCell Text="BuildBot Status" />
-            </asp:TableHeaderRow>
+          <asp:TableHeaderRow>
+            <asp:TableHeaderCell Text="BuildBot Status" />
+          </asp:TableHeaderRow>
         </asp:Table>
-    </div>
-    <div id="right-content" class="right-content">
+      </div>
+      <div id="right-content" class="right-content">
         <form id="form1" runat="server">
-            <asp:ContentPlaceHolder ID="content" runat="server" EnableViewState="false" />
+          <asp:ContentPlaceHolder ID="content" runat="server" EnableViewState="false" />
         </form>
-    </div>
+      </div>
+	</div>
 </body>
 </html>
 
