@@ -121,7 +121,7 @@ namespace MonkeyWrench.Web.UI
 			for (int sidx = 0; sidx < buildView.WorkViews.Count; sidx++) {
 				var step = buildView.WorkViews [sidx];
 				var files = buildView.WorkFileViews [sidx];
-				var links = buildView.Links.Where (l => l.id == step.id);
+				var links = buildView.Links.Where (l => l.work_id == step.id);
 				steps.Add (BuildStepStatus (sidx, step, files, links));
 			}
 
