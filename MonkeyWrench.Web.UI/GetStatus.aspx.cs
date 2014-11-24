@@ -128,6 +128,7 @@ namespace MonkeyWrench.Web.UI
 			return new Dictionary<String, Object> {
 				{ "build_host", buildView.WorkHost.host },
 				{ "build_host_id", buildView.WorkHost.id },
+				{ "branch", MaxRevisionToBranch (buildView.Lane.max_revision) },
 				{ "commit", buildView.Revision.revision },
 				{ "completed", buildView.RevisionWork.completed },
 				{ "end_time", work.endtime },
@@ -177,6 +178,11 @@ namespace MonkeyWrench.Web.UI
 		{
 			var matches = FileLinkMatcher.Match (link.link).Groups;
 			return Tuple.Create (matches [2].ToString (), matches [1].ToString ());
+		}
+
+		private string MaxRevisionToBranch(string maxRevision)
+		{
+			return maxRevision.IsNullOrEmpty ? "master" : maxRevision.Split ('/').Last ();
 		}
 	}
 }
