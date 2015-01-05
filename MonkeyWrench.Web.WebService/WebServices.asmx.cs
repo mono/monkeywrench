@@ -1247,6 +1247,7 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 							}
 							cmd.CommandText += ";";
 						}
+						cmd.CommandText = "SET enable_seqscan = false;\n" + cmd.CommandText + "\nSET enable_seqscan = false;\n";
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ())
 								Lanes.Add (new DBLane (reader));
