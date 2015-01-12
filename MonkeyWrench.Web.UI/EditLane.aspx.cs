@@ -655,7 +655,6 @@ public partial class EditLane : System.Web.UI.Page
 		if (!int.TryParse (str_lane, out lane_id))
 			return;
 
-		Logger.Log ("lstParentLane: {0}", lstParentLane.SelectedValue);
 		if (!string.IsNullOrEmpty (lstParentLane.SelectedValue))
 			parent_lane_id = int.Parse (lstParentLane.SelectedValue);
 
