@@ -282,12 +282,47 @@ public partial class EditLane : System.Web.UI.Page
 			existing_files.AppendLine ("<select id='cmbExistingFiles'>");
 			response.ExistingFiles.Sort ((a, b) => string.Compare (a.name, b.name));
 			shown_files.Clear ();
+
+			// build dictionary of lanes
+			var laneDictionary = new Dictionary<int, DBLane> ();
+			foreach (var l in response.Lanes)
+				laneDictionary.Add (l.id, l);
+
+			// build table of lanes where each file is used
+			var lanesUsedByFile = new Dictionary<int, HashSet<string>> ();
+			foreach (var lf in response.LaneFiles) {
+				HashSet<string> f;
+				if (!lanesUsedByFile.TryGetValue (lf.lanefile_id, out f)) {
+					f = new HashSet<string> ();
+					lanesUsedByFile [lf.lanefile_id] = f;
+				}
+				f.Add (laneDictionary [lf.lane_id].lane);
+			}
+			// list all the files, with a tooltip saying where each file is used
 			foreach (DBLanefile file in response.ExistingFiles) {
 				if (shown_files.Contains (file.id))
 					continue;
 				shown_files.Add (file.id);
 
-				existing_files.AppendFormat ("<option value='{1}' title='Used in: {2}'>{0}</option>\n", file.name, file.id, string.Join (", ", GetLanesWhereFileIsUsed (file, response).Select ((l, s) => l.lane).ToArray ()));
+				existing_files.AppendFormat ("<option value='{0}'", file.id);
+				HashSet<string> lanes_for_file;
+				if (lanesUsedByFile.TryGetValue (file.id, out lanes_for_file)) {
+					existing_files.Append (" title='Used in: ");
+					var any = false;
+					foreach (var l in lanes_for_file) {
+						if (any) {
+							existing_files.Append (", ");
+						} else {
+							any = true;
+						}
+						existing_files.Append (l);
+					}
+					existing_files.Append ("'");
+				}
+				existing_files.Append (">");
+				existing_files.Append (file.name);
+				existing_files.Append ("</option>\n");
+//				existing_files.AppendFormat ("<option value='{1}' title='Used in: {2}'>{0}</option>\n", file.name, file.id, "somewhere else");
 			}
 			existing_files.AppendLine ("</select>");
 			tblFiles.Rows.Add (Utils.CreateTableRow (
