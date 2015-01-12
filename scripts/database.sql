@@ -446,15 +446,22 @@ CREATE VIEW LaneDeletionDirectiveView AS
 		INNER JOIN FileDeletionDirective ON FileDeletionDirective.id = LaneDeletionDirective.file_deletion_directive_id;
 		
 DROP VIEW IF EXISTS HostStatusView;
-CREATE VIEW HostStatusView AS
-	SELECT Host.id, Host.host, BuildBotStatus.report_date, rw2.id AS revisionwork_id, rw2.lane_id AS lane_id, rw2.revision_id, Revision.revision, Lane.lane
+CREATE OR REPLACE VIEW HostStatusView AS
+	SELECT Host.id, Host.host, BuildBotStatus.report_date, rw2.id AS revisionwork_id, rw2.lane_id AS lane_id, rw2.revision_id, Lane.lane
 	FROM Host 
 	LEFT JOIN (SELECT id, lane_id, revision_id, workhost_id FROM RevisionWork WHERE state <> 0 AND NOT completed) rw2 ON rw2.workhost_id = Host.id 
 	LEFT JOIN Lane ON Lane.id = lane_id 
-	LEFT JOIN Revision ON Revision.id = revision_id
 	INNER JOIN BuildBotStatus ON BuildBotStatus.host_id = Host.id 
-	WHERE Host.id IN (SELECT DISTINCT workhost_id FROM RevisionWork) AND Host.enabled = true
+	WHERE Host.id IN (
+		-- SELECT DISTINCT workhost_id FROM RevisionWork
+		-- SELECT DISTINCT is very slow in postgres
+		-- the below line does the same thing, but much (20x) faster.
+		WITH RECURSIVE t(n) AS (SELECT min(workhost_id) FROM RevisionWork UNION SELECT (SELECT workhost_id FROM revisionwork WHERE workhost_id > n ORDER BY workhost_id LIMIT 1) FROM t WHERE n IS NOT NULL) SELECT n FROM t
+		) AND Host.enabled = true
 	ORDER BY Lane.lane IS NULL ASC, host ASC;
+
+
+
 
 -- ignore generator --		
 
