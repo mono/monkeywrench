@@ -263,11 +263,19 @@ public partial class EditLane : System.Web.UI.Page
 
 				bool is_inherited = !response.LaneFiles.Exists ((v) => v.lane_id == lane.id && v.lanefile_id == file.id);
 
+				var file_used_list = GetLanesWhereFileIsUsed (file, response).Where ((l) => l.id != lane.id).Select ((l, s) => string.Format ("<a href='EditLane.aspx?lane_id={0}'>{1}</a>", l.id, l.lane)).ToArray ();
+				var file_list = string.Format (
+@"
+<div id=""hideFileList{2}"" style=""display: none;""  onclick=""document.getElementById('fileList{2}').style.display = 'none';  document.getElementById('hideFileList{2}').style.display = 'none';  document.getElementById('showFileList{2}').style.display = 'block';""  >[Hide]</div>
+<div id=""showFileList{2}"" style=""display: block;"" onclick=""document.getElementById('fileList{2}').style.display = 'block'; document.getElementById('hideFileList{2}').style.display = 'block'; document.getElementById('showFileList{2}').style.display = 'none' ; "" >Used by {0} other lanes [Show]</div>
+<div id=""fileList{2}"" style=""display: none;"">{1}</div>
+", file_used_list.Length, string.Join (", ", file_used_list), file.id);
+
 				tblFiles.Rows.Add (Utils.CreateTableRow (
 					string.Format ("<a href='EditLaneFile.aspx?lane_id={1}&amp;file_id={0}'>{2}</a>", file.id, lane.id, file.name),
 					file.mime,
 					(is_inherited ? string.Empty : string.Format ("<a href='EditLane.aspx?lane_id={1}&amp;action=deleteFile&amp;file_id={0}'>Delete</a> ", file.id, lane.id)) + string.Format ("<a href='ViewLaneFileHistory.aspx?id={0}'>View history</a>", file.id),
-					string.Join (", ", GetLanesWhereFileIsUsed (file, response).Where ((l) => l.id != lane.id).Select ((l, s) => string.Format ("<a href='EditLane.aspx?lane_id={0}'>{1}</a>", l.id, l.lane)).ToArray ())));
+					file_list.ToString ()));
 
 				if (is_inherited)
 					tblFiles.Rows [tblFiles.Rows.Count - 1].BackColor = System.Drawing.Color.LightGray;
