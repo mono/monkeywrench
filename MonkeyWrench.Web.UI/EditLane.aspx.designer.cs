@@ -56,32 +56,6 @@ public partial class EditLane {
 	
 	protected System.Web.UI.WebControls.Table tblFiles;
 	
-	protected System.Web.UI.WebControls.Table tblDeletionDirective;
-	
-	protected System.Web.UI.WebControls.TextBox txtDeletionDirective1;
-	
-	protected System.Web.UI.WebControls.TextBox txtDeletionDirectiveFilename1;
-	
-	protected System.Web.UI.WebControls.DropDownList lstDeletionDirectiveGlobs1;
-	
-	protected System.Web.UI.WebControls.DropDownList lstDeletionDirectiveCondition1;
-	
-	protected System.Web.UI.WebControls.TextBox txtDeletionDirectiveX1;
-	
-	protected System.Web.UI.WebControls.CheckBox chkDeletionDirectiveEnabled1;
-	
-	protected System.Web.UI.WebControls.LinkButton lnkAddDeletionDirective1;
-	
-	protected System.Web.UI.WebControls.TableRow rowDeletionDirectives2;
-	
-	protected System.Web.UI.WebControls.DropDownList lstDeletionDirectives2;
-	
-	protected System.Web.UI.WebControls.CheckBox chkDeletionDirectiveEnabled2;
-	
-	protected System.Web.UI.WebControls.LinkButton lnkAddDeletionDirective2;
-	
-	protected System.Web.UI.WebControls.Label lblDeletionDirectiveErrors;
-	
 	protected System.Web.UI.WebControls.Table tblHosts;
 	
 	protected MonkeyWrench.Web.UI.EnvironmentVariablesEditor editorVariables;
@@ -94,4 +68,3 @@ public partial class EditLane {
 	
 	protected System.Web.UI.WebControls.Label lblMessage;
 }
-

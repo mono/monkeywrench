@@ -146,6 +146,7 @@
                     </asp:Table>
                 </asp:TableCell>
             </asp:TableRow>
+<%--
             <asp:TableRow runat="server">
                 <asp:TableCell>
                     <asp:Table runat="server" ID="tblDeletionDirective" CssClass="commands">
@@ -211,6 +212,7 @@
                     <asp:Label Visible="false" ID="lblDeletionDirectiveErrors" runat="server" ForeColor="Red" />
                 </asp:TableCell>
             </asp:TableRow>
+--%>
             <asp:TableRow runat="server">
                 <asp:TableCell>
                     <asp:Table runat="server" ID="tblHosts" CssClass="commands">

@@ -648,11 +648,11 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 					// 3: response.Dependencies = response.Lane.GetDependencies (db);
 					cmdText.AppendFormat ("SELECT * FROM LaneDependency WHERE lane_id = {0} ORDER BY dependent_lane_id;", response.Lane.id).AppendLine ();
 
-					// 4: response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
-					cmdText.AppendLine ("SELECT * FROM FileDeletionDirective;");
-
-					// 5: response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
-					cmdText.AppendFormat ("SELECT * FROM LaneDeletionDirectiveView WHERE lane_id = {0};", response.Lane.id).AppendLine ();
+//					// 4: response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
+//					cmdText.AppendLine ("SELECT * FROM FileDeletionDirective;");
+//
+//					// 5: response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
+//					cmdText.AppendFormat ("SELECT * FROM LaneDeletionDirectiveView WHERE lane_id = {0};", response.Lane.id).AppendLine ();
 
 					// 6: response.Files = response.Lane.GetFiles (db, response.Lanes);
 					cmdText.Append (@"
@@ -715,18 +715,18 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 						while (reader.Read ())
 							response.Dependencies.Add (new DBLaneDependency (reader));
 
-						// 4: response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
-						reader.NextResult ();
-						response.FileDeletionDirectives = new List<DBFileDeletionDirective> ();
-						while (reader.Read ()) {
-							response.FileDeletionDirectives.Add (new DBFileDeletionDirective (reader));
-						}
-
-						// 5: response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
-						reader.NextResult ();
-						response.LaneDeletionDirectives = new List<DBLaneDeletionDirectiveView> ();
-						while (reader.Read ())
-							response.LaneDeletionDirectives.Add (new DBLaneDeletionDirectiveView (reader));
+//						// 4: response.FileDeletionDirectives = DBFileDeletionDirective_Extensions.GetAll (db);
+//						reader.NextResult ();
+//						response.FileDeletionDirectives = new List<DBFileDeletionDirective> ();
+//						while (reader.Read ()) {
+//							response.FileDeletionDirectives.Add (new DBFileDeletionDirective (reader));
+//						}
+//
+//						// 5: response.LaneDeletionDirectives = DBLaneDeletionDirectiveView_Extensions.Find (db, response.Lane);
+//						reader.NextResult ();
+//						response.LaneDeletionDirectives = new List<DBLaneDeletionDirectiveView> ();
+//						while (reader.Read ())
+//							response.LaneDeletionDirectives.Add (new DBLaneDeletionDirectiveView (reader));
 					
 						// 6: response.Files = response.Lane.GetFiles (db, response.Lanes);
 						reader.NextResult ();
