@@ -33,6 +33,8 @@ namespace MonkeyWrench
 		public static string WebServicePassword;
 		public static string DatabaseHost = "localhost";
 		public static string DatabasePort;
+		public static string DatabaseUser = "builder";
+		public static string DatabasePassword;
 		public static bool StoreFilesInDB = false;
 		public static int ConnectionRetryDuration = 1440;
 		public static string LockingAlgorithm = "semaphore";
@@ -176,6 +178,8 @@ namespace MonkeyWrench
 				WebSiteUrl = xml.SelectSingleNode ("/MonkeyWrench/Configuration/WebSiteUrl").GetNodeValue (WebSiteUrl);
 				DatabaseHost = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabaseHost").GetNodeValue (DatabaseHost);
 				DatabasePort = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabasePort").GetNodeValue (DatabasePort);
+				DatabaseUser = xml.SelectSingleNode("/MonkeyWrench/Configuration/DatabaseUser").GetNodeValue(DatabaseUser);
+				DatabasePassword = xml.SelectSingleNode("/MonkeyWrench/Configuration/DatabasePassword").GetNodeValue(DatabasePassword);
 				StoreFilesInDB = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/StoreFilesInDb").GetNodeValue (StoreFilesInDB.ToString ()));
 				ConnectionRetryDuration = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/ConnectionRetryDuration").GetNodeValue (ConnectionRetryDuration.ToString ()));
 				LockingAlgorithm = xml.SelectSingleNode ("MonkeyWrench/Configuration/LockingAlgorithm").GetNodeValue (LockingAlgorithm);
@@ -264,6 +268,7 @@ namespace MonkeyWrench
 
 			} catch (Exception ex) {
 				Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not load configuration file from: {0}: {1}", file, ex.Message);
+				Console.Error.WriteLine (ex.StackTrace);
 				Environment.Exit (1);
 			}
 
