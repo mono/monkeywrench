@@ -3,7 +3,6 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>New BuildBot</title>
-    <link rel='stylesheet' href='../res/default.css' type='text/css' />
 </head>
 <body>
     <h1>
@@ -13,7 +12,7 @@
         How to create a new buildbot.</h2>
     <ul>
         <li>First you need a machine with some spare cycles.</li>
-        
+
         <li>Decide where to store files, suggested example which we&#39;ll follow here:
             <pre>
 ~/monkeywrench/builder for the builder
@@ -27,7 +26,7 @@ cd ~/monkeywrench && git clone git://github.com/mono/monkeywrench.git builder
         </li>
         <li><a href="../EditLanes.aspx">Add a lane</a> for what you want your buildbot to do (this is obviously not required
             if there already is a lane configured for what you want to do). You can find more information about lanes <a href="EditLaneHelp.html">here</a>.</li>
-        
+
         <li><a href="../EditHosts.aspx">Add a new host</a> for your machine.
             <ul>
                 <li>Select the lane you just created and add it to the lanes to build for your host.</li>
@@ -43,4 +42,3 @@ cd ~/monkeywrench && git clone git://github.com/mono/monkeywrench.git builder
     </ul>
 </body>
 </html>
-
