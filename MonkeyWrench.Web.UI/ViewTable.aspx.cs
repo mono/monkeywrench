@@ -208,6 +208,7 @@ public partial class ViewTable : System.Web.UI.Page
 		public string @class;
 		//public string style;
 		public bool is_header;
+		public int command_id;
 
 		public TableNode (string text, string @class, bool is_header)
 		{
@@ -263,7 +264,9 @@ public partial class ViewTable : System.Web.UI.Page
 				if (header [views [i].sequence] != null)
 					continue;
 
-				header [views [i].sequence] = new TableNode (string.Format ("<a href='ViewWorkTable.aspx?lane_id={0}&amp;host_id={1}&amp;command_id={2}'>{3}</a>", lane.id, host.id, views [i].command_id, views [i].command));
+				var node = new TableNode (string.Format ("<a href='ViewWorkTable.aspx?lane_id={0}&amp;host_id={1}&amp;command_id={2}'>{3}</a>", lane.id, host.id, views [i].command_id, views [i].command));
+				node.command_id = views [i].command_id;
+				header [views [i].sequence] = node;
 			}
 			header.RemoveAll (delegate (TableNode match) { return match == null; });
 			header.Insert (0, new TableNode ("Revision", true));
@@ -326,6 +329,8 @@ public partial class ViewTable : System.Web.UI.Page
 
 				if (state == DBState.Failed && !view.nonfatal)
 					failed = true;
+				else if (revisionwork_state == DBState.Failed)
+					failed = true;
 
 				// result
 				string result;
@@ -357,7 +362,7 @@ public partial class ViewTable : System.Web.UI.Page
 				}
 
 				for (int j = 2; j < header.Count; j++) {
-					if (header [j].text.Contains (view.command)) {
+					if (header [j].command_id == view.command_id) {
 						if (completed) {
 							row [j] = new TableNode (string.Format ("<a href='{0}'>{1}</a>", Utilities.CreateWebServiceDownloadUrl (Request, view.id, view.command + ".log", true), result));
 						} else {
