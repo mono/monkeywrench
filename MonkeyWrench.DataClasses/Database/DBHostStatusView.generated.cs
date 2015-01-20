@@ -60,7 +60,7 @@ namespace MonkeyWrench.DataClasses
 	ORDER BY Lane.lane IS NULL ASC, host ASC;";
 
 
-		private static string [] _fields_ = new string [] { "host", "report_date", "revisionwork_id", "lane_id", "revision_id", "revision", "lane" };
+		private static string [] _fields_ = new string [] { "host", "report_date", "revisionwork_id", "lane_id", "revision_id", "lane" };
 		public override string [] Fields
 		{
 			get
