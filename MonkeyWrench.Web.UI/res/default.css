@@ -12,7 +12,7 @@ h1 {
 	padding: 1em;
 }
 
-.h1link 
+.h1link
 {
 	font-size:14pt;
 	font-family: "Trebuchet MS";
@@ -22,7 +22,8 @@ h1 {
 h2, h3, h4, h5, h6 {
 	font-family: Verdana,sans-serif;
 	font-weight: bold;
-	margin: 9pt;
+	margin-top: 9pt;
+    margin-bottom: 9pt;
 }
 
 h2 {
@@ -53,62 +54,11 @@ a, a.visited
     text-decoration: underline;
 }
 
-table.center
-{
-    margin-left: auto;
-    margin-right: auto;
-}
-
-table.lanetree td 
+table.lanetree td
 {
 	padding: .5em;
 	text-align: center;
 	border: solid 1px whitesmoke;
-}
-
-table.commands {
-	border-collapse: collapse;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-table.commands td 
-{
-	padding:.5em;
-}
-
-table.commands tbody td
-{
-	border: solid 1px black;
-	text-align: center;
-}
-
-table.commands th
-{
-	border: solid 1px whitesmoke;
-	font-weight:bold;
-	text-align:center;
-	padding: .5em;
-}
-
-table.commands .disabled
-{
-	background: #FFD0D0;
-}
-
-table.commands .enabled
-{
-	background: #C9FFC9;
-}
-
-table.commands td.hidden a
-{
-	color: #444444;
-}
-
-table.commands a .visible
-{
-	color: #0000FF;
 }
 
 tr.commands_header
@@ -120,7 +70,7 @@ table.files {
 	border-collapse: collapse;
 }
 
-table.files td 
+table.files td
 {
 	padding:.5em;
 }
@@ -179,69 +129,6 @@ table.buildstatus .enabled-hostlane
 {
 }
 
-table.lanes .lane-enabled a
-{
-}
-
-table.lanes .lane-disabled a
-{
-	color: #cdcdcd;
-}
-
-table.hosts 
-{
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-}
-
-table.hosts tr:first-child th
-{
-    font-weight: bold;
-    font-size: 16px;
-}
-
-table.hosts input
-{
-    text-align: center;
-}
-
-table.lanes 
-{
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-}
-
-table.lanes tr:first-child th
-{
-    font-weight: bold;
-    font-size: 16px;
-}
-
-table.lanes input
-{
-    text-align: center;
-}
-
-table.users
-{
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-}
-
-table.users tr:first-child th
-{
-    font-weight: bold;
-    font-size: 16px;
-}
-
-table.users input
-{
-    text-align: center;
-}
-
 table.identity
 {
     margin-left: auto;
@@ -278,7 +165,7 @@ table.notifications input
     text-align: center;
 }
 
-table.hoststatus 
+table.hoststatus
 {
     width: 100%;
     max-width: 150px;
@@ -308,7 +195,7 @@ table.hoststatus td
     padding: 3px;
 }
 
-.hoststatus_header 
+.hoststatus_header
 {
     text-align: center;
     border-style: solid;
@@ -316,38 +203,6 @@ table.hoststatus td
     border-color: #aaaaaa;
     width: 100%;
     padding: 3px;
-}
-
-
-table.buildbotstatus
-{
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-}
-
-table.buildbotstatus tr:first-child th
-{
-    font-weight: bold;
-    font-size: 16px;
-}
-
-table.buildbotstatus input
-{
-    text-align: center;
-}
-
-table.releases
-{
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-}
-
-table.releases tr:first-child th
-{
-    font-weight: bold;
-    font-size: 16px;
 }
 
 table.releases input
@@ -416,12 +271,12 @@ table.lefttree a
 	background:white;
 }
 
-.paused 
+.paused
 {
 	background:lightblue;
 }
 
-.aborted 
+.aborted
 {
 	background:purple;
 }
@@ -473,7 +328,7 @@ table.lefttree a
 }
 
 .timeout1 {
-	background:#3672A4; 
+	background:#3672A4;
 }
 
 .timeout2 {
@@ -523,8 +378,8 @@ table.packagestatus th {
 
 /*
  * Documentation
- */ 
- 
+ */
+
 pre
 {
 	border: 1px solid Black;
@@ -617,14 +472,14 @@ li
 #nav ul a {
 	white-space: nowrap;
 }
-#nav li:hover ul { 
+#nav li:hover ul {
 	left: 0;
 }
 #nav li:hover a {
 	background: #666;
 	text-decoration: underline;
 }
-#nav li:hover ul a { 
+#nav li:hover ul a {
 	text-decoration:none;
 }
 #nav li:hover ul li a:hover {
@@ -632,7 +487,7 @@ li
 }
 
 /* headertable */
-table.headertable 
+table.headertable
 {
 	width: 100%;
     height: 100%;
@@ -739,7 +594,7 @@ body {
 	flex: 1 1 0px;
 }
 
-iframe 
+iframe
 {
     width: 100%;
     height: 1000px;
@@ -759,7 +614,7 @@ iframe
     margin: 0px;
 }
 
-form 
+form
 {
     height: 95%;
     padding: 0px;
@@ -864,7 +719,7 @@ form
 
 /* diff view */
 
-.diff_view_line_number 
+.diff_view_line_number
 {
     background-color: #ececec;
     text-align: right;
@@ -879,19 +734,19 @@ form
     padding-right: 5px;
 }
 
-.diff_view_normal_line 
+.diff_view_normal_line
 {
     background-color: white;
     width: 100%;
 }
 
-.diff_view_removed_line 
+.diff_view_removed_line
 {
     background-color: #ffd0d0;
     width: 100%;
 }
 
-.diff_view_added_line 
+.diff_view_added_line
 {
     background-color: #d0ffd0;
     width: 100%;
@@ -906,18 +761,18 @@ td.diff_view_header_td
     border-bottom-width: 1px;
     border-right-width: 0px;
     border-right-color: #777777;
-    padding-top: 5px; 
+    padding-top: 5px;
     padding-bottom: 5px;
-    padding-left: 5px; 
+    padding-left: 5px;
     padding-right: 5px;
 }
 
 td.diff_view_td
 {
     border-width: 0px;
-    padding-top: 0px; 
+    padding-top: 0px;
     padding-bottom: 0px;
-    padding-left: 5px; 
+    padding-left: 5px;
     padding-right: 5px;
 }
 
@@ -925,9 +780,9 @@ td.diff_view_at_td
 {
     background-color: #f0f0f0;
     border-width: 0px;
-    padding-top: 0px; 
+    padding-top: 0px;
     padding-bottom: 0px;
-    padding-left: 5px; 
+    padding-left: 5px;
     padding-right: 5px;
 }
 
@@ -935,9 +790,9 @@ td.diff_view_index_td
 {
     background-color: #f0f0f0;
     border-width: 0px;
-    padding-top: 0px; 
+    padding-top: 0px;
     padding-bottom: 0px;
-    padding-left: 5px; 
+    padding-left: 5px;
     padding-right: 5px;
 }
 
@@ -954,8 +809,75 @@ table.diff_view_table
     margin-top: 5px;
     margin-bottom: 5px;
     width: 100%;
-    border-width: 1px; 
-    border-style: outset; 
+    border-width: 1px;
+    border-style: outset;
     border-color: #808080;
     border-collapse: separate;
+}
+
+/* --------------------------------------------------- */
+
+/* Base for data tables */
+table.data {
+    width: 80%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+table.data th {
+    padding: .5em;
+    font-weight: bold;
+    border: 1px solid #CCC;
+}
+table.data th.title {
+    font-size: 16px;
+}
+table.data th.title .aside {
+    font-size: 12px;
+    text-align: left;
+    clear: both;
+    display: block;
+    font-weight: normal;
+}
+
+table.data td {
+    border: 1px solid #CCC;
+    padding: .5em;
+}
+
+/* Table for listing models, such as users, lanes, etc. */
+table.data.index {
+    margin-top: 10px;
+}
+
+/* Table for forms */
+table.data.form {
+    margin-top: 10px;
+    border: none;
+}
+
+table.data.form td {
+    border: none;
+    padding-top: 0;
+    padding-bottom: 2px;
+}
+table.data.form td input[type="text"],
+table.data.form td input[type="password"],
+table.data.form td input[type="search"],
+table.data.form td input[type="url"],
+table.data.form td input[type="submit"],
+table.data.form td select {
+    width: 100%;
+}
+table.data.form td input.save {
+    margin-bottom: 20px;
+}
+
+/* Table for form sets, such as lane commands */
+table.data.formset {
+}
+
+table.data.formset th.title {
+    background-color: #DDD;
 }

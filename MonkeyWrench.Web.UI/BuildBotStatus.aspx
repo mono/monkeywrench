@@ -5,8 +5,8 @@
     <script type="text/javascript" src="res/sorttable.js"></script>
     <script type="text/javascript" src="BuildBotStatus.js"></script>
 
-	<h2><center>Build bot status</center></h2>
-    <asp:Table runat="server" ID="tblStatus" CssClass="buildstatus buildbotstatus sortable">
+	<h2>Build bot status</h2>
+    <asp:Table runat="server" ID="tblStatus" CssClass="data index sortable">
         <asp:TableHeaderRow>
             <asp:TableHeaderCell>Bot</asp:TableHeaderCell>
             <asp:TableHeaderCell>Last Version</asp:TableHeaderCell>

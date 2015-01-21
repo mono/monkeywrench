@@ -3,8 +3,8 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
     <script type="text/javascript" src="res/sorttable.js"></script>
 
-	<h2><center>Releases</center></h2>
-    <asp:Table runat="server" ID="tblStatus" CssClass="buildstatus releases sortable">
+	<h2>Releases</h2>
+    <asp:Table runat="server" ID="tblStatus" CssClass="data index sortable">
         <asp:TableHeaderRow>
             <asp:TableHeaderCell>Version</asp:TableHeaderCell>
             <asp:TableHeaderCell>Revision</asp:TableHeaderCell>

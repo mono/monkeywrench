@@ -68,7 +68,7 @@ public partial class EditLane : System.Web.UI.Page
 				return;
 			}
 
-			lblH2.Text = "Lane: " + lane.lane;
+			lblH2.Text = lane.lane;
 //			lblDeletionDirectiveErrors.Visible = false;
 
 			// find possible parent lanes
