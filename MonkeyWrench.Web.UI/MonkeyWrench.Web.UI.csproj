@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}</ProjectGuid>
     <ProjectTypeGuids>{349C5851-65DF-11DA-9384-00065B846F21};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -42,14 +42,6 @@
     <Reference Include="Contracts_Standalone">
       <HintPath>..\class\lib\Contracts_Standalone.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetOpenAuth, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\class\lib\DotNetOpenAuth.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\class\lib\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\class\lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -65,6 +57,12 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="DotNetOpenAuth">
+      <HintPath>..\class\lib\DotNetOpenAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\class\lib\log4net.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Admin.aspx" />
@@ -129,6 +127,8 @@
     <Content Include="web.config" />
     <Content Include="Json.aspx" />
     <Content Include="GetStatus.aspx" />
+    <Content Include="ViewServerLog.aspx" />
+    <Content Include="GetLatest.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.aspx.cs">
@@ -364,6 +364,18 @@
     <Compile Include="GetStatus.aspx.designer.cs">
       <DependentUpon>GetStatus.aspx</DependentUpon>
     </Compile>
+    <Compile Include="ViewServerLog.aspx.cs">
+      <DependentUpon>ViewServerLog.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewServerLog.aspx.designer.cs">
+      <DependentUpon>ViewServerLog.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GetLatest.aspx.cs">
+      <DependentUpon>GetLatest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GetLatest.aspx.designer.cs">
+      <DependentUpon>GetLatest.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ChangeLog" />
@@ -417,8 +429,8 @@
       </FlavorProperties>
     </VisualStudio>
     <MonoDevelop>
-      <Properties VerifyCodeBehindFields="true" VerifyCodeBehindEvents="true">
-        <XspParameters Port="8080" Address="127.0.0.1" SslMode="None" SslProtocol="Default" KeyType="None" CertFile="" KeyFile="" PasswordOptions="None" Password="" Verbose="true" />
+      <Properties>
+        <XspParameters Port="8080" Address="127.0.0.1" SslMode="None" SslProtocol="Default" KeyType="None" CertFile="" KeyFile="" PasswordOptions="None" Password="" Verbose="True" />
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
