@@ -1178,225 +1178,236 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		[WebMethod]
 		public FrontPageResponse GetFrontPageDataWithTags (WebServiceLogin login, int page_size, int page, string [] lanes, int [] lane_ids, int latest_days, string[] tags)
 		{
-			FrontPageResponse response = new FrontPageResponse ();
-			List<DBLane> Lanes = new List<DBLane> ();
-			List<DBHost> Hosts = new List<DBHost> ();
-			List<DBHostLane> HostLanes = new List<DBHostLane> ();
-			List<int> TaggedLaneIds = null;
+			using (new ProfTimer ("GetFrontPageDataWithTags total")) {
+				FrontPageResponse response = new FrontPageResponse ();
+				List<DBLane> Lanes = new List<DBLane> ();
+				List<DBHost> Hosts = new List<DBHost> ();
+				List<DBHostLane> HostLanes = new List<DBHostLane> ();
+				List<int> TaggedLaneIds = null;
 
-			Logger.Log ("GetFrontPageDataWithTags (page_size: {0} page: {1} lanes: {2} lane_ids: {3} latest_days: {4} tags: {5})",
-				page_size, page, lanes == null ? "null" : lanes.Length.ToString (), lane_ids == null ? "null" : lane_ids.Length.ToString (), latest_days, tags == null ? "null" : tags.Length.ToString ());
+				Logger.Log ("GetFrontPageDataWithTags (page_size: {0} page: {1} lanes: {2} lane_ids: {3} latest_days: {4} tags: {5})",
+					page_size, page, lanes == null ? "null" : lanes.Length.ToString (), lane_ids == null ? "null" : lane_ids.Length.ToString (), latest_days, tags == null ? "null" : tags.Length.ToString ());
 
-			page_size = Math.Min (page_size, 500);
+				page_size = Math.Min (page_size, 500);
 
-			string single_lane = string.Empty;
-			if ((lanes != null && lanes.Length == 1))
-				single_lane = lanes [0];
+				string single_lane = string.Empty;
+				if ((lanes != null && lanes.Length == 1))
+					single_lane = lanes [0];
 
-			try {
-				using (DB db = new DB ()) {
-					Authenticate (db, login, response, true);
-
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						var latest_only = latest_days != 0;
-						var last_month = string.Empty;
-
-						if (!string.IsNullOrEmpty (single_lane)) {
-							// this will ignore the @afterdate condition below if the selected lane is not a parent of other lanes
-							last_month = " AND (NOT EXISTS (SELECT id FROM Lane WHERE parent_lane_id = (SELECT id FROM Lane WHERE lane = @single_lane)) OR \n";
-							DB.CreateParameter (cmd, "single_lane", single_lane);
-						} else {
-							last_month = " AND (";
+				try {
+					using (DB db = new DB ()) {
+						using(new ProfTimer("GetFrontPageDataWithTags auth")) {
+							Authenticate (db, login, response, true);
 						}
 
-						last_month += @"
-			(
-				EXISTS (SELECT id FROM Revision WHERE date > @afterdate AND lane_id = Lane.id)
-					OR
-				EXISTS (SELECT id FROM RevisionWork WHERE lane_id = Lane.id AND ((completed = TRUE AND endtime > @afterdate) OR (state <> 9 AND state <> 11 AND completed = FALSE)))
-					OR
-				NOT EXISTS (SELECT id FROM Revision WHERE lane_id = Lane.id)
-					OR
-				EXISTS (SELECT id FROM Lane AS ParentLane WHERE ParentLane.parent_lane_id = Lane.id)
-			))";
-						/*
-						 */
-
-						cmd.CommandText = "SELECT * FROM Lane WHERE enabled = TRUE";
-						if (latest_only)
-							cmd.CommandText += last_month;
-						cmd.CommandText += ";\n";
-						cmd.CommandText += "SELECT * FROM Host;\n";
-						cmd.CommandText += @"
-SELECT HostLane.*
-FROM HostLane
-INNER JOIN Lane ON Lane.id = HostLane.lane_id
-WHERE hidden = false AND Lane.enabled = TRUE";
-						if (latest_only)
-							cmd.CommandText += last_month;
-						cmd.CommandText += ";\n";
-						if (latest_only)
-							DB.CreateParameter (cmd, "afterdate", DateTime.Now.AddDays (-latest_days));
-						if (tags != null && tags.Length > 0) {
-							cmd.CommandText += "SELECT DISTINCT lane_id FROM LaneTag WHERE ";
-							for (int i = 0; i < tags.Length; i++) {
-								if (i > 0)
-									cmd.CommandText += " OR ";
-								cmd.CommandText += " tag = @tag" + i.ToString ();
-								DB.CreateParameter (cmd, "tag" + i.ToString (), tags [i]);
-							}
-							cmd.CommandText += ";";
-						}
-						cmd.CommandText = "SET enable_seqscan = false;\n" + cmd.CommandText + "\nSET enable_seqscan = true;\n";
-						using (IDataReader reader = cmd.ExecuteReader ()) {
-							while (reader.Read ())
-								Lanes.Add (new DBLane (reader));
-							reader.NextResult ();
-							while (reader.Read ())
-								Hosts.Add (new DBHost (reader));
-							reader.NextResult ();
-							while (reader.Read ())
-								HostLanes.Add (new DBHostLane (reader));
-							if (tags != null && tags.Length > 0) {
-								reader.NextResult ();
-								TaggedLaneIds = new List<int> (tags.Length);
-								while (reader.Read ())
-									TaggedLaneIds.Add (reader.GetInt32 (0));
-							}
-						}
-					}
-
-					// get a list of the lanes to show
-					// note that the logic here is slightly different from the usual "string lane, int? lane_id" logic in other methods,
-					// where we only use the string parameter if the id parameter isn't provided, here we add everything we can to the 
-					// list of selected lanes, so if you provide both a string and an id parameter both are used (assuming they correspond
-					// with different lanes of course).
-					response.SelectedLanes = Lanes.FindAll (delegate (DBLane l) {
-						if (lane_ids != null) {
-							for (int i = 0; i < lane_ids.Length; i++) {
-								if (lane_ids [i] == l.id)
-									return true;
-							}
-						}
-						if (lanes != null) {
-							for (int i = 0; i < lanes.Length; i++) {
-								if (!string.IsNullOrEmpty (lanes [i]) && lanes [i] == l.lane)
-									return true;
-							}
-						}
-						if (TaggedLaneIds != null) {
-							if (TaggedLaneIds.Contains (l.id))
-								return true;
-						}
-						return false;
-					});
-
-					Logger.Log ("We have {0} selected lanes", response.SelectedLanes.Count);
-
-					// backwards compat
-					if (response.SelectedLanes.Count == 1)
-						response.Lane = response.SelectedLanes [0];
-
-					response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> (HostLanes.Count);
-					response.RevisionWorkHostLaneRelation = new List<int> (HostLanes.Count);
-
-					if (HostLanes.Count > 0) {
 						using (IDbCommand cmd = db.CreateCommand ()) {
-							var revisionworklists = new Queue<List<DBRevisionWorkView2>> ();
+							using(new ProfTimer("GetFrontPageDataWithTags fetch")) {
+								var latest_only = latest_days != 0;
+								var last_month = string.Empty;
 
-							// FIXME: use this instead: https://gist.github.com/rolfbjarne/cf73bf22209c8a8ef844
+								if (!string.IsNullOrEmpty (single_lane)) {
+									// this will ignore the @afterdate condition below if the selected lane is not a parent of other lanes
+									last_month = " AND (NOT EXISTS (SELECT id FROM Lane WHERE parent_lane_id = (SELECT id FROM Lane WHERE lane = @single_lane)) OR \n";
+									DB.CreateParameter (cmd, "single_lane", single_lane);
+								} else {
+									last_month = " AND (";
+								}
 
-							for (int i = 0; i < HostLanes.Count; i++) {
-								DBHostLane hl = HostLanes [i];
-								var RevisionWork = new List<DBRevisionWorkView2> ();
-								revisionworklists.Enqueue (RevisionWork);
+								last_month += @"
+				(
+					EXISTS (SELECT id FROM Revision WHERE date > @afterdate AND lane_id = Lane.id)
+						OR
+					EXISTS (SELECT id FROM RevisionWork WHERE lane_id = Lane.id AND ((completed = TRUE AND endtime > @afterdate) OR (state <> 9 AND state <> 11 AND completed = FALSE)))
+						OR
+					NOT EXISTS (SELECT id FROM Revision WHERE lane_id = Lane.id)
+						OR
+					EXISTS (SELECT id FROM Lane AS ParentLane WHERE ParentLane.parent_lane_id = Lane.id)
+				))";
+								/*
+							 */
 
-								var stri = i.ToString ();
-								cmd.CommandText += @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE " +
-									"R.host_id = @host_id" + stri + " AND R.lane_id = @lane_id" + stri + " LIMIT @limit OFFSET @offset;\n";
-								DB.CreateParameter (cmd, "host_id" + stri, hl.host_id);
-								DB.CreateParameter (cmd, "lane_id" + stri, hl.lane_id);
-
-								response.RevisionWorkHostLaneRelation.Add (hl.id);
-								response.RevisionWorkViews.Add (RevisionWork);
-							}
-
-							DB.CreateParameter (cmd, "limit", page_size);
-							DB.CreateParameter (cmd, "offset", page * page_size);
-
-							using (IDataReader reader = cmd.ExecuteReader ()) {
-								do {
-									if (revisionworklists.Count == 0)
-										throw new Exception ("GetFrontPageData3: got more datasets back for revision works than expected. This is most likely a bug, not a configuration issue.");
-
-									var RevisionWork = revisionworklists.Dequeue ();
+								cmd.CommandText = "SELECT * FROM Lane WHERE enabled = TRUE";
+								if (latest_only)
+									cmd.CommandText += last_month;
+								cmd.CommandText += ";\n";
+								cmd.CommandText += "SELECT * FROM Host;\n";
+								cmd.CommandText += @"
+	SELECT HostLane.*
+	FROM HostLane
+	INNER JOIN Lane ON Lane.id = HostLane.lane_id
+	WHERE hidden = false AND Lane.enabled = TRUE";
+								if (latest_only)
+									cmd.CommandText += last_month;
+								cmd.CommandText += ";\n";
+								if (latest_only)
+									DB.CreateParameter (cmd, "afterdate", DateTime.Now.AddDays (-latest_days));
+								if (tags != null && tags.Length > 0) {
+									cmd.CommandText += "SELECT DISTINCT lane_id FROM LaneTag WHERE ";
+									for (int i = 0; i < tags.Length; i++) {
+										if (i > 0)
+											cmd.CommandText += " OR ";
+										cmd.CommandText += " tag = @tag" + i.ToString ();
+										DB.CreateParameter (cmd, "tag" + i.ToString (), tags [i]);
+									}
+									cmd.CommandText += ";";
+								}
+								cmd.CommandText = "SET enable_seqscan = false;\n" + cmd.CommandText + "\nSET enable_seqscan = true;\n";
+								using (IDataReader reader = cmd.ExecuteReader ()) {
 									while (reader.Read ())
-										RevisionWork.Add (new DBRevisionWorkView2 (reader));
-								} while (reader.NextResult ());
-
-								if (revisionworklists.Count != 0)
-									throw new Exception (string.Format ("GetFrontPageData3: got fewer datasets back for revision works than expected (expected {0} data sets, got {1})."
-										+ " This is most likely a bug, not a configuration issue.", response.RevisionWorkViews.Count, response.RevisionWorkViews.Count - revisionworklists.Count));
-
+										Lanes.Add (new DBLane (reader));
+									reader.NextResult ();
+									while (reader.Read ())
+										Hosts.Add (new DBHost (reader));
+									reader.NextResult ();
+									while (reader.Read ())
+										HostLanes.Add (new DBHostLane (reader));
+									if (tags != null && tags.Length > 0) {
+										reader.NextResult ();
+										TaggedLaneIds = new List<int> (tags.Length);
+										while (reader.Read ())
+											TaggedLaneIds.Add (reader.GetInt32 (0));
+									}
+								}
 							}
 						}
-					}
 
-					// Create a list of all the lanes which have hostlanes
-					var enabled_set = new HashSet<int> ();
-					foreach (DBHostLane hl in HostLanes) {
-						if (enabled_set.Contains (hl.lane_id))
-							continue;
-						enabled_set.Add (hl.lane_id);
-
-						// Walk up the tree of parent lanes, marking all the parents too
-						var l = Lanes.FirstOrDefault ((v) => v.id == hl.lane_id);
-						if (l == null) {
-							Logger.Log ("GetFrontPageDataWithTags: could not find lane {0} for host lane {1}", hl.lane_id, hl.id);
-							l = DBLane_Extensions.Create (db, hl.lane_id);
-							l.enabled = true; // This will prevent us from having to load the lane manually again.
-							l.Save (db);
-							Lanes.Add (l);
-							continue;
+						// get a list of the lanes to show
+						// note that the logic here is slightly different from the usual "string lane, int? lane_id" logic in other methods,
+						// where we only use the string parameter if the id parameter isn't provided, here we add everything we can to the 
+						// list of selected lanes, so if you provide both a string and an id parameter both are used (assuming they correspond
+						// with different lanes of course).
+						using(new ProfTimer("GetFrontPageDataWithTags filtering")) {
+							response.SelectedLanes = Lanes.FindAll (delegate (DBLane l) {
+								if (lane_ids != null) {
+									for (int i = 0; i < lane_ids.Length; i++) {
+										if (lane_ids [i] == l.id)
+											return true;
+									}
+								}
+								if (lanes != null) {
+									for (int i = 0; i < lanes.Length; i++) {
+										if (!string.IsNullOrEmpty (lanes [i]) && lanes [i] == l.lane)
+											return true;
+									}
+								}
+								if (TaggedLaneIds != null) {
+									if (TaggedLaneIds.Contains (l.id))
+										return true;
+								}
+								return false;
+							});
 						}
-						while (true) {
-							if (!l.parent_lane_id.HasValue)
-								break;
 
-							if (enabled_set.Contains (l.parent_lane_id.Value))
-								break;
+						Logger.Log ("We have {0} selected lanes", response.SelectedLanes.Count);
 
-							enabled_set.Add (l.parent_lane_id.Value);
+						// backwards compat
+						if (response.SelectedLanes.Count == 1)
+							response.Lane = response.SelectedLanes [0];
 
-							var old_l = l;
-							l = Lanes.FirstOrDefault ((v) => v.id == l.parent_lane_id.Value);
-							if (l == null) {
-								Logger.Log ("GetFrontPageDataWithTags: could not find parent lane {0} for lane {1} (host lane {2})", old_l.parent_lane_id.Value, old_l.id, hl.id);
-								l = DBLane_Extensions.Create (db, old_l.parent_lane_id.Value);
-								l.enabled = true; // This will prevent us from having to load the lane manually again.
-								l.Save (db);
-								Lanes.Add (l);
-								break;
+						response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> (HostLanes.Count);
+						response.RevisionWorkHostLaneRelation = new List<int> (HostLanes.Count);
+
+						using(new ProfTimer("GetFrontPageDataWithTags hostlanes fetch")) {
+							if (HostLanes.Count > 0) {
+								using (IDbCommand cmd = db.CreateCommand ()) {
+									var revisionworklists = new Queue<List<DBRevisionWorkView2>> ();
+
+									// FIXME: use this instead: https://gist.github.com/rolfbjarne/cf73bf22209c8a8ef844
+
+									for (int i = 0; i < HostLanes.Count; i++) {
+										DBHostLane hl = HostLanes [i];
+										var RevisionWork = new List<DBRevisionWorkView2> ();
+										revisionworklists.Enqueue (RevisionWork);
+
+										var stri = i.ToString ();
+										cmd.CommandText += @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE " +
+										"R.host_id = @host_id" + stri + " AND R.lane_id = @lane_id" + stri + " LIMIT @limit OFFSET @offset;\n";
+										DB.CreateParameter (cmd, "host_id" + stri, hl.host_id);
+										DB.CreateParameter (cmd, "lane_id" + stri, hl.lane_id);
+
+										response.RevisionWorkHostLaneRelation.Add (hl.id);
+										response.RevisionWorkViews.Add (RevisionWork);
+									}
+
+									DB.CreateParameter (cmd, "limit", page_size);
+									DB.CreateParameter (cmd, "offset", page * page_size);
+
+									using (IDataReader reader = cmd.ExecuteReader ()) {
+										do {
+											if (revisionworklists.Count == 0)
+												throw new Exception ("GetFrontPageData3: got more datasets back for revision works than expected. This is most likely a bug, not a configuration issue.");
+
+											var RevisionWork = revisionworklists.Dequeue ();
+											while (reader.Read ())
+												RevisionWork.Add (new DBRevisionWorkView2 (reader));
+										} while (reader.NextResult ());
+
+										if (revisionworklists.Count != 0)
+											throw new Exception (string.Format ("GetFrontPageData3: got fewer datasets back for revision works than expected (expected {0} data sets, got {1})."
+											+ " This is most likely a bug, not a configuration issue.", response.RevisionWorkViews.Count, response.RevisionWorkViews.Count - revisionworklists.Count));
+
+									}
+								}
 							}
 						}
-					}
 
-					// Remove the lanes which aren't marked
-					for (int i = Lanes.Count - 1; i >= 0; i--) {
-						if (!enabled_set.Contains (Lanes [i].id)) {
-							Lanes.RemoveAt (i);
+						// Create a list of all the lanes which have hostlanes
+						using(new ProfTimer("GetFrontPageDataWithTags hostlanes filter")) {
+							var enabled_set = new HashSet<int> ();
+							foreach (DBHostLane hl in HostLanes) {
+								if (enabled_set.Contains (hl.lane_id))
+									continue;
+								enabled_set.Add (hl.lane_id);
+
+								// Walk up the tree of parent lanes, marking all the parents too
+								var l = Lanes.FirstOrDefault ((v) => v.id == hl.lane_id);
+								if (l == null) {
+									Logger.Log ("GetFrontPageDataWithTags: could not find lane {0} for host lane {1}", hl.lane_id, hl.id);
+									l = DBLane_Extensions.Create (db, hl.lane_id);
+									l.enabled = true; // This will prevent us from having to load the lane manually again.
+									l.Save (db);
+									Lanes.Add (l);
+									continue;
+								}
+								while (true) {
+									if (!l.parent_lane_id.HasValue)
+										break;
+
+									if (enabled_set.Contains (l.parent_lane_id.Value))
+										break;
+
+									enabled_set.Add (l.parent_lane_id.Value);
+
+									var old_l = l;
+									l = Lanes.FirstOrDefault ((v) => v.id == l.parent_lane_id.Value);
+									if (l == null) {
+										Logger.Log ("GetFrontPageDataWithTags: could not find parent lane {0} for lane {1} (host lane {2})", old_l.parent_lane_id.Value, old_l.id, hl.id);
+										l = DBLane_Extensions.Create (db, old_l.parent_lane_id.Value);
+										l.enabled = true; // This will prevent us from having to load the lane manually again.
+										l.Save (db);
+										Lanes.Add (l);
+										break;
+									}
+								}
+							}
+
+							// Remove the lanes which aren't marked
+							for (int i = Lanes.Count - 1; i >= 0; i--) {
+								if (!enabled_set.Contains (Lanes [i].id)) {
+									Lanes.RemoveAt (i);
+								}
+							}
 						}
-					}
 
-					response.Lanes = Lanes;
-					response.Hosts = Hosts;
-					response.HostLanes = HostLanes;
+						response.Lanes = Lanes;
+						response.Hosts = Hosts;
+						response.HostLanes = HostLanes;
+					}
+				} catch (Exception ex) {
+					response.Exception = new WebServiceException (ex);
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+				return response;
 			}
-
-			return response;
 		}
 
 
