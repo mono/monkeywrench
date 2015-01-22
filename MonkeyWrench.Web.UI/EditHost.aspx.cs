@@ -106,10 +106,11 @@ public partial class EditHost : System.Web.UI.Page
 				txtArchitecture.Text = response.Host.architecture;
 				txtDescription.Text = response.Host.description;
 				txtHost.Text = response.Host.host;
+				lblHostName.Text = response.Host.host;
 				chkEnabled.Checked = response.Host.enabled;
 				cmbQueueManagement.SelectedIndex = response.Host.queuemanagement;
 				if (response.Person == null) {
-					string valid_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMOPQRSUVWXYZ1234567890";
+					const string valid_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMOPQRSUVWXYZ1234567890";
 					System.Text.StringBuilder builder = new System.Text.StringBuilder ();
 					Random random = new Random ();
 					for (int i = 0; i < 64; i++)
@@ -164,12 +165,12 @@ public partial class EditHost : System.Web.UI.Page
 				cmbMasterHosts.Items.Add (new ListItem (host.host, host.id.ToString ()));
 			}
 			foreach (DBHost host in response.MasterHosts) {
-				tblMasters.Rows.AddAt (1, Utils.CreateTableRow (
+				tblMasters.Rows.AddAt (2, Utils.CreateTableRow (
 					string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host),
 					Utils.CreateLinkButton ("removeMasterHostLinkButton_" + host.id.ToString (), "Remove", "RemoveMasterHost", host.id.ToString (), OnLinkButtonCommand)));
 			}
 			foreach (DBHost host in response.SlaveHosts) {
-				tblSlaves.Rows.AddAt (1, Utils.CreateTableRow (
+				tblSlaves.Rows.AddAt (2, Utils.CreateTableRow (
 					string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host),
 					Utils.CreateLinkButton ("removeSaveHostLinkButton_" + host.id.ToString (), "Remove", "RemoveSlaveHost", host.id.ToString (), OnLinkButtonCommand)));
 			}

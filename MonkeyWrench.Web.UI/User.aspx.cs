@@ -89,7 +89,7 @@ public partial class User : System.Web.UI.Page
 				}
 			}
 
-			rowRoles.Visible = Authentication.IsInCookieRole (Request, Roles.Administrator);
+			//rowRoles.Visible = Authentication.IsInCookieRole (Request, Roles.Administrator);
 			if (!string.IsNullOrEmpty (username) || id.HasValue) {
 				response = Master.WebService.GetUser (Master.WebServiceLogin, id, username);
 

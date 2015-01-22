@@ -2,9 +2,9 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="content" runat="Server">
     <script type="text/javascript" src="EditHosts.js"></script>
-    <asp:Table ID="tblHosts" CssClass="buildstatus hosts" runat="server">
+    <asp:Table ID="tblHosts" CssClass="data index" runat="server">
         <asp:TableHeaderRow>
-            <asp:TableHeaderCell ColumnSpan="5">Hosts</asp:TableHeaderCell>
+            <asp:TableHeaderCell ColumnSpan="5" CssClass="title">Hosts</asp:TableHeaderCell>
         </asp:TableHeaderRow>
         <asp:TableHeaderRow>
             <asp:TableHeaderCell>Name</asp:TableHeaderCell>

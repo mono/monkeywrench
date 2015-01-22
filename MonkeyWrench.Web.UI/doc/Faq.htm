@@ -2,19 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Faq</title>
-        <link rel='stylesheet' href='../res/default.css' type='text/css' />
 	</head>
 	<body>
 	<ul>
 	<li>Reschedule a step / revision<ul>
-        <li>Abort a step: Click &#39;abort&#39;. Important: After clicking abort, the state will 
-            switch to &quot;aborted&quot;, but you must wait until the state has changed to &quot;issues&quot; 
-            or &quot;failed&quot; until doing anything else with that step (otherwise the bot will 
+        <li>Abort a step: Click &#39;abort&#39;. Important: After clicking abort, the state will
+            switch to &quot;aborted&quot;, but you must wait until the state has changed to &quot;issues&quot;
+            or &quot;failed&quot; until doing anything else with that step (otherwise the bot will
             never realize you aborted it).</li>
-        <li>Reschedule a step: Click &#39;clear&#39;. Don&#39;t do this after a revision has completed 
-            (i.e. cleaned up), the step will run again and fail (since everything has been 
+        <li>Reschedule a step: Click &#39;clear&#39;. Don&#39;t do this after a revision has completed
+            (i.e. cleaned up), the step will run again and fail (since everything has been
             deleted).</li>
-        <li>Reschedule a revision: click &#39;reset work&#39;. Don&#39;t do this while a bot is working 
+        <li>Reschedule a revision: click &#39;reset work&#39;. Don&#39;t do this while a bot is working
             on the revision (you may abort all steps first to shortcurcuit a bit).</li>
         <li>TODO: make the web ui enforce all the &quot;Don&#39;t do this&quot;.</li>
         </ul>
@@ -23,4 +22,3 @@
 	    <img src="ViewLane.png" alt="ViewLane.aspx Screenshot"/>
 	</body>
 </html>
-

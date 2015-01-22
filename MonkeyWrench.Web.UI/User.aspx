@@ -2,7 +2,7 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="content" runat="Server" EnableViewState="False">
     <script type="text/javascript" src="User.js"></script>
-    <asp:Table CssClass="users" ID="tblUser" runat="server">
+    <asp:Table CssClass="data form" ID="tblUser" runat="server">
         <asp:TableRow>
             <asp:TableCell>Username:</asp:TableCell>
             <asp:TableCell>
