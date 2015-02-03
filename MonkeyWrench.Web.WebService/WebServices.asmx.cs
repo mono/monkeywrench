@@ -31,9 +31,13 @@ namespace MonkeyWrench.WebServices
 	[System.ComponentModel.ToolboxItem (false)]
 	public class WebServices : System.Web.Services.WebService
 	{
-		public WebServices ()
+		public WebServices () : this(true)
 		{
-			Configuration.LoadConfiguration (new string [] { });
+		}
+
+		public WebServices (bool loadConfig) {
+			if(loadConfig)
+				Configuration.LoadConfiguration (new string [] { });
 		}
 
 		internal void Authenticate (DB db, WebServiceLogin login, WebServiceResponse response)

@@ -88,7 +88,7 @@ public partial class index : System.Web.UI.Page
 				Response.Cookies.Set (new HttpCookie ("index:lane_id", HttpUtility.UrlEncode (lane_ids_str)));
 			}
 
-			data = Master.WebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, 30, tags);
+			data = Utils.LocalWebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, 30, tags);
 
 			if (data.Exception != null) {
 				if (data.Exception.HttpCode == 403) {

@@ -175,6 +175,18 @@ public static class Utils
 		}
 	}
 
+	public static MonkeyWrench.WebServices.WebServices local_web_service;
+
+	public static MonkeyWrench.WebServices.WebServices LocalWebService
+	{
+		get
+		{
+			if (local_web_service == null)
+				local_web_service = new MonkeyWrench.WebServices.WebServices (false);
+			return local_web_service;
+		}
+	}
+
 	public static int? TryParseInt32 (string input)
 	{
 		int i;
