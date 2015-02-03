@@ -585,10 +585,27 @@ LIMIT 1;
 
 				var postData = new NameValueCollection ();
 				postData.Add ("payload", json);
-				var res = webClient.UploadValues (finalApi, postData);
-				var resString = Encoding.UTF8.GetString (res);
+				try {
+					var res = webClient.UploadValues (finalApi, postData);
+					var resString = Encoding.UTF8.GetString (res);
+					Logger.Log ("SlackNotification: response from server: {0}", resString);
+				} catch (WebException wex) {
+					string responseText = null;
 
-				Logger.Log ("SlackNotification: response from server: {0}", resString);
+					if (wex.Response != null) {
+						using (var responseStream = wex.Response.GetResponseStream ()) {
+							if (responseStream != null) {
+								using (var reader = new StreamReader (responseStream))
+									responseText = reader.ReadToEnd ();
+							}
+						}
+					}
+					if (responseText == null) {
+						Logger.Log ("SlackNotification: exception from server (no response): {0}", wex.Message);
+					} else {
+						Logger.Log ("SlackNotification: server error: {0} with exception: {1}", responseText, wex.Message);
+					}
+				}
 			}
 		}
 
