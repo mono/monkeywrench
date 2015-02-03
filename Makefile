@@ -18,7 +18,7 @@ SVN_NO_EXEC_FILES = \
 	Makefile					\
 	$(wildcard */Makefile)		\
 	LICENSE						\
-	README					
+	README
 
 SVN_EOL_FILES = $(SVN_EXEC_FILES) $(SVN_NO_EXEC_FILES)
 
@@ -37,8 +37,8 @@ all clean install:
 	@$(MAKE) -C MonkeyWrench.Database.Manager $@
 	@$(MAKE) -C MonkeyWrench.Scheduler $@
 	@$(MAKE) -C MonkeyWrench.Builder $@
-	@$(MAKE) -C MonkeyWrench.Web.UI $@
 	@$(MAKE) -C MonkeyWrench.Web.WebService $@
+	@$(MAKE) -C MonkeyWrench.Web.UI $@
 	@$(MAKE) -C MonkeyWrench.CmdClient $@
 
 publish: install
@@ -106,5 +106,3 @@ test-web:
 	-MONKEYWRENCH_CONFIG_FILE=/tmp/MonkeyWrench.Test/MonkeyWrench.xml MONO_OPTIONS=--debug xsp2 --port 8123 --root $(PWD) --applications /WebServices:$(PWD)/MonkeyWrench.Web.WebService/,/:$(PWD)/MonkeyWrench.Web.UI
 	#>> /tmp/MonkeyWrench.Test/xsp2.log 2>&1
 	-$(MAKE) test-db-stop
-
-

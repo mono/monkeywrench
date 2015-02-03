@@ -13,7 +13,8 @@ BUILDABLE_REFS = \
 	$(OUT_DIR)/Newtonsoft.Json.dll \
 	$(OUT_DIR)/DotNetOpenAuth.dll	\
 	$(OUT_DIR)/MonkeyWrench.dll	\
-	$(OUT_DIR)/MonkeyWrench.DataClasses.dll
+	$(OUT_DIR)/MonkeyWrench.DataClasses.dll \
+	$(OUT_DIR)/MonkeyWrench.Web.WebService.dll
 
 REFERENCES = \
 	$(foreach ref,$(BUILDABLE_REFS),-r:$(ref))	\
