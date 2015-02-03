@@ -611,7 +611,7 @@ LIMIT 1;
 
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message)
 		{
-			if (identity.servers.Contains ("hooks.slack.com")) {
+			if (identity.servers.Contains ("hooks.slack.com") || identity.servers.Contains ("hooks-slack-com")) {
 				NotifySlack (work, revision_work, people, message);
 				return;
 			}
