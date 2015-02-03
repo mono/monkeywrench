@@ -2365,7 +2365,9 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 					try {
 						using (IDbCommand cmd = db.CreateCommand ()) {
 							cmd.CommandText = "SELECT starttime FROM Work WHERE id = " + work.id;
-							work.starttime = (DateTime) cmd.ExecuteScalar ();
+							var value = cmd.ExecuteScalar ();
+							if (value != null && value is DateTime)
+								work.starttime = (DateTime) value;
 						}
 					} catch (Exception ex) {
 						Logger.Log ("ReportBuildState: Exception while fixing timezone data: {0}", ex.Message);
