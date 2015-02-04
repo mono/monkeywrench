@@ -193,5 +193,48 @@ namespace MonkeyWrench.DataClasses
 			result.Value = value;
 			cmd.Parameters.Add (result);
 		}
+
+		private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> fieldsCache = new Dictionary<Type, Dictionary<string, FieldInfo>>();
+		public static List<T> LoadMany<T>(IDataReader reader) where T : DBRecord, new() {
+			var t = typeof(T);
+
+			// Get FieldInfos from cache (or generate them. cache because reflection is slow.)
+			Dictionary<string, FieldInfo> fields;
+			if (fieldsCache.ContainsKey (t))
+				fields = fieldsCache [t];
+			else {
+				fields = new Dictionary<string, FieldInfo> ();
+
+				T dummy = new T (); // Field names, while unchanging, is an instance variable...
+				var fieldNames = dummy.Fields;
+
+				foreach (var fieldName in fieldNames) {
+					var field = t.GetField (fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+					if(field == null)
+						field = t.GetField ("_"+fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+					fields [fieldName] = field;
+				}
+				fieldsCache [t] = fields;
+			}
+
+			// Get ordinals for fields
+			var ordinals = new Dictionary<string, int> ();
+			foreach (var field in fields)
+				ordinals [field.Key] = reader.GetOrdinal (field.Key);
+
+			// Read data
+			var results = new List<T> ();
+			while (reader.Read ()) {
+				T obj = new T ();
+				obj.id = reader.GetInt32 (0);
+				foreach (var field in fields) {
+					var value = reader.GetValue (ordinals [field.Key]);
+					if (value != DBNull.Value)
+						field.Value.SetValue (obj, value);
+				}
+				results.Add (obj);
+			}
+			return results;
+		}
 	}
 }
