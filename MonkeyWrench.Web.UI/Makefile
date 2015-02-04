@@ -45,4 +45,5 @@ install: all
 	@cp -p $(OUT_DIR)/MonkeyWrench.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.DataClasses.dll* bin/
 	@cp -p $(OUT_DIR)/MonkeyWrench.Web.UI.dll* bin/
+	@cp -p $(OUT_DIR)/MonkeyWrench.Web.WebService.dll* bin/
 	@cp -p $(OUT_DIR)/Newtonsoft.Json.dll* bin/
