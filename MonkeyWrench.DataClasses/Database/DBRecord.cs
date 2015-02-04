@@ -30,6 +30,8 @@ namespace MonkeyWrench.DataClasses
 		public virtual string [] Fields { get { return null; } }
 		public abstract string Table { get; }
 
+		private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> fieldsCache = new Dictionary<Type, Dictionary<string, FieldInfo>>();
+
 		public DBRecord ()
 		{
 		}
@@ -79,25 +81,16 @@ namespace MonkeyWrench.DataClasses
 		/// <param name="cmd"></param>
 		protected void LoadInternal (IDataReader cmd)
 		{
-			FieldInfo fi;
-			object value;
-			int ordinal;
 			id = cmd.GetInt32 (0);
 
-			foreach (string field in Fields) {
-				fi = GetField (field);
-				ordinal = cmd.GetOrdinal (field);
-				if (ordinal >= 0 && ordinal < cmd.FieldCount) {
-					value = cmd.GetValue (cmd.GetOrdinal (field));
-					if (value == DBNull.Value)
-						value = null;
-					if (fi != null)
-						fi.SetValue (this, value);
-					else
-						Logger.Log ("{0} Could not find the field '{1}'", GetType ().Name, field);
-				} else {
-					Logger.Log ("{0}.LoadInternal: Could not find the field '{1}' in the reader.", GetType ().Name, field);
-				}
+			var fields = DBRecord.getReflectionInfo(this.GetType());
+
+			foreach (var field in fields) {
+				int ordinal = cmd.GetOrdinal (field.Key);
+				var value = cmd.GetValue (ordinal);
+				if (value == DBNull.Value)
+					value = null;
+				field.Value.SetValue (this, value);
 			}
 		}
 
@@ -194,28 +187,30 @@ namespace MonkeyWrench.DataClasses
 			cmd.Parameters.Add (result);
 		}
 
-		private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> fieldsCache = new Dictionary<Type, Dictionary<string, FieldInfo>>();
+		private static Dictionary<string, FieldInfo> getReflectionInfo(Type t) {
+			if (fieldsCache.ContainsKey (t))
+				return fieldsCache [t];
+
+			var fields = new Dictionary<string, FieldInfo> ();
+
+			var dummy = t.GetConstructor (Type.EmptyTypes).Invoke (new object[] { });
+			var fieldNames = t.GetProperty ("Fields").GetValue (dummy, new object[] { }) as string[];
+
+			foreach (var fieldName in fieldNames) {
+				var field = t.GetField (fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				if(field == null)
+					field = t.GetField ("_"+fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				fields [fieldName] = field;
+			}
+			fieldsCache [t] = fields;
+			return fields;
+		}
+
 		public static List<T> LoadMany<T>(IDataReader reader) where T : DBRecord, new() {
 			var t = typeof(T);
 
 			// Get FieldInfos from cache (or generate them. cache because reflection is slow.)
-			Dictionary<string, FieldInfo> fields;
-			if (fieldsCache.ContainsKey (t))
-				fields = fieldsCache [t];
-			else {
-				fields = new Dictionary<string, FieldInfo> ();
-
-				T dummy = new T (); // Field names, while unchanging, is an instance variable...
-				var fieldNames = dummy.Fields;
-
-				foreach (var fieldName in fieldNames) {
-					var field = t.GetField (fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-					if(field == null)
-						field = t.GetField ("_"+fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-					fields [fieldName] = field;
-				}
-				fieldsCache [t] = fields;
-			}
+			Dictionary<string, FieldInfo> fields = getReflectionInfo(t);
 
 			// Get ordinals for fields
 			var ordinals = new Dictionary<string, int> ();
@@ -229,8 +224,9 @@ namespace MonkeyWrench.DataClasses
 				obj.id = reader.GetInt32 (0);
 				foreach (var field in fields) {
 					var value = reader.GetValue (ordinals [field.Key]);
-					if (value != DBNull.Value)
-						field.Value.SetValue (obj, value);
+					if (value == DBNull.Value)
+						value = null;
+					field.Value.SetValue (obj, value);
 				}
 				results.Add (obj);
 			}
