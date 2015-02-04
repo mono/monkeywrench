@@ -1469,14 +1469,10 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 					cmd.CommandText = sql.ToString ();
 
 					using (var reader = cmd.ExecuteReader ()) {
-						response.Lanes = new List<DBLane> ();
-						while (reader.Read ())
-							response.Lanes.Add (new DBLane (reader));
+						response.Lanes = DBRecord.LoadMany<DBLane> (reader);
 
 						reader.NextResult ();
-						response.HostStatus = new List<DBHostStatusView> ();
-						while (reader.Read ())
-							response.HostStatus.Add (new DBHostStatusView (reader));
+						response.HostStatus = DBRecord.LoadMany<DBHostStatusView> (reader);
 
 						reader.NextResult ();
 						response.Tags = new List<string> ();
