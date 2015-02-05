@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Threading;
 
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
@@ -163,27 +164,24 @@ public static class Utils
 		return IsDescendentLaneOf (lanes, parent, p, iteration + 1);
 	}
 
-	private static WebServices web_service;
+	private static Lazy<WebServices> web_service = new Lazy<WebServices> (() => new WebServices (), LazyThreadSafetyMode.ExecutionAndPublication);
 
 	public static WebServices WebService
 	{
 		get
 		{
-			if (web_service == null) 
-				web_service = WebServices.Create ();
-			return web_service;
+			return web_service.Value;
 		}
 	}
 
-	public static MonkeyWrench.WebServices.WebServices local_web_service;
+	public static Lazy<MonkeyWrench.WebServices.WebServices> local_web_service
+	= new Lazy<MonkeyWrench.WebServices.WebServices> (() => new MonkeyWrench.WebServices.WebServices (false), LazyThreadSafetyMode.ExecutionAndPublication);
 
 	public static MonkeyWrench.WebServices.WebServices LocalWebService
 	{
 		get
 		{
-			if (local_web_service == null)
-				local_web_service = new MonkeyWrench.WebServices.WebServices (false);
-			return local_web_service;
+			return local_web_service.Value;
 		}
 	}
 
