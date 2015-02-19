@@ -164,7 +164,7 @@ public static class Utils
 		return IsDescendentLaneOf (lanes, parent, p, iteration + 1);
 	}
 
-	private static Lazy<WebServices> web_service = new Lazy<WebServices> (() => new WebServices (), LazyThreadSafetyMode.ExecutionAndPublication);
+	private static Lazy<WebServices> web_service = new Lazy<WebServices> (() => WebServices.Create (), LazyThreadSafetyMode.ExecutionAndPublication);
 
 	public static WebServices WebService
 	{
