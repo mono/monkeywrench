@@ -1183,9 +1183,9 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		public FrontPageResponse GetFrontPageDataWithTags (WebServiceLogin login, int page_size, int page, string [] lanes, int [] lane_ids, int latest_days, string[] tags)
 		{
 			FrontPageResponse response = new FrontPageResponse ();
-			List<DBLane> Lanes = new List<DBLane> ();
-			List<DBHost> Hosts = new List<DBHost> ();
-			List<DBHostLane> HostLanes = new List<DBHostLane> ();
+			List<DBLane> Lanes;
+			List<DBHost> Hosts;
+			List<DBHostLane> HostLanes;
 			List<int> TaggedLaneIds = null;
 
 			Logger.Log ("GetFrontPageDataWithTags (page_size: {0} page: {1} lanes: {2} lane_ids: {3} latest_days: {4} tags: {5})",
@@ -1253,14 +1253,14 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 						}
 						cmd.CommandText = "SET enable_seqscan = false;\n" + cmd.CommandText + "\nSET enable_seqscan = true;\n";
 						using (IDataReader reader = cmd.ExecuteReader ()) {
-							while (reader.Read ())
-								Lanes.Add (new DBLane (reader));
+							Lanes = DBRecord.LoadMany<DBLane> (reader);
+
 							reader.NextResult ();
-							while (reader.Read ())
-								Hosts.Add (new DBHost (reader));
+							Hosts = DBRecord.LoadMany<DBHost> (reader);
+
 							reader.NextResult ();
-							while (reader.Read ())
-								HostLanes.Add (new DBHostLane (reader));
+							HostLanes = DBRecord.LoadMany<DBHostLane> (reader);
+
 							if (tags != null && tags.Length > 0) {
 								reader.NextResult ();
 								TaggedLaneIds = new List<int> (tags.Length);
@@ -1306,14 +1306,10 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 
 					if (HostLanes.Count > 0) {
 						using (IDbCommand cmd = db.CreateCommand ()) {
-							var revisionworklists = new Queue<List<DBRevisionWorkView2>> ();
-
 							// FIXME: use this instead: https://gist.github.com/rolfbjarne/cf73bf22209c8a8ef844
 
 							for (int i = 0; i < HostLanes.Count; i++) {
 								DBHostLane hl = HostLanes [i];
-								var RevisionWork = new List<DBRevisionWorkView2> ();
-								revisionworklists.Enqueue (RevisionWork);
 
 								var stri = i.ToString ();
 								cmd.CommandText += @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE " +
@@ -1322,7 +1318,6 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 								DB.CreateParameter (cmd, "lane_id" + stri, hl.lane_id);
 
 								response.RevisionWorkHostLaneRelation.Add (hl.id);
-								response.RevisionWorkViews.Add (RevisionWork);
 							}
 
 							DB.CreateParameter (cmd, "limit", page_size);
@@ -1330,18 +1325,8 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 
 							using (IDataReader reader = cmd.ExecuteReader ()) {
 								do {
-									if (revisionworklists.Count == 0)
-										throw new Exception ("GetFrontPageData3: got more datasets back for revision works than expected. This is most likely a bug, not a configuration issue.");
-
-									var RevisionWork = revisionworklists.Dequeue ();
-									while (reader.Read ())
-										RevisionWork.Add (new DBRevisionWorkView2 (reader));
+									response.RevisionWorkViews.Add (DBRecord.LoadMany<DBRevisionWorkView2> (reader));
 								} while (reader.NextResult ());
-
-								if (revisionworklists.Count != 0)
-									throw new Exception (string.Format ("GetFrontPageData3: got fewer datasets back for revision works than expected (expected {0} data sets, got {1})."
-										+ " This is most likely a bug, not a configuration issue.", response.RevisionWorkViews.Count, response.RevisionWorkViews.Count - revisionworklists.Count));
-
 							}
 						}
 					}
@@ -1484,14 +1469,10 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 					cmd.CommandText = sql.ToString ();
 
 					using (var reader = cmd.ExecuteReader ()) {
-						response.Lanes = new List<DBLane> ();
-						while (reader.Read ())
-							response.Lanes.Add (new DBLane (reader));
+						response.Lanes = DBRecord.LoadMany<DBLane> (reader);
 
 						reader.NextResult ();
-						response.HostStatus = new List<DBHostStatusView> ();
-						while (reader.Read ())
-							response.HostStatus.Add (new DBHostStatusView (reader));
+						response.HostStatus = DBRecord.LoadMany<DBHostStatusView> (reader);
 
 						reader.NextResult ();
 						response.Tags = new List<string> ();

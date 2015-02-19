@@ -87,7 +87,7 @@ public partial class Master : System.Web.UI.MasterPage
 		}
 
 		try {
-			tree_response = WebService.GetLeftTreeData (WebServiceLogin);
+			tree_response = Utils.LocalWebService.GetLeftTreeData (WebServiceLogin);
 		} catch {
 			tree_response = null;
 		}

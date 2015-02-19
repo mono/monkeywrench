@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
 using System.IO;
@@ -29,6 +30,9 @@ namespace MonkeyWrench.DataClasses
 		public static readonly DateTime DatabaseNow = DateTime.MinValue.AddMinutes (123);
 		public virtual string [] Fields { get { return null; } }
 		public abstract string Table { get; }
+
+		private static readonly ConcurrentDictionary<Type, Dictionary<string, FieldInfo>> fieldsCache =
+			new ConcurrentDictionary<Type, Dictionary<string, FieldInfo>> ();
 
 		public DBRecord ()
 		{
@@ -79,25 +83,16 @@ namespace MonkeyWrench.DataClasses
 		/// <param name="cmd"></param>
 		protected void LoadInternal (IDataReader cmd)
 		{
-			FieldInfo fi;
-			object value;
-			int ordinal;
 			id = cmd.GetInt32 (0);
 
-			foreach (string field in Fields) {
-				fi = GetField (field);
-				ordinal = cmd.GetOrdinal (field);
-				if (ordinal >= 0 && ordinal < cmd.FieldCount) {
-					value = cmd.GetValue (cmd.GetOrdinal (field));
-					if (value == DBNull.Value)
-						value = null;
-					if (fi != null)
-						fi.SetValue (this, value);
-					else
-						Logger.Log ("{0} Could not find the field '{1}'", GetType ().Name, field);
-				} else {
-					Logger.Log ("{0}.LoadInternal: Could not find the field '{1}' in the reader.", GetType ().Name, field);
-				}
+			var fields = DBRecord.getReflectionInfo(this.GetType());
+
+			foreach (var field in fields) {
+				int ordinal = cmd.GetOrdinal (field.Key);
+				var value = cmd.GetValue (ordinal);
+				if (value == DBNull.Value)
+					value = null;
+				field.Value.SetValue (this, value);
 			}
 		}
 
@@ -133,7 +128,7 @@ namespace MonkeyWrench.DataClasses
 
 				CreateParameter (cmd, "id", id);
 				foreach (string field in fields) {
-					FieldInfo fieldinfo = GetField (field);
+					FieldInfo fieldinfo = GetField (GetType (), field);
 					object value = fieldinfo.GetValue (this);
 					if (value == null && fieldinfo.FieldType == typeof (string)) {
 						value = string.Empty;
@@ -155,13 +150,13 @@ namespace MonkeyWrench.DataClasses
 			}
 		}
 
-		private FieldInfo GetField (string field)
+		private static FieldInfo GetField (Type t, string field)
 		{
 			FieldInfo result;
 
-			result = GetType ().GetField (field, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+			result = t.GetField (field, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 			if (result == null)
-				result = GetType ().GetField ("_" + field, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				result = t.GetField ("_" + field, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
 			return result;
 		}
@@ -192,6 +187,48 @@ namespace MonkeyWrench.DataClasses
 			result.ParameterName = name;
 			result.Value = value;
 			cmd.Parameters.Add (result);
+		}
+
+		private static Dictionary<string, FieldInfo> getReflectionInfo(Type typ) {
+			return fieldsCache.GetOrAdd (typ, delegate(Type t) {
+				var fields = new Dictionary<string, FieldInfo> ();
+
+				// The Fields property is an instance property; create a dummy object to retrieve it from.
+				var dummy = t.GetConstructor (Type.EmptyTypes).Invoke (new object[] { });
+				var fieldNames = t.GetProperty ("Fields").GetValue (dummy, new object[] { }) as string[];
+
+				foreach (var fieldName in fieldNames)
+					fields [fieldName] = GetField (t, fieldName);
+
+				return fields;
+			});
+		}
+
+		public static List<T> LoadMany<T>(IDataReader reader) where T : DBRecord, new() {
+			var t = typeof(T);
+
+			// Get FieldInfos from cache (or generate them. cache because reflection is slow.)
+			Dictionary<string, FieldInfo> fields = getReflectionInfo(t);
+
+			// Get ordinals for fields
+			var ordinals = new Dictionary<string, int> ();
+			foreach (var field in fields)
+				ordinals [field.Key] = reader.GetOrdinal (field.Key);
+
+			// Read data
+			var results = new List<T> ();
+			while (reader.Read ()) {
+				T obj = new T ();
+				obj.id = reader.GetInt32 (0);
+				foreach (var field in fields) {
+					var value = reader.GetValue (ordinals [field.Key]);
+					if (value == DBNull.Value)
+						value = null;
+					field.Value.SetValue (obj, value);
+				}
+				results.Add (obj);
+			}
+			return results;
 		}
 	}
 }
