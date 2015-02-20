@@ -186,49 +186,24 @@ namespace MonkeyWrench.Scheduler
 		public static bool AddRevisionWork (DB db)
 		{
 			DateTime start = DateTime.Now;
-			StringBuilder sql = new StringBuilder ();
-			int line_count = 0;
-
-			try {
 				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = @"
-SELECT Lane.id AS lid, Revision.id AS rid, Host.id AS hid
-FROM HostLane
-INNER JOIN Host ON HostLane.host_id = Host.id
-INNER JOIN Lane ON HostLane.lane_id = Lane.id
-INNER JOIN Revision ON Revision.lane_id = lane.id
-WHERE HostLane.enabled = true AND
-	NOT EXISTS (
-		SELECT 1
-		FROM RevisionWork 
-		WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
-		);
-";
-					using (IDataReader reader = cmd.ExecuteReader ()) {
-						int lane_idx = reader.GetOrdinal ("lid");
-						int host_idx = reader.GetOrdinal ("hid");
-						int revision_idx = reader.GetOrdinal ("rid");
-						while (reader.Read ()) {
-							int lane_id = reader.GetInt32 (lane_idx);
-							int host_id = reader.GetInt32 (host_idx);
-							int revision_id = reader.GetInt32 (revision_idx);
-							line_count++;
-							sql.AppendFormat ("INSERT INTO RevisionWork (lane_id, host_id, revision_id, state) VALUES ({0}, {1}, {2}, 10);\n", lane_id, host_id, revision_id);
-						}
-					}
-				}
-				if (line_count > 0) {
-					Logger.Log ("AddRevisionWork: Adding {0} records.", line_count);
-					db.ExecuteScalar (sql.ToString ());
-				} else {
-					Logger.Log ("AddRevisionWork: Nothing to add.");
-				}
+				cmd.CommandText = @"
+					INSERT INTO RevisionWork (lane_id, host_id, revision_id, state)
+					SELECT Lane.id AS lid, Host.id AS hid, Revision.id AS rid, 10
+					FROM HostLane
+					INNER JOIN Host ON HostLane.host_id = Host.id
+					INNER JOIN Lane ON HostLane.lane_id = Lane.id
+					INNER JOIN Revision ON Revision.lane_id = lane.id
+					WHERE HostLane.enabled = true AND
+						NOT EXISTS (
+							SELECT 1
+							FROM RevisionWork 
+							WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
+							);
+				";
+				int line_count = cmd.ExecuteNonQuery ();
+				Logger.Log("AddRevisionWork: Added {0} records.", line_count);
 				return line_count > 0;
-			} catch (Exception ex) {
-				Logger.Log ("AddRevisionWork got an exception: {0}\n{1}", ex.Message, ex.StackTrace);
-				return false;
-			} finally {
-				Logger.Log ("AddRevisionWork [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
 			}
 		}
 
