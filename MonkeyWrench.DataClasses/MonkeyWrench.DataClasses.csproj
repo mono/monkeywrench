@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A461423E-8232-42D6-AA34-8DEC97F6D8F8}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -54,9 +54,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
@@ -187,6 +185,8 @@
     <Compile Include="Database\DBLaneTag.cs" />
     <Compile Include="Database\DBLaneTag.generated.cs" />
     <Compile Include="Logic\GetLeftTreeDataResponse.cs" />
+    <Compile Include="Database\DBGitHubIdentity.cs" />
+    <Compile Include="Database\DBGitHubIdentity.generated.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CustomTypes.sql" />
