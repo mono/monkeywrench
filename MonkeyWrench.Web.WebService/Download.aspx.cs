@@ -164,51 +164,35 @@ namespace MonkeyWrench.WebServices
 				if (revision == null) {
 					Response.Write ("Revision not found.");
 				} else {
-					if (diff) {
-						lane = DBLane_Extensions.Create (db, revision.lane_id);
-						if (lane.source_control == "git") {
-							using (Process git = new Process ()) {
-								git.StartInfo.RedirectStandardOutput = true;
-								git.StartInfo.RedirectStandardError = true;
-								git.StartInfo.UseShellExecute = false;
-								git.StartInfo.FileName = "git";
-								git.StartInfo.Arguments = "diff --no-color --no-prefix " + revision.revision + "~ " + revision.revision;
-								git.StartInfo.WorkingDirectory = Configuration.GetSchedulerRepositoryCacheDirectory (lane.repository);
-								git.OutputDataReceived += (object sender, DataReceivedEventArgs ea) =>
-								{
-									Response.Write (ea.Data);
-									Response.Write ('\n');
-								};
-								git.ErrorDataReceived += (object sender, DataReceivedEventArgs ea) =>
-								{
-									Response.Write (ea.Data);
-									Response.Write ('\n');
-								};
-								// Logger.Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, git.StartInfo.WorkingDirectory);
-								git.Start ();
-								git.BeginErrorReadLine ();
-								git.BeginOutputReadLine ();
-								if (!git.WaitForExit (1000 * 60 * 5 /* 5 minutes */)) {
-									git.Kill ();
-									Response.Write ("Error: git diff didn't finish in 5 minutes, aborting.\n");
-								}
-							}
+					lane = DBLane_Extensions.Create (db, revision.lane_id);
+					using (Process git = new Process ()) {
+						git.StartInfo.RedirectStandardOutput = true;
+						git.StartInfo.RedirectStandardError = true;
+						git.StartInfo.UseShellExecute = false;
+						git.StartInfo.FileName = "git";
+						if (diff) {
+							git.StartInfo.Arguments = "diff --no-color --no-prefix " + revision.revision + "~ " + revision.revision;
 						} else {
-							if (revision.diff_file_id.HasValue) {
-								DownloadFile (db, revision.diff_file_id.Value);
-							} else if (!string.IsNullOrEmpty (revision.diff)) {
-								Response.Write (revision.diff);
-							} else {
-								Response.Write ("No diff yet.");
-							}
+							git.StartInfo.Arguments = "log -1 --no-color --no-prefix " + revision.revision;
 						}
-					} else {
-						if (revision.log_file_id.HasValue) {
-							DownloadFile (db, revision.log_file_id.Value);
-						} else if (!string.IsNullOrEmpty (revision.log)) {
-							Response.Write (revision.log);
-						} else {
-							Response.Write ("No log yet.");
+						git.StartInfo.WorkingDirectory = Configuration.GetSchedulerRepositoryCacheDirectory (lane.repository);
+						git.OutputDataReceived += (object sender, DataReceivedEventArgs ea) =>
+						{
+							Response.Write (ea.Data);
+							Response.Write ('\n');
+						};
+						git.ErrorDataReceived += (object sender, DataReceivedEventArgs ea) =>
+						{
+							Response.Write (ea.Data);
+							Response.Write ('\n');
+						};
+						// Logger.Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, git.StartInfo.WorkingDirectory);
+						git.Start ();
+						git.BeginErrorReadLine ();
+						git.BeginOutputReadLine ();
+						if (!git.WaitForExit (1000 * 60 * 5 /* 5 minutes */)) {
+							git.Kill ();
+							Response.Write ("Error: git diff didn't finish in 5 minutes, aborting.\n");
 						}
 					}
 				}
