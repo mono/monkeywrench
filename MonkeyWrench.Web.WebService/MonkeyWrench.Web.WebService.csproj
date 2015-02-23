@@ -104,11 +104,16 @@
     <Compile Include="Notifications\IrcNotification.cs" />
     <Compile Include="Notifications\EmailNotification.cs" />
     <Compile Include="Notifications\GitHubNotification.cs" />
+    <Compile Include="Scheduler\SchedulerBase.cs" />
+    <Compile Include="Scheduler\SchedulerGIT.cs" />
+    <Compile Include="Scheduler\SchedulerSVN.cs" />
+    <Compile Include="Scheduler\Scheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Properties\" />
     <Folder Include="Notifications\" />
+    <Folder Include="Scheduler\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="web.config" />

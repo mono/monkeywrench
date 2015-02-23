@@ -59,6 +59,7 @@ namespace MonkeyWrench.WebServices {
 			public string laneName;
 			public int laneID;
 			public string command;
+			public string hostName;
 		}
 
 		/**
@@ -67,10 +68,11 @@ namespace MonkeyWrench.WebServices {
 		private RevisionWorkInfo getWorkInfo(DB db, int revisionWorkID, int workID) {
 			using (var cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
-					SELECT revision.revision, lane.id, lane.repository, lane.lane
+					SELECT revision.revision, lane.id, lane.repository, lane.lane, host.host
 					FROM revisionwork
 					INNER JOIN revision ON revision.id = revisionwork.revision_id
 					INNER JOIN lane ON lane.id = revision.lane_id
+					INNER JOIN host ON host.id = revisionwork.host_id
 					WHERE revisionwork.id = @rwID;
 
 					SELECT command.command
@@ -89,6 +91,7 @@ namespace MonkeyWrench.WebServices {
 					info.laneID = reader.GetInt32 (1);
 					info.repoURL = reader.GetString (2);
 					info.laneName = reader.GetString (3);
+					info.hostName = reader.GetString (4);
 
 					reader.NextResult ();
 					reader.Read ();
@@ -113,23 +116,16 @@ namespace MonkeyWrench.WebServices {
 			return Tuple.Create (m.Groups [1].Value, m.Groups [2].Value);
 		}
 
-		public override void Notify (DBWork work, DBRevisionWork revision_work) {
-			// Get info
-			RevisionWorkInfo info;
-			using (var db = new DB ())
-				info = getWorkInfo (db, revision_work.id, work.id);
-
+		private HttpWebRequest buildRequest(string repoUrl, string hash) {
 			// Convert git URL to github user/repo
-			var gitHubRepo = gitRepoToGitHub (info.repoURL);
-
-			Logger.Log ("Notifying GitHub for {0}/{1}", gitHubRepo.Item1, gitHubRepo.Item2);
+			var gitHubRepo = gitRepoToGitHub (repoUrl);
 
 			// Generate URL for API call
 			var apiUrl = string.Format ("{0}/repos/{1}/{2}/statuses/{3}",
 				HOST,
 				Uri.EscapeDataString (gitHubRepo.Item1),
 				Uri.EscapeDataString (gitHubRepo.Item2),
-				Uri.EscapeDataString (info.hash)
+				Uri.EscapeDataString (hash)
 			);
 
 			// Create request
@@ -140,41 +136,69 @@ namespace MonkeyWrench.WebServices {
 			req.AllowAutoRedirect = true;
 			req.Headers.Add ("Authorization", "Basic " + Convert.ToBase64String (Encoding.GetEncoding ("ISO-8859-1").GetBytes (username + ":" + token)));
 
-			// Create object to send
-			JObject statusObj = new JObject ();
-			statusObj ["context"] = "wrench-" + info.laneName;
-			statusObj ["target_url"] = String.Format ("{0}/ViewLane.aspx?lane_id={1}&host_id={2}&revision_id={3}",
-				Configuration.GetWebSiteUrl (),
-				info.laneID,
-				revision_work.host_id,
-				revision_work.revision_id
-			);
-			statusObj ["description"] = String.Format("Lane: {0}, Status: {1}, Step: {2}, StepStatus: {3}",
-				info.laneName,
-				revision_work.State,
-				info.command,
-				work.State
-			);
-			statusObj ["state"] = STATE_TO_GITHUB [revision_work.State];
+			return req;
+		}
 
+		private JObject buildStatusObject(string description, string state, int laneID, int hostID, int revID) {
+			JObject obj = new JObject();
+			obj ["context"] = String.Format ("wrench/{0}/{1}", laneID, hostID);
+			obj ["target_url"] = String.Format ("{0}/ViewLane.aspx?lane_id={1}&host_id={2}&revision_id={3}",
+				Configuration.GetWebSiteUrl (),
+				laneID,
+				hostID,
+				revID
+			);
+			obj ["description"] = description;
+			obj ["state"] = state;
+			return obj;
+		}
+
+		private void send(HttpWebRequest req, JObject data) {
 			// Write object
 			var reqStream = new JsonTextWriter (new StreamWriter (req.GetRequestStream (), new UTF8Encoding (false, true)));
-			statusObj.WriteTo (reqStream);
+			data.WriteTo (reqStream);
 			reqStream.Close ();
 
 			// Read response
 			var res = (HttpWebResponse)req.GetResponse ();
 			var resStream = new StreamReader (res.GetResponseStream (), new UTF8Encoding (false, true));
 
-			if (res.StatusCode != HttpStatusCode.Created || res.ContentType != "application/json")
+			if (res.StatusCode != HttpStatusCode.Created || !String.Equals(res.ContentType, "application/json; charset=utf-8", StringComparison.OrdinalIgnoreCase))
 				Logger.Log("GitHub API request failed ({0}, {1}): {2}", res.StatusCode, res.ContentType, resStream.ReadToEnd());
 
 			resStream.Close ();
 		}
 
+		public override void Notify (DBWork work, DBRevisionWork revision_work) {
+			// Get info
+			RevisionWorkInfo info;
+			using (var db = new DB ())
+				info = getWorkInfo (db, revision_work.id, work.id);
+
+			var req = buildRequest (info.repoURL, info.hash);
+
+			// Create object to send
+			var description = String.Format ("Lane: {0}, Host: {1}, Status: {2}, Step: {3}, StepStatus: {4}",
+				                  info.laneName,
+				                  info.hostName,
+				                  revision_work.State,
+				                  info.command,
+				                  work.State
+			                  );
+			var statusObj = buildStatusObject (description, STATE_TO_GITHUB [revision_work.State], info.laneID, revision_work.host_id, revision_work.revision_id);
+			send(req, statusObj);
+		}
+
 		// Don't care about related people and the autogenerated message.
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message) {
 			throw new NotImplementedException ();
+		}
+
+		public override void NotifyRevisionAdded (NewRevisionInfo info)
+		{
+			var req = buildRequest (info.repoURL, info.hash);
+			var statusObj = buildStatusObject ("Scheduled.", "pending", info.laneID, info.hostID, info.revID);
+			send (req, statusObj);
 		}
 	}
 }

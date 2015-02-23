@@ -22,6 +22,7 @@ using System.Xml;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
+using MonkeyWrench.WebServices;
 
 namespace MonkeyWrench.Scheduler
 {
@@ -182,22 +183,53 @@ namespace MonkeyWrench.Scheduler
 		/// <returns></returns>
 		public static bool AddRevisionWork (DB db)
 		{
-			using (IDbCommand cmd = db.CreateCommand ()) {
+			using (var transaction = db.BeginTransaction ())
+			using (var cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
-					INSERT INTO RevisionWork (lane_id, host_id, revision_id, state)
-					SELECT Lane.id AS lid, Host.id AS hid, Revision.id AS rid, 10
-					FROM HostLane
-					INNER JOIN Host ON HostLane.host_id = Host.id
-					INNER JOIN Lane ON HostLane.lane_id = Lane.id
-					INNER JOIN Revision ON Revision.lane_id = lane.id
-					WHERE HostLane.enabled = true AND
-						NOT EXISTS (
-							SELECT 1
-							FROM RevisionWork 
-							WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
+					CREATE TEMPORARY TABLE new_rev_works ON COMMIT DROP AS
+						SELECT Lane.id AS lid, Host.id AS hid, Revision.id AS rid
+						FROM HostLane
+						INNER JOIN Host ON HostLane.host_id = Host.id
+						INNER JOIN Lane ON HostLane.lane_id = Lane.id
+						INNER JOIN Revision ON Revision.lane_id = lane.id
+						WHERE HostLane.enabled = true AND
+							NOT EXISTS (
+								SELECT 1
+								FROM RevisionWork 
+								WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
 							);
+
+					INSERT INTO RevisionWork(lane_id, host_id, revision_id, state)
+					SELECT lid, hid, rid, 10
+					FROM new_rev_works;
 				";
 				int line_count = cmd.ExecuteNonQuery ();
+
+				cmd.CommandText = @"
+					SELECT lid, lane.lane, hid, host.host, rid, revision.revision, lane.repository
+					FROM new_rev_works
+					INNER JOIN Lane ON Lane.id = lid
+					INNER JOIN Host ON Host.id = hid
+					INNER JOIN Revision ON Revision.id = rid;
+				";
+
+				using (var reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						var info = new NotificationBase.NewRevisionInfo ();
+						info.laneID = reader.GetInt32 (0);
+						info.lane = reader.GetString (1);
+						info.hostID = reader.GetInt32 (2);
+						info.host = reader.GetString (3);
+						info.revID = reader.GetInt32 (4);
+						info.hash = reader.GetString (5);
+						info.repoURL = reader.GetString (6);
+
+						Notifications.NotifyRevisionAdded (info);
+					}
+				}
+
+				transaction.Commit ();
+
 				Logger.Log("AddRevisionWork: Added {0} records.", line_count);
 				return line_count > 0;
 			}
@@ -221,7 +253,7 @@ namespace MonkeyWrench.Scheduler
 
 				cmd.CommandText = @"
 					-- Prevent other connections from adding revisionworks between us adding work for them and updating their state.
-					--LOCK TABLE revisionwork IN ROW EXCLUSIVE MODE;
+					LOCK TABLE revisionwork IN ROW EXCLUSIVE MODE;
 
 					-- Add works for each revisionwork
 					INSERT INTO work (command_id, revisionwork_id, state)

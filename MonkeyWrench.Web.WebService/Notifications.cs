@@ -106,7 +106,7 @@ namespace MonkeyWrench.WebServices
 
 		private static void ProcessNotify (DBWork work, DBRevisionWork revision_work)
 		{
-			List<NotificationBase> notifications;
+			List<NotificationBase> notifiers;
 
 			Logger.Log ("Notifications.ProcessNotify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 
@@ -115,17 +115,34 @@ namespace MonkeyWrench.WebServices
 					// We broadcast the notification to the API endpoint
 					WebNotification.BroadcastBuildNotification (work, revision_work);
 
-					if (!notifications_per_lane.TryGetValue (revision_work.lane_id, out notifications)) {
+					if (!notifications_per_lane.TryGetValue (revision_work.lane_id, out notifiers)) {
 						Logger.Log ("Notifications.ProcessNotify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}): Lane doesn't have any notifications enabled", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 						return;
 					}
 
-					foreach (var notification in notifications) {
+					foreach (var notification in notifiers) {
 						notification.Notify (work, revision_work);
 					}
 				}
 			} catch (Exception ex) {
 				Logger.Log ("Exception while processing notification: {0}", ex);
+			}
+		}
+
+		public static void NotifyRevisionAdded (NotificationBase.NewRevisionInfo info)
+		{
+			ThreadPool.QueueUserWorkItem ((v) => ProcessNotifyRevisionAdded (info));
+		}
+
+		private static void ProcessNotifyRevisionAdded (NotificationBase.NewRevisionInfo info)
+		{
+			lock (lock_obj) {
+				List<NotificationBase> notifiers;
+				if (!notifications_per_lane.TryGetValue (info.laneID, out notifiers))
+					return;
+
+				foreach (var notifier in notifiers)
+					notifier.NotifyRevisionAdded (info);
 			}
 		}
 	}
@@ -298,6 +315,22 @@ namespace MonkeyWrench.WebServices
 
 			if (people.Count == 0)
 				people.Add (person);
+		}
+
+		public struct NewRevisionInfo {
+			public int laneID;
+			public int hostID;
+			public int revID;
+
+			public string lane;
+			public string host;
+			public string hash;
+
+			public string repoURL;
+		}
+
+		public virtual void NotifyRevisionAdded (NewRevisionInfo info)
+		{
 		}
 	}
 }
