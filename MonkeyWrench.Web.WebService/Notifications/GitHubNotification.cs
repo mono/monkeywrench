@@ -197,7 +197,9 @@ namespace MonkeyWrench.WebServices {
 		public override void NotifyRevisionAdded (NewRevisionInfo info)
 		{
 			var req = buildRequest (info.repoURL, info.hash);
-			var statusObj = buildStatusObject ("Scheduled.", "pending", info.laneID, info.hostID, info.revID);
+			var description = String.Format ("Lane: {0}, Host: {1}, Scheduled.",
+				                  info.lane, info.host);
+			var statusObj = buildStatusObject (description, "pending", info.laneID, info.hostID, info.revID);
 			send (req, statusObj);
 		}
 	}
