@@ -208,3 +208,18 @@ public static class Utils
 		return str.Replace ("\n", "<br/>\n").Replace (" ", "&nbsp;").Replace ("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 	}
 }
+
+/**
+ * Class for exceptions thrown to signal invalid user input.
+ */
+class ValidationException : Exception {
+	public ValidationException (string message) : base (message)
+	{
+	}
+	
+
+	public ValidationException (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base (info, context)
+	{
+	}
+	
+}

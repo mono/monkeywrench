@@ -60,22 +60,18 @@ public partial class EditLaneFile : System.Web.UI.Page
 	protected void cmdSave_Click (object sender, EventArgs e)
 	{
 		int id;
-		try {
-			if (int.TryParse (Request ["file_id"], out id)) {
-				GetLaneFileForEditResponse response = Master.WebService.GetLaneFileForEdit (Master.WebServiceLogin, id);
-				response.Lanefile.contents = txtEditor.Text;
-				Master.WebService.EditLaneFile (Master.WebServiceLogin, response.Lanefile);
+		if (int.TryParse (Request ["file_id"], out id)) {
+			GetLaneFileForEditResponse response = Master.WebService.GetLaneFileForEdit (Master.WebServiceLogin, id);
+			response.Lanefile.contents = txtEditor.Text;
+			Master.WebService.EditLaneFile (Master.WebServiceLogin, response.Lanefile);
 
-				if (Request.UrlReferrer != null && Request.UrlReferrer.LocalPath.Contains ("ViewLaneFileHistory.aspx")) {
-					Response.Redirect ("ViewLaneFileHistory.aspx?id=" + Request ["file_id"], false);
-				} else {
-					Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"], false);
-				}
+			if (Request.UrlReferrer != null && Request.UrlReferrer.LocalPath.Contains ("ViewLaneFileHistory.aspx")) {
+				Response.Redirect ("ViewLaneFileHistory.aspx?id=" + Request ["file_id"], false);
 			} else {
 				Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"], false);
 			}
-		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+		} else {
+			Response.Redirect ("EditLane.aspx?lane_id=" + Request ["lane_id"], false);
 		}
 	}
 }

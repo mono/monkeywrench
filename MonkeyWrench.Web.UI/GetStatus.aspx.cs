@@ -62,9 +62,6 @@ namespace MonkeyWrench.Web.UI
 			} catch (HttpException exp) {
 				Response.StatusCode = exp.GetHttpCode ();
 				Response.Write (exp.Message);
-			} catch (Exception exp) {
-				Response.StatusCode = 500;
-				Response.Write ("{\"error\": \"" + exp.Message.Replace ("\"", "\\\"") + "\"}");
 			} finally {
 				Response.Flush ();
 				Response.Close ();

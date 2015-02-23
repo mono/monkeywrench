@@ -42,75 +42,75 @@ public partial class ViewTable : System.Web.UI.Page
 
 		base.OnLoad (e);
 
-		try {
+		int page = 0;
+		int page_size = 0;
+		bool horizontal;
+		string action;
 
-			int page = 0;
-			int page_size = 0;
-			bool horizontal;
-			string action;
-
-			if (Authentication.IsInCookieRole (Request, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-				action = Request ["action"];
-				if (!string.IsNullOrEmpty (action)) {
-					switch (action) {
-					case "clearrevisions":
-						string revisions = Request ["revisions"];
-						int lane_id;
-						int host_id;
-						int revision_id;
+		if (Authentication.IsInCookieRole (Request, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+			action = Request ["action"];
+			if (!string.IsNullOrEmpty (action)) {
+				switch (action) {
+				case "clearrevisions":
+					string revisions = Request ["revisions"];
+					int lane_id;
+					int host_id;
+					int revision_id;
+					try {
 						if (!int.TryParse (Request ["lane_id"], out lane_id))
-							throw new Exception ("Invalid lane_id");
+							throw new ValidationException ("Invalid lane_id");
 						if (!int.TryParse (Request ["host_id"], out host_id))
-							throw new Exception ("Invalid host_id");
+							throw new ValidationException ("Invalid host_id");
 						foreach (string revision in revisions.Split (new char [] {';'}, StringSplitOptions.RemoveEmptyEntries)) {
 							if (!int.TryParse (revision.Replace ("revision_id_", ""), out revision_id))
-								throw new Exception ("Invalid revision_id: " + revision.ToString () + "(revisions: '" + revisions + "')");
+								throw new ValidationException ("Invalid revision_id: " + revision.ToString () + "(revisions: '" + revisions + "')");
 							Master.WebService.ClearRevision (Master.WebServiceLogin, lane_id, host_id, revision_id);
 						}
-						Response.Redirect (string.Format ("ViewTable.aspx?lane_id={0}&host_id={1}", lane_id, host_id), false);
+					} catch (ValidationException ex) {
+						lblMessage.Text = ex.Message;
 						return;
 					}
-				}
-			}
-
-			int.TryParse (Request ["page"], out page);
-			int.TryParse (Request ["page_size"], out page_size);
-
-			if (page_size <= 0)
-				page_size = 20;
-			if (page < 0)
-				page = 0;
-
-			if (!bool.TryParse (Request ["horizontal"], out horizontal)) {
-				// Not specified. See if it's a cookie
-				if (Request.Cookies ["horizontal"] != null)
-					bool.TryParse (Request.Cookies ["horizontal"].Value, out horizontal);
-			}
-			Response.Cookies.Add (new HttpCookie ("horizontal", horizontal.ToString ()));
-
-			response = Master.WebService.GetViewTableData (Master.WebServiceLogin,
-				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
-				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
-			page, page_size);
-
-			if (response.Exception != null) {
-				if (response.Exception.HttpCode == 403) {
-					Master.RequestLogin ();
+					Response.Redirect (string.Format ("ViewTable.aspx?lane_id={0}&host_id={1}", lane_id, host_id), false);
 					return;
 				}
-				lblMessage.Text = response.Exception.Message;
+			}
+		}
+
+		int.TryParse (Request ["page"], out page);
+		int.TryParse (Request ["page_size"], out page_size);
+
+		if (page_size <= 0)
+			page_size = 20;
+		if (page < 0)
+			page = 0;
+
+		if (!bool.TryParse (Request ["horizontal"], out horizontal)) {
+			// Not specified. See if it's a cookie
+			if (Request.Cookies ["horizontal"] != null)
+				bool.TryParse (Request.Cookies ["horizontal"].Value, out horizontal);
+		}
+		Response.Cookies.Add (new HttpCookie ("horizontal", horizontal.ToString ()));
+
+		response = Master.WebService.GetViewTableData (Master.WebServiceLogin,
+			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
+			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
+		page, page_size);
+
+		if (response.Exception != null) {
+			if (response.Exception.HttpCode == 403) {
+				Master.RequestLogin ();
 				return;
 			}
-
-			dblane = response.Lane;
-			dbhost = response.Host;
-
-			this.header.InnerHtml = GenerateHeader (response, dblane, dbhost , horizontal);
-			this.buildtable.InnerHtml = GenerateLaneTable (response, dblane, dbhost, horizontal, page, page_size);
-			this.pager.InnerHtml = GeneratePager (response, dblane, dbhost, page, page_size);
-		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+			lblMessage.Text = response.Exception.Message;
+			return;
 		}
+
+		dblane = response.Lane;
+		dbhost = response.Host;
+
+		this.header.InnerHtml = GenerateHeader (response, dblane, dbhost , horizontal);
+		this.buildtable.InnerHtml = GenerateLaneTable (response, dblane, dbhost, horizontal, page, page_size);
+		this.pager.InnerHtml = GeneratePager (response, dblane, dbhost, page, page_size);
 	}
 
 	public string GeneratePager (GetViewTableDataResponse response, DBLane lane, DBHost host, int page, int limit)
@@ -256,188 +256,183 @@ public partial class ViewTable : System.Web.UI.Page
 		List<TableNode> row = new List<TableNode> ();
 		List<TableNode> header = new List<TableNode> ();
 
-		try {
-			for (int i = 0; i < views.Count; i++) {
-				while (header.Count <= views [i].sequence) {
-					header.Add (null);
-				}
-				if (header [views [i].sequence] != null)
-					continue;
-
-				var node = new TableNode (string.Format ("<a href='ViewWorkTable.aspx?lane_id={0}&amp;host_id={1}&amp;command_id={2}'>{3}</a>", lane.id, host.id, views [i].command_id, views [i].command));
-				node.command_id = views [i].command_id;
-				header [views [i].sequence] = node;
+		for (int i = 0; i < views.Count; i++) {
+			while (header.Count <= views [i].sequence) {
+				header.Add (null);
 			}
-			header.RemoveAll (delegate (TableNode match) { return match == null; });
-			header.Insert (0, new TableNode ("Revision", true));
-			header.Insert (1, new TableNode ("Diff", true));
-			header.Insert (2, new TableNode ("Author", true));
-			//if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			//    header.Insert (3, new TableNode ("Select", true));
-			//}
-			header.Add (new TableNode ("Host", true));
-			header.Add (new TableNode ("Duration", true));
-			table.Add (header);
+			if (header [views [i].sequence] != null)
+				continue;
 
-			bool failed = false;
-			double duration = 0;
-
-			for (int i = 0; i < views.Count; i++) {
-				DBRevisionWorkView view = views [i];
-				DBState revisionwork_state = (DBState) view.revisionwork_state;
-				DBState state = (DBState) view.state;
-
-				new_revision = revision_id != view.revision_id;
-				revision_id = view.revision_id;
-
-				if (new_revision) {
-					if (i > 0) {
-						table.Add (row);
-						row [row.Count - 1] = new TableNode (TimeSpan.FromSeconds (duration).ToString (), row [0].@class);
-					}
-
-					string revision = view.revision;
-					long dummy;
-					if (revision.Length > 16 && !long.TryParse (revision, out dummy))
-						revision = revision.Substring (0, 8);
-
-					string clazz = revisionwork_state.ToString ().ToLower ();
-					clazz = clazz + " " + DarkenColor (clazz, table.Count);
-					row = new List<TableNode> ();
-
-					tooltip.Length = 0;
-					tooltip.AppendFormat ("Author: {0}.", view.author);
-					if (view.starttime.Date.Year > 2000)
-						tooltip.AppendFormat (" Build start date: {0}.", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"));
-
-					row.Add (new TableNode (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a>", lane.id, host.id, view.revision_id, revision, tooltip.ToString ()), clazz));
-					row.Add (new TableNode (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>diff</a>", view.revision_id)));
-					row.Add (new TableNode (view.author));
-					
-					//if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-					//    row.Add (new TableNode (string.Format ("<input type=checkbox id='id_revision_chk_{1}' name='revision_id_{0}' />", view.revision_id, i)));
-					while (row.Count < header.Count - 2)
-						row.Add (new TableNode ("-"));
-					row.Add (new TableNode (view.workhost ?? ""));
-					row.Add (new TableNode (""));
-					failed = false;
-					duration = 0;
-				}
-
-				if (view.endtime > view.starttime)
-					duration += (view.endtime - view.starttime).TotalSeconds;
-
-				if (state == DBState.Failed && !view.nonfatal)
-					failed = true;
-				else if (revisionwork_state == DBState.Failed)
-					failed = true;
-
-				// result
-				string result;
-				bool completed = true;
-				switch (state) {
-				case DBState.NotDone:
-					completed = false;
-					result = failed ? "skipped" : "queued"; break;
-				case DBState.Executing:
-					completed = false;
-					result = "running"; break;
-				case DBState.Failed:
-					result = view.nonfatal ? "issues" : "failure"; break;
-				case DBState.Success:
-					result = "success"; break;
-				case DBState.Aborted:
-					result = "aborted"; break;
-				case DBState.Timeout:
-					result = "timeout"; break;
-				case DBState.Paused:
-					completed = false;
-					result = "paused"; break;
-				case DBState.Ignore:
-					completed = false;
-					result = "ignore"; break;
-				default:
-					completed = true;
-					result = "unknown"; break;
-				}
-
-				for (int j = 2; j < header.Count; j++) {
-					if (header [j].command_id == view.command_id) {
-						if (completed) {
-							row [j] = new TableNode (string.Format ("<a href='{0}'>{1}</a>", Utilities.CreateWebServiceDownloadUrl (Request, view.id, view.command + ".log", true), result));
-						} else {
-							row [j] = new TableNode (result);
-						}
-						row [j].@class = result + " " + DarkenColor (result, table.Count);
-						break;
-					}
-				}
-			}
-
-			table.Add (row);
-			row [row.Count - 1] = new TableNode (TimeSpan.FromSeconds (duration).ToString (), row [0].@class);
-
-			matrix.AppendLine ("<table class='buildstatus'>");
-			if (horizontal) {
-				for (int i = 0; i < header.Count; i++) {
-					matrix.Append ("<tr>");
-					for (int j = 0; j < table.Count; j++) {
-						TableNode node = table [j] [i];
-						string td = node.is_header ? "th" : "td";
-						matrix.Append ('<');
-						matrix.Append (td);
-						if (node.@class != null) {
-							matrix.Append (" class='");
-							matrix.Append (node.@class);
-							matrix.Append ("'");
-						}
-						/*
-						if (node.style != null) {
-							matrix.Append (" style='");
-							matrix.Append (node.style);
-							matrix.Append ("'");
-						}*/
-						matrix.Append (">");
-						matrix.Append (node.text);
-						matrix.Append ("</");
-						matrix.Append (td);
-						matrix.Append (">");
-					}
-					matrix.AppendLine ("</tr>");
-				}
-			} else {
-				for (int i = 0; i < table.Count; i++) {
-					matrix.Append ("<tr>");
-					for (int j = 0; j < row.Count; j++) {
-						TableNode node = table [i] [j];
-						string td = node.is_header ? "th" : "td";
-						matrix.Append ('<');
-						matrix.Append (td);
-						if (node.@class != null) {
-							matrix.Append (" class='");
-							matrix.Append (node.@class);
-							matrix.Append ("'");
-						}
-						/*
-						if (node.style != null) {
-							matrix.Append (" style='");
-							matrix.Append (node.style);
-							matrix.Append ("'");
-						}*/
-						matrix.Append (">");
-						matrix.Append (node.text);
-						matrix.Append ("</");
-						matrix.Append (td);
-						matrix.Append (">");
-					}
-					matrix.AppendLine ("</tr>");
-				}
-			}
-			matrix.AppendLine ("</table>");
-
-		} catch (Exception ex) {
-			matrix.Append (ex.ToString ().Replace ("\n", "<br/>"));
+			var node = new TableNode (string.Format ("<a href='ViewWorkTable.aspx?lane_id={0}&amp;host_id={1}&amp;command_id={2}'>{3}</a>", lane.id, host.id, views [i].command_id, views [i].command));
+			node.command_id = views [i].command_id;
+			header [views [i].sequence] = node;
 		}
+		header.RemoveAll (delegate (TableNode match) { return match == null; });
+		header.Insert (0, new TableNode ("Revision", true));
+		header.Insert (1, new TableNode ("Diff", true));
+		header.Insert (2, new TableNode ("Author", true));
+		//if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
+		//    header.Insert (3, new TableNode ("Select", true));
+		//}
+		header.Add (new TableNode ("Host", true));
+		header.Add (new TableNode ("Duration", true));
+		table.Add (header);
+
+		bool failed = false;
+		double duration = 0;
+
+		for (int i = 0; i < views.Count; i++) {
+			DBRevisionWorkView view = views [i];
+			DBState revisionwork_state = (DBState) view.revisionwork_state;
+			DBState state = (DBState) view.state;
+
+			new_revision = revision_id != view.revision_id;
+			revision_id = view.revision_id;
+
+			if (new_revision) {
+				if (i > 0) {
+					table.Add (row);
+					row [row.Count - 1] = new TableNode (TimeSpan.FromSeconds (duration).ToString (), row [0].@class);
+				}
+
+				string revision = view.revision;
+				long dummy;
+				if (revision.Length > 16 && !long.TryParse (revision, out dummy))
+					revision = revision.Substring (0, 8);
+
+				string clazz = revisionwork_state.ToString ().ToLower ();
+				clazz = clazz + " " + DarkenColor (clazz, table.Count);
+				row = new List<TableNode> ();
+
+				tooltip.Length = 0;
+				tooltip.AppendFormat ("Author: {0}.", view.author);
+				if (view.starttime.Date.Year > 2000)
+					tooltip.AppendFormat (" Build start date: {0}.", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"));
+
+				row.Add (new TableNode (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a>", lane.id, host.id, view.revision_id, revision, tooltip.ToString ()), clazz));
+				row.Add (new TableNode (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>diff</a>", view.revision_id)));
+				row.Add (new TableNode (view.author));
+				
+				//if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
+				//    row.Add (new TableNode (string.Format ("<input type=checkbox id='id_revision_chk_{1}' name='revision_id_{0}' />", view.revision_id, i)));
+				while (row.Count < header.Count - 2)
+					row.Add (new TableNode ("-"));
+				row.Add (new TableNode (view.workhost ?? ""));
+				row.Add (new TableNode (""));
+				failed = false;
+				duration = 0;
+			}
+
+			if (view.endtime > view.starttime)
+				duration += (view.endtime - view.starttime).TotalSeconds;
+
+			if (state == DBState.Failed && !view.nonfatal)
+				failed = true;
+			else if (revisionwork_state == DBState.Failed)
+				failed = true;
+
+			// result
+			string result;
+			bool completed = true;
+			switch (state) {
+			case DBState.NotDone:
+				completed = false;
+				result = failed ? "skipped" : "queued"; break;
+			case DBState.Executing:
+				completed = false;
+				result = "running"; break;
+			case DBState.Failed:
+				result = view.nonfatal ? "issues" : "failure"; break;
+			case DBState.Success:
+				result = "success"; break;
+			case DBState.Aborted:
+				result = "aborted"; break;
+			case DBState.Timeout:
+				result = "timeout"; break;
+			case DBState.Paused:
+				completed = false;
+				result = "paused"; break;
+			case DBState.Ignore:
+				completed = false;
+				result = "ignore"; break;
+			default:
+				completed = true;
+				result = "unknown"; break;
+			}
+
+			for (int j = 2; j < header.Count; j++) {
+				if (header [j].command_id == view.command_id) {
+					if (completed) {
+						row [j] = new TableNode (string.Format ("<a href='{0}'>{1}</a>", Utilities.CreateWebServiceDownloadUrl (Request, view.id, view.command + ".log", true), result));
+					} else {
+						row [j] = new TableNode (result);
+					}
+					row [j].@class = result + " " + DarkenColor (result, table.Count);
+					break;
+				}
+			}
+		}
+
+		table.Add (row);
+		row [row.Count - 1] = new TableNode (TimeSpan.FromSeconds (duration).ToString (), row [0].@class);
+
+		matrix.AppendLine ("<table class='buildstatus'>");
+		if (horizontal) {
+			for (int i = 0; i < header.Count; i++) {
+				matrix.Append ("<tr>");
+				for (int j = 0; j < table.Count; j++) {
+					TableNode node = table [j] [i];
+					string td = node.is_header ? "th" : "td";
+					matrix.Append ('<');
+					matrix.Append (td);
+					if (node.@class != null) {
+						matrix.Append (" class='");
+						matrix.Append (node.@class);
+						matrix.Append ("'");
+					}
+					/*
+					if (node.style != null) {
+						matrix.Append (" style='");
+						matrix.Append (node.style);
+						matrix.Append ("'");
+					}*/
+					matrix.Append (">");
+					matrix.Append (node.text);
+					matrix.Append ("</");
+					matrix.Append (td);
+					matrix.Append (">");
+				}
+				matrix.AppendLine ("</tr>");
+			}
+		} else {
+			for (int i = 0; i < table.Count; i++) {
+				matrix.Append ("<tr>");
+				for (int j = 0; j < row.Count; j++) {
+					TableNode node = table [i] [j];
+					string td = node.is_header ? "th" : "td";
+					matrix.Append ('<');
+					matrix.Append (td);
+					if (node.@class != null) {
+						matrix.Append (" class='");
+						matrix.Append (node.@class);
+						matrix.Append ("'");
+					}
+					/*
+					if (node.style != null) {
+						matrix.Append (" style='");
+						matrix.Append (node.style);
+						matrix.Append ("'");
+					}*/
+					matrix.Append (">");
+					matrix.Append (node.text);
+					matrix.Append ("</");
+					matrix.Append (td);
+					matrix.Append (">");
+				}
+				matrix.AppendLine ("</tr>");
+			}
+		}
+		matrix.AppendLine ("</table>");
 		return matrix.ToString ();
 	}
 }

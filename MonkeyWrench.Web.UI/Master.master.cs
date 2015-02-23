@@ -86,11 +86,7 @@ public partial class Master : System.Web.UI.MasterPage
 			adminmenu.Visible = true;
 		}
 
-		try {
-			tree_response = Utils.LocalWebService.GetLeftTreeData (WebServiceLogin);
-		} catch {
-			tree_response = null;
-		}
+		tree_response = Utils.LocalWebService.GetLeftTreeData (WebServiceLogin);
 
 		CreateTree ();
 		CreateHostStatus ();
@@ -159,40 +155,35 @@ public partial class Master : System.Web.UI.MasterPage
 		LaneTreeNode root;
 		Panel div;
 
-		try {
-			var response = tree_response;
+		var response = tree_response;
 
-			// Remove disabled lanes.
-			var lanes = new List<DBLane> (response.Lanes);
-			for (int i = lanes.Count -1; i >= 0; i--) {
-				if (lanes [i].enabled)
-					continue;
-				lanes.RemoveAt (i);
-			}
-			root = LaneTreeNode.BuildTree (lanes, null);
-
-			SetResponse (response);
-
-			// layout the tree
-			div = new Panel ();
-			div.ID = "tree_root_id";
-
-			tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow ("index.aspx?show_all=true", "All", 0, root.Depth, true, div, true)));
-
-			tableMainTree.Rows.Add (Utils.CreateTableRow (div));
-			WriteTree (root, tableMainTree, 1, root.Depth, div);
-
-			// layout the tags
-			div = new Panel ();
-			div.ID = "tags_root_id";
-
-			tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow (null, "Tags", 0, 1, true, div, true)));
-			tableMainTree.Rows.Add (Utils.CreateTableRow (div));
-			WriteTags (response.Tags, tableMainTree, 1, div);
-
-		} catch {
-			tableMainTree.Visible = false;
+		// Remove disabled lanes.
+		var lanes = new List<DBLane> (response.Lanes);
+		for (int i = lanes.Count -1; i >= 0; i--) {
+			if (lanes [i].enabled)
+				continue;
+			lanes.RemoveAt (i);
 		}
+		root = LaneTreeNode.BuildTree (lanes, null);
+
+		SetResponse (response);
+
+		// layout the tree
+		div = new Panel ();
+		div.ID = "tree_root_id";
+
+		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow ("index.aspx?show_all=true", "All", 0, root.Depth, true, div, true)));
+
+		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
+		WriteTree (root, tableMainTree, 1, root.Depth, div);
+
+		// layout the tags
+		div = new Panel ();
+		div.ID = "tags_root_id";
+
+		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow (null, "Tags", 0, 1, true, div, true)));
+		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
+		WriteTags (response.Tags, tableMainTree, 1, div);
 	}
 
 	public void WriteTags (List<string> tags, Table tableMain, int level, Panel containing_div)

@@ -37,25 +37,17 @@ public partial class GetRevisionLog : System.Web.UI.Page
 		string d, l;
 
 		if (revision_id != null) {
-			try {
-				l = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, false, Master.WebServiceLogin));
-				if (raw) {
-					log.InnerHtml = "<pre>" + HttpUtility.HtmlEncode (l) + "</pre>";
-				} else {
-					log.InnerHtml = "<div style='background-color: #ccccff; padding: 5px; margin-top: 5px; margin-bottom: 5px;'><pre style='border-width: 0px;'>" + HttpUtility.HtmlEncode (l) + "</pre></div>";
-				}
-			} catch (Exception ex) {
-				log.InnerText = "Exception while fetching log: " + ex.ToString ();
+			l = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, false, Master.WebServiceLogin));
+			if (raw) {
+				log.InnerHtml = "<pre>" + HttpUtility.HtmlEncode (l) + "</pre>";
+			} else {
+				log.InnerHtml = "<div style='background-color: #ccccff; padding: 5px; margin-top: 5px; margin-bottom: 5px;'><pre style='border-width: 0px;'>" + HttpUtility.HtmlEncode (l) + "</pre></div>";
 			}
-			try {
-				d = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, true, Master.WebServiceLogin));
-				if (raw) {
-					diff.InnerHtml = "<pre>" + HttpUtility.HtmlEncode (d) + "</pre>";
-				} else {
-					diff.InnerHtml = ParseDiff (d);
-				}
-			} catch (Exception ex) {
-				diff.InnerText = "Exception while fetching diff: " + ex.ToString ();
+			d = WebServices.DownloadString (WebServices.CreateWebServiceDownloadRevisionUrl (revision_id.Value, true, Master.WebServiceLogin));
+			if (raw) {
+				diff.InnerHtml = "<pre>" + HttpUtility.HtmlEncode (d) + "</pre>";
+			} else {
+				diff.InnerHtml = ParseDiff (d);
 			}
 		}
 	}
