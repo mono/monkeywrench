@@ -53,7 +53,23 @@ namespace MonkeyWrench.Web.UI
 				Response.Write (HttpUtility.HtmlEncode (ex.ToString ()));
 				Response.Write ("</pre>");
 			} else {
-				Response.Write ("<h1>Wrench encountered an error.</h1><p>We're sorry about that. The error has been logged, and will hopefully be fixed soon!</p>");
+				var httpex = ex as HttpUnhandledException;
+				if (httpex != null)
+					ex = httpex.InnerException;
+
+				Response.Write (String.Format (@"
+					<!DOCTYPE html>
+					<html>
+					<head>
+						<title>500 - Internal Server Error</title>
+					</head>
+					<body>
+					<h1>Wrench encountered an error.</h1>
+					<p>We're sorry about that. The error has been logged, and will hopefully be fixed soon!</p>
+					<p>Error summary: <samp>{0}: {1}</samp></p>
+					</body>
+					</html>
+				", HttpUtility.HtmlEncode (ex.GetType().Name), HttpUtility.HtmlEncode (ex.Message)));
 			}
 			Server.ClearError ();
 		}
