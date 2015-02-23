@@ -155,7 +155,7 @@ namespace MonkeyWrench.Scheduler
 					}
 
 					AddRevisionWork (db);
-					AddWork (db, hosts, lanes, hostlanes);
+					AddWork (db);
 					CheckDependencies (db, hosts, lanes, hostlanes);
 				}
 
@@ -166,9 +166,6 @@ namespace MonkeyWrench.Scheduler
 				Logger.Log ("Update finished successfully in {0} seconds.", (DateTime.Now - start).TotalSeconds);
 
 				return true;
-			} catch (Exception ex) {
-				Logger.Log ("An exception occurred: {0}", ex.ToString ());
-				return false;
 			} finally {
 				if (scheduler_lock != null)
 					scheduler_lock.Unlock ();
@@ -185,8 +182,7 @@ namespace MonkeyWrench.Scheduler
 		/// <returns></returns>
 		public static bool AddRevisionWork (DB db)
 		{
-			DateTime start = DateTime.Now;
-				using (IDbCommand cmd = db.CreateCommand ()) {
+			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
 					INSERT INTO RevisionWork (lane_id, host_id, revision_id, state)
 					SELECT Lane.id AS lid, Host.id AS hid, Revision.id AS rid, 10
@@ -215,104 +211,43 @@ namespace MonkeyWrench.Scheduler
 			}
 		}
 
-		private static void AddWork (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes)
+		private static void AddWork (DB db)
 		{
-			DateTime start = DateTime.Now;
-			List<DBCommand> commands = null;
-			List<DBLaneDependency> dependencies = null;
-			List<DBCommand> commands_in_lane;
-			List<DBRevisionWork> revisionwork_without_work = new List<DBRevisionWork> ();
-			DBHostLane hostlane;
-			StringBuilder sql = new StringBuilder ();
-			bool fetched_dependencies = false;
-			int lines = 0;
+			using (var transaction = db.BeginTransaction ())
+			using (var cmd = db.CreateCommand ()) {
+				DB.CreateParameter (cmd, "DependencyNotFulfilled", (int)DBState.DependencyNotFulfilled);
+				DB.CreateParameter (cmd, "NotDone", (int)DBState.NotDone);
+				DB.CreateParameter (cmd, "NoWorkYet", (int)DBState.NoWorkYet);
 
-			try {
-				/* Find the revision works which don't have work yet */
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = "SELECT * FROM RevisionWork WHERE state = 10;";
-					using (IDataReader reader = cmd.ExecuteReader ()) {
-						while (reader.Read ()) {
-							revisionwork_without_work.Add (new DBRevisionWork (reader));
-						}
-					}
-				}
+				cmd.CommandText = @"
+					-- Prevent other connections from adding revisionworks between us adding work for them and updating their state.
+					--LOCK TABLE revisionwork IN ROW EXCLUSIVE MODE;
 
-				Logger.Log (1, "AddWork: Got {0} hosts and {1} revisionwork without work", hosts.Count, revisionwork_without_work.Count);
+					-- Add works for each revisionwork
+					INSERT INTO work (command_id, revisionwork_id, state)
+					SELECT
+						command.id,
+						revisionwork.id,
+						CASE
+							WHEN EXISTS(SELECT 1 FROM lanedependency WHERE lane_id = revisionwork.lane_id) THEN @DependencyNotFulfilled
+							ELSE @NotDone
+						END
+					FROM revisionwork
+					INNER JOIN hostlane ON hostlane.lane_id = revisionwork.lane_id AND hostlane.host_id = revisionwork.host_id
+					INNER JOIN command ON command.lane_id = revisionwork.lane_id
+					WHERE revisionwork.state = @NoWorkYet AND hostlane.enabled;
 
-				foreach (DBLane lane in lanes) {
-					commands_in_lane = null;
-
-					foreach (DBHost host in hosts) {
-						hostlane = null;
-						for (int i = 0; i < hostlanes.Count; i++) {
-							if (hostlanes [i].lane_id == lane.id && hostlanes [i].host_id == host.id) {
-								hostlane = hostlanes [i];
-								break;
-							}
-						}
-
-						if (hostlane == null) {
-							Logger.Log (2, "AddWork: Lane '{0}' is not configured for host '{1}', not adding any work.", lane.lane, host.host);
-							continue;
-						} else if (!hostlane.enabled) {
-							Logger.Log (2, "AddWork: Lane '{0}' is disabled for host '{1}', not adding any work.", lane.lane, host.host);
-							continue;
-						}
-
-						Logger.Log (1, "AddWork: Lane '{0}' is enabled for host '{1}', adding work!", lane.lane, host.host);
-
-						foreach (DBRevisionWork revisionwork in revisionwork_without_work) {
-							bool has_dependencies;
-
-							/* revisionwork_without_work contains rw for all hosts/lanes, filter out the ones we want */
-							if (revisionwork.host_id != host.id || revisionwork.lane_id != lane.id)
-								continue;
-
-							/* Get commands and dependencies for all lanes only if we know we'll need them */
-							if (commands == null)
-								commands = db.GetCommands (0);
-							if (commands_in_lane == null) {
-								commands_in_lane = new List<DBCommand> ();
-								CollectWork (commands_in_lane, lanes, lane, commands);
-							}
-
-							if (!fetched_dependencies) {
-								fetched_dependencies = true;
-								dependencies = DBLaneDependency_Extensions.GetDependencies (db, null);
-							}
-
-							has_dependencies = dependencies != null && dependencies.Any (dep => dep.lane_id == lane.id);
-
-							Logger.Log (2, "AddWork: Lane '{0}', revisionwork_id '{1}' has dependencies: {2}", lane.lane, revisionwork.id, has_dependencies);
-
-							foreach (DBCommand command in commands_in_lane) {
-								int work_state = (int) (has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone);
-
-								sql.AppendFormat ("INSERT INTO Work (command_id, revisionwork_id, state) VALUES ({0}, {1}, {2});\n", command.id, revisionwork.id, work_state);
-								lines++;
-
-
-								Logger.Log (2, "Lane '{0}', revisionwork_id '{1}' Added work for command '{2}'", lane.lane, revisionwork.id, command.command);
-
-								if ((lines % 100) == 0) {
-									db.ExecuteNonQuery (sql.ToString ());
-									sql.Clear ();
-									Logger.Log (1, "AddWork: flushed work queue, added {0} items now.", lines);
-								}
-							}
-
-							sql.AppendFormat ("UPDATE RevisionWork SET state = {0} WHERE id = {1} AND state = 10;", (int) (has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone), revisionwork.id);
-
-						}
-					}
-				}
-				if (sql.Length > 0)
-					db.ExecuteNonQuery (sql.ToString ());
-			} catch (Exception ex) {
-				Logger.Log (0, "AddWork: There was an exception while adding work: {0}", ex.ToString ());
+					-- Update revisionwork state
+					UPDATE revisionwork
+					SET state = CASE
+						WHEN EXISTS(SELECT 1 FROM lanedependency WHERE lane_id = revisionwork.lane_id) THEN @DependencyNotFulfilled
+						ELSE @NotDone
+					END
+					WHERE state = @NoWorkYet;
+				";
+				cmd.ExecuteNonQuery ();
+				transaction.Commit ();
 			}
-			Logger.Log (1, "AddWork: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
 		}
 
 		private static void CheckDependenciesSlow (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes, List<DBLaneDependency> dependencies)
