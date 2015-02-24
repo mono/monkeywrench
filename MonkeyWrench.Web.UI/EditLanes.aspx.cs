@@ -69,13 +69,9 @@ public partial class EditLanes : System.Web.UI.Page
 				}
 			}
 		} else if (!string.IsNullOrEmpty (Request ["txtLane"])) {
-			try {
-				Master.WebService.AddLane (Master.WebServiceLogin, Request ["txtlane"]);
-				Response.Redirect ("EditLanes.aspx", false);
-				return;
-			} catch (Exception ex) {
-				lblMessage.Text = Utils.FormatException (ex);
-			}
+			Master.WebService.AddLane (Master.WebServiceLogin, Request ["txtlane"]);
+			Response.Redirect ("EditLanes.aspx", false);
+			return;
 		}
 
 		GetLanesResponse response = Master.WebService.GetLanes (Master.WebServiceLogin);

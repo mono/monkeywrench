@@ -73,22 +73,18 @@ public partial class Login : System.Web.UI.Page
 					var fetch = oidresponse.GetExtension<FetchResponse> ();
 					string email;
 
-					try {
-						email = fetch.Attributes [WellKnownAttributes.Contact.Email].Values [0];
+					email = fetch.Attributes [WellKnownAttributes.Contact.Email].Values [0];
 
-						WebServiceLogin login = new WebServiceLogin ();
-						login.Password = Configuration.WebServicePassword;
-						login.User = Configuration.Host;
-						var response = Master.WebService.LoginOpenId (login, email, Utilities.GetExternalIP (Request));
-						if (response.Exception != null) {
-							lblMessageOpenId.Text = response.Exception.Message;
-						} else {
-							Authentication.SetCookies (Response, response);
-							Response.Redirect (txtReferrer.Value, false);
-							return;
-						}
-					} catch (Exception ex) {
-						lblMessageOpenId.Text = Utils.FormatException (ex);
+					WebServiceLogin login = new WebServiceLogin ();
+					login.Password = Configuration.WebServicePassword;
+					login.User = Configuration.Host;
+					var response = Master.WebService.LoginOpenId (login, email, Utilities.GetExternalIP (Request));
+					if (response.Exception != null) {
+						lblMessageOpenId.Text = response.Exception.Message;
+					} else {
+						Authentication.SetCookies (Response, response);
+						Response.Redirect (txtReferrer.Value, false);
+						return;
 					}
 					break;
 				default:
@@ -134,16 +130,11 @@ public partial class Login : System.Web.UI.Page
 	{
 		Master.ClearLogin ();
 
-		try {
-			if (!Authentication.Login (txtUser.Text, txtPassword.Text, Request, Response)) {
-				lblMessage.Text = "Could not log in";
-				txtPassword.Text = "";
-			} else {
-				Response.Redirect (txtReferrer.Value, false);
-			}
-		} catch (Exception) {
-			lblMessage.Text = "Invalid user/password.";
+		if (!Authentication.Login (txtUser.Text, txtPassword.Text, Request, Response)) {
+			lblMessage.Text = "Could not log in";
 			txtPassword.Text = "";
+		} else {
+			Response.Redirect (txtReferrer.Value, false);
 		}
 	}
 

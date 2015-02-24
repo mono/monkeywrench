@@ -29,49 +29,37 @@ public partial class Admin : System.Web.UI.Page
 
 	protected void Page_Load (object sender, EventArgs e)
 	{
-		try {
-			GetAdminInfoResponse response;
-			string action = Request ["action"];
+		GetAdminInfoResponse response;
+		string action = Request ["action"];
 
-			if (!string.IsNullOrEmpty (action)) {
-				switch (action) {
-				case "schedule":
-					Master.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
-					Response.Redirect (Request.UrlReferrer == null ? "index.aspx" : Request.UrlReferrer.ToString (), false);
-					return;
-				}
+		if (!string.IsNullOrEmpty (action)) {
+			switch (action) {
+			case "schedule":
+				Master.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
+				Response.Redirect (Request.UrlReferrer == null ? "index.aspx" : Request.UrlReferrer.ToString (), false);
+				return;
 			}
-
-			response = Master.WebService.GetAdminInfo (Master.WebServiceLogin);
-
-			lblDeletionDirectiveStatus.Text = response.IsDeletionDirectivesExecuting ? "Running" : "Not running";
-			lblSchedulerStatus.Text = response.IsSchedulerExecuting ? "Running" : "Not running";
-		} catch (Exception ex) {
-			lblMessage.Text = Utils.FormatException (ex);
 		}
+
+		response = Master.WebService.GetAdminInfo (Master.WebServiceLogin);
+
+		lblDeletionDirectiveStatus.Text = response.IsDeletionDirectivesExecuting ? "Running" : "Not running";
+		lblSchedulerStatus.Text = response.IsSchedulerExecuting ? "Running" : "Not running";
 	}
 
 	protected void cmdSchedule_Click (object sender, EventArgs e)
 	{
-		try {
-			cmdSchedule.Enabled = false;
-			Master.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
-			lblSchedule.Text = "Scheduler started. It's run asynchronously, so no updates will be shown here.";
-			lblSchedulerStatus.Text = "Running";
-		} catch (Exception ex) {
-			lblSchedule.Text = Utils.FormatException (ex.Message);
-		}
+		cmdSchedule.Enabled = false;
+		Master.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
+		lblSchedule.Text = "Scheduler started. It's run asynchronously, so no updates will be shown here.";
+		lblSchedulerStatus.Text = "Running";
 	}
 
 	protected void cmdExecuteDeletionDirectives_Click (object sender, EventArgs e)
 	{
-		try {
-			cmdExecuteDeletionDirectives.Enabled = false;
-			Master.WebService.ExecuteDeletionDirectives (Master.WebServiceLogin);
-			lblExecuteDeletionDirectives.Text = "Retention directives executed. They are run asynchronously, so no updates will be shown here.";
-			lblDeletionDirectiveStatus.Text = "Running";
-		} catch (Exception ex) {
-			lblExecuteDeletionDirectives.Text = Utils.FormatException (ex.Message);
-		}
+		cmdExecuteDeletionDirectives.Enabled = false;
+		Master.WebService.ExecuteDeletionDirectives (Master.WebServiceLogin);
+		lblExecuteDeletionDirectives.Text = "Retention directives executed. They are run asynchronously, so no updates will be shown here.";
+		lblDeletionDirectiveStatus.Text = "Running";
 	}
 }

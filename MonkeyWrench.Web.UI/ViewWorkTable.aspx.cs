@@ -32,31 +32,27 @@ public partial class ViewWorkTable : System.Web.UI.Page
 	{
 		base.OnLoad (e);
 
-		try {
-			DBHost host;
-			DBLane lane;
-			DBCommand command = null;
-			GetViewWorkTableDataResponse response;
+		DBHost host;
+		DBLane lane;
+		DBCommand command = null;
+		GetViewWorkTableDataResponse response;
 
-			response = Master.WebService.GetViewWorkTableData (Master.WebServiceLogin,
-				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
-				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
-				Utils.TryParseInt32 (Request ["command_id"]), Request ["command"]);
+		response = Master.WebService.GetViewWorkTableData (Master.WebServiceLogin,
+			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
+			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
+			Utils.TryParseInt32 (Request ["command_id"]), Request ["command"]);
 
-			lane = response.Lane;
-			host = response.Host;
-			command = response.Command;
+		lane = response.Lane;
+		host = response.Host;
+		command = response.Command;
 
-			if (lane == null || host == null || command == null) {
-				Response.Redirect ("index.aspx", false);
-				return;
-			}
-
-			header.InnerHtml = GenerateHeader (response, lane, host, command);
-			buildtable.InnerHtml = GenerateLane (response, lane, host, command);
-		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+		if (lane == null || host == null || command == null) {
+			Response.Redirect ("index.aspx", false);
+			return;
 		}
+
+		header.InnerHtml = GenerateHeader (response, lane, host, command);
+		buildtable.InnerHtml = GenerateLane (response, lane, host, command);
 	}
 	public string GenerateHeader (GetViewWorkTableDataResponse response, DBLane lane, DBHost host, DBCommand command)
 	{

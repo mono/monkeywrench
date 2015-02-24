@@ -31,29 +31,25 @@ public partial class ViewHtmlReportEmbedded : System.Web.UI.Page
 
 	protected void Page_Load (object sender, EventArgs e)
 	{
-		try {
-			GetViewLaneDataResponse response;
+		GetViewLaneDataResponse response;
 
-			response = Master.WebService.GetViewLaneData2 (Master.WebServiceLogin,
-				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
-				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
-				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
+		response = Master.WebService.GetViewLaneData2 (Master.WebServiceLogin,
+			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
+			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
+			Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
 
-			DBHost host = response.Host;
-			DBLane lane = response.Lane;
-			DBRevision revision = response.Revision;
+		DBHost host = response.Host;
+		DBLane lane = response.Lane;
+		DBRevision revision = response.Revision;
 
-			if (lane == null || host == null || revision == null) {
-				Response.Redirect ("index.aspx", false);
-				return;
-			}
-
-			header.InnerHtml = ViewLane.GenerateHeader (response, lane, host, revision, "Html report for");
-			htmlreport.Attributes ["src"] = Request.Url.ToString ().Replace ("Embedded", "");
-			htmlreport.Attributes ["onload"] = "javascript: resizeToFillIFrame (document.getElementById ('" + htmlreport.ClientID + "'));";
-			ClientScript.RegisterStartupScript (GetType (), "resizeIFrame", "<script type='text/javascript'>resizeToFillIFrame (document.getElementById ('" + htmlreport.ClientID + "'));</script>");
-		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+		if (lane == null || host == null || revision == null) {
+			Response.Redirect ("index.aspx", false);
+			return;
 		}
+
+		header.InnerHtml = ViewLane.GenerateHeader (response, lane, host, revision, "Html report for");
+		htmlreport.Attributes ["src"] = Request.Url.ToString ().Replace ("Embedded", "");
+		htmlreport.Attributes ["onload"] = "javascript: resizeToFillIFrame (document.getElementById ('" + htmlreport.ClientID + "'));";
+		ClientScript.RegisterStartupScript (GetType (), "resizeIFrame", "<script type='text/javascript'>resizeToFillIFrame (document.getElementById ('" + htmlreport.ClientID + "'));</script>");
 	}
 }

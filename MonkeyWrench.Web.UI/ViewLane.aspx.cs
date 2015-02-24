@@ -39,80 +39,76 @@ public partial class ViewLane : System.Web.UI.Page
 	{
 		base.OnLoad (e);
 
-		try {
-			string action = null;
+		string action = null;
 
-			int id;
+		int id;
 
-			response = Master.WebService.GetViewLaneData2 (Master.WebServiceLogin,
-				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
-				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
-				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
+		response = Master.WebService.GetViewLaneData2 (Master.WebServiceLogin,
+			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
+			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
+			Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
 
-			if (response.Exception != null) {
-				if (response.Exception.HttpCode == 403) {
-					Master.RequestLogin ();
-					return;
-				}
-				lblMessage.Text = response.Exception.Message;
+		if (response.Exception != null) {
+			if (response.Exception.HttpCode == 403) {
+				Master.RequestLogin ();
 				return;
 			}
-
-			if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
-				action = Request ["action"];
-
-
-			DBHost host = response.Host;
-			DBLane lane = response.Lane;
-			DBRevision revision = response.Revision;
-
-			if (lane == null || host == null || revision == null) {
-				Response.Redirect ("index.aspx", false);
-				return;
-			}
-
-			if (!string.IsNullOrEmpty (action)) {
-				switch (action) {
-				case "clearrevision":
-					Master.WebService.ClearRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
-					break;
-				case "deleterevision":
-					Master.WebService.RescheduleRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
-					break;
-				case "ignorerevision":
-					Master.WebService.IgnoreRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
-					break;
-				case "abortrevision":
-					Master.WebService.AbortRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
-					break;
-				case "clearstep":
-					if (int.TryParse (Request ["work_id"], out id))
-						Master.WebService.ClearWork (Master.WebServiceLogin, id);
-					break;
-				case "abortstep":
-					if (int.TryParse (Request ["work_id"], out id))
-						Master.WebService.AbortWork (Master.WebServiceLogin, id);
-					break;
-				case "pausestep":
-					if (int.TryParse (Request ["work_id"], out id))
-						Master.WebService.PauseWork (Master.WebServiceLogin, id);
-					break;
-				case "resumestep":
-					if (int.TryParse (Request ["work_id"], out id))
-						Master.WebService.ResumeWork (Master.WebServiceLogin, id);
-					break;
-				}
-
-				Response.Redirect (string.Format ("ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={2}", lane.id, host.id, revision.id), false);
-				Page.Visible = false;
-				return;
-			}
-
-			header.InnerHtml = GenerateHeader (response, lane, host, revision, "Build of");
-			buildtable.InnerHtml = GenerateLane (response);
-		} catch (Exception ex) {
-			Response.Write (ex.ToString ().Replace ("\n", "<br/>"));
+			lblMessage.Text = response.Exception.Message;
+			return;
 		}
+
+		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))
+			action = Request ["action"];
+
+
+		DBHost host = response.Host;
+		DBLane lane = response.Lane;
+		DBRevision revision = response.Revision;
+
+		if (lane == null || host == null || revision == null) {
+			Response.Redirect ("index.aspx", false);
+			return;
+		}
+
+		if (!string.IsNullOrEmpty (action)) {
+			switch (action) {
+			case "clearrevision":
+				Master.WebService.ClearRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+				break;
+			case "deleterevision":
+				Master.WebService.RescheduleRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+				break;
+			case "ignorerevision":
+				Master.WebService.IgnoreRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+				break;
+			case "abortrevision":
+				Master.WebService.AbortRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+				break;
+			case "clearstep":
+				if (int.TryParse (Request ["work_id"], out id))
+					Master.WebService.ClearWork (Master.WebServiceLogin, id);
+				break;
+			case "abortstep":
+				if (int.TryParse (Request ["work_id"], out id))
+					Master.WebService.AbortWork (Master.WebServiceLogin, id);
+				break;
+			case "pausestep":
+				if (int.TryParse (Request ["work_id"], out id))
+					Master.WebService.PauseWork (Master.WebServiceLogin, id);
+				break;
+			case "resumestep":
+				if (int.TryParse (Request ["work_id"], out id))
+					Master.WebService.ResumeWork (Master.WebServiceLogin, id);
+				break;
+			}
+
+			Response.Redirect (string.Format ("ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={2}", lane.id, host.id, revision.id), false);
+			Page.Visible = false;
+			return;
+		}
+
+		header.InnerHtml = GenerateHeader (response, lane, host, revision, "Build of");
+		buildtable.InnerHtml = GenerateLane (response);
 	}
 
 	public static string GenerateHeader (GetViewLaneDataResponse response, DBLane lane, DBHost host, DBRevision revision, string description)

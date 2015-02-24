@@ -34,76 +34,72 @@ public partial class index : System.Web.UI.Page
 	{
 		base.OnLoad (e);
 
-		try {
-			FrontPageResponse data;
+		FrontPageResponse data;
 
-			if (string.IsNullOrEmpty (Request ["limit"])) {
-				if (Request.Cookies ["limit"] != null)
-					int.TryParse (Request.Cookies ["limit"].Value, out limit);
-			} else {
-				int.TryParse (Request ["limit"], out limit);
-			}
-			if (limit <= 0)
-				limit = 10;
-			Response.Cookies.Add (new HttpCookie ("limit", limit.ToString ()));
+		if (string.IsNullOrEmpty (Request ["limit"])) {
+			if (Request.Cookies ["limit"] != null)
+				int.TryParse (Request.Cookies ["limit"].Value, out limit);
+		} else {
+			int.TryParse (Request ["limit"], out limit);
+		}
+		if (limit <= 0)
+			limit = 10;
+		Response.Cookies.Add (new HttpCookie ("limit", limit.ToString ()));
 
-			string lanes_str = null;
-			string lane_ids_str = null;
+		string lanes_str = null;
+		string lane_ids_str = null;
 
-			string [] lanes = null;
-			List<int> lane_ids = null;
-			string [] tags = null;
+		string [] lanes = null;
+		List<int> lane_ids = null;
+		string [] tags = null;
 
-			if (!string.IsNullOrEmpty (Request ["show_all"])) {
-				// do nothing, default is to show all
-			} else if (!string.IsNullOrEmpty (Request ["tags"])) {
-				tags = Request ["tags"].Split (',');
-			} else {
-				HttpCookie cookie;
+		if (!string.IsNullOrEmpty (Request ["show_all"])) {
+			// do nothing, default is to show all
+		} else if (!string.IsNullOrEmpty (Request ["tags"])) {
+			tags = Request ["tags"].Split (',');
+		} else {
+			HttpCookie cookie;
 
-				lanes_str = Request ["lane"];
-				lane_ids_str = Request ["lane_id"];
+			lanes_str = Request ["lane"];
+			lane_ids_str = Request ["lane_id"];
 
-				if (string.IsNullOrEmpty (lanes_str) && string.IsNullOrEmpty (lane_ids_str)) {
-					if ((cookie = Request.Cookies ["index:lane"]) != null) {
-						lanes_str = HttpUtility.UrlDecode (cookie.Value);
-					}
-					if ((cookie = Request.Cookies ["index:lane_id"]) != null) {
-						lane_ids_str = HttpUtility.UrlDecode (cookie.Value);
-					}
+			if (string.IsNullOrEmpty (lanes_str) && string.IsNullOrEmpty (lane_ids_str)) {
+				if ((cookie = Request.Cookies ["index:lane"]) != null) {
+					lanes_str = HttpUtility.UrlDecode (cookie.Value);
 				}
-
-				if (!string.IsNullOrEmpty (lanes_str))
-					lanes = lanes_str.Split (';');
-				if (!string.IsNullOrEmpty (lane_ids_str)) {
-					lane_ids = new List<int> ();
-					foreach (string str in lane_ids_str.Split (';')) {
-						int? ii = Utils.TryParseInt32 (str);
-						if (ii.HasValue)
-							lane_ids.Add (ii.Value);
-					}
+				if ((cookie = Request.Cookies ["index:lane_id"]) != null) {
+					lane_ids_str = HttpUtility.UrlDecode (cookie.Value);
 				}
-
-				Response.Cookies.Set (new HttpCookie ("index:lane", HttpUtility.UrlEncode (lanes_str)));
-				Response.Cookies.Set (new HttpCookie ("index:lane_id", HttpUtility.UrlEncode (lane_ids_str)));
 			}
 
-			data = Utils.LocalWebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, 30, tags);
-
-			if (data.Exception != null) {
-				if (data.Exception.HttpCode == 403) {
-					Master.RequestLogin ();
-					return;
+			if (!string.IsNullOrEmpty (lanes_str))
+				lanes = lanes_str.Split (';');
+			if (!string.IsNullOrEmpty (lane_ids_str)) {
+				lane_ids = new List<int> ();
+				foreach (string str in lane_ids_str.Split (';')) {
+					int? ii = Utils.TryParseInt32 (str);
+					if (ii.HasValue)
+						lane_ids.Add (ii.Value);
 				}
-				lblMessage.Text = data.Exception.Message;
-				MonkeyWrench.Logger.Log ("index.aspx exception: {0}", data.Exception.AsString);
+			}
+
+			Response.Cookies.Set (new HttpCookie ("index:lane", HttpUtility.UrlEncode (lanes_str)));
+			Response.Cookies.Set (new HttpCookie ("index:lane_id", HttpUtility.UrlEncode (lane_ids_str)));
+		}
+
+		data = Utils.LocalWebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, 30, tags);
+
+		if (data.Exception != null) {
+			if (data.Exception.HttpCode == 403) {
+				Master.RequestLogin ();
 				return;
 			}
-
-			this.buildtable.InnerHtml = tags != null ? GenerateTaggedOverview (data) : GenerateOverview (data);
-		} catch (Exception ex) {
-			lblMessage.Text = Utils.FormatException (ex, true);
+			lblMessage.Text = data.Exception.Message;
+			MonkeyWrench.Logger.Log ("index.aspx exception: {0}", data.Exception.AsString);
+			return;
 		}
+
+		this.buildtable.InnerHtml = tags != null ? GenerateTaggedOverview (data) : GenerateOverview (data);
 	}
 
 	private void WriteLanes (List<StringBuilder> header_rows, LaneTreeNode node, int level, int depth)
