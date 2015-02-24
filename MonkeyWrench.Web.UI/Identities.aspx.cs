@@ -19,6 +19,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
+using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
@@ -44,7 +45,11 @@ public partial class Identities : System.Web.UI.Page
 		foreach (TextBox tb in new TextBox [] { txtIrcChannels, txtIrcName, txtIrcNicks, txtIrcServers}) {
 			tb.Attributes.Add ("onfocus", "javascript: document.getElementById ('lblIrcHelp').innerHTML = '" + tb.ToolTip + "';");
 		}
-		
+
+		foreach (TextBox tb in new TextBox [] { githubToken }) {
+			tb.Attributes.Add ("onfocus", "javascript: document.getElementById ('lblGitHubHelp').innerHTML = '" + tb.ToolTip + "';");
+		}
+
 		response = Master.WebService.GetIdentities (Master.WebServiceLogin);
 
 		if (response.Exception != null) {
@@ -180,6 +185,15 @@ public partial class Identities : System.Web.UI.Page
 					tblEmailIdentities.Rows.AddAt (tblEmailIdentities.Rows.Count - 1, row);
 				}
 			}
+
+			using (var db = new DB ())
+			using (var cmd = db.CreateCommand (@"
+				SELECT * FROM githubidentity;
+			"))
+			using (var reader = cmd.ExecuteReader ()) {
+				githubIdentityValues.DataSource = DBRecord.LoadMany<DBGitHubIdentity> (reader);
+			}
+			githubIdentityValues.DataBind ();
 		}
 	}
 
@@ -268,5 +282,47 @@ public partial class Identities : System.Web.UI.Page
 		} else {
 			Response.Redirect ("Identities.aspx", false);
 		}
+	}
+
+	protected void githubAdd_click (object sender, EventArgs e) {
+		try {
+			if (string.IsNullOrWhiteSpace (githubName.Text))
+				throw new ValidationException ("You need to specify the name of the GitHub identity.");
+			if (string.IsNullOrWhiteSpace (githubUsername.Text))
+				throw new ValidationException ("You need to specify the client ID of the GitHub identity.");
+			if (string.IsNullOrWhiteSpace (githubToken.Text))
+				throw new ValidationException ("You need to specify the client secret of the GitHub identity.");
+		} catch (ValidationException ex) {
+			lblMessage.Text = ex.Message;
+			return;
+		}
+
+		using (var db = new DB ())
+		using (var cmd = db.CreateCommand (@"INSERT INTO githubidentity(name, username, token) VALUES (@name, @username, @token);")) {
+			DB.CreateParameter (cmd, "name", githubName.Text);
+			DB.CreateParameter (cmd, "username", githubUsername.Text);
+			DB.CreateParameter (cmd, "token", githubToken.Text);
+
+			cmd.ExecuteNonQuery ();
+		}
+
+		Response.Redirect ("Identities.aspx", false);
+	}
+
+	protected void githubRemove_click(object sender, CommandEventArgs e) {
+		int id;
+		if (!int.TryParse (e.CommandArgument as string, out id)) {
+			Logger.Log ("Got a bad CommandArgument: {0}", e.CommandArgument);
+			lblMessage.Text = "Invalid remove.";
+			return;
+		}
+
+		using (var db = new DB ())
+		using (var cmd = db.CreateCommand (@"DELETE FROM githubidentity WHERE id = @id;")) {
+			DB.CreateParameter (cmd, "id", id);
+			cmd.ExecuteNonQuery ();
+		}
+
+		Response.Redirect ("Identities.aspx", false);
 	}
 }

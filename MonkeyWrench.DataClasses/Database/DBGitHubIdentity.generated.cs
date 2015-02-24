@@ -15,22 +15,20 @@ using System.Reflection;
 
 namespace MonkeyWrench.DataClasses
 {
-	public partial class DBEnvironmentVariable : DBRecord
+	public partial class DBGitHubIdentity : DBRecord
 	{
-		private int? _host_id;
-		private int? _lane_id;
 		private string _name;
-		private string _value;
+		private string _username;
+		private string _token;
 
-		public int? @host_id { get { return _host_id; } set { _host_id = value; } }
-		public int? @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public string @name { get { return _name; } set { _name = value; } }
-		public string @value { get { return _value; } set { _value = value; } }
+		public string @username { get { return _username; } set { _username = value; } }
+		public string @token { get { return _token; } set { _token = value; } }
 
 
 		public override string Table
 		{
-			get { return "EnvironmentVariable"; }
+			get { return "GitHubIdentity"; }
 		}
         
 
@@ -38,7 +36,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "host_id", "lane_id", "name", "value" };
+				return new string [] { "name", "username", "token" };
 			}
 		}
         

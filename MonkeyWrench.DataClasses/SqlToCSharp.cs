@@ -33,23 +33,10 @@ namespace MonkeyWrench.DataClasses
 		{
 			writer.WriteLine (
 @"/*
- * {0}
- *
- * Authors:
- *   Rolf Bjarne Kvinge (rolf@xamarin.com)
- *   
- * Copyright {1} Xamarin Inc. (http://www.xamarin.com)
- *
- * See the LICENSE file included with the distribution for details.
- *
- */
-
-
-/*
  * This file has been generated. 
  * If you modify it you'll loose your changes.
  */ 
-", filename, DateTime.Now.Year);
+");
 
 		}
 

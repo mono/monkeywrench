@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{86D06788-14A7-4962-88F0-FB58B7D34FF1}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
@@ -101,10 +101,19 @@
     </Compile>
     <Compile Include="WrenchBuild.cs" />
     <Compile Include="Maintenance.cs" />
+    <Compile Include="Notifications\IrcNotification.cs" />
+    <Compile Include="Notifications\EmailNotification.cs" />
+    <Compile Include="Notifications\GitHubNotification.cs" />
+    <Compile Include="Scheduler\SchedulerBase.cs" />
+    <Compile Include="Scheduler\SchedulerGIT.cs" />
+    <Compile Include="Scheduler\SchedulerSVN.cs" />
+    <Compile Include="Scheduler\Scheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Properties\" />
+    <Folder Include="Notifications\" />
+    <Folder Include="Scheduler\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="web.config" />
@@ -138,7 +147,7 @@
       </FlavorProperties>
     </VisualStudio>
     <MonoDevelop>
-      <Properties VerifyCodeBehindFields="True" VerifyCodeBehindEvents="True">
+      <Properties>
         <XspParameters Port="8080" Address="127.0.0.1" SslMode="None" SslProtocol="Default" KeyType="None" CertFile="" KeyFile="" PasswordOptions="None" Password="" Verbose="True" />
       </Properties>
     </MonoDevelop>

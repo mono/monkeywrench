@@ -88,6 +88,55 @@
                 <div id="lblEmailHelp" style="color: Green">&nbsp;</div>
             </asp:TableCell>
         </asp:TableRow>
+
+        <asp:TableRow>
+            <asp:TableCell HorizontalAlign="Center">
+            	<table class="buildstatus identity">
+            		<thead>
+            			<tr>
+            				<th colspan="4">GitHub Identities</th>
+            			</tr>
+	            		<tr>
+	            			<th>Name</th>
+	            			<th>Username</th>
+	            			<th>Token</th>
+	            			<th>Actions</th>
+	            		</tr>
+					</thead>
+					<tbody>
+		            	<asp:Repeater id="githubIdentityValues" runat="server">
+						<ItemTemplate>
+							<tr>
+								<td><%# Eval("name") %></td>
+								<td><%# Eval("username") %></td>
+			                    <td>***</td>
+			                    <td><asp:LinkButton ID="githubRemove" Text="Remove" runat="server" OnCommand="githubRemove_click"
+			                    	CommandArgument='<%# (Container.DataItem as MonkeyWrench.DataClasses.DBGitHubIdentity).id %>' />
+			                    </td>
+							</tr>
+						</ItemTemplate>
+						</asp:Repeater>
+					</tbody>
+
+					<tfoot>
+						<tr>
+							<td><asp:TextBox ID="githubName" runat="server" /></td>
+							<td><asp:TextBox ID="githubUsername" runat="server" /></td>
+							<td><asp:TextBox ID="githubToken" runat="server" ToolTip="GitHub Personal Access Token. Generate one via the Applications tab in the user settings. Must have the repo:status scope." /></td>
+							<td><asp:LinkButton ID="githubAdd" Text="Add" runat="server" OnClick="githubAdd_click" /></td>
+						</tr>
+					</tfoot>
+
+				</table>
+            </asp:TableCell>
+        </asp:TableRow>
+
+        <asp:TableRow>
+            <asp:TableCell HorizontalAlign="Center">
+                <div id="lblGitHubHelp" style="color: Green">&nbsp;</div>
+            </asp:TableCell>
+        </asp:TableRow>
+
         <asp:TableRow>
             <asp:TableCell HorizontalAlign="Center">
                 <asp:Label ID="lblMessage" ForeColor="Red" runat="server" />

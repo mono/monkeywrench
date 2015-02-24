@@ -18,6 +18,7 @@ using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Text.RegularExpressions;
 
 using MonkeyWrench;
 using MonkeyWrench.DataClasses;
@@ -26,6 +27,18 @@ using MonkeyWrench.Web.WebServices;
 
 public partial class Notifications : System.Web.UI.Page
 {
+	private static readonly Regex IDENT_RE = new Regex(@"^([a-zA-Z]+),([0-9]+)$");
+
+	private struct NotificationEntry
+	{
+		public int id {get; set;}
+		public string name {get; set;}
+		public string identName {get; set;}
+		public string identType {get; set;}
+		public string mode {get; set;}
+		public string type {get; set;}
+	}
+
 	private new Master Master
 	{
 		get { return base.Master as Master; }
@@ -34,93 +47,125 @@ public partial class Notifications : System.Web.UI.Page
 	protected override void OnInit (EventArgs e)
 	{
 		base.OnInit (e);
-	
-		TableRow row;
-		GetNotificationsResponse response;
 
 		foreach (WebControl tb in new WebControl [] { txtName, cmbIdentity, cmbMode, cmbNotificationType }) {
 			tb.Attributes.Add ("onfocus", "javascript: document.getElementById ('lblHelp').innerHTML = '" + tb.ToolTip.Replace ("'", "\\'").Replace ("\n", "<br/>").Replace ("\r", "<br />") + "';");
 		}
 
-		response = Master.WebService.GetNotifications (Master.WebServiceLogin);
+		var notifications = new List<NotificationEntry> ();
 
-		if (response.Exception != null) {
-			lblMessage.Text = response.Exception.Message;
-		} else {
-			if (response.IrcIdentities != null) {
-				foreach (DBIrcIdentity irc in response.IrcIdentities) {
-					cmbIdentity.Items.Add (new ListItem ("IRC: " + irc.name, irc.id.ToString ()));
-				}
+		using (var db = new DB ())
+		using (var cmd = db.CreateCommand (@"
+			SELECT notification.id, notification.name,
+				COALESCE(irc.name, email.name, gh.name) AS identname,
+				COALESCE(
+					CASE WHEN irc.id IS NULL THEN NULL ELSE 'IRC' END,
+					CASE WHEN email.id IS NULL THEN NULL ELSE 'Email' END,
+					CASE WHEN gh.id IS NULL THEN NULL ELSE 'GitHub' END
+				) AS identtype,
+				notification.mode,
+				notification.type
+			FROM notification
+			LEFT OUTER JOIN ircidentity AS irc ON irc.id = notification.ircidentity_id
+			LEFT OUTER JOIN emailidentity AS email ON email.id = notification.emailidentity_id
+			LEFT OUTER JOIN githubidentity AS gh ON gh.id = notification.githubidentity_id
+			ORDER BY notification.name;
+
+			SELECT 'IRC: ' || name AS name, 'IRC,' || id AS id
+			FROM ircidentity
+			UNION ALL
+			SELECT 'Email: ' || name AS name, 'Email,' || id AS id
+			FROM emailidentity
+			UNION ALL
+			SELECT 'GitHub: ' || name AS name, 'GitHub,' || id AS id
+			FROM githubidentity
+
+			ORDER BY name;
+		"))
+		using (var reader = cmd.ExecuteReader ()) {
+			while (reader.Read ()) {
+				var entry = new NotificationEntry ();
+				entry.id = reader.GetInt32 (0);
+				entry.name = reader.GetString (1);
+				entry.identName = reader.GetString (2);
+				entry.identType = reader.GetString (3);
+				entry.mode = ((DBNotificationMode)reader.GetInt32 (4)).ToString ();
+				entry.type = ((DBNotificationType)reader.GetInt32 (5)).ToString ();
+
+				notifications.Add (entry);
 			}
-			if (response.EmailIdentities != null) {
-				foreach (DBEmailIdentity email in response.EmailIdentities) {
-					cmbIdentity.Items.Add (new ListItem ("Email: " + email.name, email.id.ToString ()));
-				}
-			}
-			if (response.Notifications != null) {
-				foreach (DBNotification notification in response.Notifications) {
-					row = new TableRow ();
-					row.Cells.Add (Utils.CreateTableCell (notification.name));
-					if (notification.ircidentity_id.HasValue) {
-						row.Cells.Add (Utils.CreateTableCell (response.IrcIdentities.Find ((v) => v.id == notification.ircidentity_id.Value).name));
-						row.Cells.Add (Utils.CreateTableCell ("IRC"));
-					} else if (notification.emailidentity_id.HasValue) {
-						row.Cells.Add (Utils.CreateTableCell (response.EmailIdentities.Find ((v) => v.id == notification.emailidentity_id.Value).name));
-						row.Cells.Add (Utils.CreateTableCell ("Email"));
-					} else {
-						row.Cells.Add (Utils.CreateTableCell ("?"));
-						row.Cells.Add (Utils.CreateTableCell ("?"));
-					}
-					row.Cells.Add (Utils.CreateTableCell (cmbMode.Items [notification.mode].Text));
-					row.Cells.Add (Utils.CreateTableCell (cmbNotificationType.Items [notification.type].Text));
-					row.Cells.Add (Utils.CreateTableCell (Utils.CreateLinkButton ("remove_notification_" + notification.id.ToString (), "Remove", "RemoveNotification", notification.id.ToString (), OnLinkButtonCommand)));
-					tblNotifications.Rows.AddAt (tblNotifications.Rows.Count - 1, row);
-				}
+
+			reader.NextResult ();
+
+			while (reader.Read ()) {
+				cmbIdentity.Items.Add (new ListItem (reader.GetString (0), reader.GetString (1)));
 			}
 		}
-	}
 
-	protected void OnLinkButtonCommand (object sender, CommandEventArgs e)
-	{
-		WebServiceResponse response;
-
-		switch (e.CommandName) {
-		case "RemoveNotification":
-			response = Master.WebService.RemoveNotification (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
-			if (response.Exception != null) {
-				lblMessage.Text = response.Exception.Message;
-			} else {
-				Response.Redirect ("Notifications.aspx", false);
-			}
-			break;
-		}
+		notificationsRepeater.DataSource = notifications;
+		notificationsRepeater.DataBind ();
 	}
 
 	protected void lnkAdd_Click (object sender, EventArgs e)
 	{
+		DBNotification notification = new DBNotification ();
 		WebServiceResponse response;
 
-		DBNotification notification = new DBNotification ();
-		notification.mode = int.Parse (cmbMode.SelectedValue);
-		notification.name = txtName.Text;
-		notification.type = int.Parse (cmbNotificationType.SelectedValue);
-		if (cmbIdentity.SelectedItem.Text.StartsWith ("IRC: ")) {
-			notification.ircidentity_id = int.Parse (cmbIdentity.SelectedItem.Value);
-		} else if (cmbIdentity.SelectedItem.Text.StartsWith ("Email: ")) {
-			notification.emailidentity_id = int.Parse (cmbIdentity.SelectedItem.Value);
-		}
-
-		if (string.IsNullOrEmpty (notification.name)) {
-			lblMessage.Text = "You need to specify the name of the notification";
+		try {
+			notification.mode = int.Parse (cmbMode.SelectedValue);
+			notification.name = txtName.Text;
+			notification.type = int.Parse (cmbNotificationType.SelectedValue);
+		} catch (FormatException) {
+			lblMessage.Text = "Invalid number";
+			return;
+		} catch (OverflowException) {
+			lblMessage.Text = "Invalid number";
 			return;
 		}
 
-		response = Master.WebService.EditNotification (Master.WebServiceLogin, notification);
+		try {
+			var match = IDENT_RE.Match (cmbIdentity.SelectedItem.Value);
+			if (!match.Success)
+				throw new ValidationException ("Invalid identity");
+
+			var type = match.Groups[1].Value;
+			var id = int.Parse(match.Groups[2].Value);
+
+			if (type == "IRC")
+				notification.ircidentity_id = id;
+			else if (type == "Email")
+				notification.emailidentity_id = id;
+			else if (type == "GitHub")
+				notification.githubidentity_id = id;
+			else
+				throw new ValidationException ("Invalid identity");
+
+			if (string.IsNullOrEmpty (notification.name))
+				throw new ValidationException ("You need to specify the name of the notification");
+
+			response = Master.WebService.EditNotification (Master.WebServiceLogin, notification);
+		} catch (ValidationException ex) {
+			lblMessage.Text = ex.Message;
+			return;
+		}
 
 		if (response.Exception != null) {
 			lblMessage.Text = response.Exception.Message;
 		} else {
 			Response.Redirect ("Notifications.aspx", false);
 		}
+	}
+
+	protected void notificationRemove_remove (object sender, CommandEventArgs e) {
+		using (var db = new DB ())
+		using (var cmd = db.CreateCommand (@"
+			DELETE FROM notification WHERE id = @id;
+		")) {
+			DB.CreateParameter (cmd, "id", int.Parse (e.CommandArgument as string));
+
+			cmd.ExecuteNonQuery ();
+		}
+
+		Response.Redirect ("Notifications.aspx", false);
 	}
 }
