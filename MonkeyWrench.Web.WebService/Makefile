@@ -23,7 +23,8 @@ REFERENCES = \
 	-r:System.Web.Services.dll
 
 SOURCES = \
-	$(wildcard *.cs)
+	$(wildcard *.cs) \
+	$(wildcard */*.cs)
 
 $(OUT): $(SOURCES) $(BUILDABLE_REFS)
 	@echo "    DMCS $(LIBRARY)"
