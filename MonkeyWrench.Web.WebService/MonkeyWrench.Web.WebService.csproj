@@ -101,10 +101,15 @@
     </Compile>
     <Compile Include="WrenchBuild.cs" />
     <Compile Include="Maintenance.cs" />
+    <Compile Include="Scheduler\Scheduler.cs" />
+    <Compile Include="Scheduler\SchedulerBase.cs" />
+    <Compile Include="Scheduler\SchedulerGIT.cs" />
+    <Compile Include="Scheduler\SchedulerSVN.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Properties\" />
+    <Folder Include="Scheduler\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="web.config" />
