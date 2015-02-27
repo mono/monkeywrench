@@ -90,7 +90,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Notifications.cs" />
     <Compile Include="Upload.cs" />
     <Compile Include="WebServices.asmx.cs">
       <DependentUpon>WebServices.asmx</DependentUpon>
@@ -105,11 +104,15 @@
     <Compile Include="Scheduler\SchedulerBase.cs" />
     <Compile Include="Scheduler\SchedulerGIT.cs" />
     <Compile Include="Scheduler\SchedulerSVN.cs" />
+    <Compile Include="Notifications\Notifications.cs" />
+    <Compile Include="Notifications\IrcNotification.cs" />
+    <Compile Include="Notifications\EmailNotification.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Properties\" />
     <Folder Include="Scheduler\" />
+    <Folder Include="Notifications\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="web.config" />
