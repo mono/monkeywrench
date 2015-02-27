@@ -57,8 +57,11 @@ namespace MonkeyWrench.WebServices
 								} else if (n.emailidentity_id.HasValue) {
 									Logger.Log ("Starting email notification");
 									notifications.Add (new EMailNotification (n));
+								} else if (n.githubidentity_id.HasValue) {
+									Logger.Log ("Starting GitHub notification");
+									notifications.Add (new GitHubNotification (n));
 								} else {
-									Logger.Log ("Starting unknown notification");
+									Logger.Log ("Unknown notification");
 								}
 							}
 							if (reader.NextResult ()) {
@@ -108,9 +111,6 @@ namespace MonkeyWrench.WebServices
 		{
 			Logger.Log ("Notifications.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 			if (notifications == null)
-				return;
-
-			if (!(work.State == DBState.Failed || work.State == DBState.Issues || work.State == DBState.Timeout))
 				return;
 
 			ThreadPool.QueueUserWorkItem ((v) => ProcessNotify (work, revision_work));
@@ -226,7 +226,7 @@ LIMIT 1;
 
 		public abstract void Stop ();
 		protected abstract void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message);
-		public void Notify (DBWork work, DBRevisionWork revision_work)
+		public virtual void Notify (DBWork work, DBRevisionWork revision_work)
 		{
 			List<DBPerson> people = new List<DBPerson> ();
 			DBRevision revision;

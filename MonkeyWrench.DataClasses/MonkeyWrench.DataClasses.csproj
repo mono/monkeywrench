@@ -187,6 +187,8 @@
     <Compile Include="Database\DBLaneTag.cs" />
     <Compile Include="Database\DBLaneTag.generated.cs" />
     <Compile Include="Logic\GetLeftTreeDataResponse.cs" />
+    <Compile Include="Database\DBGitHubIdentity.cs" />
+    <Compile Include="Database\DBGitHubIdentity.generated.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CustomTypes.sql" />

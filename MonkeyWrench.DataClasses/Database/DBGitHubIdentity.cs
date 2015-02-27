@@ -23,11 +23,6 @@ namespace MonkeyWrench.DataClasses
 		{
 		}
 	
-		public DBGitHubIdentity (DB db, int id)
-			: base (db, id)
-		{
-		}
-	
 		public DBGitHubIdentity (IDataReader reader) 
 			: base (reader)
 		{

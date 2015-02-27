@@ -385,6 +385,10 @@
       <Project>{86D06788-14A7-4962-88F0-FB58B7D34FF1}</Project>
       <Name>MonkeyWrench.Web.WebService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench.Database\MonkeyWrench.Database.csproj">
+      <Project>{1C38937B-F45F-4EB1-B4D1-893FF684C525}</Project>
+      <Name>MonkeyWrench.Database</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />

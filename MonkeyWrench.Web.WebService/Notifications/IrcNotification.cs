@@ -308,6 +308,13 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		public override void Notify (DBWork work, DBRevisionWork revision_work)
+		{
+			if (!(work.State == DBState.Failed || work.State == DBState.Issues || work.State == DBState.Timeout))
+				return;
+			base.Notify (work, revision_work);
+		}
+
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message)
 		{
 			if (identity.servers.Contains ("hooks.slack.com") || identity.servers.Contains ("hooks-slack-com")) {

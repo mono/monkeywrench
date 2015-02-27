@@ -147,7 +147,8 @@ table.buildstatus td {
 	padding:.5em;
 }
 
-table.buildstatus tbody td {
+table.buildstatus tbody td,
+table.buildstatus tfoot td {
 	border: solid 1px #CCCCCC;
 	text-align: center;
 }
