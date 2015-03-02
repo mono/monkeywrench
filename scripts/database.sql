@@ -392,6 +392,7 @@ CREATE TABLE Notification (
 	mode              int    NOT NULL DEFAULT 0,                                    -- 0: Default 1: MoonlightDrt 2: NUnit
 	type              int    NOT NULL DEFAULT 0                                     -- 0: fatal failures only 1: non-fatal failures only 2: all failures
 );
+-- ALTER TABLE Notification ADD COLUMN githubidentity_id int NULL References GitHubIdentity (id) ON DELETE CASCADE;
 
 CREATE TABLE LaneNotification (
 	id              serial    PRIMARY KEY,
