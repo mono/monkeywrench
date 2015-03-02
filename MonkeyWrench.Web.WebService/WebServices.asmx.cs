@@ -2366,9 +2366,23 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 				DBRevisionWork rw = DBRevisionWork_Extensions.Create (db, work.revisionwork_id);
 				bool was_completed = rw.completed;
 				rw.UpdateState (db);
+
 				if (!was_completed && rw.completed) {
 					rw.endtime = DBRecord.DatabaseNow;
 					rw.Save (db);
+				}
+
+				Notifications.Notify (work, rw);
+
+				if (!was_completed && rw.completed) {
+					var notifyInfo = new GenericNotificationInfo ();
+					notifyInfo.laneID = rw.lane_id;
+					notifyInfo.hostID = rw.host_id;
+					notifyInfo.revisionID = rw.revision_id;
+					notifyInfo.message = "Completed";
+					notifyInfo.state = rw.State;
+
+					Notifications.NotifyGeneric (notifyInfo);
 				}
 				response.RevisionWorkCompleted = rw.completed;
 
@@ -2379,16 +2393,14 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 					cmd.ExecuteNonQuery ();
 				}
 
-				Notifications.Notify (work, rw);
-
 				// Check if any other lane depends on this one
 				if (response.RevisionWorkCompleted) {
 					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "SELECT id FROM LaneDependency WHERE dependent_lane_id = @lane_id LIMIT 1;";
+						cmd.CommandText = "SELECT 1 FROM LaneDependency WHERE dependent_lane_id = @lane_id LIMIT 1;";
 						DB.CreateParameter (cmd, "lane_id", rw.lane_id);
 
 						object value = cmd.ExecuteScalar ();
-						if (value != null && value.GetType () == typeof (int)) {
+						if (value is int) {
 							// If so, run the scheduler
 							MonkeyWrench.Scheduler.Scheduler.ExecuteSchedulerAsync (false);
 						}
@@ -2845,6 +2857,16 @@ ORDER BY id;
 							entries.Add (entry);
 							response.Work.Add (entries);
 						}
+
+						// Notify that the revision is assigned
+						var notifyInfo = new GenericNotificationInfo ();
+						notifyInfo.laneID = revisionwork.lane_id;
+						notifyInfo.hostID = revisionwork.host_id;
+						notifyInfo.revisionID = revisionwork.revision_id;
+						notifyInfo.message = String.Format("Assigned to host '{0}' ({1})", response.Host.host, response.Host.id);
+						notifyInfo.state = DBState.Executing;
+
+						Notifications.NotifyGeneric (notifyInfo);
 					}
 				}
 

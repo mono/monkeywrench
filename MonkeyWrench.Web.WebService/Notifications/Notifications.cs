@@ -32,6 +32,25 @@ using System.Collections.Specialized;
 
 namespace MonkeyWrench.WebServices
 {
+	public struct GenericNotificationInfo
+	{
+		public int laneID;
+		public int hostID;
+		public int revisionID;
+
+		public string message;
+		public DBState state;
+
+		public GenericNotificationInfo (int laneID, int hostID, int revisionID, string message, DBState state)
+		{
+			this.laneID = laneID;
+			this.hostID = hostID;
+			this.revisionID = revisionID;
+			this.message = message;
+			this.state = state;
+		}
+	}
+
 	public static class Notifications
 	{
 		static object lock_obj = new object ();
@@ -116,28 +135,53 @@ namespace MonkeyWrench.WebServices
 			ThreadPool.QueueUserWorkItem ((v) => ProcessNotify (work, revision_work));
 		}
 
+		public static void NotifyGeneric (GenericNotificationInfo info)
+		{
+			ThreadPool.QueueUserWorkItem ((v) => ProcessNotify (info));
+		}
+
 		private static void ProcessNotify (DBWork work, DBRevisionWork revision_work)
 		{
-			List<NotificationBase> notifications;
-
-			Logger.Log ("Notifications.ProcessNotify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+			Logger.Log ("Running notifiers for lane_id: {1}, revision_id: {2}, host_id: {3}, State: {0}", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 
 			try {
 				lock (lock_obj) {
+					List<NotificationBase> notifiers;
+
 					// We broadcast the notification to the API endpoint
 					WebNotification.BroadcastBuildNotification (work, revision_work);
 
-					if (!notifications_per_lane.TryGetValue (revision_work.lane_id, out notifications)) {
-						Logger.Log ("Notifications.ProcessNotify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}): Lane doesn't have any notifications enabled", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+					if (!notifications_per_lane.TryGetValue (revision_work.lane_id, out notifiers)) {
 						return;
 					}
 
-					foreach (var notification in notifications) {
+					foreach (var notification in notifiers) {
 						notification.Notify (work, revision_work);
 					}
 				}
 			} catch (Exception ex) {
-				Logger.Log ("Exception while processing notification: {0}", ex.Message);
+				Logger.Log ("Exception while processing notification: {0}", ex);
+			}
+		}
+
+		private static void ProcessNotify(GenericNotificationInfo info)
+		{
+			Logger.Log ("Running notifiers for lane_id: {1}, revision_id: {2}, host_id: {3}, message: {0}", info.message, info.laneID, info.revisionID, info.hostID);
+
+			try {
+				lock (lock_obj) {
+					List<NotificationBase> notifiers;
+
+					if (!notifications_per_lane.TryGetValue (info.laneID, out notifiers)) {
+						return;
+					}
+
+					foreach (var notification in notifiers) {
+						notification.NotifyGeneric (info);
+					}
+				}
+			} catch (Exception ex) {
+				Logger.Log ("Exception while processing notification: {0}", ex);
 			}
 		}
 	}
@@ -266,6 +310,11 @@ LIMIT 1;
 
 			Notify (work, revision_work, people, message);
 		}
+
+		/**
+		 * Used for notifications not tied to a specific work. (ex. revision downloaded or assigned)
+		 */
+		public virtual void NotifyGeneric(GenericNotificationInfo info) {}
 
 		private List<DBPerson> FindPeople (List<DBPerson> people)
 		{
