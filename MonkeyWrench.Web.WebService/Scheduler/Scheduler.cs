@@ -22,6 +22,7 @@ using System.Xml;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
+using MonkeyWrench.WebServices;
 
 namespace MonkeyWrench.Scheduler
 {
@@ -185,50 +186,52 @@ namespace MonkeyWrench.Scheduler
 		/// <returns></returns>
 		public static bool AddRevisionWork (DB db)
 		{
-			DateTime start = DateTime.Now;
-			StringBuilder sql = new StringBuilder ();
+			var stopwatch = new Stopwatch ();
+			stopwatch.Start ();
 			int line_count = 0;
 
 			try {
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = @"
-SELECT Lane.id AS lid, Revision.id AS rid, Host.id AS hid
-FROM HostLane
-INNER JOIN Host ON HostLane.host_id = Host.id
-INNER JOIN Lane ON HostLane.lane_id = Lane.id
-INNER JOIN Revision ON Revision.lane_id = lane.id
-WHERE HostLane.enabled = true AND
-	NOT EXISTS (
-		SELECT 1
-		FROM RevisionWork 
-		WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
-		);
-";
-					using (IDataReader reader = cmd.ExecuteReader ()) {
-						int lane_idx = reader.GetOrdinal ("lid");
-						int host_idx = reader.GetOrdinal ("hid");
-						int revision_idx = reader.GetOrdinal ("rid");
-						while (reader.Read ()) {
-							int lane_id = reader.GetInt32 (lane_idx);
-							int host_id = reader.GetInt32 (host_idx);
-							int revision_id = reader.GetInt32 (revision_idx);
-							line_count++;
-							sql.AppendFormat ("INSERT INTO RevisionWork (lane_id, host_id, revision_id, state) VALUES ({0}, {1}, {2}, 10);\n", lane_id, host_id, revision_id);
-						}
+				using (var cmd = db.CreateCommand (@"
+					INSERT INTO RevisionWork (lane_id, host_id, revision_id, state)
+					SELECT Lane.id, Host.id, Revision.id, 10
+					FROM HostLane
+					INNER JOIN Host ON HostLane.host_id = Host.id
+					INNER JOIN Lane ON HostLane.lane_id = Lane.id
+					INNER JOIN Revision ON Revision.lane_id = lane.id
+					WHERE HostLane.enabled = true AND
+						NOT EXISTS (
+							SELECT 1
+							FROM RevisionWork 
+							WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
+							)
+					RETURNING lane_id, host_id, revision_id
+				"))
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						int lane_id = reader.GetInt32 (0);
+						int host_id = reader.GetInt32 (1);
+						int revision_id = reader.GetInt32 (2);
+
+						var info = new GenericNotificationInfo(); 
+						info.laneID = lane_id;
+						info.hostID = host_id;
+						info.revisionID = revision_id;
+						info.message = "Commit received.";
+						info.state = DBState.Executing;
+
+						Notifications.NotifyGeneric (info);
+
+						line_count++;
 					}
 				}
-				if (line_count > 0) {
-					Logger.Log ("AddRevisionWork: Adding {0} records.", line_count);
-					db.ExecuteScalar (sql.ToString ());
-				} else {
-					Logger.Log ("AddRevisionWork: Nothing to add.");
-				}
+				Logger.Log ("AddRevisionWork: Added {0} records.", line_count);
 				return line_count > 0;
 			} catch (Exception ex) {
-				Logger.Log ("AddRevisionWork got an exception: {0}\n{1}", ex.Message, ex.StackTrace);
+				Logger.Log ("AddRevisionWork got an exception: {0}", ex);
 				return false;
 			} finally {
-				Logger.Log ("AddRevisionWork [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
+				stopwatch.Stop ();
+				Logger.Log ("AddRevisionWork [Done in {0} seconds]", stopwatch.Elapsed.TotalSeconds);
 			}
 		}
 

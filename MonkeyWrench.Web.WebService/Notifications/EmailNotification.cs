@@ -35,6 +35,13 @@ namespace MonkeyWrench.WebServices
 			emails = string.IsNullOrWhiteSpace (identity.email) ? new string[0] : identity.email.Split(',');
 		}
 
+		public override void Notify (DBWork work, DBRevisionWork revision_work)
+		{
+			if (!(work.State == DBState.Failed || work.State == DBState.Issues || work.State == DBState.Timeout))
+				return;
+			base.Notify (work, revision_work);
+		}
+
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message)
 		{
 			if (!this.emails.Any ()) {

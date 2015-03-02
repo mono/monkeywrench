@@ -69,6 +69,12 @@ namespace MonkeyWrench
 			return result;
 		}
 
+		public IDbCommand CreateCommand(string query) {
+			var cmd = CreateCommand ();
+			cmd.CommandText = query;
+			return cmd;
+		}
+
 		public IDbTransaction BeginTransaction ()
 		{
 			return dbcon.BeginTransaction ();

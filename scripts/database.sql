@@ -376,13 +376,21 @@ CREATE TABLE EmailIdentity (
 	password text      NOT NULL DEFAULT ''              -- the password for the above email address
 );
 
+CREATE TABLE GitHubIdentity (
+	id serial          PRIMARY KEY NOT NULL,
+	name text          NOT NULL,
+	username text      NOT NULL, -- Github username
+	token text         NOT NULL  -- Github personal access token
+);
+
 CREATE TABLE Notification (
-	id               serial    PRIMARY KEY,
-	name             text      NOT NULL DEFAULT '',
-	ircidentity_id   int       NULL REFERENCES IrcIdentity (id) ON DELETE CASCADE, 
-	emailidentity_id int       NULL REFERENCES EmailIdentity (id) ON DELETE CASCADE,
-	mode             int       NOT NULL DEFAULT 0,                                    -- 0: Default 1: MoonlightDrt 2: NUnit
-	type             int       NOT NULL DEFAULT 0                                     -- 0: fatal failures only 1: non-fatal failures only 2: all failures
+	id                serial PRIMARY KEY,
+	name              text   NOT NULL DEFAULT '',
+	ircidentity_id    int    NULL REFERENCES IrcIdentity (id) ON DELETE CASCADE, 
+	emailidentity_id  int    NULL REFERENCES EmailIdentity (id) ON DELETE CASCADE,
+	githubidentity_id int    NULL REFERENCES GitHubIdentity (id) ON DELETE CASCADE,
+	mode              int    NOT NULL DEFAULT 0,                                    -- 0: Default 1: MoonlightDrt 2: NUnit
+	type              int    NOT NULL DEFAULT 0                                     -- 0: fatal failures only 1: non-fatal failures only 2: all failures
 );
 
 CREATE TABLE LaneNotification (
