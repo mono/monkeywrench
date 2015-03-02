@@ -9,11 +9,11 @@ OUT_DIR = $(TOPDIR)/class/lib
 OUT = $(OUT_DIR)/$(LIBRARY)
 
 BUILDABLE_REFS = \
-	$(OUT_DIR)/Npgsql.dll	\
 	$(OUT_DIR)/Newtonsoft.Json.dll \
 	$(OUT_DIR)/DotNetOpenAuth.dll	\
 	$(OUT_DIR)/MonkeyWrench.dll	\
 	$(OUT_DIR)/MonkeyWrench.DataClasses.dll \
+	$(OUT_DIR)/MonkeyWrench.Database.dll \
 	$(OUT_DIR)/MonkeyWrench.Web.WebService.dll
 
 REFERENCES = \
