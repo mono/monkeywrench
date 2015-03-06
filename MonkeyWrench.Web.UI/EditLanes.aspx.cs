@@ -42,7 +42,7 @@ public partial class EditLanes : System.Web.UI.Page
 						break;
 					try {
 						int tmp;
-						tmp = Master.WebService.CloneLane (Master.WebServiceLogin, lane_id, Request ["lane"], false);
+						tmp = Utils.LocalWebService.CloneLane (Master.WebServiceLogin, lane_id, Request ["lane"], false);
 						Response.Redirect ("EditLane.aspx?lane_id=" + tmp.ToString (), false);
 						return;
 					} catch (Exception ex) {
@@ -56,7 +56,7 @@ public partial class EditLanes : System.Web.UI.Page
 					return;
 				case "add":
 					try {
-						Master.WebService.AddLane (Master.WebServiceLogin, Request ["lane"]);
+						Utils.LocalWebService.AddLane (Master.WebServiceLogin, Request ["lane"]);
 						Response.Redirect ("EditLanes.aspx", false);
 						return;
 					} catch (Exception ex) {
@@ -69,12 +69,12 @@ public partial class EditLanes : System.Web.UI.Page
 				}
 			}
 		} else if (!string.IsNullOrEmpty (Request ["txtLane"])) {
-			Master.WebService.AddLane (Master.WebServiceLogin, Request ["txtlane"]);
+			Utils.LocalWebService.AddLane (Master.WebServiceLogin, Request ["txtlane"]);
 			Response.Redirect ("EditLanes.aspx", false);
 			return;
 		}
 
-		GetLanesResponse response = Master.WebService.GetLanes (Master.WebServiceLogin);
+		GetLanesResponse response = Utils.LocalWebService.GetLanes (Master.WebServiceLogin);
 
 		TableRow row;
 		foreach (DBLane lane in response.Lanes) {

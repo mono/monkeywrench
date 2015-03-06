@@ -50,11 +50,11 @@ namespace MonkeyWrench.Web.UI
 		{
 			switch (e.CommandName) {
 			case "delete":
-				Master.WebService.DeleteEnvironmentVariable (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
+				Utils.LocalWebService.DeleteEnvironmentVariable (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
 				Response.Redirect (Request.Url.ToString (), false);
 				break;
 			case "add":
-				Master.WebService.AddEnvironmentVariable (Master.WebServiceLogin, Lane == null ? (int?) null : Lane.id, Host  == null ? (int?) null : Host.id, txtVariableName.Text, txtVariableValue.Text);
+				Utils.LocalWebService.AddEnvironmentVariable (Master.WebServiceLogin, Lane == null ? (int?) null : Lane.id, Host  == null ? (int?) null : Host.id, txtVariableName.Text, txtVariableValue.Text);
 				Response.Redirect (Request.Url.ToString (), false);
 				break;
 			}

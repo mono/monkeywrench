@@ -43,7 +43,7 @@ public partial class ViewLane : System.Web.UI.Page
 
 		int id;
 
-		response = Master.WebService.GetViewLaneData2 (Master.WebServiceLogin,
+		response = Utils.LocalWebService.GetViewLaneData2 (Master.WebServiceLogin,
 			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
 			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
 			Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
@@ -73,32 +73,32 @@ public partial class ViewLane : System.Web.UI.Page
 		if (!string.IsNullOrEmpty (action)) {
 			switch (action) {
 			case "clearrevision":
-				Master.WebService.ClearRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+				Utils.LocalWebService.ClearRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
 				break;
 			case "deleterevision":
-				Master.WebService.RescheduleRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+				Utils.LocalWebService.RescheduleRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
 				break;
 			case "ignorerevision":
-				Master.WebService.IgnoreRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+				Utils.LocalWebService.IgnoreRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
 				break;
 			case "abortrevision":
-				Master.WebService.AbortRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
+				Utils.LocalWebService.AbortRevision (Master.WebServiceLogin, lane.id, host.id, revision.id);
 				break;
 			case "clearstep":
 				if (int.TryParse (Request ["work_id"], out id))
-					Master.WebService.ClearWork (Master.WebServiceLogin, id);
+					Utils.LocalWebService.ClearWork (Master.WebServiceLogin, id);
 				break;
 			case "abortstep":
 				if (int.TryParse (Request ["work_id"], out id))
-					Master.WebService.AbortWork (Master.WebServiceLogin, id);
+					Utils.LocalWebService.AbortWork (Master.WebServiceLogin, id);
 				break;
 			case "pausestep":
 				if (int.TryParse (Request ["work_id"], out id))
-					Master.WebService.PauseWork (Master.WebServiceLogin, id);
+					Utils.LocalWebService.PauseWork (Master.WebServiceLogin, id);
 				break;
 			case "resumestep":
 				if (int.TryParse (Request ["work_id"], out id))
-					Master.WebService.ResumeWork (Master.WebServiceLogin, id);
+					Utils.LocalWebService.ResumeWork (Master.WebServiceLogin, id);
 				break;
 			}
 

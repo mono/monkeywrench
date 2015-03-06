@@ -27,14 +27,6 @@ public partial class Master : System.Web.UI.MasterPage
 	private WebServiceResponse response;
 	private GetLeftTreeDataResponse tree_response;
 
-	public WebServices WebService
-	{
-		get
-		{
-			return Utils.WebService;
-		}
-	}
-
 	public WebServiceLogin WebServiceLogin
 	{
 		get

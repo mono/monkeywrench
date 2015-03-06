@@ -37,7 +37,7 @@ public partial class ViewWorkTable : System.Web.UI.Page
 		DBCommand command = null;
 		GetViewWorkTableDataResponse response;
 
-		response = Master.WebService.GetViewWorkTableData (Master.WebServiceLogin,
+		response = Utils.LocalWebService.GetViewWorkTableData (Master.WebServiceLogin,
 			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
 			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
 			Utils.TryParseInt32 (Request ["command_id"]), Request ["command"]);

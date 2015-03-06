@@ -61,7 +61,7 @@ public partial class User : System.Web.UI.Page
 			switch (action) {
 			case "addemail":
 				if (!string.IsNullOrEmpty (email)) {
-					rsp = Master.WebService.AddUserEmail (Master.WebServiceLogin, id, username, email);
+					rsp = Utils.LocalWebService.AddUserEmail (Master.WebServiceLogin, id, username, email);
 					if (rsp.Exception != null) {
 						lblMessage.Text = rsp.Exception.Message;
 					} else {
@@ -74,7 +74,7 @@ public partial class User : System.Web.UI.Page
 				break;
 			case "removeemail":
 				if (!string.IsNullOrEmpty (email)) {
-					rsp = Master.WebService.RemoveUserEmail (Master.WebServiceLogin, id, username, email);
+					rsp = Utils.LocalWebService.RemoveUserEmail (Master.WebServiceLogin, id, username, email);
 					if (rsp.Exception != null) {
 						lblMessage.Text = rsp.Exception.Message;
 					} else {
@@ -90,7 +90,7 @@ public partial class User : System.Web.UI.Page
 
 		rowRoles.Visible = Authentication.IsInCookieRole (Request, Roles.Administrator);
 		if (!string.IsNullOrEmpty (username) || id.HasValue) {
-			response = Master.WebService.GetUser (Master.WebServiceLogin, id, username);
+			response = Utils.LocalWebService.GetUser (Master.WebServiceLogin, id, username);
 
 			if (response.Exception == null) {
 				if (!IsPostBack) {
@@ -134,7 +134,7 @@ public partial class User : System.Web.UI.Page
 		user.password = txtPassword.Text;
 		user.roles = txtRoles.Text;
 		user.irc_nicknames = txtIRCNicks.Text;
-		rsp = Master.WebService.EditUser (Master.WebServiceLogin, user);
+		rsp = Utils.LocalWebService.EditUser (Master.WebServiceLogin, user);
 		if (rsp.Exception != null) {
 			lblMessage.Text = rsp.Exception.Message;
 		} else {
