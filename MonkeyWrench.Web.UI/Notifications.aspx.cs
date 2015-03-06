@@ -143,7 +143,7 @@ public partial class Notifications : System.Web.UI.Page
 			if (string.IsNullOrEmpty (notification.name))
 				throw new ValidationException ("You need to specify the name of the notification");
 
-			response = Master.WebService.EditNotification (Master.WebServiceLogin, notification);
+			response = Utils.LocalWebService.EditNotification (Master.WebServiceLogin, notification);
 		} catch (ValidationException ex) {
 			lblMessage.Text = ex.Message;
 			return;

@@ -113,7 +113,7 @@ public partial class Login : System.Web.UI.Page
 					WebServiceLogin login = new WebServiceLogin ();
 					login.Password = Configuration.WebServicePassword;
 					login.User = Configuration.Host;
-					var response = Master.WebService.LoginOpenId (login, email, Utilities.GetExternalIP (Request));
+					var response = Utils.LocalWebService.LoginOpenId (login, email, Utilities.GetExternalIP (Request));
 					if (response.Exception != null) {
 						lblMessageOpenId.Text = response.Exception.Message;
 					} else {
@@ -133,7 +133,7 @@ public partial class Login : System.Web.UI.Page
 
 		if (!string.IsNullOrEmpty (action) && action == "logout") {
 			if (Request.Cookies ["cookie"] != null) {
-				Master.WebService.Logout (Master.WebServiceLogin);
+				Utils.LocalWebService.Logout (Master.WebServiceLogin);
 				Response.Cookies.Add(new HttpCookie ("cookie", ""));
 				Response.Cookies ["cookie"].Expires = DateTime.Now.AddYears (-20);
 				Response.Cookies.Add (new HttpCookie ("user", ""));

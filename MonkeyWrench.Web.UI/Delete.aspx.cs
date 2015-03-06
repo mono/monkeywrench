@@ -38,7 +38,7 @@ public partial class Delete : System.Web.UI.Page
 				return;
 			}
 
-			var lane = Master.WebService.FindLaneWithDependencies (Master.WebServiceLogin, lane_id, null);
+			var lane = Utils.LocalWebService.FindLaneWithDependencies (Master.WebServiceLogin, lane_id, null);
 			var text = new System.Text.StringBuilder ();
 
 			text.AppendFormat ("Are you sure you want to delete the lane '{0}' (ID: {1}) Count: {2}?<br/>", lane.lane.lane, lane.lane.id, lane.dependencies == null ? "N/A" : lane.dependencies.Count.ToString ());
@@ -59,7 +59,7 @@ public partial class Delete : System.Web.UI.Page
 				return;
 			}
 
-			FindHostResponse host = Master.WebService.FindHost (Master.WebServiceLogin, host_id, null);
+			FindHostResponse host = Utils.LocalWebService.FindHost (Master.WebServiceLogin, host_id, null);
 
 			lblMessage.Text = string.Format ("Are you sure you want to delete the host '{0}' (ID: {1})?", host.Host.host, host.Host.id);
 			cmdConfirm.Enabled = true;
@@ -70,7 +70,7 @@ public partial class Delete : System.Web.UI.Page
 				lblMessage.Text = "You need to specify a host whose work should be deleted.";
 				return;
 			}
-			FindHostResponse host = Master.WebService.FindHost (Master.WebServiceLogin, host_id, null);
+			FindHostResponse host = Utils.LocalWebService.FindHost (Master.WebServiceLogin, host_id, null);
 
 			lblMessage.Text = string.Format ("Are you sure you want to delete all the work for the host '{0}' (ID: {1})?", host.Host.host, host.Host.id);
 			cmdConfirm.Enabled = true;
@@ -81,7 +81,7 @@ public partial class Delete : System.Web.UI.Page
 				lblMessage.Text = "You need to specify a lane whose work should be deleted.";
 				return;
 			}
-			FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
+			FindLaneResponse lane = Utils.LocalWebService.FindLane (Master.WebServiceLogin, lane_id, null);
 
 			lblMessage.Text = string.Format ("Are you sure you want to delete all the work for the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
 			cmdConfirm.Enabled = true;
@@ -92,7 +92,7 @@ public partial class Delete : System.Web.UI.Page
 				lblMessage.Text = "You need to specify a lane whose revisions should be deleted.";
 				return;
 			}
-			FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
+			FindLaneResponse lane = Utils.LocalWebService.FindLane (Master.WebServiceLogin, lane_id, null);
 
 			lblMessage.Text = string.Format ("Are you sure you want to delete all the revisions for the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
 			cmdConfirm.Enabled = true;
@@ -103,7 +103,7 @@ public partial class Delete : System.Web.UI.Page
 				lblMessage.Text = "You need to specify a host whose work should be cleared.";
 				return;
 			}
-			FindHostResponse host = Master.WebService.FindHost (Master.WebServiceLogin, host_id, null);
+			FindHostResponse host = Utils.LocalWebService.FindHost (Master.WebServiceLogin, host_id, null);
 
 			lblMessage.Text = string.Format ("Are you sure you want to clear all the work for the host '{0}' (ID: {1})?", host.Host.host, host.Host.id);
 			cmdConfirm.Enabled = true;
@@ -114,7 +114,7 @@ public partial class Delete : System.Web.UI.Page
 				lblMessage.Text = "You need to specify a lane whose work should be cleared.";
 				return;
 			}
-			FindLaneResponse lane = Master.WebService.FindLane (Master.WebServiceLogin, lane_id, null);
+			FindLaneResponse lane = Utils.LocalWebService.FindLane (Master.WebServiceLogin, lane_id, null);
 
 			lblMessage.Text = string.Format ("Are you sure you want to clear all the work for the lane '{0}' (ID: {1})?", lane.lane.lane, lane.lane.id);
 			cmdConfirm.Enabled = true;
@@ -136,25 +136,25 @@ public partial class Delete : System.Web.UI.Page
 		WebServiceResponse rsp = null;
 		switch (action) {
 		case "delete-lane":
-			Master.WebService.DeleteLane (Master.WebServiceLogin, lane_id);
+			Utils.LocalWebService.DeleteLane (Master.WebServiceLogin, lane_id);
 			break;
 		case "delete-host":
-			Master.WebService.DeleteHost (Master.WebServiceLogin, host_id);
+			Utils.LocalWebService.DeleteHost (Master.WebServiceLogin, host_id);
 			break;
 		case "delete-all-work-for-host":
-			rsp = Master.WebService.DeleteAllWorkForHost (Master.WebServiceLogin, host_id);
+			rsp = Utils.LocalWebService.DeleteAllWorkForHost (Master.WebServiceLogin, host_id);
 			break;
 		case "delete-all-work-for-lane":
-			rsp = Master.WebService.DeleteAllWorkForLane (Master.WebServiceLogin, lane_id);
+			rsp = Utils.LocalWebService.DeleteAllWorkForLane (Master.WebServiceLogin, lane_id);
 			break;
 		case "delete-all-revisions-for-lane":
-			rsp = Master.WebService.DeleteAllRevisionsForLane (Master.WebServiceLogin, lane_id);
+			rsp = Utils.LocalWebService.DeleteAllRevisionsForLane (Master.WebServiceLogin, lane_id);
 			break;
 		case "clear-all-work-for-host":
-			rsp = Master.WebService.ClearAllWorkForHost (Master.WebServiceLogin, host_id);
+			rsp = Utils.LocalWebService.ClearAllWorkForHost (Master.WebServiceLogin, host_id);
 			break;
 		case "clear-all-work-for-lane":
-			rsp = Master.WebService.ClearAllWorkForLane (Master.WebServiceLogin, lane_id);
+			rsp = Utils.LocalWebService.ClearAllWorkForLane (Master.WebServiceLogin, lane_id);
 			break;
 		default:
 			lblMessage.Text = "Invalid action";

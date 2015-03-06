@@ -53,13 +53,13 @@ public partial class ViewHostHistory : System.Web.UI.Page
 		if (!string.IsNullOrEmpty (action) && masterhost_id > 0 && lane_id > 0 && revision_id > 0) {
 			switch (action) {
 			case "clearrevision":
-				Master.WebService.ClearRevision (Master.WebServiceLogin, lane_id, masterhost_id, revision_id);
+				Utils.LocalWebService.ClearRevision (Master.WebServiceLogin, lane_id, masterhost_id, revision_id);
 				break;
 			case "deleterevision":
-				Master.WebService.RescheduleRevision (Master.WebServiceLogin, lane_id, masterhost_id, revision_id);
+				Utils.LocalWebService.RescheduleRevision (Master.WebServiceLogin, lane_id, masterhost_id, revision_id);
 				break;
 			case "abortrevision":
-				Master.WebService.AbortRevision (Master.WebServiceLogin, lane_id, masterhost_id, revision_id);
+				Utils.LocalWebService.AbortRevision (Master.WebServiceLogin, lane_id, masterhost_id, revision_id);
 				break;
 			}
 
@@ -74,7 +74,7 @@ public partial class ViewHostHistory : System.Web.UI.Page
 		if (!int.TryParse (Request.QueryString ["offset"], out offset))
 			offset = 0;
 
-		response = Master.WebService.GetWorkHostHistory (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"], limit, offset);
+		response = Utils.LocalWebService.GetWorkHostHistory (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"], limit, offset);
 
 		string hdr;
 		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
