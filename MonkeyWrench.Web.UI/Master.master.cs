@@ -91,19 +91,22 @@ public partial class Master : System.Web.UI.MasterPage
 
 		try {
 			tree_response = Utils.LocalWebService.GetLeftTreeData (WebServiceLogin);
-		} catch {
-			tree_response = null;
+		} catch(MonkeyWrench.WebServices.UnauthorizedException) {
+			// LoadView is called on the login page, but if anonymous access is disabled,
+			// the user will be 'unauthorized' to view the sidebar, and thus the entire
+			// login page.
+			// So catch the exception and ignore it.
 		}
 
-		CreateTree ();
-		CreateHostStatus ();
+		if (tree_response != null) {
+			CreateTree ();
+			CreateHostStatus ();
+		}
 	}
 
 	private void CreateHostStatus ()
 	{
 		try {
-			var response = tree_response;
-
 			while (tableHostStatus.Rows.Count > 1)
 				tableHostStatus.Rows.RemoveAt (tableHostStatus.Rows.Count - 1);
 
@@ -111,8 +114,8 @@ public partial class Master : System.Web.UI.MasterPage
 			var working = new List<string> ();
 			TableRow row;
 
-			for (int i = 0; i < response.HostStatus.Count; i++) {
-				var status = response.HostStatus [i];
+			for (int i = 0; i < tree_response.HostStatus.Count; i++) {
+				var status = tree_response.HostStatus [i];
 				var idle = string.IsNullOrEmpty (status.lane);
 				
 				string tooltip = string.Empty;
@@ -129,8 +132,8 @@ public partial class Master : System.Web.UI.MasterPage
 				}
 			}
 
-			if (!string.IsNullOrEmpty (response.UploadStatus))
-				cellUploadStatus.Text = "<span class='uploadstatus'>" + response.UploadStatus + "</span>";
+			if (!string.IsNullOrEmpty (tree_response.UploadStatus))
+				cellUploadStatus.Text = "<span class='uploadstatus'>" + tree_response.UploadStatus + "</span>";
 
 			if (working.Count > 0) {
 				row = Utils.CreateTableRow ("Working");
@@ -162,10 +165,8 @@ public partial class Master : System.Web.UI.MasterPage
 		LaneTreeNode root;
 		Panel div;
 
-		var response = tree_response;
-
 		// Remove disabled lanes.
-		var lanes = new List<DBLane> (response.Lanes);
+		var lanes = new List<DBLane> (tree_response.Lanes);
 		for (int i = lanes.Count -1; i >= 0; i--) {
 			if (lanes [i].enabled)
 				continue;
@@ -173,7 +174,7 @@ public partial class Master : System.Web.UI.MasterPage
 		}
 		root = LaneTreeNode.BuildTree (lanes, null);
 
-		SetResponse (response);
+		SetResponse (tree_response);
 
 		// layout the tree
 		div = new Panel ();
@@ -190,7 +191,7 @@ public partial class Master : System.Web.UI.MasterPage
 
 		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow (null, "Tags", 0, 1, true, div, true)));
 		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
-		WriteTags (response.Tags, tableMainTree, 1, div);
+		WriteTags (tree_response.Tags, tableMainTree, 1, div);
 	}
 
 	public void WriteTags (List<string> tags, Table tableMain, int level, Panel containing_div)

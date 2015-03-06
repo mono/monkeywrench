@@ -25,6 +25,27 @@ using MonkeyWrench.DataClasses.Logic;
 
 namespace MonkeyWrench.WebServices
 {
+	/**
+	 * Thrown when a user does not have access to a resource.
+	 */
+	public class UnauthorizedException : Exception {
+		public UnauthorizedException ()
+		{
+		}
+
+		public UnauthorizedException (string message) : base (message)
+		{
+		}
+
+		public UnauthorizedException (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base (info, context)
+		{
+		}
+
+		public UnauthorizedException (string message, Exception innerException) : base (message, innerException)
+		{
+		}
+	}
+
 	public class Authentication {
 		/// <summary>
 		/// Authenticates the request with the provided user/pass.
@@ -125,7 +146,7 @@ namespace MonkeyWrench.WebServices
 		private static void VerifyAnonymousAllowed()
 		{
 			if (!Configuration.AllowAnonymousAccess)
-				throw new HttpException(403, "Anonymous access is not permitted.");
+				throw new UnauthorizedException ("Anonymous access is not permitted.");
 		}
 
 		public static void VerifyUserInRole (HttpContext Context, DB db, WebServiceLogin login, string role, bool @readonly)
@@ -135,7 +156,7 @@ namespace MonkeyWrench.WebServices
 
 			if (!dummy.IsInRole (role)) {
 				Logger.Log (2, "The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
-				throw new HttpException (403, "You don't have the required permissions.");
+				throw new UnauthorizedException ("You don't have the required permissions.");
 			}
 		}
 
@@ -146,7 +167,7 @@ namespace MonkeyWrench.WebServices
 
 			if (!dummy.IsInRole (role)) {
 				Logger.Log (2, "The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
-				throw new HttpException (403, "You don't have the required permissions.");
+				throw new UnauthorizedException ("You don't have the required permissions.");
 			}
 		}
 
