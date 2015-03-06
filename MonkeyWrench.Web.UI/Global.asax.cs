@@ -77,10 +77,6 @@ namespace MonkeyWrench.Web.UI
 					Response.Write (HttpUtility.HtmlEncode (ex.ToString ()));
 					Response.Write ("</pre>");
 				} else {
-					var httpex = ex as HttpUnhandledException;
-					if (httpex != null)
-						ex = httpex.InnerException;
-
 					Response.Write (String.Format (@"
 						<!DOCTYPE html>
 						<html>
@@ -93,7 +89,7 @@ namespace MonkeyWrench.Web.UI
 						<p>Error summary: <samp>{0}: {1}</samp></p>
 						</body>
 						</html>
-					", HttpUtility.HtmlEncode (ex.GetType ().Name), HttpUtility.HtmlEncode (ex.Message)));
+					", HttpUtility.HtmlEncode (realException.GetType ().Name), HttpUtility.HtmlEncode (realException.Message)));
 				}
 			}
 
