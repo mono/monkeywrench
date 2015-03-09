@@ -120,14 +120,13 @@ namespace MonkeyWrench
 		private void Connect ()
 		{
 			try {
-				string connectionString;
-
-				connectionString = "Server=" + Configuration.DatabaseHost + ";";
-				connectionString += "Database=builder;User ID=builder;";
-
-				if (!string.IsNullOrEmpty (Configuration.DatabasePort))
-					connectionString += "Port=" + Configuration.DatabasePort + ";";
-
+				string connectionString = String.Format("Server={0};Port={1};Database={2};User ID={3};Password={4};",
+					Configuration.DatabaseHost,
+					Configuration.DatabasePort,
+					Configuration.DatabaseName,
+					Configuration.DatabaseUser,
+					Configuration.DatabasePassword
+				);
 				dbcon = new NpgsqlConnection (connectionString);
 
 				Log ("Connecting to database ({1}), connection string: {0}", connectionString, who);
