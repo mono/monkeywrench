@@ -32,7 +32,10 @@ namespace MonkeyWrench
 		public static bool ForceFullUpdate = true;
 		public static string WebServicePassword;
 		public static string DatabaseHost = "localhost";
-		public static string DatabasePort;
+		public static int DatabasePort = 5432;
+		public static string DatabaseName = "builder";
+		public static string DatabaseUser = "builder";
+		public static string DatabasePassword = "";
 		public static bool StoreFilesInDB = false;
 		public static int ConnectionRetryDuration = 1440;
 		public static string LockingAlgorithm = "semaphore";
@@ -175,7 +178,10 @@ namespace MonkeyWrench
 				WebServicePassword = xml.SelectSingleNode ("/MonkeyWrench/Configuration/WebServicePassword").GetNodeValue (WebServicePassword);
 				WebSiteUrl = xml.SelectSingleNode ("/MonkeyWrench/Configuration/WebSiteUrl").GetNodeValue (WebSiteUrl);
 				DatabaseHost = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabaseHost").GetNodeValue (DatabaseHost);
-				DatabasePort = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabasePort").GetNodeValue (DatabasePort);
+				DatabasePort = Int32.Parse(xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabasePort").GetNodeValue (DatabasePort.ToString ()));
+				DatabaseName = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabaseName").GetNodeValue (DatabaseName);
+				DatabaseUser = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabaseUser").GetNodeValue (DatabaseUser);
+				DatabasePassword = xml.SelectSingleNode ("/MonkeyWrench/Configuration/DatabasePassword").GetNodeValue (DatabasePassword);
 				StoreFilesInDB = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/StoreFilesInDb").GetNodeValue (StoreFilesInDB.ToString ()));
 				ConnectionRetryDuration = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/ConnectionRetryDuration").GetNodeValue (ConnectionRetryDuration.ToString ()));
 				LockingAlgorithm = xml.SelectSingleNode ("MonkeyWrench/Configuration/LockingAlgorithm").GetNodeValue (LockingAlgorithm);
@@ -209,7 +215,10 @@ namespace MonkeyWrench
 					{"webservicepassword=", v => WebServicePassword = v},
 					{"websiteurl=", v => WebSiteUrl = v},
 					{"databasehost=", v => DatabaseHost = v},
-					{"databaseport=", v => DatabasePort = v},
+					{"databaseport=", v => DatabasePort = Int32.Parse (v)},
+					{"databasename=", v => DatabaseName = v},
+					{"databaseuser=", v => DatabaseUser = v},
+					{"databasepassword=", v => DatabasePassword = v},
 					{"storefilesindb=", v => StoreFilesInDB = Boolean.Parse (v.Trim ())},
 					{"connectionretryduration=", v => ConnectionRetryDuration = int.Parse (v.Trim ())},
 					{"lockingalgorithm=", v => LockingAlgorithm = v},
