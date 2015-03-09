@@ -11,11 +11,9 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using System.Web.Security;
-using System.Web.SessionState;
+
+using MonkeyWrench.WebServices;
 
 namespace MonkeyWrench.Web.UI
 {
@@ -43,34 +41,58 @@ namespace MonkeyWrench.Web.UI
 
 		protected void Application_Error (object sender, EventArgs e)
 		{
+			Response.Clear ();
 			Exception ex = Server.GetLastError ();
-			Logger.Log ("{0}: {1}", Request.Url.AbsoluteUri, ex);
 
-			Response.StatusCode = 500;
+			// Unwrap HttpUnhandledException
+			Exception realException;
+			if (ex is HttpUnhandledException)
+				realException = (ex as HttpUnhandledException).InnerException;
+			else
+				realException = ex;
 
-			if (Request.IsLocal) {
-				Response.Write ("<pre>");
-				Response.Write (HttpUtility.HtmlEncode (ex.ToString ()));
-				Response.Write ("</pre>");
-			} else {
-				var httpex = ex as HttpUnhandledException;
-				if (httpex != null)
-					ex = httpex.InnerException;
-
+			if (realException is UnauthorizedException) {
+				// User is not authorized to view this page.
+				Response.StatusCode = 403;
 				Response.Write (String.Format (@"
 					<!DOCTYPE html>
 					<html>
 					<head>
-						<title>500 - Internal Server Error</title>
+						<title>Unauthorized</title>
 					</head>
 					<body>
-					<h1>Wrench encountered an error.</h1>
-					<p>We're sorry about that. The error has been logged, and will hopefully be fixed soon!</p>
-					<p>Error summary: <samp>{0}: {1}</samp></p>
+					<h1>Unauthorized.</h1>
+					<p>{0}</p>
 					</body>
 					</html>
-				", HttpUtility.HtmlEncode (ex.GetType().Name), HttpUtility.HtmlEncode (ex.Message)));
+				", HttpUtility.HtmlEncode (realException.Message)));
+			} else {
+				// Unhandled error. Log it and display an error page. 
+				Logger.Log ("{0}: {1}", Request.Url.AbsoluteUri, ex);
+
+				Response.StatusCode = 500;
+
+				if (Request.IsLocal) {
+					Response.Write ("<pre>");
+					Response.Write (HttpUtility.HtmlEncode (ex.ToString ()));
+					Response.Write ("</pre>");
+				} else {
+					Response.Write (String.Format (@"
+						<!DOCTYPE html>
+						<html>
+						<head>
+							<title>500 - Internal Server Error</title>
+						</head>
+						<body>
+						<h1>Wrench encountered an error.</h1>
+						<p>We're sorry about that. The error has been logged, and will hopefully be fixed soon!</p>
+						<p>Error summary: <samp>{0}: {1}</samp></p>
+						</body>
+						</html>
+					", HttpUtility.HtmlEncode (realException.GetType ().Name), HttpUtility.HtmlEncode (realException.Message)));
+				}
 			}
+
 			Server.ClearError ();
 		}
 
