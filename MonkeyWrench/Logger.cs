@@ -56,7 +56,7 @@ namespace MonkeyWrench
 				LogRaw (FormatLog (format, args));
 			} catch (Exception ex) {
 				Console.WriteLine (FormatLog ("Builder.Logger: An exception occurred while logging: {0}", ex.ToString ()));
-				throw;
+				// This may happen if the disk is full. There's no need to do anything else.
 			}
 		}
 

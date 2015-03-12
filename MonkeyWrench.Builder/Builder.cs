@@ -409,25 +409,27 @@ namespace MonkeyWrench.Builder
 				info.work = response.Work;
 
 				info.progress_stamp = DateTime.Now;
-				WebService.UploadFilesSafe (info.work, new string [] { log_file }, new bool [] { false });
+				try {
+					WebService.UploadFilesSafe (info.work, new string [] { log_file }, new bool [] { false });
 
-				// Gather files from logged commands and from the upload_files glob
-				CheckLog (log_file, info);
-				if (!string.IsNullOrEmpty (info.command.upload_files)) {
-					foreach (string glob in info.command.upload_files.Split (',')) {
-						// TODO: handle globs in directory parts
-						// TODO: allow absolute paths?
-						Logger.Log ("Uploading files from glob {0}", glob);
-						info.progress_stamp = DateTime.Now;
-						// TODO: allow hidden files also
-						WebService.UploadFilesSafe (info.work, Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName (glob)), Path.GetFileName (glob)), null);
+					// Gather files from logged commands and from the upload_files glob
+					CheckLog (log_file, info);
+					if (!string.IsNullOrEmpty (info.command.upload_files)) {
+						foreach (string glob in info.command.upload_files.Split (',')) {
+							// TODO: handle globs in directory parts
+							// TODO: allow absolute paths?
+							Logger.Log ("Uploading files from glob {0}", glob);
+							info.progress_stamp = DateTime.Now;
+							// TODO: allow hidden files also
+							WebService.UploadFilesSafe (info.work, Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName (glob)), Path.GetFileName (glob)), null);
+						}
 					}
-				}
-
-				if (response.RevisionWorkCompleted) {
-					// Cleanup after us.
-					string base_dir = Configuration.GetDataRevisionDir (info.lane.id, info.revision.revision);
-					FileUtilities.TryDeleteDirectoryRecursive (base_dir);
+				} finally {
+					if (response.RevisionWorkCompleted) {
+						// Cleanup after us.
+						string base_dir = Configuration.GetDataRevisionDir (info.lane.id, info.revision.revision);
+						FileUtilities.TryDeleteDirectoryRecursive (base_dir);
+					}
 				}
 
 				Logger.Log ("{4} Revision {0}, executed step '{1}' in {2} s, ExitCode: {3}, State: {4}", info.revision.revision, info.command.command, info.work.duration, exitcode, info.number, info.work.State);
