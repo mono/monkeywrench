@@ -32,7 +32,7 @@ namespace MonkeyWrench
 		public static bool ForceFullUpdate = true;
 		public static string WebServicePassword;
 		public static string DatabaseHost = "localhost";
-		public static int DatabasePort = 5432;
+		public static int DatabasePort;
 		public static string DatabaseName = "builder";
 		public static string DatabaseUser = "builder";
 		public static string DatabasePassword = "";

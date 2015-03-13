@@ -120,13 +120,15 @@ namespace MonkeyWrench
 		private void Connect ()
 		{
 			try {
-				string connectionString = String.Format("Server={0};Port={1};Database={2};User ID={3};Password={4};",
+				string connectionString = String.Format("Server={0};Database={1};User ID={2};Password={3};",
 					Configuration.DatabaseHost,
-					Configuration.DatabasePort,
 					Configuration.DatabaseName,
 					Configuration.DatabaseUser,
 					Configuration.DatabasePassword
 				);
+				if (Configuration.DatabasePort != 0)
+					connectionString += string.Format ("Port={0};", Configuration.DatabasePort);
+
 				dbcon = new NpgsqlConnection (connectionString);
 
 				Log ("Connecting to database ({1}), connection string: {0}", connectionString, who);
@@ -141,7 +143,8 @@ namespace MonkeyWrench
 				db_time_difference = db_now - machine_now;
 
 				Logger.Log (2, "DB now: {0:yyyy/MM/dd HH:mm:ss.ffff}, current machine's now: {1:yyyy/MM/dd HH:mm:ss.ffff}, adjusted now: {3}, diff: {2:yyyy/MM/dd HH:mm:ss.ffff} ms", db_now, machine_now, db_time_difference.TotalMilliseconds, Now);
-			} catch {
+			} catch (Exception ex) {
+				Logger.Log ("Exception while connecting to DB: {0}", ex);
 				if (dbcon != null) {
 					dbcon.Dispose ();
 					dbcon = null;
