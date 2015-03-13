@@ -78,6 +78,7 @@ namespace MonkeyWrench.Web.UI
 					<body>
 					<h1>Unauthorized.</h1>
 					<p>{0}</p>
+					<p>Please <a href=""/Login.aspx"">log in</a> to continue.</p>
 					</body>
 					</html>
 				", HttpUtility.HtmlEncode (realException.Message)));
