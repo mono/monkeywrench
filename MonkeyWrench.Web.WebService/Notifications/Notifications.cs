@@ -11,6 +11,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -51,11 +52,20 @@ namespace MonkeyWrench.WebServices
 		}
 	}
 
+	class QueuedNotification {
+		public bool IsInfo;
+		public GenericNotificationInfo info;
+		public DBRevisionWork revision_work;
+		public DBWork work;
+	}
+
 	public static class Notifications
 	{
 		static object lock_obj = new object ();
 		static List<NotificationBase> notifications = new List<NotificationBase> ();
 		static Dictionary<int, List<NotificationBase>> notifications_per_lane = new Dictionary<int, List<NotificationBase>> ();
+		static Thread notifier_thread;
+		static BlockingCollection<QueuedNotification> queued_notifications;
 
 		public static void Start ()
 		{
@@ -104,6 +114,13 @@ namespace MonkeyWrench.WebServices
 					Logger.Log ("Notifications: enabled notification {0} '{1}' for lane {2}", n.Notification.id, n.Notification.name, ln.lane_id);
 				}
 			}
+
+			if (notifier_thread == null) {
+				notifier_thread = new Thread (NotificationProcessor);
+				notifier_thread.IsBackground = true;
+				notifier_thread.Start ();
+				queued_notifications = new BlockingCollection<QueuedNotification> ();
+			}
 		}
 
 		public static void Restart ()
@@ -126,18 +143,34 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		static void NotificationProcessor ()
+		{
+			try {
+				while (true) {
+					var item = queued_notifications.Take ();
+					if (item.IsInfo) {
+						ProcessNotify (item.info);
+					} else {
+						ProcessNotify (item.work, item.revision_work);
+					}
+				}
+			} catch (Exception ex) {
+				Logger.Log ("Notifications.NotificationProcessor: exception caught, no more notifications will be processed: {0}", ex);
+			}
+		}
+
 		public static void Notify (DBWork work, DBRevisionWork revision_work)
 		{
 			Logger.Log ("Notifications.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 			if (notifications == null)
 				return;
 
-			ThreadPool.QueueUserWorkItem ((v) => ProcessNotify (work, revision_work));
+			queued_notifications.Add (new QueuedNotification { IsInfo = false, work = work, revision_work = revision_work });
 		}
 
 		public static void NotifyGeneric (GenericNotificationInfo info)
 		{
-			ThreadPool.QueueUserWorkItem ((v) => ProcessNotify (info));
+			queued_notifications.Add (new QueuedNotification { IsInfo = true, info = info });
 		}
 
 		private static void ProcessNotify (DBWork work, DBRevisionWork revision_work)
