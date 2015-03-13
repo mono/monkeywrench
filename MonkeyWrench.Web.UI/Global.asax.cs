@@ -47,11 +47,26 @@ namespace MonkeyWrench.Web.UI
 			// Unwrap HttpUnhandledException
 			Exception realException;
 			if (ex is HttpUnhandledException)
-				realException = (ex as HttpUnhandledException).InnerException;
+				realException = ex.InnerException;
 			else
 				realException = ex;
 
-			if (realException is UnauthorizedException) {
+			if (ex is HttpException && (ex as HttpException).GetHttpCode() == 404) {
+				// Page not found.
+				Response.StatusCode = 404;
+				Response.Write (String.Format(@"
+					<!DOCTYPE html>
+					<html>
+					<head>
+						<title>Not Found</title>
+					</head>
+					<body>
+					<h1>Page not found.</h1>
+					<p>{0}</p>
+					</body>
+					</html>
+				", HttpUtility.HtmlEncode(ex.Message)));
+			} else if (realException is UnauthorizedException) {
 				// User is not authorized to view this page.
 				Response.StatusCode = 403;
 				Response.Write (String.Format (@"
