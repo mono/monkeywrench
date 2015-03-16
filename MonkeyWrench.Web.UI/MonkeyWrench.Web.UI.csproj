@@ -129,6 +129,7 @@
     <Content Include="web.config" />
     <Content Include="Json.aspx" />
     <Content Include="GetStatus.aspx" />
+    <Content Include="LookupRevWork.ashx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.aspx.cs">
@@ -363,6 +364,9 @@
     </Compile>
     <Compile Include="GetStatus.aspx.designer.cs">
       <DependentUpon>GetStatus.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LookupRevWork.ashx.cs">
+      <DependentUpon>LookupRevWork.ashx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
