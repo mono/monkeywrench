@@ -51,9 +51,13 @@ namespace MonkeyWrench
 		public static int NoOutputTimeout = 30; // timeout after this many minutes of no output.
 		public static int NoProgressTimeout = 60; // timeout after this many minutes if the test thread(s) don't seem to be progressing.
 
-		// openid
-		public static string OpenIdProvider = null;
-		public static string OpenIdRoles = null;
+		// oauth2
+		public static string GoogleOAuth2ClientId = null;
+		public static string GoogleOAuth2ClientSecret = null;
+		public static string GoogleOAuth2HostedDomain = null;
+		public static string GoogleOAuth2Roles = null;
+//		public static string GoogleOAuth2Provider = null;
+
 		public static bool AllowPasswordLogin = true;
 		public static bool AutomaticScheduler = false;
 		public static int AutomaticSchedulerInterval = 60;
@@ -194,11 +198,15 @@ namespace MonkeyWrench
 				SiteSkin = xml.SelectSingleNode ("MonkeyWrench/Configuration/SiteSkin").GetNodeValue (SiteSkin);
 				UploadPort = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/UploadPort").GetNodeValue (UploadPort.ToString ()));
 				AllowAnonymousAccess = bool.Parse(xml.SelectSingleNode("MonkeyWrench/Configuration/AllowAnonymousAccess").GetNodeValue(AllowAnonymousAccess.ToString()));
-				OpenIdProvider = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdProvider").GetNodeValue (OpenIdProvider);
-				OpenIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue (OpenIdRoles);
 				AutomaticScheduler = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticScheduler").GetNodeValue (AutomaticScheduler.ToString ()));
 				AutomaticSchedulerInterval = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticSchedulerInterval").GetNodeValue (AutomaticSchedulerInterval.ToString ()));
 				AllowPasswordLogin = bool.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AllowPasswordLogin").GetNodeValue (AllowPasswordLogin.ToString ()));
+
+				GoogleOAuth2ClientId = xml.SelectSingleNode ("MonkeyWrench/Configuration/GoogleOAuth2ClientId").GetNodeValue (GoogleOAuth2ClientId);
+				GoogleOAuth2ClientSecret = xml.SelectSingleNode ("MonkeyWrench/Configuration/GoogleOAuth2ClientSecret").GetNodeValue (GoogleOAuth2ClientSecret);
+				GoogleOAuth2HostedDomain = xml.SelectSingleNode ("MonkeyWrench/Configuration/GoogleOAuth2HostedDomain").GetNodeValue (GoogleOAuth2HostedDomain);
+				GoogleOAuth2Roles = xml.SelectSingleNode ("MonkeyWrench/Configuration/GoogleOAuth2Roles").GetNodeValue (GoogleOAuth2Roles);
+//				GoogleOAuth2Provider = xml.SelectSingleNode ("MonkeyWrench/Configuration/GoogleOAuth2Provider").GetNodeValue (GoogleOAuth2Provider);
 
 				// override from command line
 
@@ -230,8 +238,6 @@ namespace MonkeyWrench
 					{"siteskin=", v => SiteSkin = v},
 					{"uploadport=", v => UploadPort = int.Parse (v.Trim ())},
 					{"allowanonymousaccess=", v => AllowAnonymousAccess = bool.Parse (v.Trim ())},
-					{"openidprovider=", v => OpenIdProvider = v },
-					{"openidroles=", v => OpenIdRoles = v },
 					{"automaticscheduler=", v => Boolean.Parse (v.Trim ())},
 					{"automaticschedulerinterval=", v => int.Parse (v.Trim ())},
 					{"allowpasswordlogin=", v => bool.Parse (v.Trim ())},

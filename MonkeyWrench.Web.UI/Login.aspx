@@ -15,7 +15,8 @@
     <asp:HiddenField ID="txtReferrer" runat="server" />
     <asp:Button ID="cmdLogin" runat="server" Text="Login" OnClick="cmdLogin_Click" />
     <hr />
-    <asp:Button ID="cmdLoginOpenId" runat="server" Text="Login using OpenId" OnClick="cmdLoginOpenId_Click" /> <br />
+    <% if (!string.IsNullOrEmpty (MonkeyWrench.Configuration.GoogleOAuth2ClientId)) { %>
+    <button type="button" onclick="location.href = '<%= GetGoogleOAuthLoginUrl () %>';" >Login using Google</button> <br />
     <asp:Label ID="lblMessageOpenId" runat="server"></asp:Label>
-    
+    <% } %>
 </asp:Content>

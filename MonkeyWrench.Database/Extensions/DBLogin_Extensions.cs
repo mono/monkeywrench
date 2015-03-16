@@ -72,20 +72,26 @@ namespace MonkeyWrench.Database
 			return result;
 		}
 
-		public static void LoginOpenId (DB db, LoginResponse response, string email, string ip4)
+		public static void LoginGoogleOAuth2 (DB db, LoginResponse response, string email, string ip4)
 		{
-			Logger.Log (2, "DBLogin.LoginOpenId ({0}, {1})", email, ip4);
+			Logger.Log (2, "DBLogin.LoginGoogleOAuth2 ({0}, {1})", email, ip4);
 
-			if (string.IsNullOrEmpty (Configuration.OpenIdProvider))
-				throw new Exception ("No OpenId provider available");
+			if (string.IsNullOrEmpty (Configuration.GoogleOAuth2ClientId))
+				throw new Exception ("Google OAuth not enabled");
 
-			if (string.IsNullOrEmpty (Configuration.OpenIdRoles))
-				throw new Exception ("No OpenId roles specified");
+			if (string.IsNullOrEmpty (Configuration.GoogleOAuth2Roles))
+				throw new Exception ("No roles specified");
+
+			if (string.IsNullOrEmpty (Configuration.GoogleOAuth2HostedDomain))
+				throw new Exception ("No hosted domain specified");
 
 			if (string.IsNullOrEmpty (email))
 				throw new Exception ("OpenId authentication requires an email");
-			
-			string [] specs = Configuration.OpenIdRoles.Split (';');
+
+			if (!string.IsNullOrEmpty (Configuration.GoogleOAuth2HostedDomain) && !email.EndsWith ("@" + Configuration.GoogleOAuth2HostedDomain))
+				throw new Exception ("The provided email address is not allowed to log in");
+
+			string [] specs = Configuration.GoogleOAuth2Roles.Split (';');
 			foreach (var spec in specs) {
 				// email:role1,role2
 				string [] split = spec.Split (':');

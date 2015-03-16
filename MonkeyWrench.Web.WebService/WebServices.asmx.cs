@@ -86,7 +86,7 @@ namespace MonkeyWrench.WebServices
 				try {
 					VerifyUserInRole (db, login, Roles.Administrator);
 					db.Audit (login, "WebServices.LoginOpenId (email: {0}, ip4: {1})", email, ip4);
-					DBLogin_Extensions.LoginOpenId (db, response, email, ip4);
+					DBLogin_Extensions.LoginGoogleOAuth2 (db, response, email, ip4);
 				} catch (Exception ex) {
 					response.Exception = new WebServiceException (ex);
 				}
