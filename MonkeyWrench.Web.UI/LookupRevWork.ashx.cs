@@ -37,7 +37,7 @@ namespace MonkeyWrench.Web.UI
 					if (!reader.Read ())
 						throw new HttpException (404, "Revision work not found.");
 
-					context.Response.RedirectPermanent (String.Format ("/ViewLane.aspx?host_id={0}&lane_id={1}&revision_id={2}",
+					context.Response.RedirectPermanent (String.Format ("ViewLane.aspx?host_id={0}&lane_id={1}&revision_id={2}",
 						reader.GetInt32 (0), reader.GetInt32 (1), reader.GetInt32 (2)
 					));
 				}
