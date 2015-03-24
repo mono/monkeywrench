@@ -11,9 +11,6 @@ namespace MonkeyWrench.Web.UI
 {
 	public static class AuthenticationHelper
 	{
-		private const string _id = "515904261941-okror0rpf0f79ljdubj8lckaakae4f8a.apps.googleusercontent.com";
-		private const string _clientKey = "p8is5rKSOs803d6gFqUVF_c3";
-		private const string _redirect = "http://localhost:8123/Login.aspx";
 		private const string _email = "xamarin.com";
 
 		public static bool IsAuthenticated()
@@ -25,11 +22,11 @@ namespace MonkeyWrench.Web.UI
 				foreach (var thing in auth.ExtraData) {
 					Console.WriteLine (thing.Key + ":" + thing.Value);
 				}
-				string foo = "";
+				string baseEmail = "";
 
 				// And by check, I mean check in the lamest way possible... :(
-				if (auth.ExtraData.TryGetValue ("hd", out foo)) {
-					if (!foo.Equals (_email)) {
+				if (auth.ExtraData.TryGetValue ("hd", out baseEmail)) {
+					if (!baseEmail.Equals (_email)) {
 						return false;
 					}
 				} else {
@@ -48,11 +45,9 @@ namespace MonkeyWrench.Web.UI
 			var auth = Global.ReadFromSession<AuthenticationResult>("Auth");
 			if (auth != null)            
 			{
-				string foo = "";
-
-				// And by check, I mean check in the lamest way possible... :(
-				if (auth.ExtraData.TryGetValue ("email", out foo)) {
-					return foo;
+				string baseEmail = "";
+				if (auth.ExtraData.TryGetValue ("email", out baseEmail)) {
+					return baseEmail;
 				}
 			}
 			return String.Empty;
@@ -60,11 +55,11 @@ namespace MonkeyWrench.Web.UI
 
 		public static AuthenticationResult VerifyAuthentication()
 		{
-			var ms = new GoogleOAuth2Client(_id, _clientKey);
+			var ms = new GoogleOAuth2Client(Configuration.OauthClientId, Configuration.OauthClientSecret);
 			var manager = new OpenAuthSecurityManager(new HttpContextWrapper(HttpContext.Current), 
 				ms, OAuthDataProvider.Instance);
 			GoogleOAuth2Client.RewriteRequest();
-			var result = manager.VerifyAuthentication(_redirect);
+			var result = manager.VerifyAuthentication(Configuration.OauthRedirect);
 
 			if (result != null)
 			{
@@ -81,9 +76,9 @@ namespace MonkeyWrench.Web.UI
 				"https://www.googleapis.com/auth/userinfo.email",
 				"https://www.googleapis.com/auth/userinfo.profile",
 			};
-			var ms = new GoogleOAuth2Client(_id, _clientKey, scopes);
+			var ms = new GoogleOAuth2Client(Configuration.OauthClientId, Configuration.OauthClientSecret, scopes);
 			new OpenAuthSecurityManager(new HttpContextWrapper(HttpContext.Current),
-				ms, OAuthDataProvider.Instance).RequestAuthentication(_redirect);
+				ms, OAuthDataProvider.Instance).RequestAuthentication(Configuration.OauthRedirect);
 		}
 
 		public static void Unauthenticate()

@@ -51,7 +51,12 @@ namespace MonkeyWrench
 		public static int NoOutputTimeout = 30; // timeout after this many minutes of no output.
 		public static int NoProgressTimeout = 60; // timeout after this many minutes if the test thread(s) don't seem to be progressing.
 
+		// oauth
+		public static string OauthClientId = null;
+		public static string OauthClientSecret = null;
+		public static string OauthRedirect = null;
 		// openid
+
 		public static string OpenIdProvider = null;
 		public static string OpenIdRoles = null;
 		public static bool AllowPasswordLogin = true;
@@ -199,6 +204,10 @@ namespace MonkeyWrench
 				AutomaticScheduler = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticScheduler").GetNodeValue (AutomaticScheduler.ToString ()));
 				AutomaticSchedulerInterval = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticSchedulerInterval").GetNodeValue (AutomaticSchedulerInterval.ToString ()));
 				AllowPasswordLogin = bool.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AllowPasswordLogin").GetNodeValue (AllowPasswordLogin.ToString ()));
+
+				OauthClientId = xml.SelectSingleNode ("MonkeyWrench/Configuration/OauthClientId").GetNodeValue (OauthClientId);
+				OauthClientSecret = xml.SelectSingleNode ("MonkeyWrench/Configuration/OauthClientSecret").GetNodeValue (OauthClientSecret);
+				OauthRedirect = xml.SelectSingleNode ("MonkeyWrench/Configuration/OauthRedirect").GetNodeValue (OauthRedirect);
 
 				// override from command line
 
