@@ -28,6 +28,14 @@ using DotNetOpenAuth.OpenId;
 using DotNetOpenAuth.OpenId.RelyingParty;
 using DotNetOpenAuth.OpenId.Extensions.AttributeExchange;
 using DotNetOpenAuth.OpenId.Extensions.SimpleRegistration;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Requests;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Web;
+using System.Threading;
+using MonkeyWrench.Web.UI;
+using DotNetOpenAuth.AspNet;
+using MonkeyWrench.Database;
 
 public partial class Login : System.Web.UI.Page
 {
@@ -50,19 +58,50 @@ public partial class Login : System.Web.UI.Page
 				txtReferrer.Value = Request.UrlReferrer.AbsoluteUri;
 		}
 
-		if (string.IsNullOrEmpty (Configuration.OpenIdProvider)) {
-			cmdLoginOpenId.Visible = false;
-		} else {
-			cmdLoginOpenId.Visible = true;
-			
-			if (!Configuration.AllowPasswordLogin) {
-				cmdLogin.Visible = Configuration.AllowPasswordLogin;
-				txtPassword.Visible = Configuration.AllowPasswordLogin;
-				txtUser.Visible = Configuration.AllowPasswordLogin;
-				lblUser.Visible = Configuration.AllowPasswordLogin;
-				lblPassword.Visible = Configuration.AllowPasswordLogin;
+		// can't refer back to itself
+		if (txtReferrer.Value.Contains ("Login.aspx"))
+			txtReferrer.Value = "index.aspx";
+
+		cmdLoginOpenId.Visible = !string.IsNullOrEmpty (Configuration.OpenIdProvider);
+		cmdLoginOauth.Visible = !string.IsNullOrEmpty (Configuration.OauthClientId);
+
+		if (!Configuration.AllowPasswordLogin) {
+			cmdLogin.Visible = Configuration.AllowPasswordLogin;
+			txtPassword.Visible = Configuration.AllowPasswordLogin;
+			txtUser.Visible = Configuration.AllowPasswordLogin;
+			lblUser.Visible = Configuration.AllowPasswordLogin;
+			lblPassword.Visible = Configuration.AllowPasswordLogin;
+		}
+
+		if (cmdLoginOauth.Visible && Request.QueryString.GetValues ("state") != null) {
+			var authResult = AuthenticationHelper.VerifyAuthentication ();
+			if (!authResult.IsSuccessful) {
+				lblMessageOpenId.Text = "Failed to get user authenication from Google";
+				return;
 			}
-		
+
+			WebServiceLogin login = new WebServiceLogin ();
+			LoginResponse loginResponse = new LoginResponse ();
+			login.Password = Configuration.WebServicePassword;
+			login.User = Configuration.Host;
+			using (DB db = new DB ()) {
+				try {
+					db.Audit (login, "WebServices.LoginOpenId (email: {0}, ip4: {1})", AuthenticationHelper.GetEmail (), Utilities.GetExternalIP (Request));
+					DBLogin_Extensions.LoginOpenId (db, loginResponse, AuthenticationHelper.GetEmail (), Utilities.GetExternalIP (Request));
+				} catch (Exception ex) {
+					loginResponse.Exception = new WebServiceException (ex);
+				}
+			}
+			if (loginResponse.Exception != null) {
+				lblMessageOpenId.Text = loginResponse.Exception.Message;
+			} else {
+				Authentication.SetCookies (Response, loginResponse);
+				Response.Redirect (txtReferrer.Value, false);
+				return;
+			}
+		}
+
+		if (cmdLoginOpenId.Visible) {
 			OpenIdRelyingParty openid = new OpenIdRelyingParty ();
 			var oidresponse = openid.GetResponse ();
 			if (oidresponse != null) {
@@ -96,10 +135,6 @@ public partial class Login : System.Web.UI.Page
 			}
 		}
 
-		// can't refer back to itself
-		if (txtReferrer.Value.Contains ("Login.aspx"))
-			txtReferrer.Value = "index.aspx";
-
 		if (!string.IsNullOrEmpty (action) && action == "logout") {
 			if (Request.Cookies ["cookie"] != null) {
 				Master.WebService.Logout (Master.WebServiceLogin);
@@ -110,6 +145,7 @@ public partial class Login : System.Web.UI.Page
 				Response.Cookies.Add (new HttpCookie ("roles", ""));
 				Response.Cookies ["roles"].Expires = DateTime.Now.AddYears (-20);
 			}
+			AuthenticationHelper.Unauthenticate ();
 			Response.Redirect (txtReferrer.Value, false);
 			return;
 		}
@@ -128,6 +164,12 @@ public partial class Login : System.Web.UI.Page
 
 	protected void cmdLogin_Click (object sender, EventArgs e)
 	{
+		if (!Configuration.AllowPasswordLogin) {
+			lblMessage.Text = "Password login disabled.";
+			txtPassword.Text = "";
+			return;
+		}
+
 		Master.ClearLogin ();
 
 		if (!Authentication.Login (txtUser.Text, txtPassword.Text, Request, Response)) {
@@ -136,6 +178,11 @@ public partial class Login : System.Web.UI.Page
 		} else {
 			Response.Redirect (txtReferrer.Value, false);
 		}
+	}
+
+	protected void cmdLoginOauth_Click (object sender, EventArgs e)
+	{
+		AuthenticationHelper.Authenticate();
 	}
 
 	protected void cmdLoginOpenId_Click (object sender, EventArgs e)
