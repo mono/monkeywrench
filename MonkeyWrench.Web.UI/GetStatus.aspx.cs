@@ -72,10 +72,10 @@ namespace MonkeyWrench.Web.UI
 		// https://<wrenchhost>/GetStatus.aspx?lane_name=some-lane-name-master&commit=aff123
 		protected Dictionary<String, Object> FetchBuildStatus(string laneName, string commit)
 		{
-			var lane = Utils.WebService.FindLane (login, null, laneName).lane;
+			var lane = Utils.LocalWebService.FindLane (login, null, laneName).lane;
 			if (lane == null)
 				ThrowJsonError (404, string.Format ("Lane could not be found with lane_name='{0}'", laneName));
-			var revision = Utils.WebService.FindRevisionForLane (login, null, commit, lane.id, "").Revision;
+			var revision = Utils.LocalWebService.FindRevisionForLane (login, null, commit, lane.id, "").Revision;
 			if (revision == null)
 				ThrowJsonError (404,
 					string.Format ("Revision with commit='{0}' was not found for lane_name='{1}'", commit, laneName));
@@ -86,11 +86,11 @@ namespace MonkeyWrench.Web.UI
 		// https://<wrenchhost>/GetStatus.aspx?lane_id=9939&host_id=883&revision_id=484848
 		protected Dictionary<String, Object> FetchBuildStatus(int laneId, int revisionId)
 		{
-			var workResponse = Utils.WebService.GetRevisionWorkForLane (login, laneId, revisionId, 0).RevisionWork;
+			var workResponse = Utils.LocalWebService.GetRevisionWorkForLane (login, laneId, revisionId, 0).RevisionWork;
 			if (workResponse.Count == 0)
 				ThrowJsonError (404, "Build not found. Invalid revision_id or lane_id");
 			var work = workResponse.First ();
-			var host = Utils.WebService.FindHost (login, work.host_id, "").Host;
+			var host = Utils.LocalWebService.FindHost (login, work.host_id, "").Host;
 
 			return BuildStatusFrom (laneId, revisionId, work, host);
 		}
@@ -115,7 +115,7 @@ namespace MonkeyWrench.Web.UI
 		{
 			if (host == null)
 				throw new HttpException(404, "Build has not been assigned yet, cannot generate status.");
-			var buildView = Utils.WebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
+			var buildView = Utils.LocalWebService.GetViewLaneData (login, laneId, "", host.id, "", revId, "");
 
 			var steps = new List<Dictionary<String, Object>>();
 			for (int sidx = 0; sidx < buildView.WorkViews.Count; sidx++) {
