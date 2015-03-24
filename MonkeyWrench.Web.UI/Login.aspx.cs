@@ -28,6 +28,14 @@ using DotNetOpenAuth.OpenId;
 using DotNetOpenAuth.OpenId.RelyingParty;
 using DotNetOpenAuth.OpenId.Extensions.AttributeExchange;
 using DotNetOpenAuth.OpenId.Extensions.SimpleRegistration;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Requests;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Web;
+using System.Threading;
+using MonkeyWrench.Web.UI;
+using DotNetOpenAuth.AspNet;
+using MonkeyWrench.Database;
 
 public partial class Login : System.Web.UI.Page
 {
@@ -48,6 +56,39 @@ public partial class Login : System.Web.UI.Page
 		if (!this.IsPostBack) {
 			if (Request.UrlReferrer != null && string.IsNullOrEmpty (txtReferrer.Value))
 				txtReferrer.Value = Request.UrlReferrer.AbsoluteUri;
+		}
+
+		if (Request.QueryString.GetValues ("state") != null) {
+			AuthenticationResult result;
+			if (!AuthenticationHelper.IsAuthenticated ()) {
+				Console.WriteLine ("Make sure we're authed...");
+				result = AuthenticationHelper.VerifyAuthentication ();
+				if (!result.IsSuccessful) {
+					lblMessageOpenId.Text = "Failed to get user authenication from Google";
+				}
+			}
+
+			WebServiceLogin login = new WebServiceLogin ();
+			LoginResponse loginResponse = new LoginResponse ();
+			login.Password = Configuration.WebServicePassword;
+			login.User = Configuration.Host;
+			using (DB db = new DB ()) {
+				try {
+					db.Audit (login, "WebServices.LoginOpenId (email: {0}, ip4: {1})",  AuthenticationHelper.GetEmail(), Utilities.GetExternalIP (Request));
+					DBLogin_Extensions.LoginOpenId (db, loginResponse,  AuthenticationHelper.GetEmail(), Utilities.GetExternalIP (Request));
+				} catch (Exception ex) {
+					loginResponse.Exception = new WebServiceException (ex);
+				}
+			}
+			if (loginResponse.Exception != null) {
+				Console.WriteLine ("Failed to make user/login.");
+				lblMessageOpenId.Text = loginResponse.Exception.Message;
+			} else {
+				Console.WriteLine ("Set cookies...");
+				Authentication.SetCookies (Response, loginResponse);
+				Response.Redirect (txtReferrer.Value, false);
+				return;
+			}
 		}
 
 		if (string.IsNullOrEmpty (Configuration.OpenIdProvider)) {
@@ -136,6 +177,11 @@ public partial class Login : System.Web.UI.Page
 		} else {
 			Response.Redirect (txtReferrer.Value, false);
 		}
+	}
+
+	protected void cmdLoginOauth_Click (object sender, EventArgs e)
+	{
+		AuthenticationHelper.Authenticate();
 	}
 
 	protected void cmdLoginOpenId_Click (object sender, EventArgs e)
