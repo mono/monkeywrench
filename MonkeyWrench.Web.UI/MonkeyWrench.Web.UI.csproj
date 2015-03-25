@@ -128,6 +128,8 @@
     <Content Include="Json.aspx" />
     <Content Include="GetStatus.aspx" />
     <Content Include="packages.config" />
+    <Content Include="ViewServerLog.aspx" />
+    <Content Include="GetLatest.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.aspx.cs">
@@ -362,6 +364,18 @@
     </Compile>
     <Compile Include="GetStatus.aspx.designer.cs">
       <DependentUpon>GetStatus.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewServerLog.aspx.designer.cs">
+      <DependentUpon>ViewServerLog.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewServerLog.aspx.cs">
+      <DependentUpon>ViewServerLog.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GetLatest.aspx.designer.cs">
+      <DependentUpon>GetLatest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GetLatest.aspx.cs">
+      <DependentUpon>GetLatest.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
