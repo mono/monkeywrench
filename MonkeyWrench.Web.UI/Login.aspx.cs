@@ -61,7 +61,6 @@ public partial class Login : System.Web.UI.Page
 		if (Request.QueryString.GetValues ("state") != null) {
 			AuthenticationResult result;
 			if (!AuthenticationHelper.IsAuthenticated ()) {
-				Console.WriteLine ("Make sure we're authed...");
 				result = AuthenticationHelper.VerifyAuthentication ();
 				if (!result.IsSuccessful) {
 					lblMessageOpenId.Text = "Failed to get user authenication from Google";
@@ -81,10 +80,8 @@ public partial class Login : System.Web.UI.Page
 				}
 			}
 			if (loginResponse.Exception != null) {
-				Console.WriteLine ("Failed to make user/login.");
 				lblMessageOpenId.Text = loginResponse.Exception.Message;
 			} else {
-				Console.WriteLine ("Set cookies...");
 				Authentication.SetCookies (Response, loginResponse);
 				Response.Redirect (txtReferrer.Value, false);
 				return;

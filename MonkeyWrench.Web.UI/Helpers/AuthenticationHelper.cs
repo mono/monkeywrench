@@ -18,10 +18,6 @@ namespace MonkeyWrench.Web.UI
 			var auth = Global.ReadFromSession<AuthenticationResult>("Auth");
 			if (auth != null && auth.IsSuccessful)
 			{
-				// Check if they are actually a Xamarin Employee...
-				foreach (var thing in auth.ExtraData) {
-					Console.WriteLine (thing.Key + ":" + thing.Value);
-				}
 				string baseEmail = "";
 
 				// And by check, I mean check in the lamest way possible... :(
@@ -32,8 +28,6 @@ namespace MonkeyWrench.Web.UI
 				} else {
 					return false;
 				}
-				Console.WriteLine ("Ahhh, A xamarin employee!");
-
 
 				return true;                                          
 			}
@@ -63,7 +57,6 @@ namespace MonkeyWrench.Web.UI
 
 			if (result != null)
 			{
-				Console.WriteLine ("We're authed! weee.");
 				Global.SaveInSession("Auth", result);
 			}
 
