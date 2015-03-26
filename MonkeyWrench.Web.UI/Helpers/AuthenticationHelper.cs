@@ -11,29 +11,6 @@ namespace MonkeyWrench.Web.UI
 {
 	public static class AuthenticationHelper
 	{
-		private const string _email = "xamarin.com";
-
-		public static bool IsAuthenticated()
-		{
-			var auth = Global.ReadFromSession<AuthenticationResult>("Auth");
-			if (auth != null && auth.IsSuccessful)
-			{
-				string baseEmail = "";
-
-				// And by check, I mean check in the lamest way possible... :(
-				if (auth.ExtraData.TryGetValue ("hd", out baseEmail)) {
-					if (!baseEmail.Equals (_email)) {
-						return false;
-					}
-				} else {
-					return false;
-				}
-
-				return true;                                          
-			}
-			return false;            
-		}
-
 		public static string GetEmail()
 		{
 			var auth = Global.ReadFromSession<AuthenticationResult>("Auth");
@@ -44,7 +21,7 @@ namespace MonkeyWrench.Web.UI
 					return baseEmail;
 				}
 			}
-			return String.Empty;
+			return "";
 		}
 
 		public static AuthenticationResult VerifyAuthentication()
