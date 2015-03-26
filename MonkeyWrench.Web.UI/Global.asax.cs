@@ -120,22 +120,5 @@ namespace MonkeyWrench.Web.UI
 		{
 
 		}
-
-		public static void SaveInSession(string key, object value)
-		{
-			HttpSessionStateWrapper a = new HttpSessionStateWrapper(HttpContext.Current.Session);
-			a.Add(key, value);
-		}
-
-		public static T ReadFromSession<T>(string key) where T : class
-		{
-			return HttpContext.Current.Session[key] as T;
-		}
-
-		public static void ClearFromSession(string key)
-		{
-			HttpSessionStateWrapper a = new HttpSessionStateWrapper(HttpContext.Current.Session);
-			a.Remove(key);
-		}
 	}
 }

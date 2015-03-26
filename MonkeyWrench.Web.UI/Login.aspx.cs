@@ -86,8 +86,8 @@ public partial class Login : System.Web.UI.Page
 			login.User = Configuration.Host;
 			using (DB db = new DB ()) {
 				try {
-					db.Audit (login, "WebServices.LoginOpenId (email: {0}, ip4: {1})", AuthenticationHelper.GetEmail (), Utilities.GetExternalIP (Request));
-					DBLogin_Extensions.LoginOpenId (db, loginResponse, AuthenticationHelper.GetEmail (), Utilities.GetExternalIP (Request));
+					db.Audit (login, "WebServices.LoginOpenId (email: {0}, ip4: {1})", authResult.GetEmail (), Utilities.GetExternalIP (Request));
+					DBLogin_Extensions.LoginOpenId (db, loginResponse, authResult.GetEmail (), Utilities.GetExternalIP (Request));
 				} catch (Exception ex) {
 					loginResponse.Exception = new WebServiceException (ex);
 				}
@@ -145,7 +145,6 @@ public partial class Login : System.Web.UI.Page
 				Response.Cookies.Add (new HttpCookie ("roles", ""));
 				Response.Cookies ["roles"].Expires = DateTime.Now.AddYears (-20);
 			}
-			AuthenticationHelper.Unauthenticate ();
 			Response.Redirect (txtReferrer.Value, false);
 			return;
 		}

@@ -11,9 +11,8 @@ namespace MonkeyWrench.Web.UI
 {
 	public static class AuthenticationHelper
 	{
-		public static string GetEmail()
+		public static string GetEmail(this AuthenticationResult auth)
 		{
-			var auth = Global.ReadFromSession<AuthenticationResult>("Auth");
 			if (auth != null)            
 			{
 				string baseEmail = "";
@@ -30,14 +29,7 @@ namespace MonkeyWrench.Web.UI
 			var manager = new OpenAuthSecurityManager(new HttpContextWrapper(HttpContext.Current), 
 				ms, OAuthDataProvider.Instance);
 			GoogleOAuth2Client.RewriteRequest();
-			var result = manager.VerifyAuthentication(Configuration.OauthRedirect);
-
-			if (result != null)
-			{
-				Global.SaveInSession("Auth", result);
-			}
-
-			return result;
+			return manager.VerifyAuthentication(Configuration.OauthRedirect);
 		}
 
 		public static void Authenticate()
@@ -49,11 +41,6 @@ namespace MonkeyWrench.Web.UI
 			var ms = new GoogleOAuth2Client(Configuration.OauthClientId, Configuration.OauthClientSecret, scopes);
 			new OpenAuthSecurityManager(new HttpContextWrapper(HttpContext.Current),
 				ms, OAuthDataProvider.Instance).RequestAuthentication(Configuration.OauthRedirect);
-		}
-
-		public static void Unauthenticate()
-		{    
-			Global.ClearFromSession("Auth");            
 		}
 	}
 }
