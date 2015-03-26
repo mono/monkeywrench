@@ -76,9 +76,6 @@ namespace MonkeyWrench.Database
 		{
 			Logger.Log (2, "DBLogin.LoginOpenId ({0}, {1})", email, ip4);
 
-			if (string.IsNullOrEmpty (Configuration.OpenIdProvider))
-				throw new Exception ("No OpenId provider available");
-
 			if (string.IsNullOrEmpty (Configuration.OpenIdRoles))
 				throw new Exception ("No OpenId roles specified");
 
