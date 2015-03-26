@@ -116,10 +116,10 @@ namespace MonkeyWrench.WebServices
 			}
 
 			if (notifier_thread == null) {
+				queued_notifications = new BlockingCollection<QueuedNotification> ();
 				notifier_thread = new Thread (NotificationProcessor);
 				notifier_thread.IsBackground = true;
 				notifier_thread.Start ();
-				queued_notifications = new BlockingCollection<QueuedNotification> ();
 			}
 		}
 
