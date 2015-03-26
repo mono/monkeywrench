@@ -19,7 +19,7 @@ build: all
 schedule update: all
 	mono --debug class/lib/MonkeyWrench.Scheduler.exe
 
-web: all
+web:
 	scripts/web.sh
 
 generate:
