@@ -80,13 +80,9 @@ public partial class Login : System.Web.UI.Page
 				return;
 			}
 
-			WebServiceLogin login = new WebServiceLogin ();
 			LoginResponse loginResponse = new LoginResponse ();
-			login.Password = Configuration.WebServicePassword;
-			login.User = Configuration.Host;
 			using (DB db = new DB ()) {
 				try {
-					db.Audit (login, "WebServices.LoginOpenId (email: {0}, ip4: {1})", authResult.GetEmail (), Utilities.GetExternalIP (Request));
 					DBLogin_Extensions.LoginOpenId (db, loginResponse, authResult.GetEmail (), Utilities.GetExternalIP (Request));
 				} catch (Exception ex) {
 					loginResponse.Exception = new WebServiceException (ex);

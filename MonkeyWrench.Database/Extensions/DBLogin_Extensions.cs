@@ -129,6 +129,10 @@ namespace MonkeyWrench.Database
 						open_person.Save (db);
 					}
 				}
+				WebServiceLogin login = new WebServiceLogin ();
+				login.Ip4 = ip4;
+				login.User = open_person.login;
+				db.Audit (login, "DBLogin_Extensions.LoginOpenId (email: {0}, ip4: {1})", email, ip4);
 
 				var result = new DBLogin ();
 				result.person_id = open_person.id;
