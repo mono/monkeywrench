@@ -35,7 +35,7 @@ public partial class Admin : System.Web.UI.Page
 		if (!string.IsNullOrEmpty (action)) {
 			switch (action) {
 			case "schedule":
-				Utils.LocalWebService.ExecuteScheduler (Master.WebServiceLogin, true);
+				Utils.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
 				Response.Redirect (Request.UrlReferrer == null ? "index.aspx" : Request.UrlReferrer.ToString (), false);
 				return;
 			}
@@ -50,7 +50,7 @@ public partial class Admin : System.Web.UI.Page
 	protected void cmdSchedule_Click (object sender, EventArgs e)
 	{
 		cmdSchedule.Enabled = false;
-		Utils.LocalWebService.ExecuteScheduler (Master.WebServiceLogin, true);
+		Utils.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
 		lblSchedule.Text = "Scheduler started. It's run asynchronously, so no updates will be shown here.";
 		lblSchedulerStatus.Text = "Running";
 	}
