@@ -91,10 +91,6 @@
       <Project>{D78E8A6F-2A80-4F3C-8F4F-42C1043ED5E2}</Project>
       <Name>MonkeyWrench.Scheduler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MonkeyWrench.Web.UI\MonkeyWrench.Web.UI.csproj">
-      <Project>{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}</Project>
-      <Name>MonkeyWrench.Web.UI</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MonkeyWrench.Web.WebService\MonkeyWrench.Web.WebService.csproj">
       <Project>{86D06788-14A7-4962-88F0-FB58B7D34FF1}</Project>
       <Name>MonkeyWrench.Web.WebService</Name>
@@ -102,6 +98,10 @@
     <ProjectReference Include="..\MonkeyWrench\MonkeyWrench.csproj">
       <Project>{EBFBC3BF-10E1-4482-B9BE-A516934C099A}</Project>
       <Name>MonkeyWrench</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonkeyWrench.Web.UI\MonkeyWrench.Web.UI.csproj">
+      <Project>{01AAA129-3B2B-4093-A7B4-6153B6BEBED4}</Project>
+      <Name>MonkeyWrench.Web.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
