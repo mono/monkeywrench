@@ -97,8 +97,8 @@ public partial class Login : System.Web.UI.Page
 			} else {
 				Authentication.SetCookies (Response, loginResponse);
 				Response.Redirect (txtReferrer.Value, false);
-				return;
 			}
+			return;
 		}
 
 		if (cmdLoginOpenId.Visible) {
