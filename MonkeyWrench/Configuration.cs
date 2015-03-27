@@ -31,7 +31,7 @@ namespace MonkeyWrench
 		public static string WebSiteUrl;
 		public static bool ForceFullUpdate = true;
 		public static string WebServicePassword;
-		public static string DatabaseHost = "localhost";
+		public static string DatabaseHost = "127.0.0.1";
 		public static int DatabasePort;
 		public static string DatabaseName = "builder";
 		public static string DatabaseUser = "builder";
