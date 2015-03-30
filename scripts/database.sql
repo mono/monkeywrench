@@ -241,8 +241,12 @@ CREATE TABLE RevisionWork (
 	
 	lock_expires   timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time when this revisionwork's lock (if any) expires
 	completed      boolean    NOT NULL DEFAULT FALSE, -- if this revision has completed its work
-	endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time this revisionwork finished working
-	-- alter table revisionwork add column endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0';
+	
+	createdtime  timestamptz NULL DEFAULT NOW(), -- Time that the RevisionWork was created
+	assignedtime timestamptz NULL,          -- Time that workhost_id was assigned
+	startedtime  timestamptz NULL,          -- Time that the first work was created, denormalized from `MIN(work.starttime) WHERE work.revisionwork_id = id`
+	endtime      timestamptz NULL,          -- Time that the RevisionWork was completed
+	
 	UNIQUE (lane_id, host_id, revision_id)
 );
 CREATE INDEX RevisionWork_revision_id_idx ON RevisionWork (revision_id);
