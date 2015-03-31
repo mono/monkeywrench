@@ -61,7 +61,7 @@
       <HintPath>..\packages\Npgsql.2.2.5\lib\net40\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="Npgsql">
-      <HintPath>..\packages\Npgsql.2.2.5\lib\net40\Npgsql.dll</HintPath>
+      <HintPath>..\class\lib\Npgsql.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
