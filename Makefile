@@ -14,10 +14,10 @@ wsdl:
 	$(MAKE) -C MonkeyWrench.Web.WebService $@
 
 build: all
-	mono --debug class/lib/MonkeyWrench.Builder.exe
+	mono --debug MonkeyWrench.Builder/bin/Debug/MonkeyWrench.Builder.exe
 
 schedule update: all
-	mono --debug class/lib/MonkeyWrench.Scheduler.exe
+	mono --debug MonkeyWrench.Scheduler/bin/Debug/MonkeyWrench.Scheduler.exe
 
 web:
 	scripts/web.sh
@@ -26,7 +26,7 @@ generate:
 	$(MAKE) -C MonkeyWrench.DataClasses $@
 
 clean-large-objects compress-files execute-deletion-directives move-files-to-file-system move-files-to-database: all
-	mono --debug class/lib/MonkeyWrench.Database.Manager.exe --$@
+	mono --debug MonkeyWrench.Database.Manager/bin/Debug/MonkeyWrench.Database.Manager.exe --$@
 
 RELEASE_FILENAME=releases/MonkeyWrench.`grep AssemblyVersion MonkeyWrench/AssemblyInfo.cs | awk -F'\"' '{print $$2}'`.zip
 release: all
@@ -49,7 +49,7 @@ run-test run-tests: tests
 	# git creates read-only files, which managed code can't delete (an UnauthorizedException is thrown)
 	# delete any test directories right away
 	rm -Rf /tmp/MonkeyWrench.Test
-	mono --debug class/lib/MonkeyWrench.Test.exe
+	mono --debug MonkeyWrench.Test/bin/Debug/MonkeyWrench.Test.exe
 
 test-db-start:
 	PGPORT=5678 PGDATA=/tmp/MonkeyWrench.Test/db/data/db/data pg_ctl start -w
