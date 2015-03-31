@@ -16,7 +16,7 @@ namespace MonkeyWrench.Web.JSON {
 				while (reader.Read ()) {
 					var lane = new JObject ();
 					lane ["id"] = reader.GetInt32 (0);
-					lane ["lane"] = reader.GetString (1);
+					lane ["name"] = reader.GetString (1);
 					results.Add (lane);
 				}
 

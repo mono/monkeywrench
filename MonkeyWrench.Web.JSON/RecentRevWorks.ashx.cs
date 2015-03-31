@@ -43,10 +43,11 @@ namespace MonkeyWrench.Web.JSON {
 				}
 
 				cmd.CommandText = @"
-					SELECT rw.id, lane, host, revision, rw.state, rw.createdtime, rw.assignedtime, rw.startedtime, rw.endtime
+					SELECT rw.id, lane, host.host, revision, rw.state, rw.createdtime, rw.assignedtime, rw.startedtime, rw.endtime, workhost.host
 					FROM revisionwork AS rw
 					INNER JOIN lane ON lane.id = rw.lane_id
 					INNER JOIN host ON host.id = rw.host_id
+					LEFT OUTER JOIN host AS workhost ON workhost.id = rw.workhost_id
 					INNER JOIN revision ON revision.id = rw.revision_id
 					WHERE lane.id = @lane_id AND createdtime IS NOT NULL
 					ORDER BY rw.createdtime DESC
@@ -66,6 +67,7 @@ namespace MonkeyWrench.Web.JSON {
 						commit ["assignedtime"] = dateTimeToMilliseconds(reader.GetDateTimeOrNull(6));
 						commit ["startedtime"] = dateTimeToMilliseconds(reader.GetDateTimeOrNull(7));
 						commit ["endtime"] = dateTimeToMilliseconds(reader.GetDateTimeOrNull(8));
+						commit ["assignedhost"] = reader.IsDBNull(9) ? null : reader.GetString (9);
 						commits.Add (commit);
 					}
 					context.Response.StatusCode = 200;
