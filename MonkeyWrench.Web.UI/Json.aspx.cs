@@ -70,7 +70,7 @@ namespace MonkeyWrench.Web.UI
 		}
 
 		private string GetBotInfo (WebServiceLogin login, bool showHostHistory) {
-			var hoststatusresponse = Utils.WebService.GetHostStatus (login);
+			var hoststatusresponse = Utils.LocalWebService.GetHostStatus (login);
 			var node_information = new Dictionary<string, object> {
 				{ "inactiveNodes", GetInactiveHosts (login, hoststatusresponse) },
 				{ "activeNodes",   GetActiveHosts (login, hoststatusresponse) },
@@ -83,9 +83,9 @@ namespace MonkeyWrench.Web.UI
 		}
 
 		private Dictionary<string, IEnumerable<HostHistoryEntry>> GetHostHistory (WebServiceLogin web_service_login, int limit, int offset) {
-			var hosts = Utils.WebService.GetHosts (login).Hosts.OrderBy(h => h.host);
+			var hosts = Utils.LocalWebService.GetHosts (login).Hosts.OrderBy(h => h.host);
 			var hostHistoryResponses = hosts.Select (host =>
-				Utils.WebService.GetWorkHostHistory (login, host.id, "", limit, offset));
+				Utils.LocalWebService.GetWorkHostHistory (login, host.id, "", limit, offset));
 
 			var hostHistories = hostHistoryResponses.ToDictionary (
 				hr => hr.Host.host,
@@ -100,13 +100,13 @@ namespace MonkeyWrench.Web.UI
 //			return Utils.WebService.GetRevisions (login, null, lane.lane, 1, 0).Revisions
 //				.Select(rev => rev.date.ToString ("yyyy/MM/dd HH:mm:ss UTC")).FirstOrDefault();
 
-			var revisions = Utils.WebService.GetRevisions (login, null, lane.lane, 1, 0).Revisions;
+			var revisions = Utils.LocalWebService.GetRevisions (login, null, lane.lane, 1, 0).Revisions;
 
 			return revisions.Any () ? revisions.First().date.ToString ("u") : "";
 		}
 
 		private string GetLaneInfo (WebServiceLogin login) {
-			var lanesResponse = Utils.WebService.GetLanes (login);
+			var lanesResponse = Utils.LocalWebService.GetLanes (login);
 
 			var lanes = lanesResponse.Lanes.ToDictionary (
 				l => l.lane,

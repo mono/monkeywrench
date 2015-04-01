@@ -59,7 +59,7 @@ public partial class SelectLanes : System.Web.UI.Page
 			}
 		}
 
-		data = Master.WebService.GetLanes (Master.WebServiceLogin);
+		data = Utils.LocalWebService.GetLanes (Master.WebServiceLogin);
 
 		foreach (DBLane lane in data.Lanes) {
 			if (lane.parent_lane_id.HasValue)

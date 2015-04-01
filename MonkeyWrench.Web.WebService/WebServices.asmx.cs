@@ -69,8 +69,8 @@ namespace MonkeyWrench.WebServices
 					DB.CreateParameter (cmd, "user", user);
 					string result = cmd.ExecuteScalar () as string;
 
-					if (result is string)
-						return ((string) result).Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+					if (result != null)
+						return result.Split (new char [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 				}
 			}
 
@@ -83,12 +83,9 @@ namespace MonkeyWrench.WebServices
 			LoginResponse response = new LoginResponse ();
 
 			using (DB db = new DB ()) {
-				try {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					DBLogin_Extensions.LoginOpenId (db, response, email, ip4);
-				} catch (Exception ex) {
-					response.Exception = new WebServiceException (ex);
-				}
+				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.LoginOpenId (email: {0}, ip4: {1})", email, ip4);
+				DBLogin_Extensions.LoginOpenId (db, response, email, ip4);
 				return response;
 			}
 		}
@@ -255,10 +252,7 @@ namespace MonkeyWrench.WebServices
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
-				if (upload_files.Equals(""))
-					cmd.upload_files = null;
-				else
-					cmd.upload_files = upload_files;
+				cmd.upload_files = string.IsNullOrEmpty (upload_files) ? null : upload_files;
 				cmd.Save (db);
 			}
 		}
@@ -1123,27 +1117,23 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		public GetViewLaneDataResponse GetViewLaneData2 (WebServiceLogin login, int? lane_id, string lane, int? host_id, string host, int? revision_id, string revision, bool include_hidden_files)
 		{
 			GetViewLaneDataResponse response = new GetViewLaneDataResponse ();
-			try {
-				using (DB db = new DB ()) {
-					Authenticate (db, login, response);
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
 
-					response.Now = db.Now;
-					response.Lane = FindLane (db, lane_id, lane);
-					response.Host = FindHost (db, host_id, host);
-					response.Revision = FindRevision (db, revision_id, revision);
-					response.RevisionWork = DBRevisionWork_Extensions.Find (db, response.Lane, response.Host, response.Revision);
-					if (response.RevisionWork != null && response.RevisionWork.workhost_id.HasValue) {
-						response.WorkHost = FindHost (db, response.RevisionWork.workhost_id, null);
-					}
-					response.WorkViews = db.GetWork (response.RevisionWork);
-					response.WorkFileViews = new List<List<DBWorkFileView>> ();
-					for (int i = 0; i < response.WorkViews.Count; i++) {
-						response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id, include_hidden_files));
-					}
-					response.Links = DBWork_Extensions.GetLinks (db, response.WorkViews.Select<DBWorkView2, int> ((DBWorkView2 a, int b) => a.id));
+				response.Now = db.Now;
+				response.Lane = FindLane (db, lane_id, lane);
+				response.Host = FindHost (db, host_id, host);
+				response.Revision = FindRevision (db, revision_id, revision);
+				response.RevisionWork = DBRevisionWork_Extensions.Find (db, response.Lane, response.Host, response.Revision);
+				if (response.RevisionWork != null && response.RevisionWork.workhost_id.HasValue) {
+					response.WorkHost = FindHost (db, response.RevisionWork.workhost_id, null);
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+				response.WorkViews = db.GetWork (response.RevisionWork);
+				response.WorkFileViews = new List<List<DBWorkFileView>> ();
+				for (int i = 0; i < response.WorkViews.Count; i++) {
+					response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id, include_hidden_files));
+				}
+				response.Links = DBWork_Extensions.GetLinks (db, response.WorkViews.Select<DBWorkView2, int> ((DBWorkView2 a, int b) => a.id));
 			}
 
 			return response;
@@ -1196,192 +1186,188 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			if ((lanes != null && lanes.Length == 1))
 				single_lane = lanes [0];
 
-			try {
-				using (DB db = new DB ()) {
-					Authenticate (db, login, response, true);
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						var latest_only = latest_days != 0;
-						var last_month = string.Empty;
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					var latest_only = latest_days != 0;
+					var last_month = string.Empty;
 
-						if (!string.IsNullOrEmpty (single_lane)) {
-							// this will ignore the @afterdate condition below if the selected lane is not a parent of other lanes
-							last_month = " AND (NOT EXISTS (SELECT id FROM Lane WHERE parent_lane_id = (SELECT id FROM Lane WHERE lane = @single_lane)) OR \n";
-							DB.CreateParameter (cmd, "single_lane", single_lane);
-						} else {
-							last_month = " AND (";
-						}
+					if (!string.IsNullOrEmpty (single_lane)) {
+						// this will ignore the @afterdate condition below if the selected lane is not a parent of other lanes
+						last_month = " AND (NOT EXISTS (SELECT id FROM Lane WHERE parent_lane_id = (SELECT id FROM Lane WHERE lane = @single_lane)) OR \n";
+						DB.CreateParameter (cmd, "single_lane", single_lane);
+					} else {
+						last_month = " AND (";
+					}
 
-						last_month += @"
-			(
-				EXISTS (SELECT id FROM Revision WHERE date > @afterdate AND lane_id = Lane.id)
-					OR
-				EXISTS (SELECT id FROM RevisionWork WHERE lane_id = Lane.id AND ((completed = TRUE AND endtime > @afterdate) OR (state <> 9 AND state <> 11 AND completed = FALSE)))
-					OR
-				NOT EXISTS (SELECT id FROM Revision WHERE lane_id = Lane.id)
-					OR
-				EXISTS (SELECT id FROM Lane AS ParentLane WHERE ParentLane.parent_lane_id = Lane.id)
-			))";
-						/*
-						 */
+					last_month += @"
+		(
+			EXISTS (SELECT id FROM Revision WHERE date > @afterdate AND lane_id = Lane.id)
+				OR
+			EXISTS (SELECT id FROM RevisionWork WHERE lane_id = Lane.id AND ((completed = TRUE AND endtime > @afterdate) OR (state <> 9 AND state <> 11 AND completed = FALSE)))
+				OR
+			NOT EXISTS (SELECT id FROM Revision WHERE lane_id = Lane.id)
+				OR
+			EXISTS (SELECT id FROM Lane AS ParentLane WHERE ParentLane.parent_lane_id = Lane.id)
+		))";
+					/*
+					 */
 
-						cmd.CommandText = "SELECT * FROM Lane WHERE enabled = TRUE";
-						if (latest_only)
-							cmd.CommandText += last_month;
-						cmd.CommandText += ";\n";
-						cmd.CommandText += "SELECT * FROM Host;\n";
-						cmd.CommandText += @"
+					cmd.CommandText = "SELECT * FROM Lane WHERE enabled = TRUE";
+					if (latest_only)
+						cmd.CommandText += last_month;
+					cmd.CommandText += ";\n";
+					cmd.CommandText += "SELECT * FROM Host;\n";
+					cmd.CommandText += @"
 SELECT HostLane.*
 FROM HostLane
 INNER JOIN Lane ON Lane.id = HostLane.lane_id
 WHERE hidden = false AND Lane.enabled = TRUE";
-						if (latest_only)
-							cmd.CommandText += last_month;
-						cmd.CommandText += ";\n";
-						if (latest_only)
-							DB.CreateParameter (cmd, "afterdate", DateTime.Now.AddDays (-latest_days));
-						if (tags != null && tags.Length > 0) {
-							cmd.CommandText += "SELECT DISTINCT lane_id FROM LaneTag WHERE ";
-							for (int i = 0; i < tags.Length; i++) {
-								if (i > 0)
-									cmd.CommandText += " OR ";
-								cmd.CommandText += " tag = @tag" + i.ToString ();
-								DB.CreateParameter (cmd, "tag" + i.ToString (), tags [i]);
-							}
-							cmd.CommandText += ";";
+					if (latest_only)
+						cmd.CommandText += last_month;
+					cmd.CommandText += ";\n";
+					if (latest_only)
+						DB.CreateParameter (cmd, "afterdate", DateTime.Now.AddDays (-latest_days));
+					if (tags != null && tags.Length > 0) {
+						cmd.CommandText += "SELECT DISTINCT lane_id FROM LaneTag WHERE ";
+						for (int i = 0; i < tags.Length; i++) {
+							if (i > 0)
+								cmd.CommandText += " OR ";
+							cmd.CommandText += " tag = @tag" + i.ToString ();
+							DB.CreateParameter (cmd, "tag" + i.ToString (), tags [i]);
 						}
-						cmd.CommandText = "SET enable_seqscan = false;\n" + cmd.CommandText + "\nSET enable_seqscan = true;\n";
-						using (IDataReader reader = cmd.ExecuteReader ()) {
-							Lanes = DBRecord.LoadMany<DBLane> (reader);
+						cmd.CommandText += ";";
+					}
+					cmd.CommandText = "SET enable_seqscan = false;\n" + cmd.CommandText + "\nSET enable_seqscan = true;\n";
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						Lanes = DBRecord.LoadMany<DBLane> (reader);
 
+						reader.NextResult ();
+						Hosts = DBRecord.LoadMany<DBHost> (reader);
+
+						reader.NextResult ();
+						HostLanes = DBRecord.LoadMany<DBHostLane> (reader);
+
+						if (tags != null && tags.Length > 0) {
 							reader.NextResult ();
-							Hosts = DBRecord.LoadMany<DBHost> (reader);
-
-							reader.NextResult ();
-							HostLanes = DBRecord.LoadMany<DBHostLane> (reader);
-
-							if (tags != null && tags.Length > 0) {
-								reader.NextResult ();
-								TaggedLaneIds = new List<int> (tags.Length);
-								while (reader.Read ())
-									TaggedLaneIds.Add (reader.GetInt32 (0));
-							}
+							TaggedLaneIds = new List<int> (tags.Length);
+							while (reader.Read ())
+								TaggedLaneIds.Add (reader.GetInt32 (0));
 						}
 					}
+				}
 
-					// get a list of the lanes to show
-					// note that the logic here is slightly different from the usual "string lane, int? lane_id" logic in other methods,
-					// where we only use the string parameter if the id parameter isn't provided, here we add everything we can to the 
-					// list of selected lanes, so if you provide both a string and an id parameter both are used (assuming they correspond
-					// with different lanes of course).
-					response.SelectedLanes = Lanes.FindAll (delegate (DBLane l) {
-						if (lane_ids != null) {
-							for (int i = 0; i < lane_ids.Length; i++) {
-								if (lane_ids [i] == l.id)
-									return true;
-							}
-						}
-						if (lanes != null) {
-							for (int i = 0; i < lanes.Length; i++) {
-								if (!string.IsNullOrEmpty (lanes [i]) && lanes [i] == l.lane)
-									return true;
-							}
-						}
-						if (TaggedLaneIds != null) {
-							if (TaggedLaneIds.Contains (l.id))
+				// get a list of the lanes to show
+				// note that the logic here is slightly different from the usual "string lane, int? lane_id" logic in other methods,
+				// where we only use the string parameter if the id parameter isn't provided, here we add everything we can to the 
+				// list of selected lanes, so if you provide both a string and an id parameter both are used (assuming they correspond
+				// with different lanes of course).
+				response.SelectedLanes = Lanes.FindAll (delegate (DBLane l) {
+					if (lane_ids != null) {
+						for (int i = 0; i < lane_ids.Length; i++) {
+							if (lane_ids [i] == l.id)
 								return true;
 						}
-						return false;
-					});
-
-					Logger.Log ("We have {0} selected lanes", response.SelectedLanes.Count);
-
-					// backwards compat
-					if (response.SelectedLanes.Count == 1)
-						response.Lane = response.SelectedLanes [0];
-
-					response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> (HostLanes.Count);
-					response.RevisionWorkHostLaneRelation = new List<int> (HostLanes.Count);
-
-					if (HostLanes.Count > 0) {
-						using (IDbCommand cmd = db.CreateCommand ()) {
-							// FIXME: use this instead: https://gist.github.com/rolfbjarne/cf73bf22209c8a8ef844
-
-							for (int i = 0; i < HostLanes.Count; i++) {
-								DBHostLane hl = HostLanes [i];
-
-								var stri = i.ToString ();
-								cmd.CommandText += @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE " +
-									"R.host_id = @host_id" + stri + " AND R.lane_id = @lane_id" + stri + " LIMIT @limit OFFSET @offset;\n";
-								DB.CreateParameter (cmd, "host_id" + stri, hl.host_id);
-								DB.CreateParameter (cmd, "lane_id" + stri, hl.lane_id);
-
-								response.RevisionWorkHostLaneRelation.Add (hl.id);
-							}
-
-							DB.CreateParameter (cmd, "limit", page_size);
-							DB.CreateParameter (cmd, "offset", page * page_size);
-
-							using (IDataReader reader = cmd.ExecuteReader ()) {
-								do {
-									response.RevisionWorkViews.Add (DBRecord.LoadMany<DBRevisionWorkView2> (reader));
-								} while (reader.NextResult ());
-							}
+					}
+					if (lanes != null) {
+						for (int i = 0; i < lanes.Length; i++) {
+							if (!string.IsNullOrEmpty (lanes [i]) && lanes [i] == l.lane)
+								return true;
 						}
 					}
+					if (TaggedLaneIds != null) {
+						if (TaggedLaneIds.Contains (l.id))
+							return true;
+					}
+					return false;
+				});
 
-					// Create a list of all the lanes which have hostlanes
-					var enabled_set = new HashSet<int> ();
-					foreach (DBHostLane hl in HostLanes) {
-						if (enabled_set.Contains (hl.lane_id))
-							continue;
-						enabled_set.Add (hl.lane_id);
+				Logger.Log ("We have {0} selected lanes", response.SelectedLanes.Count);
 
-						// Walk up the tree of parent lanes, marking all the parents too
-						var l = Lanes.FirstOrDefault ((v) => v.id == hl.lane_id);
+				// backwards compat
+				if (response.SelectedLanes.Count == 1)
+					response.Lane = response.SelectedLanes [0];
+
+				response.RevisionWorkViews = new List<List<DBRevisionWorkView2>> (HostLanes.Count);
+				response.RevisionWorkHostLaneRelation = new List<int> (HostLanes.Count);
+
+				if (HostLanes.Count > 0) {
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						// FIXME: use this instead: https://gist.github.com/rolfbjarne/cf73bf22209c8a8ef844
+
+						for (int i = 0; i < HostLanes.Count; i++) {
+							DBHostLane hl = HostLanes [i];
+
+							var stri = i.ToString ();
+							cmd.CommandText += @"SELECT R.* FROM (" + DBRevisionWorkView2.SQL.Replace (';', ' ') + ") AS R WHERE " +
+								"R.host_id = @host_id" + stri + " AND R.lane_id = @lane_id" + stri + " LIMIT @limit OFFSET @offset;\n";
+							DB.CreateParameter (cmd, "host_id" + stri, hl.host_id);
+							DB.CreateParameter (cmd, "lane_id" + stri, hl.lane_id);
+
+							response.RevisionWorkHostLaneRelation.Add (hl.id);
+						}
+
+						DB.CreateParameter (cmd, "limit", page_size);
+						DB.CreateParameter (cmd, "offset", page * page_size);
+
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							do {
+								response.RevisionWorkViews.Add (DBRecord.LoadMany<DBRevisionWorkView2> (reader));
+							} while (reader.NextResult ());
+						}
+					}
+				}
+
+				// Create a list of all the lanes which have hostlanes
+				var enabled_set = new HashSet<int> ();
+				foreach (DBHostLane hl in HostLanes) {
+					if (enabled_set.Contains (hl.lane_id))
+						continue;
+					enabled_set.Add (hl.lane_id);
+
+					// Walk up the tree of parent lanes, marking all the parents too
+					var l = Lanes.FirstOrDefault ((v) => v.id == hl.lane_id);
+					if (l == null) {
+						Logger.Log ("GetFrontPageDataWithTags: could not find lane {0} for host lane {1}", hl.lane_id, hl.id);
+						l = DBLane_Extensions.Create (db, hl.lane_id);
+						l.enabled = true; // This will prevent us from having to load the lane manually again.
+						l.Save (db);
+						Lanes.Add (l);
+						continue;
+					}
+					while (true) {
+						if (!l.parent_lane_id.HasValue)
+							break;
+
+						if (enabled_set.Contains (l.parent_lane_id.Value))
+							break;
+
+						enabled_set.Add (l.parent_lane_id.Value);
+
+						var old_l = l;
+						l = Lanes.FirstOrDefault ((v) => v.id == l.parent_lane_id.Value);
 						if (l == null) {
-							Logger.Log ("GetFrontPageDataWithTags: could not find lane {0} for host lane {1}", hl.lane_id, hl.id);
-							l = DBLane_Extensions.Create (db, hl.lane_id);
+							Logger.Log ("GetFrontPageDataWithTags: could not find parent lane {0} for lane {1} (host lane {2})", old_l.parent_lane_id.Value, old_l.id, hl.id);
+							l = DBLane_Extensions.Create (db, old_l.parent_lane_id.Value);
 							l.enabled = true; // This will prevent us from having to load the lane manually again.
 							l.Save (db);
 							Lanes.Add (l);
-							continue;
-						}
-						while (true) {
-							if (!l.parent_lane_id.HasValue)
-								break;
-
-							if (enabled_set.Contains (l.parent_lane_id.Value))
-								break;
-
-							enabled_set.Add (l.parent_lane_id.Value);
-
-							var old_l = l;
-							l = Lanes.FirstOrDefault ((v) => v.id == l.parent_lane_id.Value);
-							if (l == null) {
-								Logger.Log ("GetFrontPageDataWithTags: could not find parent lane {0} for lane {1} (host lane {2})", old_l.parent_lane_id.Value, old_l.id, hl.id);
-								l = DBLane_Extensions.Create (db, old_l.parent_lane_id.Value);
-								l.enabled = true; // This will prevent us from having to load the lane manually again.
-								l.Save (db);
-								Lanes.Add (l);
-								break;
-							}
+							break;
 						}
 					}
-
-					// Remove the lanes which aren't marked
-					for (int i = Lanes.Count - 1; i >= 0; i--) {
-						if (!enabled_set.Contains (Lanes [i].id)) {
-							Lanes.RemoveAt (i);
-						}
-					}
-
-					response.Lanes = Lanes;
-					response.Hosts = Hosts;
-					response.HostLanes = HostLanes;
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+
+				// Remove the lanes which aren't marked
+				for (int i = Lanes.Count - 1; i >= 0; i--) {
+					if (!enabled_set.Contains (Lanes [i].id)) {
+						Lanes.RemoveAt (i);
+					}
+				}
+
+				response.Lanes = Lanes;
+				response.Hosts = Hosts;
+				response.HostLanes = HostLanes;
 			}
 
 			return response;
@@ -1643,22 +1629,18 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = @"
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
 UPDATE Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
 WHERE Work.revisionwork_id IN (SELECT RevisionWork.id FROM RevisionWork WHERE RevisionWork.host_id = @host_id);
 
 UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT WHERE host_id = @host_id;
 ";
-						DB.CreateParameter (cmd, "host_id", host_id);
-						cmd.ExecuteNonQuery ();
-					}
+					DB.CreateParameter (cmd, "host_id", host_id);
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -1670,22 +1652,18 @@ UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEF
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = @"
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
 UPDATE Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
 WHERE Work.revisionwork_id IN (SELECT RevisionWork.id FROM RevisionWork WHERE RevisionWork.lane_id = @lane_id);
 
 UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT WHERE lane_id = @lane_id;
 ";
-						DB.CreateParameter (cmd, "lane_id", lane_id);
-						cmd.ExecuteNonQuery ();
-					}
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -1696,20 +1674,16 @@ UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEF
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = @"
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
 DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE host_id = @host_id);
 UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE host_id = @host_id;
 ";
-						DB.CreateParameter (cmd, "host_id", host_id);
-						cmd.ExecuteNonQuery ();
-					}
+					DB.CreateParameter (cmd, "host_id", host_id);
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -1720,20 +1694,16 @@ UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT W
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = @"
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
 DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE lane_id = @lane_id);
 UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE lane_id = @lane_id;
 ";
-						DB.CreateParameter (cmd, "lane_id", lane_id);
-						cmd.ExecuteNonQuery ();
-					}
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -1744,19 +1714,14 @@ UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT W
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = @"DELETE FROM Revision WHERE lane_id = @lane_id;";
-						DB.CreateParameter (cmd, "lane_id", lane_id);
-						cmd.ExecuteNonQuery ();
-					}
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"DELETE FROM Revision WHERE lane_id = @lane_id;";
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
-
 			return response;
 		}
 		[WebMethod]
@@ -1824,21 +1789,17 @@ UPDATE Work SET state = @state WHERE Work.revisionwork_id = (SELECT RevisionWork
 		{
 			GetViewTableDataResponse response = new GetViewTableDataResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					Authenticate (db, login, response);
-					response.Lane = FindLane (db, lane_id, lane);
-					response.Host = FindHost (db, host_id, host);
-					response.Count = DBRevisionWork_Extensions.GetCount (db, response.Lane.id, response.Host.id);
-					response.Page = page;
-					response.PageSize = page_size;
-					response.RevisionWorkViews = DBRevisionWorkView_Extensions.Query (db, response.Lane, response.Host, response.PageSize, response.Page);
-					var hl = db.GetHostLane (response.Host.id, response.Lane.id);
-					if (hl != null)
-						response.Enabled = hl.enabled;
-				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
+				response.Lane = FindLane (db, lane_id, lane);
+				response.Host = FindHost (db, host_id, host);
+				response.Count = DBRevisionWork_Extensions.GetCount (db, response.Lane.id, response.Host.id);
+				response.Page = page;
+				response.PageSize = page_size;
+				response.RevisionWorkViews = DBRevisionWorkView_Extensions.Query (db, response.Lane, response.Host, response.PageSize, response.Page);
+				var hl = db.GetHostLane (response.Host.id, response.Lane.id);
+				if (hl != null)
+					response.Enabled = hl.enabled;
 			}
 
 			return response;
@@ -1948,14 +1909,10 @@ ORDER BY date DESC LIMIT 250;
 		{
 			GetUsersResponse response = new GetUsersResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					
-					response.Users = DBPerson_Extensions.GetAll (db);
-				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				
+				response.Users = DBPerson_Extensions.GetAll (db);
 			}
 
 			return response;
@@ -1965,19 +1922,15 @@ ORDER BY date DESC LIMIT 250;
 		public WebServiceResponse DeleteUser (WebServiceLogin login, int id)
 		{
 			WebServiceResponse response = new WebServiceResponse ();
-			
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "DELETE FROM Person WHERE id = @id;";
-						DB.CreateParameter (cmd, "id", id);
-						cmd.ExecuteNonQuery ();
-					}
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "DELETE FROM Person WHERE id = @id;";
+					DB.CreateParameter (cmd, "id", id);
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 			return response;
 		}
@@ -1988,27 +1941,23 @@ ORDER BY date DESC LIMIT 250;
 			DBPerson user;
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					Authenticate (db, login, response, true);
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
 
-					user = FindUser (db, id, username);
-					if (user == null) {
-						/* user doesn't exist */
-						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
-					} else if (Utilities.IsInRole (response, Roles.Administrator)) {
-						/* admin editing (or adming editing self) */
-						user.AddEmail (db, email);
-					} else if (response.UserName == user.login) {
-						/* editing self */
-						user.AddEmail (db, email);
-					} else {
-						/* somebody else editing some other person */
-						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
-					}
+				user = FindUser (db, id, username);
+				if (user == null) {
+					/* user doesn't exist */
+					response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
+				} else if (Utilities.IsInRole (response, Roles.Administrator)) {
+					/* admin editing (or adming editing self) */
+					user.AddEmail (db, email);
+				} else if (response.UserName == user.login) {
+					/* editing self */
+					user.AddEmail (db, email);
+				} else {
+					/* somebody else editing some other person */
+					response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -2020,28 +1969,24 @@ ORDER BY date DESC LIMIT 250;
 			WebServiceResponse response = new WebServiceResponse ();
 			DBPerson user;
 
-			try {
-				using (DB db = new DB ()) {
-					Authenticate (db, login, response, true);
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
 
-					user = FindUser (db, id, username);
+				user = FindUser (db, id, username);
 
-					if (user == null) {
-						/* user doesn't exist */
-						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
-					} else if (Utilities.IsInRole (response, Roles.Administrator)) {
-						/* admin editing (or adming editing self) */
-						user.RemoveEmail (db, email);
-					} else if (response.UserName == user.login) {
-						/* editing self */
-						user.RemoveEmail (db, email);
-					} else {
-						/* somebody else editing some other person */
-						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
-					}
+				if (user == null) {
+					/* user doesn't exist */
+					response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
+				} else if (Utilities.IsInRole (response, Roles.Administrator)) {
+					/* admin editing (or adming editing self) */
+					user.RemoveEmail (db, email);
+				} else if (response.UserName == user.login) {
+					/* editing self */
+					user.RemoveEmail (db, email);
+				} else {
+					/* somebody else editing some other person */
+					response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -2052,45 +1997,41 @@ ORDER BY date DESC LIMIT 250;
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					Authenticate (db, login, response, true);
-					
-					if (user.id == 0) {
-						/* new user, anybody can create new users */
-						/* create a new person object, and only copy over the fields self is allowed to edit */
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
+				
+				if (user.id == 0) {
+					/* new user, anybody can create new users */
+					/* create a new person object, and only copy over the fields self is allowed to edit */
 
-						if (string.IsNullOrEmpty (user.password) || user.password.Length < 8) {
-							response.Exception = new WebServiceException ("Password must be at least 8 characters long");
-							return response;
-						}
+					if (string.IsNullOrEmpty (user.password) || user.password.Length < 8) {
+						response.Exception = new WebServiceException ("Password must be at least 8 characters long");
+						return response;
+					}
 
-						DBPerson person = new DBPerson ();
+					DBPerson person = new DBPerson ();
+					person.fullname = user.fullname;
+					person.login = user.login;
+					person.password = user.password;
+					person.irc_nicknames = user.irc_nicknames;
+					person.Save (db);
+				} else {
+					if (Utilities.IsInRole (response, Roles.Administrator)) {
+						/* admin editing (or adming editing self) */
+						user.Save (db); // no restrictions
+					} else if (response.UserName == user.login) {
+						/* editing self */
+						/* create another person object, and only copy over the fields self is allowed to edit */
+						DBPerson person = DBPerson_Extensions.Create (db, user.id);
 						person.fullname = user.fullname;
-						person.login = user.login;
 						person.password = user.password;
 						person.irc_nicknames = user.irc_nicknames;
 						person.Save (db);
 					} else {
-						if (Utilities.IsInRole (response, Roles.Administrator)) {
-							/* admin editing (or adming editing self) */
-							user.Save (db); // no restrictions
-						} else if (response.UserName == user.login) {
-							/* editing self */
-							/* create another person object, and only copy over the fields self is allowed to edit */
-							DBPerson person = DBPerson_Extensions.Create (db, user.id);
-							person.fullname = user.fullname;
-							person.password = user.password;
-							person.irc_nicknames = user.irc_nicknames;
-							person.Save (db);
-						} else {
-							/* somebody else editing some other person */
-							response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
-						}
+						/* somebody else editing some other person */
+						response.Exception = new WebServiceException (new HttpException (403, "You're not allowed to edit this user"));
 					}
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -2120,32 +2061,28 @@ ORDER BY date DESC LIMIT 250;
 			DBPerson result = null;
 			GetUserResponse response = new GetUserResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					Authenticate (db, login, response, true);
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
 
-					if (!id.HasValue) {
-						using (IDbCommand cmd = db.CreateCommand ()) {
-							cmd.CommandText = "SELECT * FROM Person WHERE login = @login;";
-							DB.CreateParameter (cmd, "login", username);
-							using (IDataReader reader = cmd.ExecuteReader ()) {
-								if (reader.Read ())
-									result = new DBPerson (reader);
-							}
+				if (!id.HasValue) {
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "SELECT * FROM Person WHERE login = @login;";
+						DB.CreateParameter (cmd, "login", username);
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							if (reader.Read ())
+								result = new DBPerson (reader);
 						}
-					} else {
-						result = DBPerson_Extensions.Create (db, id.Value);
 					}
-
-					if (result != null && (result.login == response.UserName || Utilities.IsInRole (response, Roles.Administrator))) {
-						result.Emails = result.GetEmails (db).ToArray ();
-						response.User = result;
-					} else {
-						response.Exception = new WebServiceException (new HttpException (403, "You don't have access to this user's data"));
-					}
+				} else {
+					result = DBPerson_Extensions.Create (db, id.Value);
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+
+				if (result != null && (result.login == response.UserName || Utilities.IsInRole (response, Roles.Administrator))) {
+					result.Emails = result.GetEmails (db).ToArray ();
+					response.User = result;
+				} else {
+					response.Exception = new WebServiceException (new HttpException (403, "You don't have access to this user's data"));
+				}
 			}
 
 			return response;
@@ -2266,65 +2203,61 @@ ORDER BY date DESC LIMIT 250;
 		{
 			GetFilesForWorkResponse response = new GetFilesForWorkResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator, true);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator, true);
 
-					response.WorkFileIds = new List<List<int>> ();
-					response.Files = new List<List<DBFile>> ();
-					response.Commands = new List<int> ();
+				response.WorkFileIds = new List<List<int>> ();
+				response.Files = new List<List<DBFile>> ();
+				response.Commands = new List<int> ();
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = @"
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
 SELECT File.*, Work.command_id, WorkFile.id AS workfile_id FROM File
 INNER JOIN WorkFile ON File.id = WorkFile.file_id
 INNER JOIN Work ON Work.id = WorkFile.work_id
 WHERE Work.revisionwork_id = @revisionwork_id ";
-						if (command_id > 0) {
-							cmd.CommandText += "AND Work.command_id = @command_id ";
-							DB.CreateParameter (cmd, "command_id", command_id);
-						}
-						if (!string.IsNullOrEmpty (filename)) {
-							cmd.CommandText += " AND WorkFile.filename = @filename";
-							DB.CreateParameter (cmd, "filename", filename);
-						}
-						cmd.CommandText += ";";
+					if (command_id > 0) {
+						cmd.CommandText += "AND Work.command_id = @command_id ";
+						DB.CreateParameter (cmd, "command_id", command_id);
+					}
+					if (!string.IsNullOrEmpty (filename)) {
+						cmd.CommandText += " AND WorkFile.filename = @filename";
+						DB.CreateParameter (cmd, "filename", filename);
+					}
+					cmd.CommandText += ";";
 
-						DB.CreateParameter (cmd, "revisionwork_id", revisionwork_id);
+					DB.CreateParameter (cmd, "revisionwork_id", revisionwork_id);
 
-						using (IDataReader reader = cmd.ExecuteReader ()) {
-							int command_id_idx = reader.GetOrdinal ("command_id");
-							int workfile_id_idx = reader.GetOrdinal ("workfile_id");
-							while (reader.Read ()) {
-								List<DBFile> files = null;
-								List<int> workfile_ids = null;
-								int cmd_id = reader.GetInt32 (command_id_idx);
-								int workfile_id = reader.GetInt32 (workfile_id_idx);
-								
-								for (int i = 0; i < response.Commands.Count; i++) {
-									if (response.Commands [i] == cmd_id) {
-										files = response.Files [i];
-										workfile_ids = response.WorkFileIds [i];
-										break;
-									}
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						int command_id_idx = reader.GetOrdinal ("command_id");
+						int workfile_id_idx = reader.GetOrdinal ("workfile_id");
+						while (reader.Read ()) {
+							List<DBFile> files = null;
+							List<int> workfile_ids = null;
+							int cmd_id = reader.GetInt32 (command_id_idx);
+							int workfile_id = reader.GetInt32 (workfile_id_idx);
+							
+							for (int i = 0; i < response.Commands.Count; i++) {
+								if (response.Commands [i] == cmd_id) {
+									files = response.Files [i];
+									workfile_ids = response.WorkFileIds [i];
+									break;
 								}
-
-								if (files == null) {
-									files = new List<DBFile> ();
-									workfile_ids = new List<int> ();
-									response.Files.Add (files);
-									response.WorkFileIds.Add (workfile_ids);
-									response.Commands.Add (cmd_id);
-								}
-
-								files.Add (new DBFile (reader));
-								workfile_ids.Add (workfile_id);
 							}
+
+							if (files == null) {
+								files = new List<DBFile> ();
+								workfile_ids = new List<int> ();
+								response.Files.Add (files);
+								response.WorkFileIds.Add (workfile_ids);
+								response.Commands.Add (cmd_id);
+							}
+
+							files.Add (new DBFile (reader));
+							workfile_ids.Add (workfile_id);
 						}
 					}
 				}
-			} catch (Exception ex) {
-				Logger.Log ("GetFilesForWork exception: {0}", ex);
 			}
 
 			return response;
@@ -2346,15 +2279,11 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 				Logger.Log (2, "ReportBuildState, state: {0}, start time: {1}, end time: {2}", work.State, work.starttime, work.endtime);
 				if (work.starttime > new DateTime (2000, 1, 1) && work.endtime < work.starttime) {
 					// the issue here is that the server interprets the datetime as local time, while it's always as utc.
-					try {
-						using (IDbCommand cmd = db.CreateCommand ()) {
-							cmd.CommandText = "SELECT starttime FROM Work WHERE id = " + work.id;
-							var value = cmd.ExecuteScalar ();
-							if (value != null && value is DateTime)
-								work.starttime = (DateTime) value;
-						}
-					} catch (Exception ex) {
-						Logger.Log ("ReportBuildState: Exception while fixing timezone data: {0}", ex.Message);
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = "SELECT starttime FROM Work WHERE id = " + work.id;
+						var value = cmd.ExecuteScalar ();
+						if (value is DateTime)
+							work.starttime = (DateTime)value;
 					}
 				}
 				work.Save (db);
@@ -2507,36 +2436,32 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 		{
 			ReportBuildBotStatusResponse response = new ReportBuildBotStatusResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.BuildBot, true);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.BuildBot, true);
 
-					Logger.Log (2, "BuildBot '{2}' reported in. v{0}: {1}", status.AssemblyVersion, status.AssemblyDescription, status.Host);
+				Logger.Log (2, "BuildBot '{2}' reported in. v{0}: {1}", status.AssemblyVersion, status.AssemblyDescription, status.Host);
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = @"
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"
 DELETE FROM BuildBotStatus WHERE host_id = (SELECT id FROM Host WHERE host = @host);
 INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FROM Host WHERE host = @host), @version, @description);
 ";
-						DB.CreateParameter (cmd, "host", status.Host);
-						DB.CreateParameter (cmd, "version", status.AssemblyVersion);
-						DB.CreateParameter (cmd, "description", status.AssemblyDescription);
-						cmd.ExecuteNonQuery ();
-					}
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "SELECT * FROM Release INNER JOIN Host ON Host.release_id = Release.id WHERE Host.host = @host;";
-						DB.CreateParameter (cmd, "host", status.Host);
-						using (IDataReader reader = cmd.ExecuteReader ()) {
-							if (reader.Read ()) {
-								DBRelease release = new DBRelease (reader);
-								response.ConfiguredVersion = release.version;
-								response.ConfiguredRevision = release.revision;
-							}
+					DB.CreateParameter (cmd, "host", status.Host);
+					DB.CreateParameter (cmd, "version", status.AssemblyVersion);
+					DB.CreateParameter (cmd, "description", status.AssemblyDescription);
+					cmd.ExecuteNonQuery ();
+				}
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT * FROM Release INNER JOIN Host ON Host.release_id = Release.id WHERE Host.host = @host;";
+					DB.CreateParameter (cmd, "host", status.Host);
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						if (reader.Read ()) {
+							DBRelease release = new DBRelease (reader);
+							response.ConfiguredVersion = release.version;
+							response.ConfiguredRevision = release.revision;
 						}
 					}
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -2547,34 +2472,30 @@ INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FR
 		{
 			GetBuildBotStatusResponse response = new GetBuildBotStatusResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator, true);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator, true);
 
-					response.Status = new List<DBBuildBotStatus> ();
-					response.Hosts = new List<DBHost> ();
-					response.Releases = new List<DBRelease> ();
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "SELECT * FROM BuildBotStatus; SELECT * FROM Host; SELECT * FROM Release;";
-						using (IDataReader reader = cmd.ExecuteReader ()) {
+				response.Status = new List<DBBuildBotStatus> ();
+				response.Hosts = new List<DBHost> ();
+				response.Releases = new List<DBRelease> ();
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT * FROM BuildBotStatus; SELECT * FROM Host; SELECT * FROM Release;";
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							response.Status.Add (new DBBuildBotStatus (reader));
+						}
+						if (reader.NextResult ()) {
 							while (reader.Read ()) {
-								response.Status.Add (new DBBuildBotStatus (reader));
+								response.Hosts.Add (new DBHost (reader));
 							}
 							if (reader.NextResult ()) {
 								while (reader.Read ()) {
-									response.Hosts.Add (new DBHost (reader));
-								}
-								if (reader.NextResult ()) {
-									while (reader.Read ()) {
-										response.Releases.Add (new DBRelease (reader));
-									}
+									response.Releases.Add (new DBRelease (reader));
 								}
 							}
 						}
 					}
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -2589,291 +2510,286 @@ INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FR
 		[WebMethod]
 		public GetBuildInfoResponse GetBuildInfoMultiple (WebServiceLogin login, string host, bool multiple_work)
 		{
-			try {
-				List<DBHost> hosts = new List<DBHost> (); // list of hosts to find work for
-				List<DBHostLane> hostlanes = new List<DBHostLane> ();
-				List<DBLane> lanes = new List<DBLane> ();
+			List<DBHost> hosts = new List<DBHost> (); // list of hosts to find work for
+			List<DBHostLane> hostlanes = new List<DBHostLane> ();
+			List<DBLane> lanes = new List<DBLane> ();
 
-				GetBuildInfoResponse response = new GetBuildInfoResponse ();
+			GetBuildInfoResponse response = new GetBuildInfoResponse ();
 
-				response.Work = new List<List<BuildInfoEntry>> ();
+			response.Work = new List<List<BuildInfoEntry>> ();
 
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.BuildBot, true);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.BuildBot, true);
 
-					response.Host = FindHost (db, null, host);
+				response.Host = FindHost (db, null, host);
 
-					if (!response.Host.enabled)
-						return response;
+				if (!response.Host.enabled)
+					return response;
 
-					// find the master hosts for this host (if any)
-					response.MasterHosts = FindMasterHosts (db, response.Host);
+				// find the master hosts for this host (if any)
+				response.MasterHosts = FindMasterHosts (db, response.Host);
 
-					// get the hosts to find work for
-					if (response.MasterHosts != null && response.MasterHosts.Count > 0) {
-						foreach (DBMasterHost mh in response.MasterHosts)
-							hosts.Add (DBHost_Extensions.Create (db, mh.master_host_id));
-					} else {
-						hosts.Add (response.Host);
+				// get the hosts to find work for
+				if (response.MasterHosts != null && response.MasterHosts.Count > 0) {
+					foreach (DBMasterHost mh in response.MasterHosts)
+						hosts.Add (DBHost_Extensions.Create (db, mh.master_host_id));
+				} else {
+					hosts.Add (response.Host);
+				}
+
+				// find the enabled hostlane combinations for these hosts
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT HostLane.* FROM HostLane INNER JOIN Lane ON Lane.id = HostLane.lane_id WHERE Lane.enabled = TRUE AND HostLane.enabled = TRUE AND (";
+					for (int i = 0; i < hosts.Count; i++) {
+						if (i > 0)
+							cmd.CommandText += " OR ";
+						cmd.CommandText += " HostLane.host_id = " + hosts [i].id;
 					}
-
-					// find the enabled hostlane combinations for these hosts
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "SELECT HostLane.* FROM HostLane INNER JOIN Lane ON Lane.id = HostLane.lane_id WHERE Lane.enabled = TRUE AND HostLane.enabled = TRUE AND (";
-						for (int i = 0; i < hosts.Count; i++) {
-							if (i > 0)
-								cmd.CommandText += " OR ";
-							cmd.CommandText += " HostLane.host_id = " + hosts [i].id;
-						}
-						cmd.CommandText += ")";
-						using (IDataReader reader = cmd.ExecuteReader ()) {
-							while (reader.Read ())
-								hostlanes.Add (new DBHostLane (reader));
-						}
+					cmd.CommandText += ")";
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ())
+							hostlanes.Add (new DBHostLane (reader));
 					}
+				}
 
-					if (hostlanes.Count == 0)
-						return response; // nothing to do here
+				if (hostlanes.Count == 0)
+					return response; // nothing to do here
 
-					lanes = db.GetAllLanes ();
+				lanes = db.GetAllLanes ();
 
-					switch (response.Host.QueueManagement) {
-					case DBQueueManagement.OneRevisionWorkAtATime:
-						if (hostlanes.Count > 1) {
-							int latest = -1;
-							DateTime latest_date = DateTime.MaxValue;
+				switch (response.Host.QueueManagement) {
+				case DBQueueManagement.OneRevisionWorkAtATime:
+					if (hostlanes.Count > 1) {
+						int latest = -1;
+						DateTime latest_date = DateTime.MaxValue;
 
-							// we need to find the latest revisionwork each hostlane has completed.
-							// we want to work on the hostlane which has waited the longest amount
-							// of time without getting work done (but which has pending work to do).
+						// we need to find the latest revisionwork each hostlane has completed.
+						// we want to work on the hostlane which has waited the longest amount
+						// of time without getting work done (but which has pending work to do).
 
-							for (int i = 0; i < hostlanes.Count; i++) {
-								DBHostLane hl = hostlanes [i];
-								// check if this hostlane has pending work.
-								// this would ideally be included in the query below, but I'm not sure
-								// how to do that while still distinguising the case where nothing has
-								// been done ever for a hostlane.
-								using (IDbCommand cmd = db.CreateCommand ()) {
-									cmd.CommandText = @"
+						for (int i = 0; i < hostlanes.Count; i++) {
+							DBHostLane hl = hostlanes [i];
+							// check if this hostlane has pending work.
+							// this would ideally be included in the query below, but I'm not sure
+							// how to do that while still distinguising the case where nothing has
+							// been done ever for a hostlane.
+							using (IDbCommand cmd = db.CreateCommand ()) {
+								cmd.CommandText = @"
 SELECT RevisionWork.id
 FROM RevisionWork
 WHERE
-        RevisionWork.host_id = @host_id
+    RevisionWork.host_id = @host_id
 AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
 AND RevisionWork.completed = false
 AND RevisionWork.state <> 9 AND RevisionWork.state <> 10 AND RevisionWork.state <> 11
 AND lane_id = @lane_id
 LIMIT 1;
-        ";
-									DB.CreateParameter (cmd, "lane_id", hl.lane_id);
-									DB.CreateParameter (cmd, "host_id", hl.host_id);
-									DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+    ";
+								DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+								DB.CreateParameter (cmd, "host_id", hl.host_id);
+								DB.CreateParameter (cmd, "workhost_id", response.Host.id);
 
-									object obj = cmd.ExecuteScalar ();
-									if (obj == DBNull.Value || obj == null) {
-										// there is nothing to do for this hostlane
-										continue;
-									}
-
+								object obj = cmd.ExecuteScalar ();
+								if (obj == DBNull.Value || obj == null) {
+									// there is nothing to do for this hostlane
+									continue;
 								}
 
-								// find the latest completed (this may not be correct, maybe find the latest unstarted?)
-								// revisionwork for this hostlane.
-								using (IDbCommand cmd = db.CreateCommand ()) {
-									cmd.CommandText = @"
+							}
+
+							// find the latest completed (this may not be correct, maybe find the latest unstarted?)
+							// revisionwork for this hostlane.
+							using (IDbCommand cmd = db.CreateCommand ()) {
+								cmd.CommandText = @"
 SELECT 	RevisionWork.endtime
 FROM RevisionWork
 WHERE 
-	RevisionWork.host_id = @host_id
+RevisionWork.host_id = @host_id
 AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
 AND RevisionWork.completed = true
 AND lane_id = @lane_id
 ORDER BY RevisionWork.endtime DESC
 LIMIT 1;
-	";
+";
 
-									DB.CreateParameter (cmd, "lane_id", hl.lane_id);
-									DB.CreateParameter (cmd, "host_id", hl.host_id);
-									DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+								DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+								DB.CreateParameter (cmd, "host_id", hl.host_id);
+								DB.CreateParameter (cmd, "workhost_id", response.Host.id);
 
-									object obj = cmd.ExecuteScalar ();
-									if (obj is DateTime) {
-										DateTime dt = (DateTime) obj;
-										if (dt < latest_date) {
-											latest_date = dt;
-											latest = i;
-										}
-									} else {
-										// nothing has ever been done for this hostlane.
-										latest_date = DateTime.MinValue;
+								object obj = cmd.ExecuteScalar ();
+								if (obj is DateTime) {
+									DateTime dt = (DateTime) obj;
+									if (dt < latest_date) {
+										latest_date = dt;
 										latest = i;
 									}
+								} else {
+									// nothing has ever been done for this hostlane.
+									latest_date = DateTime.MinValue;
+									latest = i;
 								}
+							}
 
-							}
-							if (latest >= 0) {
-								DBHostLane tmp = hostlanes [latest];
-								hostlanes.Clear ();
-								hostlanes.Add (tmp);
-							} else {
-								hostlanes.Clear (); // there is nothing to do at all
-							}
 						}
-						break;
+						if (latest >= 0) {
+							DBHostLane tmp = hostlanes [latest];
+							hostlanes.Clear ();
+							hostlanes.Add (tmp);
+						} else {
+							hostlanes.Clear (); // there is nothing to do at all
+						}
+					}
+					break;
+				}
+
+				foreach (DBHostLane hl in hostlanes) {
+					int counter = 10;
+					DBRevisionWork revisionwork;
+					DBLane lane = null;
+					DBHost masterhost = null;
+
+					foreach (DBLane l in lanes) {
+						if (l.id == hl.lane_id) {
+							lane = l;
+							break;
+						}
+					}
+					foreach (DBHost hh in hosts) {
+						if (hh.id == hl.host_id) {
+							masterhost = hh;
+							break;
+						}
 					}
 
-					foreach (DBHostLane hl in hostlanes) {
-						int counter = 10;
-						DBRevisionWork revisionwork;
-						DBLane lane = null;
-						DBHost masterhost = null;
-
-						foreach (DBLane l in lanes) {
-							if (l.id == hl.lane_id) {
-								lane = l;
-								break;
-							}
-						}
-						foreach (DBHost hh in hosts) {
-							if (hh.id == hl.host_id) {
-								masterhost = hh;
-								break;
-							}
-						}
-
-						do {
-							revisionwork = db.GetRevisionWork (lane, masterhost, response.Host);
-							if (revisionwork == null)
-								break;
-						} while (!revisionwork.SetWorkHost (db, response.Host) && counter-- > 0);
-
+					do {
+						revisionwork = db.GetRevisionWork (lane, masterhost, response.Host);
 						if (revisionwork == null)
-							continue;
+							break;
+					} while (!revisionwork.SetWorkHost (db, response.Host) && counter-- > 0);
 
-						if (!revisionwork.workhost_id.HasValue || revisionwork.workhost_id != response.Host.id)
-							continue; // couldn't lock this revisionwork.
+					if (revisionwork == null)
+						continue;
 
-						Logger.Log ("Found work for host {0} {4}: {1} (lane: {2} {3})", response.Host.id, revisionwork.id, revisionwork.lane_id, lane.lane, response.Host.host);
+					if (!revisionwork.workhost_id.HasValue || revisionwork.workhost_id != response.Host.id)
+						continue; // couldn't lock this revisionwork.
 
-						DBRevision revision = DBRevision_Extensions.Create (db, revisionwork.revision_id);
-						List<DBWorkFile> files_to_download = null;
-						List<DBLane> dependent_lanes = null;
+					Logger.Log ("Found work for host {0} {4}: {1} (lane: {2} {3})", response.Host.id, revisionwork.id, revisionwork.lane_id, lane.lane, response.Host.host);
 
-						// get dependent files
-						List<DBLaneDependency> dependencies = lane.GetDependencies (db);
-						if (dependencies != null && dependencies.Count > 0) {
-							foreach (DBLaneDependency dep in dependencies) {
-								DBLane dependent_lane;
-								DBHost dependent_host;
-								DBRevisionWork dep_revwork;
-								List<DBWorkFile> work_files;
+					DBRevision revision = DBRevision_Extensions.Create (db, revisionwork.revision_id);
+					List<DBWorkFile> files_to_download = null;
+					List<DBLane> dependent_lanes = null;
 
-								if (string.IsNullOrEmpty (dep.download_files))
-									continue;
+					// get dependent files
+					List<DBLaneDependency> dependencies = lane.GetDependencies (db);
+					if (dependencies != null && dependencies.Count > 0) {
+						foreach (DBLaneDependency dep in dependencies) {
+							DBLane dependent_lane;
+							DBHost dependent_host;
+							DBRevisionWork dep_revwork;
+							List<DBWorkFile> work_files;
 
-								dependent_lane = DBLane_Extensions.Create (db, dep.dependent_lane_id);
-								dependent_host = dep.dependent_host_id.HasValue ? DBHost_Extensions.Create (db, dep.dependent_host_id.Value) : null;
-								DBRevision dep_lane_rev = dependent_lane.FindRevision (db, revision.revision);
-								if (dep_lane_rev == null)
-									continue; /* Something bad happened: the lane we're dependent on does not have the same revisions we have */
-								dep_revwork = DBRevisionWork_Extensions.Find (db, dependent_lane, dependent_host, dep_lane_rev);
+							if (string.IsNullOrEmpty (dep.download_files))
+								continue;
 
-								work_files = dep_revwork.GetFiles (db);
+							dependent_lane = DBLane_Extensions.Create (db, dep.dependent_lane_id);
+							dependent_host = dep.dependent_host_id.HasValue ? DBHost_Extensions.Create (db, dep.dependent_host_id.Value) : null;
+							DBRevision dep_lane_rev = dependent_lane.FindRevision (db, revision.revision);
+							if (dep_lane_rev == null)
+								continue; /* Something bad happened: the lane we're dependent on does not have the same revisions we have */
+							dep_revwork = DBRevisionWork_Extensions.Find (db, dependent_lane, dependent_host, dep_lane_rev);
 
-								foreach (DBWorkFile file in work_files) {
-									bool download = true;
-									foreach (string exp in dep.download_files.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries)) {
-										if (!System.Text.RegularExpressions.Regex.IsMatch (file.filename, FileUtilities.GlobToRegExp (exp))) {
-											download = false;
-											break;
-										}
+							work_files = dep_revwork.GetFiles (db);
+
+							foreach (DBWorkFile file in work_files) {
+								bool download = true;
+								foreach (string exp in dep.download_files.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries)) {
+									if (!System.Text.RegularExpressions.Regex.IsMatch (file.filename, FileUtilities.GlobToRegExp (exp))) {
+										download = false;
+										break;
 									}
-									if (!download)
-										continue;
-									if (files_to_download == null) {
-										files_to_download = new List<DBWorkFile> ();
-										dependent_lanes = new List<DBLane> ();
-									}
-									files_to_download.Add (file);
-									dependent_lanes.Add (dependent_lane);
 								}
+								if (!download)
+									continue;
+								if (files_to_download == null) {
+									files_to_download = new List<DBWorkFile> ();
+									dependent_lanes = new List<DBLane> ();
+								}
+								files_to_download.Add (file);
+								dependent_lanes.Add (dependent_lane);
 							}
 						}
+					}
 
 
-						List<DBWorkView2> pending_work = revisionwork.GetNextWork (db, lane, masterhost, revision, multiple_work);
+					List<DBWorkView2> pending_work = revisionwork.GetNextWork (db, lane, masterhost, revision, multiple_work);
 
-						if (pending_work == null || pending_work.Count == 0)
-							continue;
+					if (pending_work == null || pending_work.Count == 0)
+						continue;
 
-						List<DBEnvironmentVariable> environment_variables = null;
-						using (IDbCommand cmd = db.CreateCommand ()) {
-							foreach (int li in db.GetLaneHierarchy (lane.id)) {
-								cmd.CommandText += string.Format (@"
+					List<DBEnvironmentVariable> environment_variables = null;
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						foreach (int li in db.GetLaneHierarchy (lane.id)) {
+							cmd.CommandText += string.Format (@"
 SELECT * 
 FROM EnvironmentVariable 
 WHERE 
-    (host_id = {0} OR host_id = {1} OR host_id IS NULL) AND (lane_id = {2} OR lane_id IS NULL)
+(host_id = {0} OR host_id = {1} OR host_id IS NULL) AND (lane_id = {2} OR lane_id IS NULL)
 ORDER BY id;
 ;", revisionwork.workhost_id, revisionwork.host_id, li);
-								Logger.Log ("SQL to execute:\n{0}", cmd.CommandText);
-							}
-							using (IDataReader reader = cmd.ExecuteReader ()) {
-								var set = new HashSet<string> ();
-								do {
-									Logger.Log ("Reading result... {0} matches so far", environment_variables == null ? 0 : environment_variables.Count);
-									while (reader.Read ()) {
-										if (environment_variables == null)
-											environment_variables = new List<DBEnvironmentVariable> ();
+							Logger.Log ("SQL to execute:\n{0}", cmd.CommandText);
+						}
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							var set = new HashSet<string> ();
+							do {
+								Logger.Log ("Reading result... {0} matches so far", environment_variables == null ? 0 : environment_variables.Count);
+								while (reader.Read ()) {
+									if (environment_variables == null)
+										environment_variables = new List<DBEnvironmentVariable> ();
 
-										var ev = new DBEnvironmentVariable (reader);
-										if (!set.Contains (ev.name)) {
-											environment_variables.Add (ev);
-											set.Add (ev.name);
-										}
+									var ev = new DBEnvironmentVariable (reader);
+									if (!set.Contains (ev.name)) {
+										environment_variables.Add (ev);
+										set.Add (ev.name);
 									}
-								} while (reader.NextResult ());
-							}
+								}
+							} while (reader.NextResult ());
 						}
-
-						DBHost host_being_worked_for = hosts.Find (h => h.id == revisionwork.host_id);
-
-						foreach (DBWorkView2 work in pending_work) {
-							BuildInfoEntry entry = new BuildInfoEntry ();
-							entry.Lane = lane;
-							entry.HostLane = hl;
-							entry.Revision = revision;
-							entry.Command = DBCommand_Extensions.Create (db, work.command_id);
-							entry.FilesToDownload = files_to_download;
-							entry.DependentLaneOfFiles = dependent_lanes;
-							entry.Work = DBWork_Extensions.Create (db, work.id);
-							entry.LaneFiles = lane.GetFiles (db, lanes);
-							entry.EnvironmentVariables = environment_variables;
-							entry.Host = host_being_worked_for;
-
-							// TODO: put work with the same sequence number into one list of entries.
-							List<BuildInfoEntry> entries = new List<BuildInfoEntry> ();
-							entries.Add (entry);
-							response.Work.Add (entries);
-						}
-
-						// Notify that the revision is assigned
-						var notifyInfo = new GenericNotificationInfo ();
-						notifyInfo.laneID = revisionwork.lane_id;
-						notifyInfo.hostID = revisionwork.host_id;
-						notifyInfo.revisionID = revisionwork.revision_id;
-						notifyInfo.message = String.Format("Assigned to host '{0}' ({1})", response.Host.host, response.Host.id);
-						notifyInfo.state = DBState.Executing;
-
-						Notifications.NotifyGeneric (notifyInfo);
 					}
-				}
 
-				return response;
-			} catch (Exception ex) {
-				Logger.Log ("Exception in GetBuildInfo: {0}", ex);
-				throw;
+					DBHost host_being_worked_for = hosts.Find (h => h.id == revisionwork.host_id);
+
+					foreach (DBWorkView2 work in pending_work) {
+						BuildInfoEntry entry = new BuildInfoEntry ();
+						entry.Lane = lane;
+						entry.HostLane = hl;
+						entry.Revision = revision;
+						entry.Command = DBCommand_Extensions.Create (db, work.command_id);
+						entry.FilesToDownload = files_to_download;
+						entry.DependentLaneOfFiles = dependent_lanes;
+						entry.Work = DBWork_Extensions.Create (db, work.id);
+						entry.LaneFiles = lane.GetFiles (db, lanes);
+						entry.EnvironmentVariables = environment_variables;
+						entry.Host = host_being_worked_for;
+
+						// TODO: put work with the same sequence number into one list of entries.
+						List<BuildInfoEntry> entries = new List<BuildInfoEntry> ();
+						entries.Add (entry);
+						response.Work.Add (entries);
+					}
+
+					// Notify that the revision is assigned
+					var notifyInfo = new GenericNotificationInfo ();
+					notifyInfo.laneID = revisionwork.lane_id;
+					notifyInfo.hostID = revisionwork.host_id;
+					notifyInfo.revisionID = revisionwork.revision_id;
+					notifyInfo.message = String.Format("Assigned to host '{0}' ({1})", response.Host.host, response.Host.id);
+					notifyInfo.state = DBState.Executing;
+
+					Notifications.NotifyGeneric (notifyInfo);
+				}
 			}
+
+			return response;
 		}
 
 		/// <summary>
@@ -2929,19 +2845,15 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
 
-					if (irc_identity != null) {
-						irc_identity.Save (db);
-					}
-					if (email_identity != null) {
-						email_identity.Save (db);
-					}
+				if (irc_identity != null) {
+					irc_identity.Save (db);
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+				if (email_identity != null) {
+					email_identity.Save (db);
+				}
 			}
 
 			return response;
@@ -2952,27 +2864,23 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = string.Empty;
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = string.Empty;
 
-						if (irc_identity.HasValue) {
-							cmd.CommandText += "DELETE FROM IrcIdentity WHERE id = @irc_id;";
-							DB.CreateParameter (cmd, "irc_id", irc_identity.Value);
-						}
-						if (email_identity.HasValue) {
-							cmd.CommandText += "DELETE FROM EmailIdentity WHERE id = @email_id;";
-							DB.CreateParameter (cmd, "email_id", email_identity.Value);
-						}
-
-						cmd.ExecuteNonQuery ();
+					if (irc_identity.HasValue) {
+						cmd.CommandText += "DELETE FROM IrcIdentity WHERE id = @irc_id;";
+						DB.CreateParameter (cmd, "irc_id", irc_identity.Value);
 					}
+					if (email_identity.HasValue) {
+						cmd.CommandText += "DELETE FROM EmailIdentity WHERE id = @email_id;";
+						DB.CreateParameter (cmd, "email_id", email_identity.Value);
+					}
+
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -2983,31 +2891,26 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			GetIdentitiesResponse response = new GetIdentitiesResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
 
-					response.EmailIdentities = new List<DBEmailIdentity> ();
-					response.IrcIdentities = new List<DBIrcIdentity> ();
+				response.EmailIdentities = new List<DBEmailIdentity> ();
+				response.IrcIdentities = new List<DBIrcIdentity> ();
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "SELECT * FROM IrcIdentity; SELECT * FROM EmailIdentity;";
-						using (IDataReader reader = cmd.ExecuteReader ()) {
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT * FROM IrcIdentity; SELECT * FROM EmailIdentity;";
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							response.IrcIdentities.Add (new DBIrcIdentity (reader));
+						}
+						if (reader.NextResult ()) {
 							while (reader.Read ()) {
-								response.IrcIdentities.Add (new DBIrcIdentity (reader));
-							}
-							if (reader.NextResult ()) {
-								while (reader.Read ()) {
-									response.EmailIdentities.Add (new DBEmailIdentity (reader));
-								}
+								response.EmailIdentities.Add (new DBEmailIdentity (reader));
 							}
 						}
 					}
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
-
 			return response;
 		}
 
@@ -3016,14 +2919,10 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					notification.Save (db);
-					Notifications.Restart ();
-				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				notification.Save (db);
+				Notifications.Restart ();
 			}
 
 			return response;
@@ -3034,19 +2933,15 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "DELETE FROM Notification WHERE id = @id;";
-						DB.CreateParameter (cmd, "id", id);
-						cmd.ExecuteNonQuery ();
-						Notifications.Restart ();
-					}
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "DELETE FROM Notification WHERE id = @id;";
+					DB.CreateParameter (cmd, "id", id);
+					cmd.ExecuteNonQuery ();
+					Notifications.Restart ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -3057,35 +2952,31 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			GetNotificationsResponse response = new GetNotificationsResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
 
-					response.EmailIdentities = new List<DBEmailIdentity> ();
-					response.IrcIdentities = new List<DBIrcIdentity> ();
-					response.Notifications = new List<DBNotification> ();
+				response.EmailIdentities = new List<DBEmailIdentity> ();
+				response.IrcIdentities = new List<DBIrcIdentity> ();
+				response.Notifications = new List<DBNotification> ();
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "SELECT * FROM IrcIdentity; SELECT * FROM EmailIdentity; SELECT * FROM Notification;";
-						using (IDataReader reader = cmd.ExecuteReader ()) {
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT * FROM IrcIdentity; SELECT * FROM EmailIdentity; SELECT * FROM Notification;";
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							response.IrcIdentities.Add (new DBIrcIdentity (reader));
+						}
+						if (reader.NextResult ()) {
 							while (reader.Read ()) {
-								response.IrcIdentities.Add (new DBIrcIdentity (reader));
+								response.EmailIdentities.Add (new DBEmailIdentity (reader));
 							}
 							if (reader.NextResult ()) {
 								while (reader.Read ()) {
-									response.EmailIdentities.Add (new DBEmailIdentity (reader));
-								}
-								if (reader.NextResult ()) {
-									while (reader.Read ()) {
-										response.Notifications.Add (new DBNotification (reader));
-									}
+									response.Notifications.Add (new DBNotification (reader));
 								}
 							}
 						}
 					}
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -3096,20 +2987,16 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "INSERT INTO LaneNotification (lane_id, notification_id) VALUES (@lane_id, @notification_id);";
-						DB.CreateParameter (cmd, "lane_id", lane_id);
-						DB.CreateParameter (cmd, "notification_id", notification_id);
-						cmd.ExecuteNonQuery ();
-						Notifications.Restart ();
-					}
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "INSERT INTO LaneNotification (lane_id, notification_id) VALUES (@lane_id, @notification_id);";
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+					DB.CreateParameter (cmd, "notification_id", notification_id);
+					cmd.ExecuteNonQuery ();
+					Notifications.Restart ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -3120,19 +3007,15 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
 
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "DELETE FROM LaneNotification WHERE id = @id;";
-						DB.CreateParameter (cmd, "id", id);
-						cmd.ExecuteNonQuery ();
-						Notifications.Restart ();
-					}
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "DELETE FROM LaneNotification WHERE id = @id;";
+					DB.CreateParameter (cmd, "id", id);
+					cmd.ExecuteNonQuery ();
+					Notifications.Restart ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -3143,13 +3026,9 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.BuildBot);
-					release.Save (db);
-				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.BuildBot);
+				release.Save (db);
 			}
 
 			return response;
@@ -3160,20 +3039,16 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			GetReleasesResponse response = new GetReleasesResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					response.Releases = new List<DBRelease> ();
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "SELECT * FROM Release ORDER BY version;";
-						using (IDataReader reader = cmd.ExecuteReader ()) {
-							while (reader.Read ()) {
-								response.Releases.Add (new DBRelease (reader));
-							}
+			using (DB db = new DB ()) {
+				response.Releases = new List<DBRelease> ();
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT * FROM Release ORDER BY version;";
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							response.Releases.Add (new DBRelease (reader));
 						}
 					}
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -3184,17 +3059,13 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "DELETE FROM Release WHERE id = @id;";
-						DB.CreateParameter (cmd, "id", id);
-						cmd.ExecuteNonQuery ();
-					}
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "DELETE FROM Release WHERE id = @id;";
+					DB.CreateParameter (cmd, "id", id);
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;
@@ -3205,17 +3076,13 @@ WHERE Revision.lane_id = @lane_id AND ";
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
-			try {
-				using (DB db = new DB ()) {
-					VerifyUserInRole (db, login, Roles.Administrator);
-					using (IDbCommand cmd = db.CreateCommand ()) {
-						cmd.CommandText = "UPDATE RevisionWork SET state = 11 WHERE state = 0 AND lane_id = @lane_id;";
-						DB.CreateParameter (cmd, "lane_id", lane_id);
-						cmd.ExecuteNonQuery ();
-					}
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "UPDATE RevisionWork SET state = 11 WHERE state = 0 AND lane_id = @lane_id;";
+					DB.CreateParameter (cmd, "lane_id", lane_id);
+					cmd.ExecuteNonQuery ();
 				}
-			} catch (Exception ex) {
-				response.Exception = new WebServiceException (ex);
 			}
 
 			return response;

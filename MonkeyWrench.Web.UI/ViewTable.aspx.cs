@@ -64,7 +64,7 @@ public partial class ViewTable : System.Web.UI.Page
 						foreach (string revision in revisions.Split (new char [] {';'}, StringSplitOptions.RemoveEmptyEntries)) {
 							if (!int.TryParse (revision.Replace ("revision_id_", ""), out revision_id))
 								throw new ValidationException ("Invalid revision_id: " + revision.ToString () + "(revisions: '" + revisions + "')");
-							Master.WebService.ClearRevision (Master.WebServiceLogin, lane_id, host_id, revision_id);
+							Utils.LocalWebService.ClearRevision (Master.WebServiceLogin, lane_id, host_id, revision_id);
 						}
 					} catch (ValidationException ex) {
 						lblMessage.Text = ex.Message;
@@ -91,7 +91,7 @@ public partial class ViewTable : System.Web.UI.Page
 		}
 		Response.Cookies.Add (new HttpCookie ("horizontal", horizontal.ToString ()));
 
-		response = Master.WebService.GetViewTableData (Master.WebServiceLogin,
+		response = Utils.LocalWebService.GetViewTableData (Master.WebServiceLogin,
 			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
 			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
 		page, page_size);

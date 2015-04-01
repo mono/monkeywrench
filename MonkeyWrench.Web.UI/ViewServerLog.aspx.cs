@@ -33,7 +33,7 @@ public partial class ViewServerLog : System.Web.UI.Page
 		base.OnInit (e);
 
 		try {
-			LoginResponse response = Master.WebService.Login (Master.WebServiceLogin);
+			LoginResponse response = Utils.LocalWebService.Login (Master.WebServiceLogin);
 
 			if (!Authentication.IsInRole (response, Roles.Administrator)) {
 				divLog.Text = "You need admin rights.";

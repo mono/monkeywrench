@@ -38,7 +38,7 @@ public partial class Users : System.Web.UI.Page
 			switch (action) {
 			case "delete":
 				if (int.TryParse (Request ["id"], out id)) {
-					WebServiceResponse rsp = Master.WebService.DeleteUser (Master.WebServiceLogin, id);
+					WebServiceResponse rsp = Utils.LocalWebService.DeleteUser (Master.WebServiceLogin, id);
 					if (rsp.Exception != null) {
 						lblMessage.Text = Utils.FormatException (response.Exception.Message);
 					} else {
@@ -52,7 +52,7 @@ public partial class Users : System.Web.UI.Page
 			}
 		}
 
-		response = Master.WebService.GetUsers (Master.WebServiceLogin);
+		response = Utils.LocalWebService.GetUsers (Master.WebServiceLogin);
 
 		if (response.Exception != null) {
 			lblMessage.Text = Utils.FormatException (response.Exception.Message);

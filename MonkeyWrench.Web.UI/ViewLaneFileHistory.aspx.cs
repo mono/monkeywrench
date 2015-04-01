@@ -34,7 +34,7 @@ public partial class ViewLaneFileHistory : System.Web.UI.Page
 		if (!IsPostBack) {
 			if (int.TryParse (Request ["id"], out id)) {
 				GetViewLaneFileHistoryDataResponse response;
-				response = Master.WebService.GetViewLaneFileHistoryData (Master.WebServiceLogin, id);
+				response = Utils.LocalWebService.GetViewLaneFileHistoryData (Master.WebServiceLogin, id);
 
 				tblFiles.Rows.Add (Utils.CreateTableHeaderRow ("Date changed", "Actions"));
 				foreach (DBLanefile file in response.Lanefiles) {

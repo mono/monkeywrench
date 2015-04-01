@@ -85,8 +85,8 @@ public class Authentication
 		login.User = user;
 		login.Password = password;
 
-		login.Ip4 = MonkeyWrench.Utilities.GetExternalIP (Request);
-		response = Utils.WebService.Login (login);
+		login.Ip4 = Utilities.GetExternalIP (Request);
+		response = Utils.LocalWebService.Login (login);
 		if (response == null) {
 			Logger.Log ("Login failed");
 			return false;

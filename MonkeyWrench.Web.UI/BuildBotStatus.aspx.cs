@@ -36,7 +36,7 @@ public partial class BuildBotStatus : System.Web.UI.Page
 		GetBuildBotStatusResponse response;
 		string action;
 
-		response = Master.WebService.GetBuildBotStatus (Master.WebServiceLogin);
+		response = Utils.LocalWebService.GetBuildBotStatus (Master.WebServiceLogin);
 
 		action = Request ["action"];
 		if (!string.IsNullOrEmpty (action)) {
@@ -51,7 +51,7 @@ public partial class BuildBotStatus : System.Web.UI.Page
 							lblMessage.Text = "Invalid host id";
 						} else {
 							host.release_id = release_id == 0 ? null : new int? (release_id);
-							Master.WebService.EditHost (Master.WebServiceLogin, host);
+							Utils.LocalWebService.EditHost (Master.WebServiceLogin, host);
 							Response.Redirect ("BuildBotStatus.aspx", false);
 							return;
 						}
