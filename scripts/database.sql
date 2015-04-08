@@ -241,8 +241,27 @@ CREATE TABLE RevisionWork (
 	
 	lock_expires   timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time when this revisionwork's lock (if any) expires
 	completed      boolean    NOT NULL DEFAULT FALSE, -- if this revision has completed its work
-	endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0', -- the UTC time this revisionwork finished working
+	
+	createdtime  timestamptz NULL DEFAULT NOW(), -- Time that the RevisionWork was created
+	assignedtime timestamptz NULL,               -- Time that workhost_id was assigned
+	startedtime  timestamptz NULL,               -- Time that the first work was created, denormalized from `MIN(work.starttime) WHERE work.revisionwork_id = id`
+	endtime      timestamptz NULL,               -- Time that the RevisionWork was completed
+	
 	-- alter table revisionwork add column endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0';
+	
+	-- SET TIME ZONE 0; -- Set timezone to UTC
+	-- ALTER TABLE revisionwork ADD COLUMN createdtime timestamptz DEFAULT NULL; -- Fill existing rows with NULL...
+	-- ALTER TABLE revisionwork ALTER COLUMN createdtime SET DEFAULT NOW();      -- ...but new ones with NOW
+	-- ALTER TABLE revisionwork ADD COLUMN assignedtime timestamptz DEFAULT NULL;
+	-- ALTER TABLE revisionwork ADD COLUMN startedtime timestamptz DEFAULT NULL;
+	-- -- Change type and allow null for endtime, and convert '2000-01-01 00:00:00+0' to null.
+	-- ALTER TABLE revisionwork ADD COLUMN end_time_temp timestamptz DEFAULT NULL;
+	-- UPDATE revisionwork
+	-- 	SET end_time_temp = endtime
+	-- 	WHERE endtime != '2000-01-01 00:00:00+0'::timestamp;
+	-- ALTER TABLE revisionwork DROP COLUMN endtime;
+	-- ALTER TABLE revisionwork RENAME COLUMN end_time_temp TO endtime;
+	
 	UNIQUE (lane_id, host_id, revision_id)
 );
 CREATE INDEX RevisionWork_revision_id_idx ON RevisionWork (revision_id);

@@ -323,7 +323,7 @@ WHERE
 		public static bool SetWorkHost (this DBRevisionWork rw, DB db, DBHost host)
 		{
 			object result;
-			string update_cmd = string.Format (@"UPDATE RevisionWork SET workhost_id = {0} WHERE id = {1} AND workhost_id IS NULL;", host.id, rw.id);
+			string update_cmd = string.Format (@"UPDATE RevisionWork SET workhost_id = {0}, assignedtime = NOW() WHERE id = {1} AND workhost_id IS NULL;", host.id, rw.id);
 
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = update_cmd;

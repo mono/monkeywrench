@@ -23,7 +23,7 @@ namespace MonkeyWrench.DataClasses
 		private int _revision_id;
 		private int _state;
 		private bool _completed;
-		private DateTime _endtime;
+		private DateTime? _endtime;
 		private string _revision;
 		private DateTime _date;
 		private string _author;
@@ -33,7 +33,7 @@ namespace MonkeyWrench.DataClasses
 		public int @revision_id { get { return _revision_id; } set { _revision_id = value; } }
 		public int @state { get { return _state; } set { _state = value; } }
 		public bool @completed { get { return _completed; } set { _completed = value; } }
-		public DateTime @endtime { get { return _endtime; } set { _endtime = value; } }
+		public DateTime? @endtime { get { return _endtime; } set { _endtime = value; } }
 		public string @revision { get { return _revision; } set { _revision = value; } }
 		public DateTime @date { get { return _date; } set { _date = value; } }
 		public string @author { get { return _author; } set { _author = value; } }

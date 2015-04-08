@@ -2341,7 +2341,8 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 		{
 			ReportBuildStateResponse response = new ReportBuildStateResponse ();
 
-			using (DB db = new DB ()) {
+			using (DB db = new DB ())
+			using (var transaction = db.BeginTransaction ()) {
 				VerifyUserInRole (db, login, Roles.BuildBot, true);
 				Logger.Log (2, "ReportBuildState, state: {0}, start time: {1}, end time: {2}", work.State, work.starttime, work.endtime);
 				if (work.starttime > new DateTime (2000, 1, 1) && work.endtime < work.starttime) {
@@ -2351,7 +2352,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 							cmd.CommandText = "SELECT starttime FROM Work WHERE id = " + work.id;
 							var value = cmd.ExecuteScalar ();
 							if (value != null && value is DateTime)
-								work.starttime = (DateTime) value;
+								work.starttime = (DateTime)value;
 						}
 					} catch (Exception ex) {
 						Logger.Log ("ReportBuildState: Exception while fixing timezone data: {0}", ex.Message);
@@ -2365,6 +2366,11 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 				DBRevisionWork rw = DBRevisionWork_Extensions.Create (db, work.revisionwork_id);
 				bool was_completed = rw.completed;
 				rw.UpdateState (db);
+
+				if (rw.startedtime == null) {
+					rw.startedtime = work.starttime;
+					rw.Save (db);
+				}
 
 				if (!was_completed && rw.completed) {
 					rw.endtime = DBRecord.DatabaseNow;
@@ -2406,6 +2412,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 					}
 				}
 
+				transaction.Commit ();
 				return response;
 			}
 		}

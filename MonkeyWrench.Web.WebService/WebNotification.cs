@@ -113,7 +113,7 @@ namespace MonkeyWrench.WebServices
 			return new Build {
 				Commit = revision.revision,
 				CommitId = revision.id,
-				Date = revisionWork.completed ? revisionWork.endtime : revision.date,
+				Date = revisionWork.endtime ?? revision.date,
 				Lane = lane.lane,
 				Project = parentLane.lane,
 				State = revisionWork.State,

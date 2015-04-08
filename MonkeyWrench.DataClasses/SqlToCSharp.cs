@@ -399,6 +399,7 @@ namespace MonkeyWrench.DataClasses
 						is_null = false;
 						break;
 					case "timestamp":
+					case "timestamptz":
 						mtype = "DateTime";
 						break;
 					case "boolean":
