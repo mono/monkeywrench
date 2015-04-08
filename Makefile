@@ -4,7 +4,7 @@ default: all
 all:
 	nuget restore
 	@$(MAKE) -C MonkeyWrench generate-assembly-info
-	xbuild
+	xbuild /verbosity:quiet /nologo
 
 clean:
 	xbuild /target:clean
