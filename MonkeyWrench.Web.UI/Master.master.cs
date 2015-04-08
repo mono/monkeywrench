@@ -91,7 +91,7 @@ public partial class Master : System.Web.UI.MasterPage
 
 		try {
 			tree_response = Utils.LocalWebService.GetLeftTreeData (WebServiceLogin);
-		} catch(MonkeyWrench.WebServices.UnauthorizedException) {
+		} catch(UnauthorizedException) {
 			// LoadView is called on the login page, but if anonymous access is disabled,
 			// the user will be 'unauthorized' to view the sidebar, and thus the entire
 			// login page.

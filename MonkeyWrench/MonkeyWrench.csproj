@@ -77,6 +77,7 @@
     <Compile Include="ProcessHelperWindows.cs" />
     <Compile Include="ProcessReader.cs" />
     <Compile Include="SynchronizedStreamWriter.cs" />
+    <Compile Include="Exceptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
