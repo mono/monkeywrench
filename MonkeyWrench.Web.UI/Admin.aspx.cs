@@ -35,13 +35,13 @@ public partial class Admin : System.Web.UI.Page
 		if (!string.IsNullOrEmpty (action)) {
 			switch (action) {
 			case "schedule":
-				Master.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
+				Utils.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
 				Response.Redirect (Request.UrlReferrer == null ? "index.aspx" : Request.UrlReferrer.ToString (), false);
 				return;
 			}
 		}
 
-		response = Master.WebService.GetAdminInfo (Master.WebServiceLogin);
+		response = Utils.LocalWebService.GetAdminInfo (Master.WebServiceLogin);
 
 		lblDeletionDirectiveStatus.Text = response.IsDeletionDirectivesExecuting ? "Running" : "Not running";
 		lblSchedulerStatus.Text = response.IsSchedulerExecuting ? "Running" : "Not running";
@@ -50,7 +50,7 @@ public partial class Admin : System.Web.UI.Page
 	protected void cmdSchedule_Click (object sender, EventArgs e)
 	{
 		cmdSchedule.Enabled = false;
-		Master.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
+		Utils.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
 		lblSchedule.Text = "Scheduler started. It's run asynchronously, so no updates will be shown here.";
 		lblSchedulerStatus.Text = "Running";
 	}
@@ -58,7 +58,7 @@ public partial class Admin : System.Web.UI.Page
 	protected void cmdExecuteDeletionDirectives_Click (object sender, EventArgs e)
 	{
 		cmdExecuteDeletionDirectives.Enabled = false;
-		Master.WebService.ExecuteDeletionDirectives (Master.WebServiceLogin);
+		Utils.LocalWebService.ExecuteDeletionDirectives (Master.WebServiceLogin);
 		lblExecuteDeletionDirectives.Text = "Retention directives executed. They are run asynchronously, so no updates will be shown here.";
 		lblDeletionDirectiveStatus.Text = "Running";
 	}

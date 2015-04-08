@@ -35,7 +35,7 @@ public partial class EditLaneFile : System.Web.UI.Page
 		if (!IsPostBack) {
 
 			if (int.TryParse (Request ["file_id"], out id)) {
-				GetLaneFileForEditResponse response = Master.WebService.GetLaneFileForEdit (Master.WebServiceLogin, id);
+				GetLaneFileForEditResponse response = Utils.LocalWebService.GetLaneFileForEdit (Master.WebServiceLogin, id);
 				DBLanefile file = response.Lanefile;
 				txtEditor.Text = file.contents;
 
@@ -61,9 +61,9 @@ public partial class EditLaneFile : System.Web.UI.Page
 	{
 		int id;
 		if (int.TryParse (Request ["file_id"], out id)) {
-			GetLaneFileForEditResponse response = Master.WebService.GetLaneFileForEdit (Master.WebServiceLogin, id);
+			GetLaneFileForEditResponse response = Utils.LocalWebService.GetLaneFileForEdit (Master.WebServiceLogin, id);
 			response.Lanefile.contents = txtEditor.Text;
-			Master.WebService.EditLaneFile (Master.WebServiceLogin, response.Lanefile);
+			Utils.LocalWebService.EditLaneFile (Master.WebServiceLogin, response.Lanefile);
 
 			if (Request.UrlReferrer != null && Request.UrlReferrer.LocalPath.Contains ("ViewLaneFileHistory.aspx")) {
 				Response.Redirect ("ViewLaneFileHistory.aspx?id=" + Request ["file_id"], false);

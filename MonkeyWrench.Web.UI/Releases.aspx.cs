@@ -39,7 +39,7 @@ public partial class Releases : System.Web.UI.Page
 
 		string action = Request ["action"];
 
-		response = Master.WebService.GetReleases (Master.WebServiceLogin);
+		response = Utils.LocalWebService.GetReleases (Master.WebServiceLogin);
 
 		if (response.Exception != null) {
 			lblMessage.Text = response.Exception.Message;
@@ -50,7 +50,7 @@ public partial class Releases : System.Web.UI.Page
 			switch (action) {
 			case "delete":
 				if (int.TryParse (Request ["release_id"], out release_id)) {
-					rsp = Master.WebService.DeleteRelease (Master.WebServiceLogin, release_id);
+					rsp = Utils.LocalWebService.DeleteRelease (Master.WebServiceLogin, release_id);
 					if (rsp.Exception != null) {
 						lblMessage.Text = rsp.Exception.Message;
 					} else {

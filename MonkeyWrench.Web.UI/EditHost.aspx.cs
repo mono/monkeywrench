@@ -54,7 +54,7 @@ public partial class EditHost : System.Web.UI.Page
 
 		txtID.Attributes ["readonly"] = "readonly";
 
-		response = Master.WebService.GetHostForEdit (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"]);
+		response = Utils.LocalWebService.GetHostForEdit (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"]);
 
 		if (response == null || response.Host == null) {
 			Response.Redirect ("EditHosts.aspx", false);
@@ -68,7 +68,7 @@ public partial class EditHost : System.Web.UI.Page
 					foreach (DBEnvironmentVariable ev in response.Variables) {
 						if (ev.id == id) {
 							ev.value = Request ["value"];
-							Master.WebService.EditEnvironmentVariable (Master.WebServiceLogin, ev);
+							Utils.LocalWebService.EditEnvironmentVariable (Master.WebServiceLogin, ev);
 							break;
 						}
 					}
@@ -78,22 +78,22 @@ public partial class EditHost : System.Web.UI.Page
 			}
 
 			if (!string.IsNullOrEmpty (disable) && int.TryParse (disable, out id)) {
-				Master.WebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id);
+				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (enable) && int.TryParse (enable, out id)) {
-				Master.WebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id);
+				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (remove) && int.TryParse (remove, out id)) {
-				Master.WebService.RemoveHostForLane (Master.WebServiceLogin, id, response.Host.id);
+				Utils.LocalWebService.RemoveHostForLane (Master.WebServiceLogin, id, response.Host.id);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (add) && int.TryParse (add, out id)) {
-				Master.WebService.AddHostToLane (Master.WebServiceLogin, id, response.Host.id);
+				Utils.LocalWebService.AddHostToLane (Master.WebServiceLogin, id, response.Host.id);
 				redirect = true;
 			}
 			if (redirect) {
@@ -191,13 +191,13 @@ public partial class EditHost : System.Web.UI.Page
 	{
 		switch (e.CommandName) {
 		case "RemoveMasterHost":
-			Master.WebService.RemoveMasterHost (Master.WebServiceLogin, response.Host.id, int.Parse ((string) e.CommandArgument));
+			Utils.LocalWebService.RemoveMasterHost (Master.WebServiceLogin, response.Host.id, int.Parse ((string) e.CommandArgument));
 			break;
 		case "AddMasterHost":
-			Master.WebService.AddMasterHost (Master.WebServiceLogin, response.Host.id, int.Parse (cmbMasterHosts.SelectedValue));
+			Utils.LocalWebService.AddMasterHost (Master.WebServiceLogin, response.Host.id, int.Parse (cmbMasterHosts.SelectedValue));
 			break;
 		case "RemoveSlaveHost":
-			Master.WebService.RemoveMasterHost (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), response.Host.id);
+			Utils.LocalWebService.RemoveMasterHost (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), response.Host.id);
 			break;
 		}
 		RedirectToSelf ();
@@ -211,7 +211,7 @@ public partial class EditHost : System.Web.UI.Page
 		host.description = txtDescription.Text;
 		host.queuemanagement = cmbQueueManagement.SelectedIndex;
 		host.enabled = chkEnabled.Checked;
-		Master.WebService.EditHostWithPassword (Master.WebServiceLogin, host, txtPassword.Text);
+		Utils.LocalWebService.EditHostWithPassword (Master.WebServiceLogin, host, txtPassword.Text);
 		RedirectToSelf ();
 	}
 

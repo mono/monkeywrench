@@ -50,7 +50,7 @@ public partial class Identities : System.Web.UI.Page
 			tb.Attributes.Add ("onfocus", "javascript: document.getElementById ('lblGitHubHelp').innerHTML = '" + tb.ToolTip + "';");
 		}
 
-		response = Master.WebService.GetIdentities (Master.WebServiceLogin);
+		response = Utils.LocalWebService.GetIdentities (Master.WebServiceLogin);
 
 		if (response.Exception != null) {
 			lblMessage.Text = response.Exception.Message;
@@ -65,7 +65,7 @@ public partial class Identities : System.Web.UI.Page
 						DBIrcIdentity identity = response.IrcIdentities.Find ((v1) => v1.id == id);
 						if (identity != null) {
 							identity.name = name;
-							rsp = Master.WebService.EditIdentity (Master.WebServiceLogin, identity, null);
+							rsp = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, identity, null);
 							if (rsp.Exception != null) {
 								lblMessage.Text = response.Exception.Message;
 								return;
@@ -78,7 +78,7 @@ public partial class Identities : System.Web.UI.Page
 						DBIrcIdentity identity = response.IrcIdentities.Find ((v2) => v2.id == id);
 						if (identity != null) {
 							identity.use_ssl = !identity.use_ssl;
-							rsp = Master.WebService.EditIdentity (Master.WebServiceLogin, identity, null);
+							rsp = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, identity, null);
 							if (rsp.Exception != null) {
 								lblMessage.Text = response.Exception.Message;
 								return;
@@ -92,7 +92,7 @@ public partial class Identities : System.Web.UI.Page
 						DBIrcIdentity identity = response.IrcIdentities.Find ((v3) => v3.id == id);
 						if (identity != null) {
 							identity.channels = channels;
-							rsp = Master.WebService.EditIdentity (Master.WebServiceLogin, identity, null);
+							rsp = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, identity, null);
 							if (rsp.Exception != null) {
 								lblMessage.Text = response.Exception.Message;
 								return;
@@ -105,7 +105,7 @@ public partial class Identities : System.Web.UI.Page
 						DBIrcIdentity identity = response.IrcIdentities.Find ((v4) => v4.id == id);
 						if (identity != null) {
 							identity.join_channels = !identity.join_channels;
-							rsp = Master.WebService.EditIdentity (Master.WebServiceLogin, identity, null);
+							rsp = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, identity, null);
 							if (rsp.Exception != null) {
 								lblMessage.Text = response.Exception.Message;
 								return;
@@ -119,7 +119,7 @@ public partial class Identities : System.Web.UI.Page
 						DBIrcIdentity identity = response.IrcIdentities.Find ((v5) => v5.id == id);
 						if (identity != null) {
 							identity.nicks = nicks;
-							rsp = Master.WebService.EditIdentity (Master.WebServiceLogin, identity, null);
+							rsp = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, identity, null);
 							if (rsp.Exception != null) {
 								lblMessage.Text = response.Exception.Message;
 								return;
@@ -133,7 +133,7 @@ public partial class Identities : System.Web.UI.Page
 						DBIrcIdentity identity = response.IrcIdentities.Find ((v6) => v6.id == id);
 						if (identity != null) {
 							identity.servers = servers;
-							rsp = Master.WebService.EditIdentity (Master.WebServiceLogin, identity, null);
+							rsp = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, identity, null);
 							if (rsp.Exception != null) {
 								lblMessage.Text = response.Exception.Message;
 								return;
@@ -147,7 +147,7 @@ public partial class Identities : System.Web.UI.Page
 						DBIrcIdentity identity = response.IrcIdentities.Find ((v6) => v6.id == id);
 						if (identity != null) {
 							identity.password = password;
-							rsp = Master.WebService.EditIdentity (Master.WebServiceLogin, identity, null);
+							rsp = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, identity, null);
 							if (rsp.Exception != null) {
 								lblMessage.Text = response.Exception.Message;
 								return;
@@ -203,10 +203,10 @@ public partial class Identities : System.Web.UI.Page
 
 		switch (e.CommandName) {
 		case "RemoveIrcIdentity":
-			response = Master.WebService.RemoveIdentity (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), null);
+			response = Utils.LocalWebService.RemoveIdentity (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), null);
 			break;
 		case "RemoveEmailIdentity":
-			response = Master.WebService.RemoveIdentity (Master.WebServiceLogin, null, int.Parse ((string) e.CommandArgument));
+			response = Utils.LocalWebService.RemoveIdentity (Master.WebServiceLogin, null, int.Parse ((string) e.CommandArgument));
 			break;
 		}
 		if (response != null) {
@@ -245,7 +245,7 @@ public partial class Identities : System.Web.UI.Page
 			return;
 		}
 
-		response = Master.WebService.EditIdentity (Master.WebServiceLogin, irc_identity, null);
+		response = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, irc_identity, null);
 
 		if (response.Exception != null) {
 			lblMessage.Text = response.Exception.Message;
@@ -275,7 +275,7 @@ public partial class Identities : System.Web.UI.Page
 			return;
 		}
 
-		response = Master.WebService.EditIdentity (Master.WebServiceLogin, null, email_identity);
+		response = Utils.LocalWebService.EditIdentity (Master.WebServiceLogin, null, email_identity);
 
 		if (response.Exception != null) {
 			lblMessage.Text = response.Exception.Message;

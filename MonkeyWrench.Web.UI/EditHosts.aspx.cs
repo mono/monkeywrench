@@ -66,7 +66,7 @@ public partial class EditHosts : System.Web.UI.Page
 					return;
 				case "add":
 					try {
-						Master.WebService.AddHost (Master.WebServiceLogin, Request ["host"]);
+						Utils.LocalWebService.AddHost (Master.WebServiceLogin, Request ["host"]);
 						Response.Redirect ("EditHosts.aspx");
 						return;
 					} catch (Exception ex) {
@@ -79,13 +79,13 @@ public partial class EditHosts : System.Web.UI.Page
 				}
 			}
 		} else if (!string.IsNullOrEmpty (Request ["txtHost"])) {
-			Master.WebService.AddHost (Master.WebServiceLogin, Request ["txtHost"]);
+			Utils.LocalWebService.AddHost (Master.WebServiceLogin, Request ["txtHost"]);
 			Response.Redirect ("EditHosts.aspx");
 			return;
 		}
 
-		GetHostsResponse response = Master.WebService.GetHosts (Master.WebServiceLogin);
-		GetBuildBotStatusResponse statuses = Master.WebService.GetBuildBotStatus (Master.WebServiceLogin); // TODO: make only 1 call
+		GetHostsResponse response = Utils.LocalWebService.GetHosts (Master.WebServiceLogin);
+		GetBuildBotStatusResponse statuses = Utils.LocalWebService.GetBuildBotStatus (Master.WebServiceLogin); // TODO: make only 1 call
 		TableRow row;
 
 		foreach (DBHost host in response.Hosts) {
