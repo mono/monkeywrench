@@ -132,6 +132,10 @@ public class LaneTreeNode
 			var lane = rv [i];
 
 			while (lane.parent_lane_id.HasValue) {
+				if (!map.ContainsKey (lane.parent_lane_id.Value)) {
+					MonkeyWrench.Logger.Log ("Can't find lane id: {0} in map", lane.parent_lane_id.Value);
+					break;
+				}
 				lane = map [lane.parent_lane_id.Value];
 				if (!already_in.Contains (lane.id)) {
 					rv.Add (lane);
