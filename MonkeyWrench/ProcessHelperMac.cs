@@ -53,8 +53,8 @@ namespace MonkeyWrench
 					dbg.StartInfo.FileName = debugger;
 					if (using_lldb) {
 						commands.AppendFormat ("process attach --pid {0}\n", pid);
-						commands.Append ("script lldb.debugger.HandleCommand (\"thread list\")\n");
-						commands.Append ("script lldb.debugger.HandleCommand (\"thread backtrace all\")\n");
+						commands.Append ("thread list\n");
+						commands.Append ("thread backtrace all\n");
 						commands.Append ("detach\n");
 						commands.Append ("quit\n");
 						dbg.StartInfo.Arguments = "--source \"" + template + "\"";
