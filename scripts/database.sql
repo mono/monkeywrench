@@ -73,7 +73,7 @@ CREATE TABLE Lane (
 	repository     text       NOT NULL,               -- the source control repository.
 	min_revision   text       NOT NULL DEFAULT '1',   -- the first revision to do.
 	max_revision   text       NOT NULL DEFAULT '',    -- the last revision to do. '' defaults to all revisions
-	parent_lane_id int        NULL DEFAULT NULL,      -- the parent lane (if any) of this lane
+	parent_lane_id int        NULL DEFAULT NULL REFERENCES Lane (id),      -- the parent lane (if any) of this lane
 	commit_filter  text       NOT NULL DEFAULT '',    -- a filter to filter out commits. Syntax not decided yet. An empty filter means include all commits to the repository.
 	traverse_merge boolean    NOT NULL DEFAULT FALSE, -- if commits from a merge (besides the merge commit itself) should be included.
 	enabled        boolean    NOT NULL DEFAULT TRUE,  -- if a lane is enabled or not.
@@ -84,6 +84,7 @@ INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git
 -- ALTER TABLE Lane ADD COLUMN traverse_merge boolean NOT NULL DEFAULT FALSE;
 -- ALTER TABLE Lane ADD COLUMN enabled boolean NOT NULL DEFAULT TRUE;
 -- ALTER TABLE Lane ADD COLUMN changed_date timestamp NULL DEFAULT NULL;
+-- ALTER TABLE Lane ADD CONSTRAINT parentlane_fkey FOREIGN KEY (parent_lane_id) REFERENCES Lane (id);
 
 -- Command to set the latest changed_date on every lane.
 -- UPDATE Lane SET changed_date = (SELECT MAX(endtime) FROM RevisionWork WHERE RevisionWork.lane_id = Lane.id);
