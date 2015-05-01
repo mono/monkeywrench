@@ -2351,59 +2351,35 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 
 		private List<DBHost> GetSlaveHosts (DB db, DBHost host)
 		{
-			List<DBHost> result = null;
-
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT Host.* FROM Host INNER JOIN MasterHost ON MasterHost.host_id = Host.id WHERE MasterHost.master_host_id = @host_id";
 				DB.CreateParameter (cmd, "host_id", host.id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ()) {
-						if (result == null)
-							result = new List<DBHost> ();
-						result.Add (new DBHost (reader));
-					}
+					return DBRecord.LoadMany<DBHost> (reader);
 				}
 			}
-
-			return result;
 		}
 
 		private List<DBHost> GetMasterHosts (DB db, DBHost host)
 		{
-			List<DBHost> result = null;
-
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT Host.* FROM Host INNER JOIN MasterHost ON MasterHost.master_host_id = Host.id WHERE MasterHost.host_id = @host_id";
 				DB.CreateParameter (cmd, "host_id", host.id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ()) {
-						if (result == null)
-							result = new List<DBHost> ();
-						result.Add (new DBHost (reader));
-					}
+					return DBRecord.LoadMany<DBHost> (reader);
 				}
 			}
-
-			return result;
 		}
 
 		private List<DBMasterHost> FindMasterHosts (DB db, DBHost host)
 		{
-			List<DBMasterHost> result = null;
-
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM MasterHost WHERE host_id = @host_id";
 				DB.CreateParameter (cmd, "host_id", host.id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ()) {
-						if (result == null)
-							result = new List<DBMasterHost> ();
-						result.Add (new DBMasterHost (reader));
-					}
+					return DBRecord.LoadMany<DBMasterHost> (reader);
 				}
 			}
-
-			return result;
 		}
 
 		/// <summary>
