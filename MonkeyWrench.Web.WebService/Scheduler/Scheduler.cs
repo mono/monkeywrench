@@ -196,7 +196,8 @@ namespace MonkeyWrench.Scheduler
 					if (!hl.enabled)
 						continue;
 
-					selected_lanes.Add (hl.lane_id, lanes.Find ((v) => v.id == hl.lane_id));
+					if (!selected_lanes.ContainsKey (hl.lane_id))
+						selected_lanes [hl.lane_id] = lanes.Find ((v) => v.id == hl.lane_id);
 				}
 				foreach (var l in lanes) {
 					if (l.enabled)
@@ -212,7 +213,7 @@ namespace MonkeyWrench.Scheduler
 						INNER JOIN Host ON HostLane.host_id = Host.id
 						INNER JOIN Lane ON HostLane.lane_id = Lane.id
 						INNER JOIN Revision ON Revision.lane_id = lane.id
-						WHERE HostLane.enabled = true AND Lane.id = {0}
+						WHERE HostLane.enabled = true AND Lane.id = {0} AND
 							NOT EXISTS (
 								SELECT 1
 								FROM RevisionWork 
@@ -238,7 +239,7 @@ namespace MonkeyWrench.Scheduler
 							line_count++;
 						}
 					}
-					Logger.Log ("AddRevisionWork: Added {0} records for lane {1}.", line_count, selected_lanes [id]);
+					Logger.Log ("AddRevisionWork: Added {0} records for lane {1}.", line_count, selected_lanes [id].lane);
 				}
 				return line_count > 0;
 			} catch (Exception ex) {
