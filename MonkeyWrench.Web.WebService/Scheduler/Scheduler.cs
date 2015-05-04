@@ -155,7 +155,7 @@ namespace MonkeyWrench.Scheduler
 						updater.UpdateRevisionsInDB (db, lane, hosts, hostlanes);
 					}
 
-					AddRevisionWork (db);
+					AddRevisionWork (db, lanes, hostlanes);
 					AddWork (db, hosts, lanes, hostlanes);
 					CheckDependencies (db, hosts, lanes, hostlanes);
 				}
@@ -181,50 +181,65 @@ namespace MonkeyWrench.Scheduler
 		/// Returns true if something was added to the database.
 		/// </summary>
 		/// <param name="db"></param>
-		/// <param name="lane"></param>
-		/// <param name="host"></param>
+		/// <param name="lanes"></param>
+		/// <param name="hostlanes"></param>
 		/// <returns></returns>
-		public static bool AddRevisionWork (DB db)
+		public static bool AddRevisionWork (DB db, List<DBLane> lanes, List<DBHostLane> hostlanes)
 		{
 			var stopwatch = new Stopwatch ();
 			stopwatch.Start ();
 			int line_count = 0;
 
 			try {
-				using (var cmd = db.CreateCommand (@"
-					INSERT INTO RevisionWork (lane_id, host_id, revision_id, state)
-					SELECT Lane.id, Host.id, Revision.id, 10
-					FROM HostLane
-					INNER JOIN Host ON HostLane.host_id = Host.id
-					INNER JOIN Lane ON HostLane.lane_id = Lane.id
-					INNER JOIN Revision ON Revision.lane_id = lane.id
-					WHERE HostLane.enabled = true AND
-						NOT EXISTS (
-							SELECT 1
-							FROM RevisionWork 
-							WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
-							)
-					RETURNING lane_id, host_id, revision_id
-				"))
-				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ()) {
-						int lane_id = reader.GetInt32 (0);
-						int host_id = reader.GetInt32 (1);
-						int revision_id = reader.GetInt32 (2);
+				var selected_lanes = new Dictionary<int, DBLane> ();
+				foreach (var hl in hostlanes) {
+					if (!hl.enabled)
+						continue;
 
-						var info = new GenericNotificationInfo(); 
-						info.laneID = lane_id;
-						info.hostID = host_id;
-						info.revisionID = revision_id;
-						info.message = "Commit received.";
-						info.state = DBState.Executing;
-
-						Notifications.NotifyGeneric (info);
-
-						line_count++;
-					}
+					selected_lanes.Add (hl.lane_id, lanes.Find ((v) => v.id == hl.lane_id));
 				}
-				Logger.Log ("AddRevisionWork: Added {0} records.", line_count);
+				foreach (var l in lanes) {
+					if (l.enabled)
+						continue;
+					if (selected_lanes.ContainsKey (l.id))
+						selected_lanes.Remove (l.id);
+				}
+				foreach (var id in selected_lanes.Keys) {
+					using (var cmd = db.CreateCommand (string.Format (@"
+						INSERT INTO RevisionWork (lane_id, host_id, revision_id, state)
+						SELECT Lane.id, Host.id, Revision.id, 10
+						FROM HostLane
+						INNER JOIN Host ON HostLane.host_id = Host.id
+						INNER JOIN Lane ON HostLane.lane_id = Lane.id
+						INNER JOIN Revision ON Revision.lane_id = lane.id
+						WHERE HostLane.enabled = true AND Lane.id = {0}
+							NOT EXISTS (
+								SELECT 1
+								FROM RevisionWork 
+								WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
+								)
+						RETURNING lane_id, host_id, revision_id
+					", id)))
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							int lane_id = reader.GetInt32 (0);
+							int host_id = reader.GetInt32 (1);
+							int revision_id = reader.GetInt32 (2);
+
+							var info = new GenericNotificationInfo(); 
+							info.laneID = lane_id;
+							info.hostID = host_id;
+							info.revisionID = revision_id;
+							info.message = "Commit received.";
+							info.state = DBState.Executing;
+
+							Notifications.NotifyGeneric (info);
+
+							line_count++;
+						}
+					}
+					Logger.Log ("AddRevisionWork: Added {0} records for lane {1}.", line_count, selected_lanes [id]);
+				}
 				return line_count > 0;
 			} catch (Exception ex) {
 				Logger.Log ("AddRevisionWork got an exception: {0}", ex);
