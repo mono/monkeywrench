@@ -60,8 +60,6 @@ namespace MonkeyWrench
 		{
 			NpgsqlCommand result = dbcon.CreateCommand ();
 			result.CommandTimeout = (int) Timeout.TotalSeconds;
-			if (log.IsDebugEnabled)
-				return new LoggingCommand (this, result);
 			return result;
 		}
 
@@ -116,7 +114,7 @@ namespace MonkeyWrench
 				db_time_difference = db_now - machine_now;
 
 				log.DebugFormat ("DB now: {0:yyyy/MM/dd HH:mm:ss.ffff}, current machine's now: {1:yyyy/MM/dd HH:mm:ss.ffff}, adjusted now: {3}, diff: {2:yyyy/MM/dd HH:mm:ss.ffff} ms", db_now, machine_now, db_time_difference.TotalMilliseconds, Now);
-			} catch (Exception ex) {
+			} catch (Exception) {
 				if (dbcon != null) {
 					dbcon.Dispose ();
 					dbcon = null;
@@ -271,7 +269,8 @@ namespace MonkeyWrench
 			} finally {
 				try {
 					File.Delete (tmpfile);
-				} catch {
+				} catch (Exception ex) {
+					log.ErrorFormat ("Error while deleting temporary file: {0}", ex);
 					// ignore exceptions
 				}
 			}
