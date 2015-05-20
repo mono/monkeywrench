@@ -16,12 +16,15 @@ using System.IO;
 using System.Net;
 using System.Web;
 using System.Web.UI;
+using log4net;
 
 using MonkeyWrench;
 using MonkeyWrench.Web.WebServices;
 
 public partial class ViewHtmlReport : System.Web.UI.Page
 {
+	private static readonly ILog log = LogManager.GetLogger (typeof (ViewHtmlReport));
+
 	private static void FixupHtml (string filename, int workfile_id, string md5, TextWriter writer)
 	{
 		string [] find;
@@ -90,16 +93,16 @@ public partial class ViewHtmlReport : System.Web.UI.Page
 					FixupHtml (tmp_html_filename, workfile_id, md5, Response.Output);
 				}
 			} catch (HttpException ex) {
-				Logger.Log ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex.Message);
+				log.ErrorFormat ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex);
 				Response.Redirect ("Login.aspx", false);
 			} catch (WebException ex) {
-				Logger.Log ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex.Message);
+				log.ErrorFormat ("ViewHtmlReport: Exception while download html: {0} (redirected to login page)", ex);
 				Response.Redirect ("Login.aspx", false);
 			} finally {
 				try {
 					File.Delete (tmp_html_filename);
 				} catch (Exception ex) {
-					Console.Error.WriteLine ("ViewHtmlReport.aspx.cs exception: {0}", ex);
+					log.ErrorFormat ("{0}", ex);
 					// Ignore any exceptions.
 				}
 			}

@@ -1,11 +1,14 @@
-using System;
+
 using System.Data;
 using System.Diagnostics;
+using log4net;
 
 namespace MonkeyWrench.Database
 {
 	public class LoggingCommand : IDbCommand
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (LoggingCommand));
+
 		IDbCommand cmd;
 		DB db;
 
@@ -36,7 +39,7 @@ namespace MonkeyWrench.Database
 				return cmd.ExecuteNonQuery ();
 			} finally {
 				watch.Stop ();
-				db.Log ("ExecuteNonQuery {1} ms: {0}", CommandText, watch.ElapsedMilliseconds);
+				log.DebugFormat ("ExecuteNonQuery {1} ms: {0}", CommandText, watch.ElapsedMilliseconds);
 			}
 		}
 
@@ -49,7 +52,7 @@ namespace MonkeyWrench.Database
 				return cmd.ExecuteReader ();
 			} finally {
 				watch.Stop ();
-				db.Log ("ExecuteReader {1} ms: {0}", CommandText, watch.ElapsedMilliseconds);
+				log.DebugFormat ("ExecuteReader {1} ms: {0}", CommandText, watch.ElapsedMilliseconds);
 			}
 		}
 
@@ -62,7 +65,7 @@ namespace MonkeyWrench.Database
 				return cmd.ExecuteReader (behavior);
 			} finally {
 				watch.Stop ();
-				db.Log ("ExecuteReader ({2}) {1} ms: {0}", CommandText, watch.ElapsedMilliseconds, behavior);
+				log.DebugFormat ("ExecuteReader ({2}) {1} ms: {0}", CommandText, watch.ElapsedMilliseconds, behavior);
 			}
 		}
 
@@ -75,7 +78,7 @@ namespace MonkeyWrench.Database
 				return cmd.ExecuteScalar ();
 			} finally {
 				watch.Stop ();
-				db.Log ("ExecuteScalar {1} ms: {0}", CommandText, watch.ElapsedMilliseconds);
+				log.DebugFormat ("ExecuteScalar ({1}) ms: {0}", CommandText, watch.ElapsedMilliseconds);
 			}
 		}
 

@@ -13,9 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
+using log4net;
 
 using MonkeyWrench.DataClasses;
 
@@ -23,6 +21,8 @@ namespace MonkeyWrench.Database
 {
 	public static class DBRevisionWork_Extensions
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (DBRevisionWork_Extensions));
+
 		public static DBRevisionWork Create (DB db, int id)
 		{
 			return DBRecord_Extensions.Create (db, new DBRevisionWork (), DBRevisionWork.TableName, id);
@@ -331,7 +331,7 @@ WHERE
 				var rv = cmd.ExecuteNonQuery ();
 
 				if (rv != 1) {
-					Logger.Log ("{0}: {1} (failed)", cmd.CommandText, rv);
+					log.DebugFormat ("{0}: {1} (failed)", cmd.CommandText, rv);
 					return false;
 				}
 			}
@@ -346,10 +346,10 @@ SELECT workhost_id FROM RevisionWork where id = @id AND workhost_id = @workhost_
 				result = cmd.ExecuteScalar ();
 				if (result != null && (result is int || result is long)) {
 					rw.workhost_id = host.id;
-					Logger.Log ("{0}: {1} (succeeded)", update_cmd, result);
+					log.DebugFormat ("{0}: {1} (succeeded)", update_cmd, result);
 					return true;
 				}
-				Logger.Log ("{0}: {1} (failed 2)", update_cmd, result);
+				log.DebugFormat ("{0}: {1} (failed 2)", update_cmd, result);
 				return false;
 			}
 		}

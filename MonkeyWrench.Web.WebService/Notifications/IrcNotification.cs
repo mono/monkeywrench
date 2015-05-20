@@ -12,6 +12,8 @@ using System.Runtime.Caching;
 using System.Text;
 using System.Threading;
 using System.Collections.Specialized;
+using log4net;
+
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
 
@@ -19,6 +21,8 @@ namespace MonkeyWrench.WebServices
 {
 	public class IrcNotification : NotificationBase
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (IrcNotification));
+
 		DBIrcIdentity identity;
 		bool enabled = true;
 		ObjectCache cache = new MemoryCache ("IrcCache");
@@ -96,11 +100,11 @@ namespace MonkeyWrench.WebServices
 				};
 				lock (message_list) {
 					message_list.Enqueue (message);
-					Logger.Log ("IrcNotification.SendMessages: added new message. There are now {0} messages in the queue", message_list.Count);
+					log.DebugFormat ("SendMessages: added new message. There are now {0} messages in the queue", message_list.Count);
 				}
 				message_event.Set ();
 			} catch (Exception ex) {
-				Logger.Log ("IrcNotification.SendMessages: failed to send message to server: {0} channels: {1} messages: {2}: {3}",
+				log.ErrorFormat ("SendMessages: failed to send message to server: {0} channels: {1} messages: {2}: {3}",
 					identity.servers, identity.channels, string.Join (";", messages.ToArray ()), ex);
 			}
 		}
@@ -115,7 +119,7 @@ namespace MonkeyWrench.WebServices
 
 					while (true) {
 						lock (message_list) {
-							Logger.Log ("IrcNotification.MessagePump: {0} messages in queue", message_list.Count);
+							log.DebugFormat ("MessagePump: {0} messages in queue", message_list.Count);
 							if (message_list.Count == 0)
 								break;
 							message = message_list.Dequeue ();
@@ -126,16 +130,16 @@ namespace MonkeyWrench.WebServices
 							watch.Start ();
 							SendMessages (message.Server, message.Password, message.UseSSL, message.Nick, message.Channels, message.Port, message.Messages);
 							watch.Stop ();
-							Logger.Log ("IrcNotification.MessagePump: sent message in {0} ms ({1})", watch.ElapsedMilliseconds, message);
+							log.DebugFormat ("MessagePump: sent message in {0} ms ({1})", watch.ElapsedMilliseconds, message);
 						} catch (Exception ex) {
-							Logger.Log ("IrcNotification.MessagePump: failed to send message {1}: {0}", ex, message);
+							log.ErrorFormat ("MessagePump: failed to send message {1}: {0}", ex, message);
 						}
 					}
 				}
 			} catch (ThreadAbortException) {
 				// App is shutting down. No need to spam the logs.
 			} catch (Exception ex) {
-				Logger.Log ("IrcNotification.MessagePump: Unexpected error. No more messages will be processed: {0}", ex);
+				log.ErrorFormat ("MessagePump: Unexpected error. No more messages will be processed: {0}", ex);
 			}
 		}
 
@@ -179,10 +183,10 @@ namespace MonkeyWrench.WebServices
 			bool nonfatal = false;
 
 			if (!Evaluate (work, revision_work, out nonfatal)) {
-				Logger.Log ("SlackNotification: lane_id: {1} revision_id: {2} host_id: {3} State: {0}: evaluation returned false", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+				log.DebugFormat ("SlackNotification: lane_id: {1} revision_id: {2} host_id: {3} State: {0}: evaluation returned false", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 				return;
 			} else {
-				Logger.Log ("SlackNotification: lane_id: {1} revision_id: {2} host_id: {3} State: {0} enabled: {4}, {5} people", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, enabled, people.Count);
+				log.DebugFormat ("SlackNotification: lane_id: {1} revision_id: {2} host_id: {3} State: {0} enabled: {4}, {5} people", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, enabled, people.Count);
 			}
 
 			if (nonfatal) {
@@ -230,7 +234,7 @@ namespace MonkeyWrench.WebServices
 				}
 
 				if (string.IsNullOrEmpty (person.irc_nicknames)) {
-					Logger.Log ("SlackNotification: could not find somebody to notify for revision with id {0} on lane {1}", revision_work.revision_id, revision_work.lane_id);
+					log.DebugFormat ("SlackNotification: could not find somebody to notify for revision with id {0} on lane {1}", revision_work.revision_id, revision_work.lane_id);
 					continue;
 				}
 			}
@@ -287,7 +291,7 @@ namespace MonkeyWrench.WebServices
 				try {
 					var res = webClient.UploadValues (finalApi, postData);
 					var resString = Encoding.UTF8.GetString (res);
-					Logger.Log ("SlackNotification: response from server: {0}", resString);
+					log.DebugFormat ("SlackNotification: response from server: {0}", resString);
 				} catch (WebException wex) {
 					string responseText = null;
 
@@ -300,9 +304,9 @@ namespace MonkeyWrench.WebServices
 						}
 					}
 					if (responseText == null) {
-						Logger.Log ("SlackNotification: exception from server (no response): {0}", wex.Message);
+						log.ErrorFormat ("SlackNotification: exception from server (no response): {0}", wex.Message);
 					} else {
-						Logger.Log ("SlackNotification: server error: {0} with exception: {1}", responseText, wex.Message);
+						log.ErrorFormat ("SlackNotification: server error: {0} with exception: {1}", responseText, wex.Message);
 					}
 				}
 			}
@@ -322,7 +326,7 @@ namespace MonkeyWrench.WebServices
 				return;
 			}
 
-			Logger.Log ("IrcNotification.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) enabled: {4}, {5} people", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, enabled, people.Count);
+			log.DebugFormat ("Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) enabled: {4}, {5} people", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, enabled, people.Count);
 
 			if (!enabled)
 				return;
@@ -351,7 +355,7 @@ namespace MonkeyWrench.WebServices
 				}
 
 				if (string.IsNullOrEmpty (person.irc_nicknames)) {
-					Logger.Log ("IrcNotification: could not find somebody to notify for revision with id {0} on lane {1}", revision_work.revision_id, revision_work.lane_id);
+					log.DebugFormat ("could not find somebody to notify for revision with id {0} on lane {1}", revision_work.revision_id, revision_work.lane_id);
 					continue;
 				}
 

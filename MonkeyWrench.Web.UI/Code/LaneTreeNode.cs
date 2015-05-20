@@ -15,12 +15,15 @@ using System.Collections.Generic;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using log4net;
 
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.Web.WebServices;
 
 public class LaneTreeNode
 {
+	private static readonly ILog log = LogManager.GetLogger (typeof (LaneTreeNode));
+
 	public DBLane Lane;
 	public List<DBHostLane> HostLanes = new List<DBHostLane> ();
 	public List<LaneTreeNode> Children = new List<LaneTreeNode> ();
@@ -133,7 +136,7 @@ public class LaneTreeNode
 
 			while (lane.parent_lane_id.HasValue) {
 				if (!map.ContainsKey (lane.parent_lane_id.Value)) {
-					MonkeyWrench.Logger.Log ("Can't find lane id: {0} in map", lane.parent_lane_id.Value);
+					log.ErrorFormat ("Can't find lane id: {0} in map", lane.parent_lane_id.Value);
 					break;
 				}
 				lane = map [lane.parent_lane_id.Value];

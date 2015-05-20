@@ -13,8 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
+using log4net;
 
 using MonkeyWrench;
 using MonkeyWrench.DataClasses;
@@ -23,6 +22,8 @@ namespace MonkeyWrench.Database
 {
 	public static class DBLaneDependency_Extensions
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (DBLaneDependency_Extensions));
+
 		public static DBLaneDependency Create (DB db, int id)
 		{
 			return DBRecord_Extensions.Create (db, new DBLaneDependency (), DBLaneDependency.TableName, id);
@@ -94,7 +95,7 @@ WHERE RevisionWork.lane_id = @lane_id AND Revision.revision = @revision
 					DB.CreateParameter (cmd, "filename", me.filename);
 					break;
 				default:
-					Logger.Log ("LaneDependency '{0}' contains an unknown dependency condition: {1}", me.id, me.Condition);
+					log.ErrorFormat ("LaneDependency '{0}' contains an unknown dependency condition: {1}", me.id, me.Condition);
 					return false;
 				}
 
@@ -106,7 +107,7 @@ WHERE RevisionWork.lane_id = @lane_id AND Revision.revision = @revision
 				object obj = cmd.ExecuteScalar ();
 				bool result = obj != null && !(obj is DBNull);
 
-				Logger.Log (2, "Dependency id {0}: {1} (condition: {2}, revision: {3}, host_id: {4}, filename: {5}, lane: {6})", me.id, result, me.Condition, revision, me.dependent_host_id.HasValue ? me.dependent_host_id.Value.ToString () : "null", me.filename, me.dependent_lane_id);
+				log.DebugFormat ("Dependency id {0}: {1} (condition: {2}, revision: {3}, host_id: {4}, filename: {5}, lane: {6})", me.id, result, me.Condition, revision, me.dependent_host_id.HasValue ? me.dependent_host_id.Value.ToString () : "null", me.filename, me.dependent_lane_id);
 
 				return result;
 			}

@@ -13,13 +13,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
-
 using Npgsql;
 using NpgsqlTypes;
+using log4net;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
@@ -28,13 +26,11 @@ namespace MonkeyWrench
 {
 	public class DB : IDisposable, IDB
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (DB));
+
 		NpgsqlConnection dbcon;
 		LargeObjectManager manager;
 		TimeSpan db_time_difference;
-
-		List<string> log;
-		Stopwatch watch;
-		string who;
 
 		public LargeObjectManager Manager
 		{
@@ -64,7 +60,7 @@ namespace MonkeyWrench
 		{
 			NpgsqlCommand result = dbcon.CreateCommand ();
 			result.CommandTimeout = (int) Timeout.TotalSeconds;
-			if (log != null)
+			if (log.IsDebugEnabled)
 				return new LoggingCommand (this, result);
 			return result;
 		}
@@ -80,36 +76,13 @@ namespace MonkeyWrench
 			return dbcon.BeginTransaction ();
 		}
 
-		public DB ()
-		{
-			Initialize ();
-			Connect ();
-		}
+		public DB () : this(true)
+		{}
 
 		public DB (bool Connect)
 		{
-			Initialize ();
 			if (Connect)
 				this.Connect ();
-		}
-
-		void Initialize ()
-		{
-			if (Configuration.LogVerbosity <= 2)
-				return;
-
-			log = new List<string> ();
-			watch = new Stopwatch ();
-			watch.Start ();
-			var fr = new StackFrame (2, false).GetMethod ();
-			who = fr == null ? "?" : fr.Name;
-		}
-
-		public void Log (string format, params object[] args)
-		{
-			if (log == null)
-				return;
-			log.Add (string.Format ("[{0:yyyy/MM/dd HH:mm:ss.ffff}] {1}", DateTime.Now, string.Format (format, args)));
 		}
 
 		public static void CreateParameter (IDbCommand cmd, string name, object value)
@@ -131,7 +104,7 @@ namespace MonkeyWrench
 
 				dbcon = new NpgsqlConnection (connectionString);
 
-				Log ("Connecting to database ({1}), connection string: {0}", connectionString, who);
+				log.DebugFormat ("Connecting to database, connection string: {0}", connectionString);
 
 				dbcon.Open ();
 
@@ -142,9 +115,8 @@ namespace MonkeyWrench
 				db_now = (DateTime) db_now_obj;
 				db_time_difference = db_now - machine_now;
 
-				Logger.Log (2, "DB now: {0:yyyy/MM/dd HH:mm:ss.ffff}, current machine's now: {1:yyyy/MM/dd HH:mm:ss.ffff}, adjusted now: {3}, diff: {2:yyyy/MM/dd HH:mm:ss.ffff} ms", db_now, machine_now, db_time_difference.TotalMilliseconds, Now);
+				log.DebugFormat ("DB now: {0:yyyy/MM/dd HH:mm:ss.ffff}, current machine's now: {1:yyyy/MM/dd HH:mm:ss.ffff}, adjusted now: {3}, diff: {2:yyyy/MM/dd HH:mm:ss.ffff} ms", db_now, machine_now, db_time_difference.TotalMilliseconds, Now);
 			} catch (Exception ex) {
-				Logger.Log ("Exception while connecting to DB: {0}", ex);
 				if (dbcon != null) {
 					dbcon.Dispose ();
 					dbcon = null;
@@ -158,12 +130,6 @@ namespace MonkeyWrench
 			if (dbcon != null) {
 				dbcon.Close ();
 				dbcon = null;
-			}
-			if (log != null) {
-				watch.Stop ();
-				Log ("Closed database connection ({1}). Total duration: {0} ms", watch.ElapsedMilliseconds, who);
-				log.Add (string.Empty);
-				Logger.LogRaw (string.Join ("\n", log.ToArray ()));
 			}
 		}
 
@@ -386,7 +352,7 @@ namespace MonkeyWrench
 					string fn = FileUtilities.CreateFilename (md5, true, true);
 
 					File.Copy (gzFilename, fn, true);
-					Logger.Log (2, "Saved file to: {0}", fn);
+					log.DebugFormat ("Saved file to: {0}", fn);
 				}
 
 				result = new DBFile ();
@@ -1133,14 +1099,14 @@ LIMIT 1
 				DB.CreateParameter (cmd, "lane_id", current.lane_id);
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					if (!reader.Read ()) {
-						Logger.Log ("IsLatestRevisionWork: No result.");
+						log.Debug ("IsLatestRevisionWork: No result.");
 						return true;
 					}
 
 					if (reader.GetInt32 (0) <= current.id)
 						return true;
 
-					Logger.Log ("IsLatestRevisionWork: Latest id: {0}, current id: {1}", reader.GetInt32 (0), current.id);
+					log.DebugFormat ("IsLatestRevisionWork: Latest id: {0}, current id: {1}", reader.GetInt32 (0), current.id);
 					return false;
 				}
 			}

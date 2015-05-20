@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using log4net;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
@@ -28,6 +29,7 @@ namespace MonkeyWrench.Scheduler
 {
 	public static class Scheduler
 	{
+		private static readonly ILog log = LogManager.GetLogger (typeof (Scheduler));
 		private static bool is_executing;
 
 		public static bool IsExecuting
@@ -68,22 +70,23 @@ namespace MonkeyWrench.Scheduler
 						File.WriteAllText (file, hack);
 						XmlDocument doc = new XmlDocument ();
 						try {
-							Logger.Log ("Updater: got report file '{0}'", file);
+							log.DebugFormat ("got report file '{0}'", file);
 							doc.Load (file);
 							if (result == null)
 								result = new List<XmlDocument> ();
 							result.Add (doc);
 						} catch (Exception ex) {
-							Logger.Log ("Updater: exception while checking commit report '{0}': {1}", file, ex);
+							log.ErrorFormat ("exception while checking commit report '{0}': {1}", file, ex);
 						}
 						try {
 							File.Delete (file); // No need to check this file more than once.
-						} catch {
+						} catch (Exception ex) {
+							log.ErrorFormat("Error deleting file: {0}", ex);
 							// Ignore any exceptions
 						}
 					}
 				} catch (Exception ex) {
-					Logger.Log ("Updater: exception while checking commit reports: {0}", ex);
+					log.ErrorFormat ("exception while checking commit reports: {0}", ex);
 				}
 			}
 			return result;
@@ -102,11 +105,11 @@ namespace MonkeyWrench.Scheduler
 			try {
 				scheduler_lock = Lock.Create ("MonkeyWrench.Scheduler");
 				if (scheduler_lock == null) {
-					Logger.Log ("Could not aquire scheduler lock.");
+					log.Info ("Could not aquire scheduler lock.");
 					return false;
 				}
 
-				Logger.Log ("Scheduler lock aquired successfully.");
+				log.Info ("Scheduler lock aquired successfully.");
 				
 				is_executing = true;
 				start = DateTime.Now;
@@ -121,14 +124,14 @@ namespace MonkeyWrench.Scheduler
 					hosts = db.GetHosts ();
 					hostlanes = db.GetAllHostLanes ();
 
-					Logger.Log ("Updater will now update {0} lanes.", lanes.Count);
+					log.InfoFormat ("Updater will now update {0} lanes.", lanes.Count);
 
 					GITUpdater git_updater = null;
 					// SVNUpdater svn_updater = null;
 
 					foreach (DBLane lane in lanes) {
 						if (!lane.enabled) {
-							Logger.Log ("Schedule: lane {0} is disabled, skipping it.", lane.lane);
+							log.InfoFormat ("Schedule: lane {0} is disabled, skipping it.", lane.lane);
 							continue;
 						}
 
@@ -147,7 +150,7 @@ namespace MonkeyWrench.Scheduler
 							updater = git_updater;
 							break;
 						default:
-							Logger.Log ("Unknown source control: {0} for lane {1}", lane.source_control, lane.lane);
+							log.ErrorFormat ("Unknown source control: {0} for lane {1}", lane.source_control, lane.lane);
 							continue;
 						}
 						updater.Clear ();
@@ -160,15 +163,13 @@ namespace MonkeyWrench.Scheduler
 					CheckDependencies (db, hosts, lanes, hostlanes);
 				}
 
-				Logger.Log ("Update done, waiting for diff thread to finish...");
-
 				// SVNUpdater.StopDiffThread ();
 
-				Logger.Log ("Update finished successfully in {0} seconds.", (DateTime.Now - start).TotalSeconds);
+				log.InfoFormat ("Update finished successfully in {0} seconds.", (DateTime.Now - start).TotalSeconds);
 
 				return true;
 			} catch (Exception ex) {
-				Logger.Log ("An exception occurred: {0}", ex.ToString ());
+				log.ErrorFormat ("An exception occurred: {0}", ex);
 				return false;
 			} finally {
 				if (scheduler_lock != null)
@@ -224,14 +225,14 @@ namespace MonkeyWrench.Scheduler
 						line_count++;
 					}
 				}
-				Logger.Log ("AddRevisionWork: Added {0} records.", line_count);
+				log.DebugFormat ("AddRevisionWork: Added {0} records.", line_count);
 				return line_count > 0;
 			} catch (Exception ex) {
-				Logger.Log ("AddRevisionWork got an exception: {0}", ex);
+				log.ErrorFormat ("AddRevisionWork got an exception: {0}", ex);
 				return false;
 			} finally {
 				stopwatch.Stop ();
-				Logger.Log ("AddRevisionWork [Done in {0} seconds]", stopwatch.Elapsed.TotalSeconds);
+				log.InfoFormat ("AddRevisionWork [Done in {0} seconds]", stopwatch.Elapsed.TotalSeconds);
 			}
 		}
 
@@ -266,7 +267,7 @@ namespace MonkeyWrench.Scheduler
 					}
 				}
 
-				Logger.Log (1, "AddWork: Got {0} hosts and {1} revisionwork without work", hosts.Count, revisionwork_without_work.Count);
+				log.InfoFormat ("AddWork: Got {0} hosts and {1} revisionwork without work", hosts.Count, revisionwork_without_work.Count);
 
 				foreach (DBLane lane in lanes) {
 					commands_in_lane = null;
@@ -281,14 +282,14 @@ namespace MonkeyWrench.Scheduler
 						}
 
 						if (hostlane == null) {
-							Logger.Log (2, "AddWork: Lane '{0}' is not configured for host '{1}', not adding any work.", lane.lane, host.host);
+							log.InfoFormat ("AddWork: Lane '{0}' is not configured for host '{1}', not adding any work.", lane.lane, host.host);
 							continue;
 						} else if (!hostlane.enabled) {
-							Logger.Log (2, "AddWork: Lane '{0}' is disabled for host '{1}', not adding any work.", lane.lane, host.host);
+							log.InfoFormat ("AddWork: Lane '{0}' is disabled for host '{1}', not adding any work.", lane.lane, host.host);
 							continue;
 						}
 
-						Logger.Log (1, "AddWork: Lane '{0}' is enabled for host '{1}', adding work!", lane.lane, host.host);
+						log.InfoFormat ("AddWork: Lane '{0}' is enabled for host '{1}', adding work!", lane.lane, host.host);
 
 						foreach (DBRevisionWork revisionwork in revisionwork_without_work) {
 							bool has_dependencies;
@@ -312,7 +313,7 @@ namespace MonkeyWrench.Scheduler
 
 							has_dependencies = dependencies != null && dependencies.Any (dep => dep.lane_id == lane.id);
 
-							Logger.Log (2, "AddWork: Lane '{0}', revisionwork_id '{1}' has dependencies: {2}", lane.lane, revisionwork.id, has_dependencies);
+							log.DebugFormat ("AddWork: Lane '{0}', revisionwork_id '{1}' has dependencies: {2}", lane.lane, revisionwork.id, has_dependencies);
 
 							foreach (DBCommand command in commands_in_lane) {
 								int work_state = (int) (has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone);
@@ -321,12 +322,12 @@ namespace MonkeyWrench.Scheduler
 								lines++;
 
 
-								Logger.Log (2, "Lane '{0}', revisionwork_id '{1}' Added work for command '{2}'", lane.lane, revisionwork.id, command.command);
+								log.DebugFormat ("Lane '{0}', revisionwork_id '{1}' Added work for command '{2}'", lane.lane, revisionwork.id, command.command);
 
 								if ((lines % 100) == 0) {
 									db.ExecuteNonQuery (sql.ToString ());
 									sql.Clear ();
-									Logger.Log (1, "AddWork: flushed work queue, added {0} items now.", lines);
+									log.DebugFormat ("AddWork: flushed work queue, added {0} items now.", lines);
 								}
 							}
 
@@ -338,13 +339,15 @@ namespace MonkeyWrench.Scheduler
 				if (sql.Length > 0)
 					db.ExecuteNonQuery (sql.ToString ());
 			} catch (Exception ex) {
-				Logger.Log (0, "AddWork: There was an exception while adding work: {0}", ex.ToString ());
+				log.ErrorFormat ("AddWork: {0}", ex);
 			}
-			Logger.Log (1, "AddWork: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
+			log.InfoFormat ("AddWork: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
 		}
 
 		private static void CheckDependenciesSlow (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes, List<DBLaneDependency> dependencies)
 		{
+			throw new NotImplementedException ("Not implemented");
+
 			DateTime start = DateTime.Now;
 			//List<DBRevision> revisions = new List<DBRevision> ();
 			//List<DBCommand> commands = null;
@@ -355,7 +358,7 @@ namespace MonkeyWrench.Scheduler
 			//StringBuilder sql = new StringBuilder ();
 
 			try {
-				Logger.Log ("CheckDependenciesSlow: IMPLEMENTED, BUT NOT TESTED");
+				//Logger.Log ("CheckDependenciesSlow: IMPLEMENTED, BUT NOT TESTED");
 				return;
 
 				//Logger.Log (1, "CheckDependenciesSlow: Checking {0} dependencies", dependencies.Count);
@@ -442,9 +445,9 @@ namespace MonkeyWrench.Scheduler
 				//    }
 				//}
 			} catch (Exception ex) {
-				Logger.Log ("CheckDependencies: There was an exception while checking dependencies db: {0}", ex.ToString ());
+				log.ErrorFormat ("CheckDependencies: There was an exception while checking dependencies db: {0}", ex);
 			} finally {
-				Logger.Log ("CheckDependencies: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
+				log.InfoFormat ("CheckDependencies: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
 			}
 		}
 
@@ -457,7 +460,7 @@ namespace MonkeyWrench.Scheduler
 			try {
 				dependencies = DBLaneDependency_Extensions.GetDependencies (db, null);
 
-				Logger.Log (1, "CheckDependencies: Checking {0} dependencies", dependencies == null ? 0 : dependencies.Count);
+				log.InfoFormat ("CheckDependencies: Checking {0} dependencies", dependencies == null ? 0 : dependencies.Count);
 
 				if (dependencies == null || dependencies.Count == 0)
 					return;
@@ -475,7 +478,7 @@ namespace MonkeyWrench.Scheduler
 				}
 
 				foreach (DBLaneDependency dependency in dependencies) {
-					Logger.Log (1, "CheckDependencies: Checking dependency {0} for lane {1}", dependency.id, dependency.lane_id);
+					log.InfoFormat ("CheckDependencies: Checking dependency {0} for lane {1}", dependency.id, dependency.lane_id);
 					/* Find the revision works which has filfilled dependencies */
 					using (IDbCommand cmd = db.CreateCommand ()) {
 						cmd.CommandText = @"
@@ -527,9 +530,9 @@ WHERE
 
 				}
 			} catch (Exception ex) {
-				Logger.Log ("CheckDependencies: There was an exception while checking dependencies db: {0}", ex.ToString ());
+				log.ErrorFormat ("CheckDependencies: There was an exception while checking dependencies db: {0}", ex);
 			} finally {
-				Logger.Log ("CheckDependencies: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
+				log.InfoFormat ("CheckDependencies: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
 			}
 		}
 
@@ -542,7 +545,7 @@ WHERE
 				SVNUpdater.FindPeopleForCommit (lane, revision, people);
 				 * */
 			} else {
-				Logger.Log ("FindPeopleForCommit (): unknown source control: '{0}'", lane.source_control);
+				log.ErrorFormat ("Unknown source control for lane {0}: {1}", lane.lane, lane.source_control);
 			}
 		}
 	}

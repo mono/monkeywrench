@@ -88,17 +88,6 @@ public partial class index : System.Web.UI.Page
 		}
 
 		data = Utils.LocalWebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, 30, tags);
-
-		if (data.Exception != null) {
-			if (data.Exception.HttpCode == 403) {
-				Master.RequestLogin ();
-				return;
-			}
-			lblMessage.Text = data.Exception.Message;
-			MonkeyWrench.Logger.Log ("index.aspx exception: {0}", data.Exception.AsString);
-			return;
-		}
-
 		this.buildtable.InnerHtml = tags != null ? GenerateTaggedOverview (data) : GenerateOverview (data);
 	}
 

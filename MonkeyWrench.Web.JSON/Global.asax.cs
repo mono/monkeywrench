@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections;
-using System.ComponentModel;
 using System.Web;
-using System.Web.SessionState;
-
-using MonkeyWrench.Database;
+using log4net;
 
 namespace MonkeyWrench.Web.JSON
 {
 	public class Global : System.Web.HttpApplication
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (Global));
+
 		protected void Application_Start (Object sender, EventArgs e)
 		{
 			Configuration.LoadConfiguration (new string [] {});
@@ -64,7 +62,7 @@ namespace MonkeyWrench.Web.JSON
 				Response.StatusCode = 503;
 				Response.Write (ex.Message);
 			} else {
-				Logger.Log ("{0}: {1}", Request.Url.AbsoluteUri, ex);
+				log.ErrorFormat ("{0}: {1}", Request.Url.AbsoluteUri, ex);
 
 				Response.StatusCode = 500;
 				Response.Write ("Internal server error");

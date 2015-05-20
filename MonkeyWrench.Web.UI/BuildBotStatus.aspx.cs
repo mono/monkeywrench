@@ -70,7 +70,6 @@ public partial class BuildBotStatus : System.Web.UI.Page
 		if (response.Exception != null) {
 			lblMessage.Text = response.Exception.Message;
 		} else {
-			Logger.Log ("...");
 			foreach (DBBuildBotStatus status in response.Status) {
 				DBHost host = response.Hosts.Find ((v) => v.id == status.host_id);
 				DBRelease configured_release = host.release_id.HasValue ? response.Releases.Find ((v) => v.id == host.release_id.Value) : null;

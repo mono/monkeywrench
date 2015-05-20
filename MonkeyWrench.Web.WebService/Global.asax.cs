@@ -17,24 +17,28 @@ using System.Threading;
 using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
+using log4net;
 
 namespace MonkeyWrench.WebServices
 {
 	public class Global : System.Web.HttpApplication
 	{
+		private static ILog log = LogManager.GetLogger (typeof (Global));
+
 		public static string UploadStatus { get; set; }
 
 		private Timer scheduler;
 
 		protected void Application_Start (object sender, EventArgs e)
-		{
-			Logger.Log ("Web service started"); 
+		{ 
 			Configuration.LoadConfiguration (new string [] {});
 			Notifications.Start ();
 			Maintenance.Start ();
 
 			if (Configuration.AutomaticScheduler)
 				scheduler = new System.Threading.Timer (Schedule, null, 0, Configuration.AutomaticSchedulerInterval * 1000);
+
+			log.Info ("WebServices started.");
 		}
 
 		private void Schedule (object state)
@@ -42,7 +46,7 @@ namespace MonkeyWrench.WebServices
 			try {
 				MonkeyWrench.Scheduler.Scheduler.ExecuteSchedulerAsync (false);
 			} catch (Exception e) {
-				Logger.Log ("Automatic scheduler failed: {0}", e.Message);
+				log.ErrorFormat ("Automatic scheduler failed: {0}", e.Message);
 			}
 		}
 

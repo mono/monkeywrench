@@ -18,6 +18,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using log4net;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
@@ -26,6 +27,7 @@ namespace MonkeyWrench.Scheduler
 {
 	public abstract class SchedulerBase
 	{
+		private static readonly ILog log = LogManager.GetLogger (typeof (SchedulerBase));
 		private bool force_full_update;
 
 		// a tuple, each path and the revisions the path was modified
@@ -73,7 +75,7 @@ namespace MonkeyWrench.Scheduler
 			} else {
 				if (CompareRevisions (string.Empty, min_revisions [existing], revision) > 0) {
 					min_revisions [existing] = revision;
-					Log ("Added changeset for {1} with path: {0}", path, revision);
+					log.InfoFormat ("Added changeset for {1} with path: {0}", path, revision);
 				}
 			}
 		}
@@ -89,7 +91,7 @@ namespace MonkeyWrench.Scheduler
 				return;
 
 			foreach (XmlNode node in doc.SelectNodes ("/monkeywrench/changeset/directories/directory")) {
-				Log ("Checking changeset directory: '{0}'", node.InnerText);
+				log.InfoFormat ("Checking changeset directory: '{0}'", node.InnerText);
 				AddChangedPath (root + "/" + node.InnerText, revision);
 			}
 		}
@@ -108,7 +110,7 @@ namespace MonkeyWrench.Scheduler
 
 		protected abstract int CompareRevisions (string repository, string a, string b);
 
-		protected void Log (string msg, params object [] args)
+		/*protected void Log (string msg, params object [] args)
 		{
 			Logger.Log (Type + ": " + msg, args);
 		}
@@ -116,7 +118,7 @@ namespace MonkeyWrench.Scheduler
 		protected void Log (int verbosity, string msg, params object [] args)
 		{
 			Logger.Log (verbosity, Type + ": " + msg, args);
-		}
+		}*/
 
 		/*
 		/// <summary>
@@ -197,7 +199,7 @@ namespace MonkeyWrench.Scheduler
 			string [] repositories;
 			bool skip_lane;
 
-			Log ("Updating '{0}', ForceFullUpdate: {1}", lane.lane, ForceFullUpdate);
+			log.InfoFormat ("Updating '{0}', ForceFullUpdate: {1}", lane.lane, ForceFullUpdate);
 
 			try {
 				// Skip lanes which aren't configured/enabled on any host completely.
@@ -209,7 +211,7 @@ namespace MonkeyWrench.Scheduler
 					}
 				}
 				if (skip_lane) {
-					Log ("Skipping lane {0}, not enabled or configured on any host.", lane.lane);
+					log.InfoFormat ("Skipping lane {0}, not enabled or configured on any host.", lane.lane);
 					return false;
 				}
 
@@ -231,9 +233,9 @@ namespace MonkeyWrench.Scheduler
 					UpdateRevisionsInDBInternal (db, lane, repositories [i], revisions, hosts, hostlanes, min_revisions [i], max_revisions [i]);
 				}
 
-				Log ("Updating db for lane '{0}'... [Done], update_steps: {1}", lane.lane, update_steps);
+				log.InfoFormat ("Updating db for lane '{0}'... [Done], update_steps: {1}", lane.lane, update_steps);
 			} catch (Exception ex) {
-				Log ("There was an exception while updating db for lane '{0}': {1}", lane.lane, ex.ToString ());
+				log.ErrorFormat ("There was an exception while updating db for lane '{0}': {1}", lane.lane, ex);
 			}
 
 			return update_steps;

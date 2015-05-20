@@ -11,12 +11,11 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using log4net;
 
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
@@ -25,7 +24,7 @@ namespace MonkeyWrench.Database
 {
 	public static class DBLogin_Extensions
 	{
-
+		static readonly ILog log = LogManager.GetLogger (typeof (DBLogin_Extensions));
 		static RandomNumberGenerator random = RandomNumberGenerator.Create ();
 
 		/// <summary>
@@ -39,8 +38,6 @@ namespace MonkeyWrench.Database
 		{
 			DBLogin result;
 			int id;
-
-			Logger.Log (2, "DBLogin.Login ('{0}', '{1}', '{2}'. {3})", login, password, ip4, @readonly);
 
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				// TODO: Encrypt passwords somehow, not store as plaintext.
@@ -74,8 +71,6 @@ namespace MonkeyWrench.Database
 
 		public static void LoginOpenId (DB db, LoginResponse response, string email, string ip4)
 		{
-			Logger.Log (2, "DBLogin.LoginOpenId ({0}, {1})", email, ip4);
-
 			if (string.IsNullOrEmpty (Configuration.OpenIdProvider) && string.IsNullOrEmpty (Configuration.OauthClientId))
 				throw new Exception ("No OpenId provider available");
 
@@ -90,12 +85,12 @@ namespace MonkeyWrench.Database
 				// email:role1,role2
 				string [] split = spec.Split (':');
 				if (split.Length != 2) {
-					Logger.Log ("AuthenticateOpenId: Invalid role spec: {0}", spec);
+					log.ErrorFormat ("AuthenticateOpenId: Invalid role spec: {0}", spec);
 					continue;
 				}
 
 				if (string.IsNullOrEmpty (split [1])) {
-					Logger.Log ("AuthenticateOpenId: No roles specified for {0}", split [0]);
+					log.ErrorFormat ("AuthenticateOpenId: No roles specified for {0}", split [0]);
 					continue;
 				}
 

@@ -14,14 +14,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
+using log4net;
 
 namespace MonkeyWrench
 {
 	public static class ProcessHelper
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (ProcessHelper));
 		private static IProcessHelper helper;
 
 		/// <summary>
@@ -78,7 +77,6 @@ namespace MonkeyWrench
 				}
 				return true;
 			} catch (Exception ex) {
-				Logger.Log ("Process {0} does not exist: {1}", pid, ex.Message);
 				return false;
 			}
 		}

@@ -1,18 +1,19 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Threading;
+using log4net;
 
 namespace MonkeyWrench
 {
 	public class ProcessReader {
-		SynchronizedStreamWriter log;
+		static readonly ILog log = LogManager.GetLogger (typeof (ProcessReader));
+
+		SynchronizedStreamWriter logstream;
 		Thread stdout_thread;
 		Thread stderr_thread;
 
 		public ProcessReader (SynchronizedStreamWriter output)
 		{
-			this.log = output;
+			this.logstream = output;
 		}
 
 		public void Setup (Job p)
@@ -25,10 +26,10 @@ namespace MonkeyWrench
 				try {
 					string line;
 					while (null != (line = p.StandardOutput.ReadLine ())) {
-						log.WriteLine (line);
+						logstream.WriteLine (line);
 					}
 				} catch (Exception ex) {
-					Logger.Log ("? Stdin reader thread got exception: {0}", ex.Message);
+					log.ErrorFormat ("Stdin reader thread got exception: {0}", ex);
 				}
 			});
 
@@ -36,10 +37,10 @@ namespace MonkeyWrench
 				try {
 					string line;
 					while (null != (line = p.StandardError.ReadLine ())) {
-						log.WriteLine (line);
+						logstream.WriteLine (line);
 					}
 				} catch (Exception ex) {
-					Logger.Log ("? Stderr reader thread got exception: {0}", ex.Message);
+					log.ErrorFormat ("Stderr reader thread got exception: {0}", ex);
 				}
 			});
 		}
@@ -53,10 +54,10 @@ namespace MonkeyWrench
 		public void Join ()
 		{
 			if (!stdout_thread.Join (TimeSpan.FromSeconds (15))) {
-				Logger.Log ("Waited 15s for stdout thread to finish, but it didn't");
+				log.Error ("Waited 15s for stdout thread to finish, but it didn't");
 			}
 			if (!stderr_thread.Join (TimeSpan.FromSeconds (15))) {
-				Logger.Log ("Waited 15s for stderr thread to finish, but it didn't");
+				log.Error ("Waited 15s for stderr thread to finish, but it didn't");
 			}
 		}
 	}
