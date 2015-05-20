@@ -6,15 +6,23 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using MonkeyWrench;
 using MonkeyWrench.WebServices;
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
 
 namespace MonkeyWrench.WebServices {
 	public class GitHubNotification : NotificationBase {
+		/* NOTE: this uses curl because, for some reason, connecting to GitHub via HttpRequest
+		 * in MonkeyWrench fails with a "ConnectFailure" WebException (it works fine from a simple
+		 * CLI app and a simple ASP server).
+		 * The previous version using HttpRequest can be found in the git history.
+		 */
+
 		private const string HOST = "https://api.github.com";
 
 		private readonly string username, token;
@@ -109,14 +117,14 @@ namespace MonkeyWrench.WebServices {
 		private Tuple<string,string> gitRepoToGitHub(string repoUrl) {
 			var m = GITHUB_RE.Match (repoUrl);
 			if (!m.Success)
-				throw new ApplicationException ("Invalid GitHub repository: " + repoUrl);
+				throw new Exception ("Invalid GitHub repository: " + repoUrl);
 			return Tuple.Create (m.Groups [1].Value, m.Groups [2].Value);
 		}
 
 		/**
 		 * Creates an HttpWebRequest to the GitHub statues endpoint, setting up the url and headers.
 		 */
-		private HttpWebRequest createRequest(string repoURL, string hash) {
+		private void sendNotification(string repoURL, string hash, JObject payload) {
 			var gitHubRepo = gitRepoToGitHub (repoURL);
 
 			// Generate URL for API call
@@ -127,21 +135,41 @@ namespace MonkeyWrench.WebServices {
 				Uri.EscapeDataString (hash)
 			);
 
-			// Create request
-			var req = WebRequest.CreateHttp (apiUrl);
-			req.Method = "POST";
-			req.UserAgent = "MonkeyWrench";
-			req.ContentType = "application/json;charset=utf-8";
-			req.Headers.Add ("Authorization", "Basic " + Convert.ToBase64String (Encoding.GetEncoding ("ISO-8859-1").GetBytes (username + ":" + token)));
-			req.AllowAutoRedirect = true;
+			using (var proc = new Process ()) {
+				proc.StartInfo.FileName = "curl";
+				proc.StartInfo.Arguments = string.Format (
+					@"-q --fail --location --silent -X POST -d @- -A MonkeyWrench -H 'Content-Type: application/json; charset=utf-8' " +
+					@"-u {0}:{1} {2}",
+					username, token, apiUrl
+				);
+				proc.StartInfo.UseShellExecute = false;
+				proc.StartInfo.RedirectStandardInput = true;
+				proc.StartInfo.RedirectStandardOutput = true;
+				proc.StartInfo.RedirectStandardError = true;
+				proc.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+				proc.OutputDataReceived += (sender, e) => {}; // Don't care about the response
+				proc.ErrorDataReceived += (sender, e) => {
+					if (!string.IsNullOrEmpty (e.Data))
+						Logger.Log ("curl stderr: {0}", e.Data);
+				};
 
-			return req;
+				proc.Start ();
+				proc.BeginOutputReadLine ();
+				proc.BeginErrorReadLine ();
+
+				using (var strm = new JsonTextWriter (proc.StandardInput))
+					payload.WriteTo (strm);
+				
+				proc.WaitForExit ();
+				if (proc.ExitCode != 0)
+					Logger.Log ("Failed to send GitHub notification. Code: {0}", proc.ExitCode);
+			}
 		}
 
 		/**
 		 * Builds a JObject containing the status data.
 		 */
-		private JObject createPostData(int laneID, int hostID, int revisionID, string description, string state) {
+		private JObject createPayload(int laneID, int hostID, int revisionID, string description, string state) {
 			JObject statusObj = new JObject ();
 			statusObj ["context"] = String.Format("wrench/{0}/{1}", laneID, hostID);
 			statusObj ["target_url"] = String.Format ("{0}/ViewLane.aspx?lane_id={1}&host_id={2}&revision_id={3}",
@@ -156,26 +184,6 @@ namespace MonkeyWrench.WebServices {
 		}
 
 		/**
-		 * Sends the request and checks the response for an error.
-		 */
-		private void sendRequest(HttpWebRequest req, JObject data) {
-			// Write data
-			using (var reqStream = new JsonTextWriter (new StreamWriter (req.GetRequestStream (), new UTF8Encoding (false, true)))) {
-				data.WriteTo (reqStream);
-			}
-
-			// Send request
-			using (var res = (HttpWebResponse)req.GetResponse ()) {
-				// Check error code. If it's bad, log it and the response.
-				if (res.StatusCode != HttpStatusCode.Created) {
-					using (var resStream = new StreamReader (res.GetResponseStream (), new UTF8Encoding (false, true))) {
-						Logger.Log ("GitHub API request failed ({0}, {1}): {2}", res.StatusCode, res.ContentType, resStream.ReadToEnd ());
-					}
-				}
-			}
-		}
-
-		/**
 		 * Notification callback for work updates.
 		 */
 		public override void Notify (DBWork work, DBRevisionWork revision_work) {
@@ -183,11 +191,9 @@ namespace MonkeyWrench.WebServices {
 			RevisionWorkInfo info;
 			using (var db = new DB ())
 				info = getWorkInfo (db, revision_work.id, work.id);
-
-			var req = createRequest (info.repoURL, info.hash);
-
+			
 			// Create object to send
-			var statusObj = createPostData(revision_work.lane_id, revision_work.host_id, revision_work.revision_id,
+			var statusObj = createPayload(revision_work.lane_id, revision_work.host_id, revision_work.revision_id,
 				String.Format("Lane: {0}, Status: {1}, Step: {2}, StepStatus: {3}",
 					info.laneName,
 					revision_work.State,
@@ -196,8 +202,7 @@ namespace MonkeyWrench.WebServices {
 				),
 				STATE_TO_GITHUB [revision_work.State]
 			);
-
-			sendRequest(req, statusObj);
+			sendNotification (info.repoURL, info.hash, statusObj);
 		}
 
 		// Don't care about related people and the autogenerated message.
@@ -237,9 +242,8 @@ namespace MonkeyWrench.WebServices {
 			}
 
 			string message = String.Format ("Lane: {0}, Host: {1}: {2}", laneName, hostName, info.message);
-			var req = createRequest (repoURL, hash);
-			var statusObj = createPostData (info.laneID, info.hostID, info.revisionID, message, STATE_TO_GITHUB[info.state]);
-			sendRequest (req, statusObj);
+			var statusObj = createPayload (info.laneID, info.hostID, info.revisionID, message, STATE_TO_GITHUB[info.state]);
+			sendNotification (repoURL, hash, statusObj);
 		}
 	}
 }
