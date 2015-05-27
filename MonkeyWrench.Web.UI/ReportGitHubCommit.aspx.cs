@@ -22,6 +22,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.Script.Serialization;
+using log4net;
 
 using MonkeyWrench;
 using MonkeyWrench.DataClasses;
@@ -29,19 +30,23 @@ using MonkeyWrench.Web.WebServices;
 
 public partial class ReportGitHubCommit : System.Web.UI.Page
 {
+	private static readonly ILog log = LogManager.GetLogger (typeof (ReportGitHubCommit));
+
 	protected void Page_Load (object sender, EventArgs e)
 	{
 		string ip = Request.UserHostAddress;
 		bool ip_accepted = false;
 		string payload;
 
-		Logger.Log ("ReportGitHubCommit.aspx: received post with {2} files from: {0} allowed ips: {1}", ip, Configuration.AllowedCommitReporterIPs, Request.Files.Count);
+		log.InfoFormat ("Received GitHub post with {2} files from: {0} allowed ips: {1}", ip, Configuration.AllowedCommitReporterIPs, Request.Files.Count);
 
-		foreach (HttpPostedFile f in Request.Files) {
-			Logger.Log ("ReportGitHubCommit.aspx: got file: {0}", f.FileName);
-		}
-		foreach (string f in Request.Form.AllKeys) {
-			Logger.Log ("ReportGitHubCommit.aspx: {0}={1}", f, Request.Form [f]);
+		if (log.IsDebugEnabled) {
+			foreach (HttpPostedFile f in Request.Files) {
+				log.DebugFormat ("ReportGitHubCommit.aspx: got file: {0}", f.FileName);
+			}
+			foreach (string f in Request.Form.AllKeys) {
+				log.DebugFormat ("ReportGitHubCommit.aspx: {0}={1}", f, Request.Form [f]);
+			}
 		}
 
 		foreach (string allowed_ip in Configuration.AllowedCommitReporterIPs.Split ('.')) {
@@ -54,7 +59,8 @@ public partial class ReportGitHubCommit : System.Web.UI.Page
 		}
 
 		if (!ip_accepted) {
-			Logger.Log ("ReportGitHubCommit.aspx: {0} tried to send a file, ignored. Allowed IPs: {1}", ip, Configuration.AllowedCommitReporterIPs);
+			log.WarnFormat ("{0} tried to send a file, ignored. Allowed IPs: {1}", ip, Configuration.AllowedCommitReporterIPs);
+			Response.StatusCode = 403;
 			return;
 		}
 
@@ -64,15 +70,10 @@ public partial class ReportGitHubCommit : System.Web.UI.Page
 			string outdir = Configuration.GetSchedulerCommitsDirectory ();
 			string outfile = Path.Combine (outdir, string.Format ("commit-{0}.xml", DateTime.Now.ToString ("yyyy-MM-dd-HH-mm-ss")));
 
-			if (payload.Length > 1024 * 100) {
-				Logger.Log ("ReportGitHubCommit.aspx: {0} tried to send oversized file (> {1} bytes.", Request.UserHostAddress, 1024 * 100);
-				return;
-			}
-
 			if (!Directory.Exists (outdir))
 				Directory.CreateDirectory (outdir);
 
-			Logger.Log ("ReportGitHubCommit.aspx: Got 'payload' from {2} with size {0} bytes, writing to '{1}'", payload.Length, outfile, ip);
+			log.InfoFormat ("Got 'payload' from {2} with size {0} bytes, writing to '{1}'", payload.Length, outfile, ip);
 
 			JavaScriptSerializer json = new JavaScriptSerializer ();
 			GitHub.Payload pl = json.Deserialize<GitHub.Payload> (payload);
@@ -117,10 +118,10 @@ public partial class ReportGitHubCommit : System.Web.UI.Page
 			writer.Close ();
 
 		} else {
-			Logger.Log ("ReportCommit.aspx: Didn't get a file called 'payload'");
+			log.Warn ("Didn't get a file called 'payload'");
 		}
 
-		Response.Write ("OK\n");
+		Response.StatusCode = 204;
 		WebServices.ExecuteSchedulerAsync ();
 	}
 

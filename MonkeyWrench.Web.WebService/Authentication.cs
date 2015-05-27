@@ -18,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Services;
+using log4net;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
@@ -26,6 +27,8 @@ using MonkeyWrench.DataClasses.Logic;
 namespace MonkeyWrench.WebServices
 {
 	public class Authentication {
+		private static readonly ILog log = LogManager.GetLogger (typeof (Authentication));
+
 		/// <summary>
 		/// Authenticates the request with the provided user/pass.
 		/// If no user/pass is provided, the method returns a response
@@ -42,24 +45,18 @@ namespace MonkeyWrench.WebServices
 
 		public static void Authenticate (string user_host_address, DB db, WebServiceLogin login, WebServiceResponse response, bool @readonly)
 		{
-			string ip = user_host_address;
 			int person_id;
 			DBLoginView view = null;
 
-			Logger.Log (2, "WebService.Authenticate (Ip4: {0}, UserHostAddress: {1}, User: {2}, Cookie: {3}, Password: {4}", login == null ? null : login.Ip4, user_host_address, login == null ? null : login.User, login == null ? null : login.Cookie, login == null ? null : login.Password);
+			log.DebugFormat ("WebService.Authenticate (Ip4: {0}, UserHostAddress: {1}, User: {2}, Cookie: {3}, Password: {4}", login == null ? null : login.Ip4, user_host_address, login == null ? null : login.User, login == null ? null : login.Cookie, login == null ? null : login.Password);
 
 			// Check if credentials were passed in
 			if (login == null || string.IsNullOrEmpty (login.User) || (string.IsNullOrEmpty (login.Password) && string.IsNullOrEmpty (login.Cookie))) {
-				Logger.Log (2, "No credentials.");
 				VerifyAnonymousAllowed ();
 				return;
 			}
 
-			if (!string.IsNullOrEmpty (login.Ip4)) {
-				ip = login.Ip4;
-			} else {
-				ip = user_host_address;
-			}
+			string ip = !string.IsNullOrEmpty (login.Ip4) ? login.Ip4 : user_host_address;
 
 			if (!string.IsNullOrEmpty (login.Password)) {
 				DBLogin result = DBLogin_Extensions.Login (db, login.User, login.Password, ip, @readonly);
@@ -69,29 +66,29 @@ namespace MonkeyWrench.WebServices
 					} else {
 						view = DBLoginView_Extensions.VerifyLogin (db, login.User, result.cookie, ip);
 						if (view == null) {
-							Logger.Log (2, "Invalid cookie");
+							log.Debug ("Invalid cookie");
 							VerifyAnonymousAllowed();
 							return;
 						}
 						person_id = view.person_id;
 					}
 				} else {
-					Logger.Log (2, "Invalid user/password");
+					log.Debug ("Invalid user/password");
 					VerifyAnonymousAllowed ();
 					return;
 				}
 			} else {
 				view = DBLoginView_Extensions.VerifyLogin (db, login.User, login.Cookie, ip);
 				if (view == null) {
-					Logger.Log (2, "Invalid cookie");
+					log.Debug ("Invalid cookie");
 					VerifyAnonymousAllowed ();
 					return;
 				}
 				person_id = view.person_id;
-				Logger.Log (2, "Verifying login, cookie: {0} user: {1} ip: {2}", login.Cookie, login.User, ip);
+				log.DebugFormat ("Verifying login, cookie: {0} user: {1} ip: {2}", login.Cookie, login.User, ip);
 			}
 
-			Logger.Log (2, "Valid credentials");
+			log.Debug ("Valid credentials");
 
 			if (response == null)
 				return;
@@ -106,7 +103,7 @@ namespace MonkeyWrench.WebServices
 
 			response.UserName = person.login;
 			response.UserRoles = person.Roles;
-			Logger.Log (2, "Authenticate2 Roles are: {0}", response.UserRoles == null ? "null" : string.Join (";", response.UserRoles));
+			log.DebugFormat ("Authenticate2 Roles are: {0}", response.UserRoles == null ? "null" : string.Join (";", response.UserRoles));
 		}
 
 		/// <summary>
@@ -134,7 +131,7 @@ namespace MonkeyWrench.WebServices
 			Authenticate (Context, db, login, dummy, @readonly);
 
 			if (!dummy.IsInRole (role)) {
-				Logger.Log (2, "The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
+				log.InfoFormat ("The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
 				throw new UnauthorizedException ("You don't have the required permissions.");
 			}
 		}
@@ -145,7 +142,7 @@ namespace MonkeyWrench.WebServices
 			Authenticate (remote_ip, db, login, dummy, @readonly);
 
 			if (!dummy.IsInRole (role)) {
-				Logger.Log (2, "The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
+				log.InfoFormat ("The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
 				throw new UnauthorizedException ("You don't have the required permissions.");
 			}
 		}

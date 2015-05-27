@@ -13,16 +13,22 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Xml;
-
+using log4net;
+using log4net.Repository.Hierarchy;
+using log4net.Core;
+using log4net.Appender;
+using log4net.Layout;
 using NDesk.Options;
+
 using MonkeyWrench;
 
 namespace MonkeyWrench
 {
 	public static class Configuration
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (Configuration));
+
 		public static string LogFile = Path.Combine (Path.GetTempPath (), "MonkeyWrench.log");
 		public static string DataDirectory = Path.Combine (Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.Personal), "monkeywrench"), "data");
 		public static string RevDataDirectory;
@@ -46,7 +52,7 @@ namespace MonkeyWrench
 		public static string AllowedCommitReporterIPs = "";
 		public static string SiteSkin = "wrench";
 		public static int UploadPort = 0; // default = 0 (any port)
-		public static int LogVerbosity = 1; // 0: quiet, 1: some messages, 2: verbose (default: 1)
+		public static string LogLevel = "Info"; // One of log4net's levels (ex. Debug, Info, Warn, Error)
 		public static bool AllowAnonymousAccess = true;
 		public static int NoOutputTimeout = 30; // timeout after this many minutes of no output.
 		public static int NoProgressTimeout = 60; // timeout after this many minutes if the test thread(s) don't seem to be progressing.
@@ -87,11 +93,11 @@ namespace MonkeyWrench
 			bool result = true;
 
 			if (string.IsNullOrEmpty (DataDirectory)) {
-				Logger.Log ("BuildBot configuration error: DataDirectory not provided.");
+				log.Error ("BuildBot configuration error: DataDirectory not provided.");
 				result = false;
 			} else if (!Directory.Exists (DataDirectory)) {
 				Directory.CreateDirectory (DataDirectory);
-				Logger.Log ("BuildBot configuration warning: DataDirectory ('{0}') did not exist, it was created.", DataDirectory);
+				log.InfoFormat ("DataDirectory ('{0}') did not exist, it was created.", DataDirectory);
 			}
 
 			if (string.IsNullOrEmpty (RevDataDirectory)) {
@@ -100,16 +106,16 @@ namespace MonkeyWrench
 
 			if (!Directory.Exists (RevDataDirectory)) {
 				Directory.CreateDirectory (RevDataDirectory);
-				Logger.Log ("BuildBot configuration warning: RevDataDirectory ('{0}') did not exist, it was created.", RevDataDirectory);
+				log.InfoFormat ("RevDataDirectory ('{0}') did not exist, it was created.", RevDataDirectory);
 			}
 
 			if (string.IsNullOrEmpty (WebServiceUrl)) {
-				Logger.Log ("BuildBot configuration error: WebServiceUrl not provided.");
+				log.Error ("BuildBot configuration error: WebServiceUrl not provided.");
 				result = false;
 			}
 
 			if (string.IsNullOrEmpty (Host)) {
-				Logger.Log ("BuildBot configuration error: Host not provided.");
+				log.Error ("BuildBot configuration error: Host not provided.");
 				result = false;
 			}
 
@@ -138,26 +144,61 @@ namespace MonkeyWrench
 			}
 
 			System.Threading.Mutex m = System.Threading.Mutex.OpenExisting (mutex_name);
-			Logger.Log ("Respawn process: acquiring mutex...");
+			log.Debug ("Respawn process: acquiring mutex...");
 			m.WaitOne (); // wait for the mutex
-			Logger.Log ("Respawn process: mutex acquired, releasing it");
+			log.Debug ("Respawn process: mutex acquired, releasing it");
 			m.ReleaseMutex (); // no need to keep it locked
 			using (System.Diagnostics.Process p = new System.Diagnostics.Process ()) {
 				p.StartInfo.FileName = respawn_filename;
 				p.StartInfo.Arguments = respawn_arguments;
 				p.StartInfo.UseShellExecute = false;
-				Logger.Log ("Respawning '{0}' with '{1}'", p.StartInfo.FileName, p.StartInfo.Arguments);
+				log.DebugFormat ("Respawning '{0}' with '{1}'", p.StartInfo.FileName, p.StartInfo.Arguments);
 				p.Start ();
 				p.WaitForExit ();
 				Environment.Exit (p.ExitCode);
 			}
 		}
 
+		/**
+		 * Sets up Log4Net to log to the specified log file and log level.
+		 */
+		private static void setupLog4Net() {
+			var hierarchy = (Hierarchy)LogManager.GetRepository();
+
+			var patternLayout = new PatternLayout ();
+			patternLayout.ConversionPattern = "%date %-5level %logger - %message%newline";
+			patternLayout.ActivateOptions ();
+
+			IAppender appender;
+			if (string.IsNullOrEmpty (LogFile)) {
+				var cappender = new ConsoleAppender ();
+				appender = cappender;
+
+				cappender.Layout = patternLayout;
+				cappender.ActivateOptions ();
+			} else {
+				var cappender = new RollingFileAppender ();
+				appender = cappender;
+
+				cappender.AppendToFile = true;
+				cappender.File = Path.Combine(Directory.GetCurrentDirectory(), LogFile);
+				cappender.Layout = patternLayout;
+				cappender.MaxSizeRollBackups = 10;
+				cappender.RollingStyle = RollingFileAppender.RollingMode.Size;
+				cappender.MaximumFileSize = "1GB";
+				cappender.StaticLogFileName = true;
+				cappender.LockingModel = new FileAppender.MinimalLock();
+				cappender.ActivateOptions ();
+			}
+			hierarchy.Root.AddAppender (appender);
+			hierarchy.Root.Level = hierarchy.LevelMap [LogLevel] ?? Level.Info;
+
+			hierarchy.Configured = true;
+		}
+
 		public static bool LoadConfiguration (string [] arguments, string file)
 		{
 			ExecuteSuspendedProcessHack (arguments);
-
-			Logger.Log (2, "Loading configuration from #{0}", file);
 
 			if (string.IsNullOrEmpty (file))
 				return false;
@@ -195,7 +236,7 @@ namespace MonkeyWrench
 				ChildProcessAlgorithm = xml.SelectSingleNode ("MonkeyWrench/Configuration/ChildProcessAlgorithm").GetNodeValue (ChildProcessAlgorithm);
 				Platform = xml.SelectSingleNode ("MonkeyWrench/Configuration/Platform").GetNodeValue (Platform);
 				AllowedCommitReporterIPs = xml.SelectSingleNode ("MonkeyWrench/Configuration/AllowedCommitReporterIPs").GetNodeValue (AllowedCommitReporterIPs);
-				LogVerbosity = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/LogVerbosity").GetNodeValue (LogVerbosity.ToString ()));
+				LogLevel = xml.SelectSingleNode ("MonkeyWrench/Configuration/LogLevel").GetNodeValue (LogLevel);
 				SiteSkin = xml.SelectSingleNode ("MonkeyWrench/Configuration/SiteSkin").GetNodeValue (SiteSkin);
 				UploadPort = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/UploadPort").GetNodeValue (UploadPort.ToString ()));
 				AllowAnonymousAccess = bool.Parse(xml.SelectSingleNode("MonkeyWrench/Configuration/AllowAnonymousAccess").GetNodeValue(AllowAnonymousAccess.ToString()));
@@ -235,7 +276,7 @@ namespace MonkeyWrench
 					{"schedulerpassword=", v => SchedulerPassword = v},
 					{"childprocessalgorithm=", v => ChildProcessAlgorithm = v},
 					{"platform=", v => Platform = v},
-					{"logverbosity=", v => LogVerbosity = int.Parse (v.Trim ())},
+					{"loglevel=", v => LogLevel = v.Trim ()},
 					{"siteskin=", v => SiteSkin = v},
 					{"uploadport=", v => UploadPort = int.Parse (v.Trim ())},
 					{"allowanonymousaccess=", v => AllowAnonymousAccess = bool.Parse (v.Trim ())},
@@ -279,13 +320,14 @@ namespace MonkeyWrench
 
 				if (!string.IsNullOrEmpty (GetReleaseDirectory ()) && !Directory.Exists (GetReleaseDirectory ()))
 					Directory.CreateDirectory (GetReleaseDirectory ());
-
 			} catch (Exception ex) {
-				Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not load configuration file from: {0}: {1}", file, ex.Message);
+				Console.Error.WriteLine ("MonkeyWrench: Fatal error: Could not load configuration file from: {0}: {1}", file, ex);
 				Environment.Exit (1);
 			}
 
-			Logger.Log (2, "MonkeyWrench: Initialized {1} and loaded configuration file from: {0}", file, ApplicationName);
+			setupLog4Net ();
+
+			log.InfoFormat ("Initialized {1} and loaded configuration file from: {0}", file, ApplicationName);
 
 			return true;
 		}

@@ -13,23 +13,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Data;
-using System.Data.Common;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Net.Sockets;
-using System.Runtime.Caching;
-using System.Text;
 using System.Threading;
-using System.Web;
-using System.Web.Services;
+using log4net;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
-using MonkeyWrench.DataClasses.Logic;
-using System.Collections.Specialized;
 
 namespace MonkeyWrench.WebServices
 {
@@ -61,6 +50,8 @@ namespace MonkeyWrench.WebServices
 
 	public static class Notifications
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (Notifications));
+
 		static object lock_obj = new object ();
 		static List<NotificationBase> notifications = new List<NotificationBase> ();
 		static Dictionary<int, List<NotificationBase>> notifications_per_lane = new Dictionary<int, List<NotificationBase>> ();
@@ -81,22 +72,21 @@ namespace MonkeyWrench.WebServices
 							while (reader.Read ()) {
 								DBNotification n = new DBNotification (reader);
 								if (n.ircidentity_id.HasValue) {
-									Logger.Log ("Starting irc notification");
+									log.Info ("Starting irc notification");
 									notifications.Add (new IrcNotification (n));
 								} else if (n.emailidentity_id.HasValue) {
-									Logger.Log ("Starting email notification");
+									log.Info ("Starting email notification");
 									notifications.Add (new EMailNotification (n));
 								} else if (n.githubidentity_id.HasValue) {
-									Logger.Log ("Starting GitHub notification");
+									log.Info ("Starting GitHub notification");
 									notifications.Add (new GitHubNotification (n));
 								} else {
-									Logger.Log ("Unknown notification");
+									log.ErrorFormat ("Unknown notification (id: {0})", n.id);
 								}
 							}
-							if (reader.NextResult ()) {
-								while (reader.Read ()) {
-									lane_notifications.Add (new DBLaneNotification (reader));
-								}
+							reader.NextResult ();
+							while (reader.Read ()) {
+								lane_notifications.Add (new DBLaneNotification (reader));
 							}
 						}
 					}
@@ -111,7 +101,7 @@ namespace MonkeyWrench.WebServices
 					}
 					n = notifications.First ((v) => v.Notification.id == ln.notification_id);
 					ns.Add (n);
-					Logger.Log ("Notifications: enabled notification {0} '{1}' for lane {2}", n.Notification.id, n.Notification.name, ln.lane_id);
+					log.InfoFormat ("enabled notification {0} '{1}' for lane {2}", n.Notification.id, n.Notification.name, ln.lane_id);
 				}
 			}
 
@@ -155,13 +145,13 @@ namespace MonkeyWrench.WebServices
 					}
 				}
 			} catch (Exception ex) {
-				Logger.Log ("Notifications.NotificationProcessor: exception caught, no more notifications will be processed: {0}", ex);
+				log.ErrorFormat ("NotificationProcessor: exception caught, no more notifications will be processed: {0}", ex);
 			}
 		}
 
 		public static void Notify (DBWork work, DBRevisionWork revision_work)
 		{
-			Logger.Log ("Notifications.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+			log.DebugFormat ("Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 			if (notifications == null)
 				return;
 
@@ -175,7 +165,7 @@ namespace MonkeyWrench.WebServices
 
 		private static void ProcessNotify (DBWork work, DBRevisionWork revision_work)
 		{
-			Logger.Log ("Running notifiers for lane_id: {1}, revision_id: {2}, host_id: {3}, State: {0}", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+			log.DebugFormat ("Running notifiers for lane_id: {1}, revision_id: {2}, host_id: {3}, State: {0}", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 
 			try {
 				lock (lock_obj) {
@@ -193,13 +183,13 @@ namespace MonkeyWrench.WebServices
 					}
 				}
 			} catch (Exception ex) {
-				Logger.Log ("Exception while processing notification: {0}", ex);
+				log.ErrorFormat ("Exception while processing notification: {0}", ex);
 			}
 		}
 
 		private static void ProcessNotify(GenericNotificationInfo info)
 		{
-			Logger.Log ("Running notifiers for lane_id: {1}, revision_id: {2}, host_id: {3}, message: {0}", info.message, info.laneID, info.revisionID, info.hostID);
+			log.DebugFormat ("Running notifiers for lane_id: {1}, revision_id: {2}, host_id: {3}, message: {0}", info.message, info.laneID, info.revisionID, info.hostID);
 
 			try {
 				lock (lock_obj) {
@@ -214,13 +204,15 @@ namespace MonkeyWrench.WebServices
 					}
 				}
 			} catch (Exception ex) {
-				Logger.Log ("Exception while processing notification: {0}", ex);
+				log.ErrorFormat ("Exception while processing notification: {0}", ex);
 			}
 		}
 	}
 
 	public abstract class NotificationBase
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (NotificationBase));
+
 		protected NotificationBase (DBNotification notification)
 		{
 			Notification = notification;
@@ -281,7 +273,7 @@ LIMIT 1;
 					}
 
 					if (obj_state != DBNull.Value && obj_state != null) {
-						Logger.Log ("NotificationBase.Evaluate: Later work succeeded, nothing to notify");
+						log.Info ("NotificationBase.Evaluate: Later work succeeded, nothing to notify");
 						return false;
 					}
 				}
@@ -312,12 +304,12 @@ LIMIT 1;
 			string message;
 			bool nonfatal;
 
-			Logger.Log ("NotificationBase.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+			log.DebugFormat ("NotificationBase.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0})", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 
 			nonfatal = false;
 	
 			if (!Evaluate (work, revision_work, out nonfatal)) {
-				Logger.Log ("NotificationBase.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) = evaluation returned false", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+				log.DebugFormat ("NotificationBase.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) = evaluation returned false", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 				return;
 			}
 

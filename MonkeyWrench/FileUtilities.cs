@@ -17,11 +17,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using log4net;
 
 namespace MonkeyWrench
 {
 	public static class FileUtilities
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (FileUtilities));
 
 		/// <summary>
 		/// GZ-compresses a file and returns the filename of the compressed file.
@@ -121,7 +123,7 @@ namespace MonkeyWrench
 
 				return outfile;
 			} catch (Exception ex) {
-				Logger.Log ("Failed to compress file: {0} {1}", filename, ex);
+				log.ErrorFormat ("Failed to compress file: {0} {1}", filename, ex);
 				FileUtilities.TryDeleteFile (outfile);
 				return null;
 			}
@@ -259,7 +261,7 @@ namespace MonkeyWrench
 			try {
 				TryDeleteDirectoryRecursive (directory, directory);
 			} catch (Exception ex) {
-				Logger.Log ("TryDeleteDirectoryRecursive ({0}): Could not delete directory recursively: {1}", directory, ex.Message);
+				log.ErrorFormat ("TryDeleteDirectoryRecursive ({0}): Could not delete directory recursively: {1}", directory, ex.Message);
 			}
 		}
 
@@ -271,7 +273,7 @@ namespace MonkeyWrench
 					File.SetAttributes (path, attributes & ~FileAttributes.ReadOnly);
 				}
 			} catch (Exception ex) {
-				Logger.Log ("MakeReadWrite ({0}): Could not make RW: {2}", path, ex.Message);
+				log.ErrorFormat ("MakeReadWrite ({0}): Could not make RW: {2}", path, ex.Message);
 			}
 		}
 
@@ -281,7 +283,7 @@ namespace MonkeyWrench
 				MakeReadWrite (path);
 				Directory.Delete (path);
 			} catch (Exception ex) {
-				Logger.Log ("TryDeleteRODirectory ({0}): Could not delete the directory: {1}", path, ex.Message);
+				log.ErrorFormat ("TryDeleteRODirectory ({0}): Could not delete the directory: {1}", path, ex.Message);
 				/* Ignore any exceptions */
 			}
 		}
@@ -292,7 +294,7 @@ namespace MonkeyWrench
 				MakeReadWrite (path);
 				File.Delete (path);
 			} catch (Exception ex) {
-				Logger.Log ("TryDeleteROFile ({0}): Could not delete the file: {1}", path, ex.Message);
+				log.ErrorFormat ("TryDeleteROFile ({0}): Could not delete the file: {1}", path, ex.Message);
 				/* Ignore any exceptions */
 			}
 		}
@@ -309,7 +311,7 @@ namespace MonkeyWrench
 					}
 				}
 			} catch (Exception ex) {
-				Logger.Log ("TryDeleteDirectoryRecursive ({0}, {1}): Could not recurse into subdirectories: {2}", root, path, ex.Message);
+				log.ErrorFormat ("TryDeleteDirectoryRecursive ({0}, {1}): Could not recurse into subdirectories: {2}", root, path, ex);
 			}
 
 			foreach (string file in Directory.GetFiles (path)) {

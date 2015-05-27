@@ -20,6 +20,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
+using log4net;
 
 using MonkeyWrench.DataClasses;
 
@@ -27,6 +28,8 @@ namespace MonkeyWrench.Scheduler
 {
 	class GITUpdater : SchedulerBase
 	{
+		private static readonly ILog log = LogManager.GetLogger (typeof (GITUpdater));
+
 		/* Save a list of fetches done, to not duplicate work when there are several lanes with the same repository */
 		private List<string> fetched_directories = new List<string> ();
 
@@ -81,7 +84,7 @@ namespace MonkeyWrench.Scheduler
 			}
 
 			foreach (XmlNode node in doc.SelectNodes ("/monkeywrench/changeset/directories/directory")) {
-				Logger.Log ("GIT: Checking changeset directory: '{0}'", node.InnerText);
+				log.DebugFormat ("Checking changeset directory: '{0}'", node.InnerText);
 				string dir = root + "/" + node.InnerText;
 				int existing_rev;
 				int existing_index = paths.IndexOf (dir);
@@ -91,7 +94,7 @@ namespace MonkeyWrench.Scheduler
 					if (existing_rev > revision)
 						continue;
 				}
-				Logger.Log ("GIT: Added changeset for {1} with path: '{0}'", dir, revision);
+				log.InfoFormat ("Added changeset for {1} with path: '{0}'", dir, revision);
 				paths.Add (dir);
 				min_revisions.Add (revision);
 			}
@@ -108,16 +111,16 @@ namespace MonkeyWrench.Scheduler
 			if (string.IsNullOrEmpty (max_revision))
 				max_revision = "remotes/origin/master";
 
-			Log ("Updating lane: '{0}', repository: '{1}' min revision: '{2}' max revision: '{3}'", lane.lane, repository, min_revision, max_revision);
+			GITUpdater.log.InfoFormat ("Updating lane: '{0}', repository: '{1}' min revision: '{2}' max revision: '{3}'", lane.lane, repository, min_revision, max_revision);
 
 			log = GetGITLog (lane, repository, min_revision, max_revision);
 
 			if (log == null || log.Count == 0) {
-				Log ("Didn't get a git log for '{0}'", repository);
+				GITUpdater.log.WarnFormat ("Didn't get a git log for '{0}'", repository);
 				return false;
 			}
 
-			Log ("Got {0} log records", log.Count);
+			GITUpdater.log.InfoFormat ("Got {0} log records", log.Count);
 
 			used_dates = new List<DateTime> ();
 
@@ -132,7 +135,7 @@ namespace MonkeyWrench.Scheduler
 				if (!long.TryParse (unix_timestamp_str, out unix_timestamp)) {
 					/* here something is wrong, this way the commit shows up as the first one so that it's easy to spot and start investigating */
 					date = DateTime.Now.AddYears (20);
-					Log ("Could not parse timestamp '{0}' for revision '{1}' in lane '{2}' in repository {3}", unix_timestamp_str, entry.revision, lane.lane, repository);
+					GITUpdater.log.WarnFormat ("Could not parse timestamp '{0}' for revision '{1}' in lane '{2}' in repository {3}", unix_timestamp_str, entry.revision, lane.lane, repository);
 				} else {
 					const long EPOCH_DIFF = 0x019DB1DED53E8000; /* 116444736000000000 nsecs */
 					const long RATE_DIFF = 10000000; /* 100 nsecs */
@@ -172,7 +175,7 @@ namespace MonkeyWrench.Scheduler
 						/* Hopefully this code will not stay here for 20 years */
 						revisions [revision].date = date;
 						revisions [revision].Save (db);
-						Log ("Detected wrong date in revision '{0}' in lane '{1}' in repository {2}, fixing it", revision, lane.lane, repository);
+						GITUpdater.log.WarnFormat ("Detected wrong date in revision '{0}' in lane '{1}' in repository {2}, fixing it", revision, lane.lane, repository);
 				}
 					// Log (2, "Already got {0}", revision);
 					continue;
@@ -190,21 +193,21 @@ namespace MonkeyWrench.Scheduler
 
 				r.author = author;
 				if (string.IsNullOrEmpty (r.author)) {
-					Log ("No author specified in r{0} in {1}", r.revision, repository);
+					GITUpdater.log.WarnFormat ("No author specified in r{0} in {1}", r.revision, repository);
 					r.author = "?";
 				}
 				r.date = date;
 				if (!string.IsNullOrEmpty (msg)) {
 					r.log_file_id = db.UploadString (msg, ".log", false).id;
 				} else {
-					Log ("No msg specified in r{0} in {1}", r.revision, repository);
+					GITUpdater.log.WarnFormat ("No msg specified in r{0} in {1}", r.revision, repository);
 					r.log_file_id = null;
 				}
 
 				r.Save (db);
 
 				update_steps = true;
-				Log (1, "Saved revision '{0}' for lane '{1}' author: {2}, date: {3:yyyy/MM/dd HH:mm:ss.ffffff} {5} {6}", r.revision, lane.lane, r.author, r.date, msg, unix_timestamp, unix_timestamp_str);
+				GITUpdater.log.DebugFormat ("Saved revision '{0}' for lane '{1}' author: {2}, date: {3:yyyy/MM/dd HH:mm:ss.ffffff} {5} {6}", r.revision, lane.lane, r.author, r.date, msg, unix_timestamp, unix_timestamp_str);
 			}
 
 			return update_steps;
@@ -224,7 +227,7 @@ namespace MonkeyWrench.Scheduler
 			} else if (filter.StartsWith ("IncludeAllExcept:")) {
 				include_all = true;
 			} else {
-				Log ("Invalid commit filter: {0}, including all commits.", filter);
+				GITUpdater.log.WarnFormat ("Invalid commit filter: {0}, including all commits.", filter);
 				return false;
 			}
 
@@ -258,7 +261,7 @@ namespace MonkeyWrench.Scheduler
 				using (Process git = new Process ()) {
 					git.StartInfo.FileName = "git";
 					git.StartInfo.Arguments = "show --name-only --pretty='format:' " + entry.revision;
-					Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
+					GITUpdater.log.DebugFormat ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
 					git.StartInfo.WorkingDirectory = cache_dir;
 					git.StartInfo.UseShellExecute = false;
 					git.StartInfo.RedirectStandardOutput = true;
@@ -287,12 +290,12 @@ namespace MonkeyWrench.Scheduler
 					stderr.Start ();
 					// Wait 10 minutes for git to finish, otherwise abort.
 					if (!git.WaitForExit (1000 * 60 * 10)) {
-						Log ("Getting files took more than 10 minutes, aborting.");
+						GITUpdater.log.ErrorFormat ("Getting files took more than 10 minutes, aborting.");
 						try {
 							git.Kill ();
 							git.WaitForExit (10000); // Give the process 10 more seconds to completely exit.
 						} catch (Exception ex) {
-							Log ("Aborting file retrieval failed: {0}", ex.ToString ());
+							GITUpdater.log.ErrorFormat ("Aborting file retrieval failed: {0}", ex.ToString ());
 						}
 					}
 
@@ -300,13 +303,13 @@ namespace MonkeyWrench.Scheduler
 					stderr.Join ((int) TimeSpan.FromMinutes (1).TotalMilliseconds);
 
 					if (git.HasExited && git.ExitCode == 0) {
-						Log ("Got {0} files successfully", entry.files.Count);
+						GITUpdater.log.InfoFormat ("Got {0} files successfully", entry.files.Count);
 					} else {
-						Log ("Didn't get files, HasExited: {0}, ExitCode: {1}, stderr: {2}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A", stderr_log.ToString ());
+						GITUpdater.log.ErrorFormat ("Didn't get files, HasExited: {0}, ExitCode: {1}, stderr: {2}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A", stderr_log.ToString ());
 					}
 				}
 			} catch (Exception ex) {
-				Log ("Exception while trying to get files for commit {1} {0}", ex.ToString (), entry.revision);
+				GITUpdater.log.ErrorFormat ("Exception while trying to get files for commit {1} {0}", ex.ToString (), entry.revision);
 			}
 		}
 
@@ -315,7 +318,7 @@ namespace MonkeyWrench.Scheduler
 			List<GitEntry> result = null;
 
 			try {
-				Log ("Retrieving log for '{0}', repository: '{1}', min_revision: {2} max_revision: {3}", dblane.lane, repository, min_revision, max_revision);
+				GITUpdater.log.InfoFormat ("Retrieving log for '{0}', repository: '{1}', min_revision: {2} max_revision: {3}", dblane.lane, repository, min_revision, max_revision);
 
 				// Updating the repository cache
 				string cache_dir = Configuration.GetSchedulerRepositoryCacheDirectory (repository);
@@ -326,11 +329,11 @@ namespace MonkeyWrench.Scheduler
 				using (Process git = new Process ()) {
 					DateTime git_start = DateTime.Now;
 					if (fetched_directories.Contains (repository)) {
-						Log ("Not fetching repository '{0}', it has already been fetched in this run", repository);
+						GITUpdater.log.DebugFormat ("Not fetching repository '{0}', it has already been fetched in this run", repository);
 					} else {
 						git.StartInfo.FileName = "git";
 						if (!Directory.Exists (Path.Combine (cache_dir, ".git"))) {
-							git.StartInfo.Arguments = "clone --no-checkout " + repository + " .";
+							git.StartInfo.Arguments = "clone -q --no-checkout " + repository + " .";
 						} else {
 							git.StartInfo.Arguments = "fetch";
 						}
@@ -340,34 +343,34 @@ namespace MonkeyWrench.Scheduler
 						git.StartInfo.RedirectStandardError = true;
 						git.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
 						git.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
-						Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
+						GITUpdater.log.DebugFormat ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
 						git.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e)
 						{
 							if (e.Data == null)
 								return;
-							Log ("FETCH: {0}", e.Data);
+							GITUpdater.log.DebugFormat ("FETCH: {0}", e.Data);
 						};
 						git.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs e)
 						{
 							if (e.Data == null)
 								return;
-							Log ("FETCH STDERR: {0}", e.Data);
+							GITUpdater.log.WarnFormat ("FETCH STDERR: {0}", e.Data);
 						};
 						git.Start ();
 						git.BeginOutputReadLine ();
 						git.BeginErrorReadLine ();
 
 						if (!git.WaitForExit (1000 * 60 * 10 /* 10 minutes */)) {
-							Log ("Could not fetch repository, git didn't finish in 10 minutes.");
+							GITUpdater.log.ErrorFormat ("Could not fetch repository, git didn't finish in 10 minutes.");
 							return null;
 						}
 
 						if (!git.HasExited || git.ExitCode != 0) {
-							Log ("Could not fetch repository, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
+							GITUpdater.log.ErrorFormat ("Could not fetch repository, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
 							return null;
 						}
 						fetched_directories.Add (repository);
-						Log ("Fetched git repository in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
+						GITUpdater.log.InfoFormat ("Fetched git repository in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
 					}
 				}
 
@@ -386,7 +389,7 @@ namespace MonkeyWrench.Scheduler
 					if (!dblane.traverse_merge)
 						git.StartInfo.Arguments += "--first-parent ";
 					git.StartInfo.Arguments += range;
-					Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
+					GITUpdater.log.DebugFormat ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, cache_dir);
 					git.StartInfo.WorkingDirectory = cache_dir;
 					git.StartInfo.UseShellExecute = false;
 					git.StartInfo.RedirectStandardOutput = true;
@@ -436,7 +439,7 @@ namespace MonkeyWrench.Scheduler
 											current.timestamp = header.Substring (gt + 1).Trim ();
 											current.timestamp = current.timestamp.Substring (0, current.timestamp.IndexOf (' ')).Trim ();
 										} else {
-											Logger.Log ("Could not find timestamp in committer line");
+											GITUpdater.log.Warn ("Could not find timestamp in committer line");
 										}
 									} else {
 										// do nothing
@@ -460,12 +463,12 @@ namespace MonkeyWrench.Scheduler
 					stderr.Start ();
 					// Wait 10 minutes for git to finish, otherwise abort.
 					if (!git.WaitForExit (1000 * 60 * 10)) {
-						Log ("Getting log took more than 10 minutes, aborting.");
+						GITUpdater.log.ErrorFormat ("Getting log took more than 10 minutes, aborting.");
 						try {
 							git.Kill ();
 							git.WaitForExit (10000); // Give the process 10 more seconds to completely exit.
 						} catch (Exception ex) {
-							Log ("Aborting log retrieval failed: {0}", ex.ToString ());
+							GITUpdater.log.ErrorFormat ("Aborting log retrieval failed: {0}", ex.ToString ());
 						}
 					}
 
@@ -473,15 +476,15 @@ namespace MonkeyWrench.Scheduler
 					stderr.Join ((int) TimeSpan.FromMinutes (1).TotalMilliseconds);
 
 					if (git.HasExited && git.ExitCode == 0) {
-						Log ("Got log successfully in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
+						GITUpdater.log.InfoFormat ("Got log successfully in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
 						return result;
 					} else {
-						Log ("Didn't get log, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
+						GITUpdater.log.ErrorFormat ("Didn't get log, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
 						return null;
 					}
 				}
 			} catch (Exception ex) {
-				Log ("Exception while trying to get svn log: {0}", ex.ToString ());
+				GITUpdater.log.ErrorFormat ("Exception while trying to get git log: {0}", ex);
 				return null;
 			}
 		}
@@ -513,17 +516,17 @@ namespace MonkeyWrench.Scheduler
 
 						// Wait 10 minutes for git to finish, otherwise abort.
 						if (!git.WaitForExit (1000 * 60 * 10)) {
-							Logger.Log ("Getting commit info took more than 10 minutes, aborting.");
+							GITUpdater.log.Error ("Getting commit info took more than 10 minutes, aborting.");
 							try {
 								git.Kill ();
 								git.WaitForExit (10000); // Give the process 10 more seconds to completely exit.
 							} catch (Exception ex) {
-								Logger.Log ("Aborting commit info retrieval failed: {0}", ex.ToString ());
+								GITUpdater.log.ErrorFormat ("Aborting commit info retrieval failed: {0}", ex.ToString ());
 							}
 						}
 
 						if (git.HasExited && git.ExitCode == 0) {
-							Logger.Log ("Got commit info successfully in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
+							GITUpdater.log.InfoFormat ("Got commit info successfully in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
 							person = new DBPerson ();
 							person.fullname = author_name;
 							person.Emails = new string [] { author_email };
@@ -534,14 +537,14 @@ namespace MonkeyWrench.Scheduler
 								person.Emails = new string [] {committer_email};
 								people.Add (person);
 							}
-							Logger.Log ("Git commit info for {0}: author_name = {1} author_email: {2} committer_name: {3} committer_email: {4}", revision.revision, author_name, author_email, committer_name, committer_email);
+							GITUpdater.log.DebugFormat ("Git commit info for {0}: author_name = {1} author_email: {2} committer_name: {3} committer_email: {4}", revision.revision, author_name, author_email, committer_name, committer_email);
 						} else {
-							Logger.Log ("Didn't get commit info, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
+							GITUpdater.log.ErrorFormat ("Didn't get commit info, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
 						}
 					}
 				}
 			} catch (Exception ex) {
-				Logger.Log ("Exception while trying to get commit info: {0}", ex.ToString ());
+				GITUpdater.log.ErrorFormat ("Exception while trying to get commit info: {0}", ex.ToString ());
 			}
 		}
 

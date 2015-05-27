@@ -16,6 +16,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using log4net;
 
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
@@ -24,6 +25,7 @@ namespace MonkeyWrench.Web.WebServices
 {
 	public partial class WebServices
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (WebServices));
 		public WebServiceLogin WebServiceLogin;
 
 		private static string CreatePage (string page)
@@ -166,16 +168,15 @@ namespace MonkeyWrench.Web.WebServices
 				try {
 					return action ();
 				} catch (OutOfMemoryException oom) {
-					Logger.Log ("Could not {0}: {1}, will not retry, this is a fatal exception.", message, oom.Message);
+					log.ErrorFormat ("Could not {0}: {1}, will not retry, this is a fatal exception.", message, oom);
 					throw;
 				} catch (Exception ex) {
 					if ((DateTime.Now - start).TotalMinutes < Configuration.ConnectionRetryDuration) {
-						Logger.Log ("Could not {0}: {1}, retrying in 1 minute.", message, ex.Message);
+						log.ErrorFormat ("Could not {0}, retrying in 1 minute: {1}", message, ex);
 						System.Threading.Thread.Sleep (TimeSpan.FromMinutes (1));
 						continue;
 					} else {
-						Logger.Log ("Could not {0}: {1}. Reached max retry duration ({2} minutes), won't try again.", message, ex.Message, Configuration.ConnectionRetryDuration);
-						Logger.Log (ex.ToString ());
+						log.ErrorFormat ("Could not {0}, reached maximum retries: {1}", message, ex);
 						throw;
 					}
 				}
@@ -270,7 +271,7 @@ namespace MonkeyWrench.Web.WebServices
 				if (files.Count == 0)
 					return;
 
-				Logger.Log ("UploadFilesSafe () trying to upload {0} files...", files.Count);
+				log.InfoFormat ("UploadFilesSafe () trying to upload {0} files...", files.Count);
 
 				port = this.GetUploadPort ();
 
@@ -303,15 +304,15 @@ namespace MonkeyWrench.Web.WebServices
 						bool exists = File.Exists (path_to_contents);
 
 						if (!exists && NotFoundMessageBytes == null)
-							NotFoundMessageBytes = System.Text.UTF8Encoding.UTF8.GetBytes (NotFoundMessage);
+							NotFoundMessageBytes = Encoding.UTF8.GetBytes (NotFoundMessage);
 						
-						Logger.Log (2, "WebServices.UploadFilesSafe (): uploading '{0}' to port {1}", filename, port);
+						log.DebugFormat ("WebServices.UploadFilesSafe (): uploading '{0}' to port {1}", filename, port);
 
 						if (exists) {
 							using (FileStream fs = new FileStream (path_to_contents, FileMode.Open, FileAccess.Read, FileShare.Read))
 								md5 = FileUtilities.CalculateMD5_Bytes (fs);
 						} else {
-							Logger.Log ("WebServices.UploadFilesSafe (): the file '{0}' does not exist, uploading an error message instead", path_to_contents, port);
+							log.ErrorFormat ("WebServices.UploadFilesSafe (): the file '{0}' does not exist, uploading an error message instead", path_to_contents);
 							using (var str = new MemoryStream (NotFoundMessageBytes))
 								md5 = FileUtilities.CalculateMD5_Bytes (str);
 						}
@@ -324,7 +325,7 @@ namespace MonkeyWrench.Web.WebServices
 
 						ReadResponse (reader, out version, out type);
 
-						Logger.Log (2, "WebServices.UploadFilesSafe (): uploading '{0}', got response type {1}", filename, type);
+						log.DebugFormat ("WebServices.UploadFilesSafe (): uploading '{0}', got response type {1}", filename, type);
 
 						// 1 = everything OK, 2 = file received OK, 3 = error, 4 = send file
 						switch (type) {
@@ -348,11 +349,11 @@ namespace MonkeyWrench.Web.WebServices
 										path_to_contents = filename;
 										compressed_mime = null;
 									}
-									Logger.Log (2, "Compressed {0} to {1}.", original_contents, gz);
+									log.DebugFormat ("Compressed {0} to {1}.", original_contents, gz);
 								} catch (Exception ex) {
 									path_to_contents = filename;
 									compressed_mime = null;
-									Logger.Log ("Could not compress the file {0}: {1}, uploading uncompressed.", filename, ex.Message);
+									log.WarnFormat ("Could not compress the file {0}: {1}, uploading uncompressed.", filename, ex);
 								}
 
 								fi = new FileInfo (path_to_contents);
@@ -386,11 +387,11 @@ namespace MonkeyWrench.Web.WebServices
 								total += NotFoundMessageBytes.Length;
 							}
 
-							Logger.Log (2, "WebServices.UploadFilesSafe (): uploaded '{0}', {1} bytes", filename, total);
+							log.DebugFormat ("UploadFilesSafe (): uploaded '{0}', {1} bytes", filename, total);
 
 							ReadResponse (reader, out version, out type);
 							if (type == 2) {
-								Logger.Log ("WebServices.UploadFilesSafe (): uploaded '{0}' successfully", filename);
+								log.InfoFormat ("UploadFilesSafe (): uploaded '{0}' successfully", filename);
 							}
 							break;
 						}
@@ -400,7 +401,7 @@ namespace MonkeyWrench.Web.WebServices
 					}
 					ReadResponse (reader, out version, out type);
 					if (type == 4) {
-						Logger.Log ("WebServices.UploadFilesSafe (): all files uploaded successfully");
+						log.Info ("UploadFilesSafe (): all files uploaded successfully");
 					}
 				} finally {
 					FileUtilities.TryDeleteFile (gz);
@@ -408,13 +409,13 @@ namespace MonkeyWrench.Web.WebServices
 						stream.Close ();
 						reader.Close ();
 						writer.Close ();
-					} catch {
-						// Ignore
+					} catch (Exception ex) {
+						log.ErrorFormat("Error closing streams: {0}", ex);
 					}
 					try {
 						client.Close ();
-					} catch {
-						// Ignore
+					} catch (Exception ex) {
+						log.ErrorFormat("Error closing client: {0}", ex);
 					}
 				}
 			});
@@ -449,12 +450,12 @@ namespace MonkeyWrench.Web.WebServices
 				} catch (Exception ex) {
 					file_to_upload = filename;
 					compressed_mime = null;
-					Logger.Log ("Could not compress the file {0}: {1}, uploading uncompressed.", filename, ex.Message);
+					log.ErrorFormat ("Could not compress the file {0}, uploading uncompressed: {1}", filename, ex);
 				}
 
 				long length = new FileInfo (file_to_upload).Length;
 				if (length > 1024 * 1024 * 200) {
-					Logger.Log ("Not uploading {0} ({2}): filesize is > 200MB (it is: {1} MB)", file_to_upload, length / (1024.0 * 1024.0), filename);
+					log.WarnFormat ("Not uploading {0} ({2}): filesize is > 200MB (it is: {1} MB)", file_to_upload, length / (1024.0 * 1024.0), filename);
 					return;
 				}
 
@@ -464,15 +465,15 @@ namespace MonkeyWrench.Web.WebServices
 					this.UploadCompressedFile (WebServiceLogin, work, Path.GetFileName (filename), File.ReadAllBytes (file_to_upload), hidden, compressed_mime);
 				});
 			} catch (Exception ex) {
-				Logger.Log ("Could not upload {0}: {1}", filename, ex.Message);
+				log.ErrorFormat ("Could not upload {0}: {1}", filename, ex);
 			} finally {
 				// clean up
 				try {
 					// delete any files we may have created
 					if (gz != null)
 						File.Delete (gz);
-				} catch {
-					// ignore any exceptions
+				} catch (Exception ex) {
+					log.ErrorFormat ("Error deleting temporary file: {0}", ex);
 				}
 			}
 		}

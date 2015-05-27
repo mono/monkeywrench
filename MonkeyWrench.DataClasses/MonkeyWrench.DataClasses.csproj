@@ -59,6 +59,9 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database\DBAudit.cs" />
@@ -191,6 +194,7 @@
   <ItemGroup>
     <None Include="CustomTypes.sql" />
     <None Include="Makefile" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonkeyWrench\MonkeyWrench.csproj">

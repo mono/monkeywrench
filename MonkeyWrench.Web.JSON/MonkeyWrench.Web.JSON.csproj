@@ -40,6 +40,9 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />

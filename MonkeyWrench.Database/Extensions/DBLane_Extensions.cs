@@ -10,11 +10,9 @@
  *
  */
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 
 using MonkeyWrench.DataClasses;
 
@@ -46,8 +44,6 @@ namespace MonkeyWrench.Database
 					while (reader.Read ())
 						result.Add (new DBLanefile (reader));
 				}
-
-				Logger.Log ("Found {0} lane files with {1}", result.Count, cmd.CommandText);
 			}
 			return result;
 		}
@@ -149,7 +145,6 @@ DELETE FROM Lane WHERE id = @id;
 						result.Add (new DBLane (reader));
 				}
 			}
-			Logger.Log ("*** * *** GetDependentLanes for {0}: {1} results\n", me.id, result.Count);
 			return result;
 		}
 

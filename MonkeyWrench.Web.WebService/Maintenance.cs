@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Web;
+using log4net;
 
 using MonkeyWrench;
 
@@ -24,6 +25,8 @@ namespace MonkeyWrench.WebServices {
 #pragma warning disable 414 
 		static Timer timer;
 #pragma warning restore 414
+
+		private static readonly ILog log = LogManager.GetLogger (typeof (Maintenance));
 
 		public static void Start ()
 		{
@@ -36,7 +39,7 @@ namespace MonkeyWrench.WebServices {
 				CleanupEmptyRevisionWorks ();
 				CleanupLogins ();
 			} catch (Exception ex) {
-				Logger.Log ("Unhandled exception in maintenance thread: {0}", ex);
+				log.ErrorFormat ("Unhandled exception in maintenance thread: {0}", ex);
 			}
 		}
 
@@ -55,9 +58,9 @@ namespace MonkeyWrench.WebServices {
 ;");
 				}
 				watch.Stop ();
-				Logger.Log ("Maintenance: successfully cleaned up empty revision works ({0} affected records) in {1} seconds", r, watch.Elapsed.TotalSeconds);
+				log.InfoFormat ("successfully cleaned up empty revision works ({0} affected records) in {1} seconds", r, watch.Elapsed.TotalSeconds);
 			} catch (Exception ex) {
-				Logger.Log ("Maintenance: failed to cleanup empty revision work: {0}", ex);
+				log.ErrorFormat ("failed to cleanup empty revision work: {0}", ex);
 			}
 		}
 
@@ -71,9 +74,9 @@ namespace MonkeyWrench.WebServices {
 					r = db.ExecuteNonQuery ("DELETE FROM login WHERE expires < now();");
 				}
 				watch.Stop ();
-				Logger.Log ("Maintenance: successfully cleaned up logins ({0} affected records) in {1} seconds", r, watch.Elapsed.TotalSeconds);
+				log.InfoFormat ("successfully cleaned up logins ({0} affected records) in {1} seconds", r, watch.Elapsed.TotalSeconds);
 			} catch (Exception ex) {
-				Logger.Log ("Maintenance: failed to cleanup logins: {0}", ex);
+				log.ErrorFormat ("failed to cleanup logins: {0}", ex);
 			}
 		}
 	}

@@ -2,11 +2,14 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using log4net;
 
 namespace MonkeyWrench
 {
 	public class Lock
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (Lock));
+
 		Mutex mutex;
 		Semaphore semaphore;
 		FileStream file;
@@ -40,24 +43,24 @@ namespace MonkeyWrench
 					result.file = File.Open (Path.Combine (Path.GetTempPath (), name + ".lock"), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
 					return result;
 				} catch (IOException ex) {
-					Logger.Log ("Could not aquire builder lock: {0}", ex.Message);
+					log.WarnFormat ("Could not aquire builder lock: {0}", ex);
 					return null;
 				}
 			case "fileexistence":
 			case "fileexistance":
 				string tmp = Path.Combine (Path.GetTempPath (), name + ".fileexistence-lock--delete-to-unlock");
-				Logger.Log ("Checking file existence for {0}", tmp);
+				log.DebugFormat ("Checking file existence for {0}", tmp);
 				if (File.Exists (tmp)) {
 					try {
 						if (ProcessHelper.Exists (int.Parse (File.ReadAllText (tmp)))) {
-							Logger.Log ("File lock corresponds to an existing process.");
+							log.Debug ("File lock corresponds to an existing process.");
 							return null;
 						}
 					} catch (Exception ex) {
-						Logger.Log ("Could not confirm that file lock corresponds to a non-existing process: {0}", ex.Message);
+						log.ErrorFormat ("Could not confirm that file lock corresponds to a non-existing process: {0}", ex);
 						return null;
 					}
-					Logger.Log ("File lock corresponds to a dead process, lock acquired");
+					log.Debug ("File lock corresponds to a dead process, lock acquired");
 				}
 				// there is a race condition here.
 				// given that the default setup is to execute a program at most once per minute,
@@ -73,7 +76,7 @@ namespace MonkeyWrench
 				}
 				return null;
 			default:
-				Logger.Log ("Unknown locking algorithm: {0} (using default 'semaphore')", Configuration.LockingAlgorithm);
+				log.ErrorFormat ("Unknown locking algorithm: {0} (using default 'semaphore')", Configuration.LockingAlgorithm);
 				goto case "semaphore";
 			}
 		}
@@ -92,7 +95,7 @@ namespace MonkeyWrench
 				}
 
 			} catch (Exception ex) {
-				Logger.Log ("Exception while unlocking process lock (file existence): {0}", ex.Message);
+				log.ErrorFormat ("Exception while unlocking process lock (file existence): {0}", ex);
 			}
 
 			GC.SuppressFinalize (this);

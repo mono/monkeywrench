@@ -11,23 +11,19 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
-
-using Npgsql;
 using NpgsqlTypes;
+using log4net;
 
-using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
 
 namespace MonkeyWrench.Database.Manager
 {
 	class Manager
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (Manager));
+
 		public static int Main (string [] args)
 		{
 			int result = 0;
@@ -165,7 +161,7 @@ LIMIT 10
 		{
 			long moved_bytes = 0;
 
-			LogWithTime ("MoveFilesToFileSystem: [START]");
+			Manager.log.Info ("MoveFilesToFileSystem: [START]");
 
 			using (DB db = new DB ()) {
 				using (DB download_db = new DB ()) {
@@ -197,7 +193,7 @@ LIMIT 10
 									transaction.Commit ();
 
 									moved_bytes += file.size;
-									LogWithTime ("MoveFilesToFileSystem: Moved oid {0} to {1} ({2} bytes, {3} total bytes moved)", oid, fn, file.size, moved_bytes);
+									log.InfoFormat ("MoveFilesToFileSystem: Moved oid {0} to {1} ({2} bytes, {3} total bytes moved)", oid, fn, file.size, moved_bytes);
 								} while (reader.Read ());
 							}
 						}
@@ -229,12 +225,12 @@ LIMIT 10
 												try {
 													if (File.Exists (tmpfile))
 														File.Delete (tmpfile);
-												} catch {
-													// ignore exceptions here
+												} catch (Exception ex) {
+													log.ErrorFormat ("error deleting temp file: {0}", ex);
 												}
 											}
 											moved_bytes += length;
-											LogWithTime ("MoveFilesToFileSystem: Moved revision {0}'s diff to db/filesystem ({1} bytes, {2} total bytes moved)", revision.id, length, moved_bytes);
+											log.InfoFormat ("MoveFilesToFileSystem: Moved revision {0}'s diff to db/filesystem ({1} bytes, {2} total bytes moved)", revision.id, length, moved_bytes);
 										}
 									}
 
@@ -252,12 +248,12 @@ LIMIT 10
 												try {
 													if (File.Exists (tmpfile))
 														File.Delete (tmpfile);
-												} catch {
-													// ignore exceptions here
+												} catch (Exception ex) {
+													log.ErrorFormat ("error deleting temp file: {0}", ex);
 												}
 											}
 											moved_bytes += length;
-											LogWithTime ("MoveFilesToFileSystem: Moved revision {0}'s log to db/filesystem ({1} bytes, {2} total bytes moved)", revision.id, length, moved_bytes);
+											Manager.log.InfoFormat ("MoveFilesToFileSystem: Moved revision {0}'s log to db/filesystem ({1} bytes, {2} total bytes moved)", revision.id, length, moved_bytes);
 										}
 										revision.log = null;
 									}
@@ -270,14 +266,9 @@ LIMIT 10
 				}
 			}
 
-			LogWithTime ("MoveFilesToFileSystem: [Done]");
+			Manager.log.Info ("MoveFilesToFileSystem: [Done]");
 
 			return 0;
-		}
-
-		private static void LogWithTime (string message, params object [] args)
-		{
-			Logger.Log (message, args);
 		}
 	}
 }

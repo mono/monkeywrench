@@ -57,6 +57,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -67,7 +70,6 @@
     <Compile Include="Job.cs" />
     <Compile Include="JobWindows.cs" />
     <Compile Include="Lock.cs" />
-    <Compile Include="Logger.cs" />
     <Compile Include="MimeTypes.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Platform.cs" />
@@ -107,4 +109,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

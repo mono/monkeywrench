@@ -11,22 +11,16 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Xml;
+using log4net;
 
 using MonkeyWrench.Web.WebServices;
-using MonkeyWrench.Database;
-using MonkeyWrench.DataClasses;
 
 namespace MonkeyWrench.Scheduler
 {
 	public static class Updater
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (Updater));
+
 		public static void Main (string [] args)
 		{
 			ProcessHelper.Exit (Main2 (args)); // Work around #499702
@@ -42,7 +36,8 @@ namespace MonkeyWrench.Scheduler
 				WebService.CreateLogin (Configuration.SchedulerAccount, Configuration.SchedulerPassword);
 				WebService.ExecuteScheduler (WebService.WebServiceLogin, Configuration.ForceFullUpdate);
 			} catch (Exception ex) {
-				Logger.Log ("Scheduler exception: {0}", ex);
+				log.ErrorFormat ("Scheduler exception: {0}", ex);
+				return 2;
 			}
 
 			return 0;

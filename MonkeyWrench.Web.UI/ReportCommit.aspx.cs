@@ -18,6 +18,7 @@ using System.Xml;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using log4net;
 
 using MonkeyWrench;
 using MonkeyWrench.DataClasses;
@@ -25,43 +26,42 @@ using MonkeyWrench.Web.WebServices;
 
 public partial class ReportCommit : System.Web.UI.Page
 {
+	private static readonly ILog log = LogManager.GetLogger (typeof (ReportCommit));
+
 	protected void Page_Load (object sender, EventArgs e)
 	{
-		HttpPostedFile xml;
-		xml = Request.Files ["xml"];
-
 		if (Request.UserHostAddress != "130.57.169.27" && Request.UserHostAddress != "130.57.21.45") {
-			Logger.Log ("ReportCommit.aspx: {0} tried to send a file, ignored.", Request.UserHostAddress);
+			log.WarnFormat ("{0} tried to send a file, ignored.", Request.UserHostAddress);
+			Response.StatusCode = 403;
 			return;
 		}
 
-		if (xml != null) {
-			string outdir = Configuration.GetSchedulerCommitsDirectory ();
-			string outfile = Path.Combine (outdir, string.Format ("commit-{0}.xml", DateTime.Now.ToString ("yyyy-MM-dd-HH-mm-ss")));
+		HttpPostedFile xml;
+		xml = Request.Files ["xml"];
 
-			if (xml.ContentLength > 1024 * 100) {
-				Logger.Log ("ReportCommit.aspx: {0} tried to send oversized file (> {1} bytes.", Request.UserHostAddress, 1024 * 100);
-				return;
-			}
-
-			if (!Directory.Exists (outdir))
-				Directory.CreateDirectory (outdir);
-			
-			Logger.Log ("ReportCommit.aspx: Got 'xml' from {2} with size {0} bytes, writing to '{1}'", xml.ContentLength, outfile, Request.UserHostAddress);
-
-			byte [] buffer = new byte [1024];
-			int read;
-			using (FileStream writer = new FileStream (outfile, FileMode.CreateNew, FileAccess.Write, FileShare.None, buffer.Length)) {
-				while (0 < (read = xml.InputStream.Read (buffer, 0, buffer.Length))) {
-					writer.Write (buffer, 0, read);
-				}
-			}
-
-			WebServices.ExecuteSchedulerAsync ();
-		} else {
-			Logger.Log ("ReportCommit.aspx: Didn't get a file called 'xml'");
+		if (xml == null) {
+			log.Warn ("Didn't get a file called 'xml'");
+			Response.StatusCode = 400;
+			return;
 		}
 
-		Response.Write ("OK\n");
+		string outdir = Configuration.GetSchedulerCommitsDirectory ();
+		string outfile = Path.Combine (outdir, string.Format ("commit-{0}.xml", DateTime.Now.ToString ("yyyy-MM-dd-HH-mm-ss")));
+
+		if (!Directory.Exists (outdir))
+			Directory.CreateDirectory (outdir);
+		
+		log.InfoFormat ("ReportCommit.aspx: Got 'xml' from {2} with size {0} bytes, writing to '{1}'", xml.ContentLength, outfile, Request.UserHostAddress);
+
+		byte [] buffer = new byte [1024];
+		int read;
+		using (FileStream writer = new FileStream (outfile, FileMode.CreateNew, FileAccess.Write, FileShare.None, buffer.Length)) {
+			while (0 < (read = xml.InputStream.Read (buffer, 0, buffer.Length))) {
+				writer.Write (buffer, 0, read);
+			}
+		}
+
+		WebServices.ExecuteSchedulerAsync ();
+		Response.StatusCode = 204;
 	}
 }

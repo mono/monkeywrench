@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using log4net;
 
-using MonkeyWrench;
 using MonkeyWrench.WebServices;
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
@@ -22,7 +22,8 @@ namespace MonkeyWrench.WebServices {
 		 * CLI app and a simple ASP server).
 		 * The previous version using HttpRequest can be found in the git history.
 		 */
-
+		
+		static readonly ILog log = LogManager.GetLogger (typeof (GitHubNotification));
 		private const string HOST = "https://api.github.com";
 
 		private readonly string username, token;
@@ -150,7 +151,7 @@ namespace MonkeyWrench.WebServices {
 				proc.OutputDataReceived += (sender, e) => {}; // Don't care about the response
 				proc.ErrorDataReceived += (sender, e) => {
 					if (!string.IsNullOrEmpty (e.Data))
-						Logger.Log ("curl stderr: {0}", e.Data);
+						log.WarnFormat ("curl stderr: {0}", e.Data);
 				};
 
 				proc.Start ();
@@ -162,7 +163,7 @@ namespace MonkeyWrench.WebServices {
 				
 				proc.WaitForExit ();
 				if (proc.ExitCode != 0)
-					Logger.Log ("Failed to send GitHub notification. Code: {0}", proc.ExitCode);
+					log.ErrorFormat ("Failed to send GitHub notification. Code: {0}", proc.ExitCode);
 			}
 		}
 
@@ -230,7 +231,7 @@ namespace MonkeyWrench.WebServices {
 
 				using (var reader = cmd.ExecuteReader ()) {
 					if (!reader.Read ()) {
-						Logger.Log ("GitHub Notifier: RevisionWork for lane {0} host {1} revision {2} no longer exists.", info.laneID, info.hostID, info.revisionID);
+						log.WarnFormat ("GitHub Notifier: RevisionWork for lane {0} host {1} revision {2} no longer exists.", info.laneID, info.hostID, info.revisionID);
 						return;
 					}
 

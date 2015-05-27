@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Services;
+using log4net;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
@@ -31,14 +32,7 @@ namespace MonkeyWrench.WebServices
 	[System.ComponentModel.ToolboxItem (false)]
 	public class WebServices : System.Web.Services.WebService
 	{
-		public WebServices () : this(true)
-		{
-		}
-
-		public WebServices (bool loadConfig) {
-			if(loadConfig)
-				Configuration.LoadConfiguration (new string [] { });
-		}
+		private static ILog log = LogManager.GetLogger (typeof (WebServices));
 
 		internal void Authenticate (DB db, WebServiceLogin login, WebServiceResponse response)
 		{
@@ -1026,7 +1020,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 				if (response.lane != null)
 					response.dependencies = response.lane.GetDependentLanes (db);
 
-				Logger.Log ("*** * *** FindLaneWithDependencies for {0}: {1} results\n", response.lane.id, response.dependencies.Count);
+				log.DebugFormat ("FindLaneWithDependencies for {0}: {1} results\n", response.lane.id, response.dependencies.Count);
 
 				return response;
 			}
@@ -1045,7 +1039,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		[WebMethod]
 		public void EditLaneWithTags (WebServiceLogin login, DBLane lane, string[] tags)
 		{
-			Logger.Log ("EditLaneWithTags ({0}, {1})", lane.id, tags == null ? "null" : tags.Length.ToString ());
+			log.DebugFormat ("EditLaneWithTags ({0}, {1})", lane.id, tags == null ? "null" : tags.Length.ToString ());
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				lane.Save (db);
@@ -1176,7 +1170,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			List<DBHostLane> HostLanes;
 			List<int> TaggedLaneIds = null;
 
-			Logger.Log ("GetFrontPageDataWithTags (page_size: {0} page: {1} lanes: {2} lane_ids: {3} latest_days: {4} tags: {5})",
+			log.DebugFormat ("GetFrontPageDataWithTags (page_size: {0} page: {1} lanes: {2} lane_ids: {3} latest_days: {4} tags: {5})",
 				page_size, page, lanes == null ? "null" : lanes.Length.ToString (), lane_ids == null ? "null" : lane_ids.Length.ToString (), latest_days, tags == null ? "null" : tags.Length.ToString ());
 
 			page_size = Math.Min (page_size, 500);
@@ -1282,7 +1276,7 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 					return false;
 				});
 
-				Logger.Log ("We have {0} selected lanes", response.SelectedLanes.Count);
+				log.DebugFormat ("We have {0} selected lanes", response.SelectedLanes.Count);
 
 				// backwards compat
 				if (response.SelectedLanes.Count == 1)
@@ -1328,7 +1322,7 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 					// Walk up the tree of parent lanes, marking all the parents too
 					var l = Lanes.FirstOrDefault ((v) => v.id == hl.lane_id);
 					if (l == null) {
-						Logger.Log ("GetFrontPageDataWithTags: could not find lane {0} for host lane {1}", hl.lane_id, hl.id);
+						log.WarnFormat ("GetFrontPageDataWithTags: could not find lane {0} for host lane {1}", hl.lane_id, hl.id);
 						l = DBLane_Extensions.Create (db, hl.lane_id);
 						l.enabled = true; // This will prevent us from having to load the lane manually again.
 						l.Save (db);
@@ -1347,7 +1341,7 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 						var old_l = l;
 						l = Lanes.FirstOrDefault ((v) => v.id == l.parent_lane_id.Value);
 						if (l == null) {
-							Logger.Log ("GetFrontPageDataWithTags: could not find parent lane {0} for lane {1} (host lane {2})", old_l.parent_lane_id.Value, old_l.id, hl.id);
+							log.WarnFormat ("GetFrontPageDataWithTags: could not find parent lane {0} for lane {1} (host lane {2})", old_l.parent_lane_id.Value, old_l.id, hl.id);
 							l = DBLane_Extensions.Create (db, old_l.parent_lane_id.Value);
 							l.enabled = true; // This will prevent us from having to load the lane manually again.
 							l.Save (db);
@@ -2276,7 +2270,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 			using (DB db = new DB ())
 			using (var transaction = db.BeginTransaction ()) {
 				VerifyUserInRole (db, login, Roles.BuildBot, true);
-				Logger.Log (2, "ReportBuildState, state: {0}, start time: {1}, end time: {2}", work.State, work.starttime, work.endtime);
+				log.DebugFormat ("ReportBuildState, state: {0}, start time: {1}, end time: {2}", work.State, work.starttime, work.endtime);
 				if (work.starttime > new DateTime (2000, 1, 1) && work.endtime < work.starttime) {
 					// the issue here is that the server interprets the datetime as local time, while it's always as utc.
 					try {
@@ -2287,7 +2281,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 								work.starttime = (DateTime) value;
 						}
 					} catch (Exception ex) {
-						Logger.Log ("ReportBuildState: Exception while fixing timezone data: {0}", ex.Message);
+						log.ErrorFormat ("ReportBuildState: Exception while fixing timezone data: {0}", ex);
 					}
 				}
 				work.Save (db);
@@ -2425,7 +2419,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.BuildBot, true);
 
-				Logger.Log (2, "BuildBot '{2}' reported in. v{0}: {1}", status.AssemblyVersion, status.AssemblyDescription, status.Host);
+				log.DebugFormat ("BuildBot '{2}' reported in. v{0}: {1}", status.AssemblyVersion, status.AssemblyDescription, status.Host);
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
@@ -2659,7 +2653,7 @@ LIMIT 1;
 					if (!revisionwork.workhost_id.HasValue || revisionwork.workhost_id != response.Host.id)
 						continue; // couldn't lock this revisionwork.
 
-					Logger.Log ("Found work for host {0} {4}: {1} (lane: {2} {3})", response.Host.id, revisionwork.id, revisionwork.lane_id, lane.lane, response.Host.host);
+					log.DebugFormat ("Found work for host {0} {4}: {1} (lane: {2} {3})", response.Host.id, revisionwork.id, revisionwork.lane_id, lane.lane, response.Host.host);
 
 					DBRevision revision = DBRevision_Extensions.Create (db, revisionwork.revision_id);
 					List<DBWorkFile> files_to_download = null;
@@ -2722,12 +2716,10 @@ WHERE
 (host_id = {0} OR host_id = {1} OR host_id IS NULL) AND (lane_id = {2} OR lane_id IS NULL)
 ORDER BY id;
 ;", revisionwork.workhost_id, revisionwork.host_id, li);
-							Logger.Log ("SQL to execute:\n{0}", cmd.CommandText);
 						}
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							var set = new HashSet<string> ();
 							do {
-								Logger.Log ("Reading result... {0} matches so far", environment_variables == null ? 0 : environment_variables.Count);
 								while (reader.Read ()) {
 									if (environment_variables == null)
 										environment_variables = new List<DBEnvironmentVariable> ();

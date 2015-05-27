@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading;
 using System.Web;
 using System.Web.Services;
+using log4net;
 
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
@@ -31,6 +32,8 @@ namespace MonkeyWrench.WebServices
 {
 	static class Upload
 	{
+		private static readonly ILog log = LogManager.GetLogger (typeof (Upload));
+
 		private static TcpListener listener;
 		private static object lockobj = new object ();
 		private static AsyncCallback accept_cb;
@@ -43,6 +46,7 @@ namespace MonkeyWrench.WebServices
 					StartListener ();
 					Global.UploadStatus = null;
 				} catch (Exception ex) {
+					log.ErrorFormat ("Couldn't start listener: {0}", ex);
 					Global.UploadStatus = string.Format ("Failed to open port for incoming uploads ({0}). All bots are stuck until this is fixed. Please ask a MonkeyWrench server admin to fix it.", ex.Message);
 					throw;
 				}
@@ -64,7 +68,7 @@ namespace MonkeyWrench.WebServices
 				listener.BeginAcceptTcpClient (accept_cb, null);
 				
 				Upload.listener = listener;
-				Logger.Log ("WebService successfully started upload listener on port {0}", ((IPEndPoint) listener.LocalEndpoint).Port);
+				log.InfoFormat ("WebService successfully started upload listener on port {0}", ((IPEndPoint) listener.LocalEndpoint).Port);
 			}
 		}
 
@@ -82,14 +86,15 @@ namespace MonkeyWrench.WebServices
 			TcpClient accepted = null;
 			try {
 				accepted = listener.EndAcceptTcpClient (ares);
-			} catch {
+			} catch (Exception ex) {
+				log.ErrorFormat ("OnAccept failed: {0}", ex);
 			} finally {
 				try {
 					// listen again
 					listener.BeginAcceptTcpClient (accept_cb, null);
 				} catch (Exception ex) {
 					if (accepted != null) {
-						Logger.Log ("Upload.OnAccept (): {0}", ex);
+						log.ErrorFormat ("Upload.OnAccept (): {0}", ex);
 						accepted.Close ();
 						throw;
 					}
@@ -105,7 +110,7 @@ namespace MonkeyWrench.WebServices
 		private static string ReadString (BinaryReader reader, byte [] buffer, byte length)
 		{
 			reader.Read (buffer, 0, length);
-			return UTF8Encoding.UTF8.GetString (buffer, 0, length);
+			return Encoding.UTF8.GetString (buffer, 0, length);
 		}
 
 		private static void ExecuteRequest (object state)
@@ -176,7 +181,8 @@ namespace MonkeyWrench.WebServices
 				ushort file_count = reader.ReadUInt16 ();
 				reader.ReadInt64 ();
 
-				Logger.Log (2, "Upload.ExecuteRequest (): {0} version: {1} work_id: {2} file count: {3} remote ip: {4}", id, version, work_id, file_count, client.Client.RemoteEndPoint.ToString ());
+
+				log.DebugFormat ( "Upload.ExecuteRequest (): {0} version: {1} work_id: {2} file count: {3} remote ip: {4}", id, version, work_id, file_count, client.Client.RemoteEndPoint.ToString ());
 
 				using (DB db = new DB ()) {
 					Authentication.VerifyUserInRole (remote_ip, db, login, Roles.BuildBot, true);
@@ -205,11 +211,11 @@ namespace MonkeyWrench.WebServices
 						hidden = (flags & 0x2) == 0x2;
 						// compressed = (flags & 0x1) == 0x1;
 
-						Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1}: filename: '{2}' ", id, i + 1, filename);
+						log.DebugFormat ("Upload.ExecuteRequest (): {0} file #{1}: filename: '{2}' ", id, i + 1, filename);
 
 						DBFile file = DBFile_Extensions.Find (db, FileUtilities.MD5BytesToString (md5));
 						if (file == null) {
-							Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1} must be sent, sending 'send file' response", id, i + 1);
+							log.DebugFormat ("Upload.ExecuteRequest (): {0} file #{1} must be sent, sending 'send file' response", id, i + 1);
 							// Write 'send file'
 							writer.Write ((byte) 1); // version
 							writer.Write ((byte) 4); // type (4 = send file)
@@ -219,7 +225,7 @@ namespace MonkeyWrench.WebServices
 							compressed_mime = ReadString (reader, buffer, compressed_mime_length);
 							content_length = reader.ReadInt32 ();
 
-							Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1} content_length: {2} compressed_mime: '{3}' reading...", id, i + 1, content_length, compressed_mime);
+							log.DebugFormat ("Upload.ExecuteRequest (): {0} file #{1} content_length: {2} compressed_mime: '{3}' reading...", id, i + 1, content_length, compressed_mime);
 							
 							int bytes_left = content_length;
 							tmpfile = Path.GetTempFileName ();
@@ -234,10 +240,10 @@ namespace MonkeyWrench.WebServices
 								}
 							}
 
-							Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1} received, uploading '{2}' to database", id, i + 1, tmpfile);
+							log.DebugFormat ("Upload.ExecuteRequest (): {0} file #{1} received, uploading '{2}' to database", id, i + 1, tmpfile);
 							file = db.Upload (FileUtilities.MD5BytesToString (md5), tmpfile, filename, Path.GetExtension (filename), hidden, compressed_mime);
 						} else {
-							Logger.Log (2, "Upload.ExecuteRequest (): {0} file #{1} already in database, not uploading", id, i + 1);
+							log.DebugFormat ("Upload.ExecuteRequest (): {0} file #{1} already in database, not uploading", id, i + 1);
 						}
 
 						DBWork work = DBWork_Extensions.Create (db, work_id);
@@ -247,7 +253,7 @@ namespace MonkeyWrench.WebServices
 						writer.Write ((byte) 1); // version
 						writer.Write ((byte) 2); // type (2 = file received OK)
 						writer.Flush ();
-						Logger.Log (2, "Upload.ExecuteRequest (): {0} {1} uploaded successfully", id, filename);
+						log.DebugFormat ("Upload.ExecuteRequest (): {0} {1} uploaded successfully", id, filename);
 					}
 				}
 
@@ -255,26 +261,27 @@ namespace MonkeyWrench.WebServices
 				writer.Write ((byte) 1); // version
 				writer.Write ((byte) 1); // type (1 = everything OK)
 				writer.Flush ();
-				Logger.Log (2, "Upload.ExecuteRequest (): {0} completed", id);
+				log.DebugFormat ("Upload.ExecuteRequest (): {0} completed", id);
 			} catch (Exception ex) {
+				log.ErrorFormat ("Upload.ExecuteRequest (): {0} {1}", id, ex);
 				try {
 					string msg = ex.ToString ();
-					byte [] msg_buffer = UTF8Encoding.UTF8.GetBytes (msg);
+					byte [] msg_buffer = Encoding.UTF8.GetBytes (msg);
 					writer.Write ((byte) 1); // version
 					writer.Write ((byte) 3); // type (3 = error)
 					writer.Write ((ushort) Math.Min (msg_buffer.Length, ushort.MaxValue)); // message_length
 					writer.Write (msg_buffer, 0, Math.Min (msg_buffer.Length, ushort.MaxValue)); // message
 					stream.Flush ();
 				} catch (Exception ex2) {
-					Logger.Log ("Upload.ExecuteRequest (): {0} Failed to send exception to client: {1}", id, ex2.Message);
+					log.ErrorFormat ("Upload.ExecuteRequest (): {0} Failed to send exception to client: {1}", id, ex2);
 				}
-				Logger.Log ("Upload.ExecuteRequest (): {0} {1}", id, ex);
 			} finally {
 				if (tmpfile != null)
 					FileUtilities.TryDeleteFile (tmpfile);
 				try {
 					client.Close ();
-				} catch {
+				} catch (Exception ex) {
+					log.ErrorFormat ("Error closing connection: {0}", ex);
 					// Ignore 
 				}
 			}

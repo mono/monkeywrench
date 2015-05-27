@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Web;
+using log4net;
 
 using MonkeyWrench;
 using MonkeyWrench.DataClasses;
@@ -21,6 +22,8 @@ using MonkeyWrench.Web.WebServices;
 
 public class Authentication
 {
+	private static readonly ILog log = LogManager.GetLogger (typeof (Authentication));
+
 	public static void SavePassword (HttpResponse response, LoginResponse ws_response)
 	{
 		HttpCookie cookie = new HttpCookie ("cookie", ws_response.Cookie);
@@ -44,18 +47,18 @@ public class Authentication
 		bool result;
 
 		if (response == null) {
-			MonkeyWrench.Logger.Log (2, "IsInRole: no response");
+			log.Debug ("IsInRole: no response");
 			return false;
 		}
 
 		if (response.UserRoles == null) {
-			MonkeyWrench.Logger.Log (2, "IsInRole: no userroles");
+			log.Debug ("IsInRole: no userroles");
 			return false;
 		}
 		
 		result = Array.IndexOf (response.UserRoles, role) >= 0;
 
-		MonkeyWrench.Logger.Log (2, "IsInRole ({0}) => {1} (roles: {2})", role, result, string.Join (";", response.UserRoles));
+		log.DebugFormat ("IsInRole ({0}) => {1} (roles: {2})", role, result, string.Join (";", response.UserRoles));
 
 		return result;
 	}
@@ -88,9 +91,10 @@ public class Authentication
 		login.Ip4 = Utilities.GetExternalIP (Request);
 		response = Utils.LocalWebService.Login (login);
 		if (response == null) {
-			Logger.Log ("Login failed");
+			log.InfoFormat ("Login for {0} at {1} failed.", login.User, login.Ip4);
 			return false;
 		} else {
+			log.InfoFormat ("Login for {0} at {1} succeeded.", login.User, login.Ip4);
 			SetCookies (Response, response);
 			return true;
 		}
@@ -124,7 +128,6 @@ public class Authentication
 
 	public static void SetCookies (HttpResponse Response, LoginResponse response)
 	{
-		Logger.Log ("Login succeeded, cookie: {0}", response.Cookie);
 		Response.Cookies.Add (new HttpCookie ("cookie", response.Cookie));
 		Response.Cookies ["cookie"].Expires = DateTime.Now.AddDays (10);
 		Response.Cookies.Add (new HttpCookie ("user", response.User));

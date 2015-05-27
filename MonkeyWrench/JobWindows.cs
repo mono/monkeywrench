@@ -15,11 +15,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using log4net;
 
 namespace MonkeyWrench
 {
 	public class JobWindows : Job
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (JobWindows));
+
 		private IntPtr job_handle;
 
 		public override void Dispose ()
@@ -70,17 +73,17 @@ namespace MonkeyWrench
 
 			// assign the child process to the job
 			bool success = AssignProcessToJobObject (job_handle, p.Handle);
-			Logger.Log ("JobWindows: assigned process to job object with status: {0}, will now release mutex", success);
+			log.DebugFormat ("assigned process to job object with status: {0}, will now release mutex", success);
 
 			// allow the child process to execute what we really wanted to execute.
 			suspended_mutex.ReleaseMutex ();
-			Logger.Log ("JobWindows: mutex released");
+			log.DebugFormat ("mutex released");
 		}
 
-		public override void Terminate (SynchronizedStreamWriter log)
+		public override void Terminate (SynchronizedStreamWriter logstream)
 		{
 			bool success = TerminateJobObject (job_handle, 1);
-			Logger.Log ("JobWindows: terminated job object with status: {0}", success);
+			log.InfoFormat ("JobWindows: terminated job object with status: {0}", success);
 			CloseHandle (job_handle);
 			job_handle = IntPtr.Zero;
 		}

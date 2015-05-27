@@ -28,46 +28,40 @@ namespace MonkeyWrench.WebServices
 	{
 		protected void Page_Load (object sender, EventArgs e)
 		{
+			int workfile_id;
+			int revision_id;
+			int work_id;
+			bool diff;
+			string md5;
+			string filename;
+
+			int.TryParse (Request ["revision_id"], out revision_id);
+			int.TryParse (Request ["workfile_id"], out workfile_id);
+			int.TryParse (Request ["work_id"], out work_id);
+			bool.TryParse (Request ["diff"], out diff);
+			md5 = Request ["md5"];
+			filename = Request ["filename"];
+
 			try {
-				int workfile_id;
-				int revision_id;
-				int work_id;
-				bool diff;
-				string md5;
-				string filename;
-
-				int.TryParse (Request ["revision_id"], out revision_id);
-				int.TryParse (Request ["workfile_id"], out workfile_id);
-				int.TryParse (Request ["work_id"], out work_id);
-				bool.TryParse (Request ["diff"], out diff);
-				md5 = Request ["md5"];
-				filename = Request ["filename"];
-
-				try {
-					if (workfile_id != 0 || !string.IsNullOrEmpty (md5)) {
-						DownloadWorkFile (workfile_id, md5);
-					} else if (!string.IsNullOrEmpty (filename) && work_id != 0) {
-						DownloadNamedWorkFile (work_id, filename);
-					} else if (revision_id != 0) {
-						DownloadRevisionLog (revision_id, diff);
-					} else {
-						throw new HttpException (404, "Nothing to download.");
-					}
-				} catch (HttpException hex) {
-					if (hex.GetHttpCode () == 403) {
-						Uri webSiteUrl = new Uri (Configuration.WebSiteUrl);
-						Uri relativePath = new Uri ("Login.aspx?referrer=" + HttpUtility.UrlEncode (Request.Url.ToString ()), UriKind.Relative);
-						Uri redirect = new Uri (webSiteUrl, relativePath);
-						Response.Redirect (redirect.AbsoluteUri);
-						return;
-					} else {
-						throw;
-					}
+				if (workfile_id != 0 || !string.IsNullOrEmpty (md5)) {
+					DownloadWorkFile (workfile_id, md5);
+				} else if (!string.IsNullOrEmpty (filename) && work_id != 0) {
+					DownloadNamedWorkFile (work_id, filename);
+				} else if (revision_id != 0) {
+					DownloadRevisionLog (revision_id, diff);
+				} else {
+					throw new HttpException (404, "Nothing to download.");
 				}
-
-			} catch (Exception ex) {
-				Logger.Log ("Download failed: {0}", ex);
-				throw;
+			} catch (HttpException hex) {
+				if (hex.GetHttpCode () == 403) {
+					Uri webSiteUrl = new Uri (Configuration.WebSiteUrl);
+					Uri relativePath = new Uri ("Login.aspx?referrer=" + HttpUtility.UrlEncode (Request.Url.ToString ()), UriKind.Relative);
+					Uri redirect = new Uri (webSiteUrl, relativePath);
+					Response.Redirect (redirect.AbsoluteUri);
+					return;
+				} else {
+					throw;
+				}
 			}
 		}
 

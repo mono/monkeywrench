@@ -6,6 +6,8 @@ using System.Net;
 using System.Runtime.Caching;
 using System.Text;
 using System.Collections.Specialized;
+using log4net;
+
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
 
@@ -13,6 +15,8 @@ namespace MonkeyWrench.WebServices
 {
 	public class EMailNotification : NotificationBase
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (EMailNotification));
+
 		DBEmailIdentity identity;
 		string[] emails;
 		ObjectCache cache = new MemoryCache ("EmailCache");
@@ -45,28 +49,28 @@ namespace MonkeyWrench.WebServices
 		protected override void Notify (DBWork work, DBRevisionWork revision_work, List<DBPerson> people, string message)
 		{
 			if (!this.emails.Any ()) {
-				Logger.Log ("EmailNotification.Notify no emails");
+				log.DebugFormat ("Notify no emails");
 				return;
 			}
 
 			if (this.emails.Any (x => !x.EndsWith ("@hipchat.xamarin.com", StringComparison.OrdinalIgnoreCase))) {
-				Logger.Log ("EmailNotification.Notify skipping non-HipChat emails because we don't know how to send email!");
+				log.Warn ("EmailNotification.Notify skipping non-HipChat emails because we don't know how to send email!");
 				return;
 			}
 
 			var actionableEmails = this.emails.Where (x => x.EndsWith ("@hipchat.xamarin.com")).ToList ();
 
 			if (!actionableEmails.Any ()) {
-				Logger.Log ("EmailNotification.Notify no actionable emails!");
+				log.Debug ("Notify no actionable emails!");
 				return;
 			}
 
-			Logger.Log ("EmailNotification.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) enabled: {4}, {5} people", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, true, people.Count);
+			log.DebugFormat ("Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) enabled: {4}, {5} people", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id, true, people.Count);
 
 			bool nonfatal = false;
 
 			if (!Evaluate (work, revision_work, out nonfatal)) {
-				Logger.Log ("EmailNotification.Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) = evaluation returned false", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
+				log.DebugFormat ("Notify (lane_id: {1} revision_id: {2} host_id: {3} State: {0}) = evaluation returned false", work.State, revision_work.lane_id, revision_work.revision_id, revision_work.host_id);
 				return;
 			}
 
@@ -115,7 +119,7 @@ namespace MonkeyWrench.WebServices
 				}
 
 				if (string.IsNullOrEmpty (person.irc_nicknames)) {
-					Logger.Log ("HipChatNotification: could not find somebody to notify for revision with id {0} on lane {1}", revision_work.revision_id, revision_work.lane_id);
+					log.DebugFormat ("could not find somebody to notify for revision with id {0} on lane {1}", revision_work.revision_id, revision_work.lane_id);
 					continue;
 				}
 			}
@@ -156,7 +160,7 @@ namespace MonkeyWrench.WebServices
 				var res = webClient.UploadValues (finalApi, postData);
 				var resString = Encoding.UTF8.GetString (res);
 
-				Logger.Log ("HipChatNotification: response from server: {0}", resString);
+				log.DebugFormat ("response from server: {0}", resString);
 			}
 		}
 

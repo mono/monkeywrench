@@ -12,6 +12,7 @@
 
 using System;
 using System.Web;
+using log4net;
 
 using MonkeyWrench.WebServices;
 
@@ -19,6 +20,7 @@ namespace MonkeyWrench.Web.UI
 {
 	public class Global : System.Web.HttpApplication
 	{
+		private static readonly ILog log = LogManager.GetLogger (typeof (Global));
 
 		protected void Application_Start (object sender, EventArgs e)
 		{
@@ -56,7 +58,7 @@ namespace MonkeyWrench.Web.UI
 				ErrorPage.transferToError (Server, Context, "Unauthorized", HttpUtility.HtmlEncode (realException.Message), 403);
 			} else {
 				// Unhandled error. Log it and display an error page. 
-				Logger.Log ("{0}: {1}", Request.Url.AbsoluteUri, ex);
+				log.ErrorFormat ("{0} {1}: {2}", Request.HttpMethod, Request.Url.AbsoluteUri, ex);
 				if (Request.IsLocal) {
 					Response.StatusCode = 500;
 					Response.Write ("<pre>");

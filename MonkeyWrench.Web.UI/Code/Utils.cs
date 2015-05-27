@@ -175,7 +175,7 @@ public static class Utils
 	}
 
 	public static Lazy<MonkeyWrench.WebServices.WebServices> local_web_service
-	= new Lazy<MonkeyWrench.WebServices.WebServices> (() => new MonkeyWrench.WebServices.WebServices (false), LazyThreadSafetyMode.ExecutionAndPublication);
+	= new Lazy<MonkeyWrench.WebServices.WebServices> (() => new MonkeyWrench.WebServices.WebServices (), LazyThreadSafetyMode.ExecutionAndPublication);
 
 	public static MonkeyWrench.WebServices.WebServices LocalWebService
 	{

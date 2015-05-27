@@ -312,7 +312,6 @@ public partial class Identities : System.Web.UI.Page
 	protected void githubRemove_click(object sender, CommandEventArgs e) {
 		int id;
 		if (!int.TryParse (e.CommandArgument as string, out id)) {
-			Logger.Log ("Got a bad CommandArgument: {0}", e.CommandArgument);
 			lblMessage.Text = "Invalid remove.";
 			return;
 		}

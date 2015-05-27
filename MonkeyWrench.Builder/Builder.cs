@@ -15,9 +15,9 @@ using System.Xml;
 using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Text;
+using log4net;
 
 using MonkeyWrench;
 using MonkeyWrench.DataClasses;
@@ -28,6 +28,8 @@ namespace MonkeyWrench.Builder
 {
 	public class Builder
 	{
+		static readonly ILog log = LogManager.GetLogger (typeof (Builder));
+
 		private static WebServices WebService;
 		private static GetBuildInfoResponse response;
 		private static List<DBHostLane> failed_hostlanes = new List<DBHostLane> ();
@@ -45,23 +47,23 @@ namespace MonkeyWrench.Builder
 
 			try {
 				if (!Configuration.LoadConfiguration (arguments)) {
-					Logger.Log ("Could not load configuration.");
+					Console.Error.WriteLine("Could not load configuration.");
 					return 1;
 				}
 
 				if (!Configuration.VerifyBuildBotConfiguration ()) {
-					Logger.Log ("Configuration verification failed.");
+					log.Error ("Configuration verification failed.");
 					return 1;
 				}
 
 				process_lock = Lock.Create ("MonkeyWrench.Builder");
 				if (process_lock == null) {
-					Logger.Log ("Builder could not acquire lock. Exiting");
+					log.Info ("Builder could not acquire lock. Exiting");
 					return 1;
 				}
-				Logger.Log ("Builder lock aquired successfully.");
+				log.Info ("Builder lock aquired successfully.");
 			} catch (Exception ex) {
-				Logger.Log ("Could not aquire lock: {0}", ex.Message);
+				log.ErrorFormat ("Could not aquire lock: {0}", ex);
 				return 1;
 			}
 
@@ -74,16 +76,16 @@ namespace MonkeyWrench.Builder
 				status.FillInAssemblyAttributes ();
 				status_response = WebService.ReportBuildBotStatus (WebService.WebServiceLogin, status);
 				if (status_response.Exception != null) {
-					Logger.Log ("Failed to report status: {0}", status_response.Exception.Message);
+					log.ErrorFormat ("Failed to report status: {0}", status_response.Exception);
 					return 1;
 				}
 
 				if (!string.IsNullOrEmpty (status_response.ConfiguredVersion) && status_response.ConfiguredVersion != status.AssemblyVersion) {
 					if (!Update (status, status_response)) {
-						Console.Error.WriteLine ("Automatic update to: {0} / {1} failed (see log for details). Please update manually.", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
+						log.ErrorFormat ("Automatic update to: {0} / {1} failed (see log for details). Please update manually.", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
 						return 2; /* Magic return code that means "automatic update failed" */
 					} else {
-						Console.WriteLine ("The builder has been updated. Please run 'make build' again.");
+						log.Info ("The builder has been updated. Please run 'make build' again.");
 						return 1;
 					}
 				}
@@ -91,23 +93,23 @@ namespace MonkeyWrench.Builder
 				response = WebService.GetBuildInfoMultiple (WebService.WebServiceLogin, Configuration.Host, true);
 
 				if (!response.Host.enabled) {
-					Logger.Log ("This host is disabled. Exiting.");
+					log.Info ("This host is disabled. Exiting.");
 					return 0;
 				}
 
-				Logger.Log ("Builder will now build {0} lists of work items.", response.Work.Count);
+				log.InfoFormat ("Builder will now build {0} lists of work items.", response.Work.Count);
 
 				for (int i = 0; i < response.Work.Count; i++) {
 					//foreach (var item in response.Work)
-					Logger.Log ("Building list #{0}/{1}", i+ 1, response.Work.Count);
+					log.InfoFormat ("Building list #{0}/{1}", i+ 1, response.Work.Count);
 					Build (response.Work [i]);//item);
 				}
 
-				Logger.Log ("Builder finished successfully.");
+				log.Info ("Builder finished successfully.");
 
 				return 0;
 			} catch (Exception ex) {
-				Logger.Log ("An exception occurred: {0}", ex.ToString ());
+				log.ErrorFormat ("An exception occurred: {0}", ex);
 				return 1;
 			} finally {
 				process_lock.Unlock ();
@@ -118,7 +120,7 @@ namespace MonkeyWrench.Builder
 		{
 			StringBuilder output = new StringBuilder ();
 
-			Logger.Log ("This host is at version {0}, while it should be running version {1} ({2}). Will try to update.", status.AssemblyVersion, status_response.ConfiguredVersion, status_response.ConfiguredRevision);
+			log.InfoFormat ("This host is at version {0}, while it should be running version {1} ({2}). Will try to update.", status.AssemblyVersion, status_response.ConfiguredVersion, status_response.ConfiguredRevision);
 
 			try {
 				/* Check with git status if working copy is clean */
@@ -134,11 +136,11 @@ namespace MonkeyWrench.Builder
 					git.BeginErrorReadLine ();
 					git.BeginOutputReadLine ();
 					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
-						Logger.Log ("Builder.Update (): Could not get git status, git didn't get any status in 1 minute.");
+						log.Error ("Update (): Could not get git status, git didn't get any status in 1 minute.");
 						return false;
 					}
 					if (git.ExitCode != 0) {
-						Logger.Log ("Builder.Update (): git status failed: {0}", output.ToString ());
+						log.ErrorFormat ("Update (): git status failed: {0}", output);
 						return false;
 					}
 
@@ -148,7 +150,7 @@ namespace MonkeyWrench.Builder
 					} else if (stdout.Contains ("nothing to commit (working directory clean)")) {
 						/* OK - git 1.6 doesn't seem to understand the -s flag */
 					} else {
-						Logger.Log ("Builder.Update (): git status shows that there are local changes: \n{0}", output);
+						log.ErrorFormat ("Update (): git status shows that there are local changes: \n{0}", output);
 						return false;
 					}
 				}
@@ -168,11 +170,11 @@ namespace MonkeyWrench.Builder
 					git.BeginErrorReadLine ();
 					git.BeginOutputReadLine ();
 					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
-						Logger.Log ("Builder.Update (): git fetch didn't finish in 1 minute");
+						log.Error ("Update (): git fetch didn't finish in 1 minute");
 						return false;
 					}
 					if (git.ExitCode != 0) {
-						Logger.Log ("Builder.Update (): git status failed: {0}", output.ToString ());
+						log.ErrorFormat ("Update (): git status failed: {0}", output);
 						return false;
 					}
 				}
@@ -192,18 +194,18 @@ namespace MonkeyWrench.Builder
 					git.BeginErrorReadLine ();
 					git.BeginOutputReadLine ();
 					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
-						Logger.Log ("Builder.Update (): Could not checkout the required revision in 1 minute.");
+						log.Error ("Update (): Could not checkout the required revision in 1 minute.");
 						return false;
 					}
 					if (git.ExitCode != 0) {
-						Logger.Log ("Builder.Update (): git reset failed: {0}", output.ToString ());
+						log.ErrorFormat ("Update (): git reset failed: {0}", output);
 						return false;
 					}
 				}
 
-				Logger.Log ("Successfully updated to {0} {1})", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
+				log.InfoFormat ("Successfully updated to {0} {1})", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
 			} catch (Exception ex) {
-				Logger.Log ("Builder.Update (): exception caught: {0}", ex.Message);
+				log.ErrorFormat ("Update (): error: {0}", ex);
 				return false;
 			}
 
@@ -226,9 +228,9 @@ namespace MonkeyWrench.Builder
 			} catch (Exception ex) {
 				// Just swallow all exceptions here.
 				if (info == null) {
-					Logger.Log ("Exception while building lane: {0}", ex.ToString ());
+					log.ErrorFormat ("Exception while building lane: {0}", ex);
 				} else {
-					Logger.Log ("{2} Exception while building lane '{0}': {1}", info.lane.lane, ex.ToString (), info.number);
+					log.ErrorFormat ("{2} Exception while building lane '{0}': {1}", info.lane.lane, ex, info.number);
 				}
 			}
 		}
@@ -244,13 +246,13 @@ namespace MonkeyWrench.Builder
 				int exitcode = 0;
 				ReportBuildStateResponse response;
 
-				Logger.Log ("{0} Builder started new thread for sequence {1} step {2}", info.number, info.command.sequence, info.command.command);
+				Builder.log.DebugFormat ("{0} Builder started new thread for sequence {1} step {2}", info.number, info.command.sequence, info.command.command);
 
 				/* Check if step has been aborted already */
 				info.work.State = WebService.GetWorkStateSafe (info.work);
 				if (info.work.State != DBState.NotDone && info.work.State != DBState.Executing) {
 					/* If we're in an executing state, we're restarting a command for whatever reason (crash, reboot, etc) */
-					Logger.Log ("{0} Builder found that step {1} is not ready to start, it's in a '{2}' state", info.number, info.command.command, info.work.State);
+					log.WarnFormat ("{0} Builder found that step {1} is not ready to start, it's in a '{2}' state", info.number, info.command.command, info.work.State);
 					return;
 				}
 				result = DBState.Executing;
@@ -339,11 +341,11 @@ namespace MonkeyWrench.Builder
 									result = DBState.Aborted;
 									try {
 										exitcode = 255;
-										Logger.Log ("{1} The build step '{0}' has been aborted, terminating it.", info.command.command, info.number);
+										Builder.log.InfoFormat ("{1} The build step '{0}' has been aborted, terminating it.", info.command.command, info.number);
 										p.Terminate (log);
 										log.WriteLine (string.Format ("{1} The build step '{0}' was aborted, terminated it.", info.command.command, info.number));
 									} catch (Exception ex) {
-										Logger.Log ("{1} Exception while killing build step: {0}", ex.ToString (), info.number);
+										Builder.log.ErrorFormat ("{1} Exception while killing build step: {0}", ex, info.number);
 									}
 									break;
 								}
@@ -367,12 +369,12 @@ namespace MonkeyWrench.Builder
 								try {
 									result = DBState.Timeout;
 									exitcode = 255;
-									Logger.Log ("{0} {1}", info.number, timeoutReason);
+									Builder.log.ErrorFormat ("{0} {1}", info.number, timeoutReason);
 									log.WriteLine ("\n*** Timed out. Proceeding to get stack traces for all child processes. ***");
 									p.Terminate (log);
 									log.WriteLine ("\n * " + timeoutReason + " * \n");
 								} catch (Exception ex) {
-									Logger.Log ("{1} Exception while terminating build step: {0}", ex.ToString (), info.number);
+									Builder.log.ErrorFormat ("{1} Exception while terminating build step: {0}", ex, info.number);
 								}
 								break;
 							}
@@ -385,7 +387,7 @@ namespace MonkeyWrench.Builder
 							if (p.HasExited) {
 								exitcode = p.ExitCode;
 							} else {
-								Logger.Log ("{1} Step: {0}: the process didn't exit in time.", command.command, info.number);
+								Builder.log.ErrorFormat ("{1} Step: {0}: the process didn't exit in time.", command.command, info.number);
 								exitcode = 1;
 							}
 							if (result == DBState.Executing) {
@@ -418,7 +420,7 @@ namespace MonkeyWrench.Builder
 						foreach (string glob in info.command.upload_files.Split (',')) {
 							// TODO: handle globs in directory parts
 							// TODO: allow absolute paths?
-							Logger.Log ("Uploading files from glob {0}", glob);
+							log.InfoFormat ("Uploading files from glob {0}", glob);
 							info.progress_stamp = DateTime.Now;
 							// TODO: allow hidden files also
 							WebService.UploadFilesSafe (info.work, Directory.GetFiles (Path.Combine (info.BUILDER_DATA_SOURCE_DIR, Path.GetDirectoryName (glob)), Path.GetFileName (glob)), null);
@@ -432,15 +434,15 @@ namespace MonkeyWrench.Builder
 					}
 				}
 
-				Logger.Log ("{4} Revision {0}, executed step '{1}' in {2} s, ExitCode: {3}, State: {4}", info.revision.revision, info.command.command, info.work.duration, exitcode, info.number, info.work.State);
+				Builder.log.InfoFormat ("{4} Revision {0}, executed step '{1}' in {2} s, ExitCode: {3}, State: {4}", info.revision.revision, info.command.command, info.work.duration, exitcode, info.number, info.work.State);
 			} catch (Exception ex) {
 				info.work.State = DBState.Failed;
 				info.work.summary = ex.Message;
 				info.work = WebService.ReportBuildStateSafe (info.work).Work;
-				Logger.Log ("{3} Revision {0}, got exception '{1}': \n{2}", info.revision.revision, ex.Message, ex.StackTrace, info.number);
+				log.ErrorFormat ("{3} Revision {0}, got exception '{1}': \n{2}", info.revision.revision, ex.Message, ex.StackTrace, info.number);
 				throw;
 			} finally {
-				Logger.Log ("{0} Builder finished thread for sequence {0}", info.number);
+				log.DebugFormat ("{0} Builder finished thread for sequence {0}", info.number);
 
 				if ((info.work.State == DBState.Failed || info.work.State == DBState.Aborted || info.work.State == DBState.Timeout) && !info.command.nonfatal) {
 					failed_hostlanes.Add (info.hostlane);
@@ -454,7 +456,7 @@ namespace MonkeyWrench.Builder
 			List<Thread> threads = new List<Thread> ();
 			List<BuildInfo> infos = new List<BuildInfo> ();
 
-			Logger.Log ("Building {0} work items", list.Count);
+			log.InfoFormat ("Building {0} work items", list.Count);
 
 			try {
 				// Get the path of the temporary directory for this process
@@ -474,7 +476,7 @@ namespace MonkeyWrench.Builder
 					if (failed_hostlanes != null) {
 						foreach (DBHostLane failed in failed_hostlanes) {
 							if (failed.id == entry.HostLane.id) {
-								Logger.Log ("Skipping work, the hostlane {0} has failed work in this run, which has disabled any further work (in this run).", failed.id);
+								log.WarnFormat ("Skipping work, the hostlane {0} has failed work in this run, which has disabled any further work (in this run).", failed.id);
 								entry = null;
 								break;
 							}
@@ -553,10 +555,10 @@ namespace MonkeyWrench.Builder
 					} while (true);
 				}
 
-				Logger.Log ("Finished building {0} work items", list.Count);
+				log.InfoFormat ("Finished building {0} work items", list.Count);
 
 			} catch (Exception ex) {
-				Logger.Log ("Exception while building lane: {0}", ex);
+				log.ErrorFormat ("Exception while building lane: {0}", ex);
 			} finally {
 				// clean up after us
 				if (temp_dir != null && Directory.Exists (temp_dir))
@@ -602,31 +604,31 @@ namespace MonkeyWrench.Builder
 						case "AddFile":
 						case "AddHiddenFile":
 							try {
-								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
+								log.DebugFormat ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								files.Add (line.Trim ());
 								hidden.Add (cmd.Contains ("Hidden"));
 							} catch (Exception e) {
-								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
+								log.ErrorFormat ("Error while executing @MonkeyWrench command '{0}': {1}", cmd, e);
 							}
 							break;
 						case "AddDirectory":
 						case "AddHiddenDirectory":
 							try {
-								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
+								log.DebugFormat ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								foreach (string file in Directory.GetFiles (line.Trim ())) {
 									files.Add (file);
 									hidden.Add (cmd.Contains ("Hidden"));
 								}
-							} catch (Exception e) {
-								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
+							} catch (Exception ex) {
+								log.ErrorFormat ("Error while executing @MonkeyWrench command '{0}': {1}", cmd, ex);
 							}
 							break;
 						case "AddFileLink":
 							try {
-								Logger.Log ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
+								log.DebugFormat ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								links.Add (line.Trim ());
 							} catch (Exception e) {
-								Logger.Log ("Error while executing @MonkeyWrench command '{0}': '{1}'", cmd, e.Message);
+								log.ErrorFormat ("Error while executing @MonkeyWrench command '{0}': {1}", cmd, e);
 							}
 							break;
 						case "SetSummary":
@@ -654,7 +656,7 @@ namespace MonkeyWrench.Builder
 							break;
 						case "AddRelease":
 							if (release == null) {
-								Logger.Log ("Invalid @MonkeyWrench command: '{0}: No release created", cmd);
+								log.ErrorFormat ("Invalid @MonkeyWrench command: '{0}: No release created", cmd);
 								break;
 							}
 
@@ -665,14 +667,14 @@ namespace MonkeyWrench.Builder
 								File.Copy (line.Trim (), Path.Combine (Configuration.GetReleaseDirectory (), release.filename), true);
 								rsp = WebService.AddRelease (WebService.WebServiceLogin, release);
 								if (rsp.Exception != null) {
-									Logger.Log ("Error while adding release: {0}", rsp.Exception);
+									log.ErrorFormat ("Error while adding release: {0}", rsp.Exception);
 								}
 							} catch (Exception ex) {
-								Logger.Log ("Could not copy release: {0}", ex.ToString ());
+								log.ErrorFormat ("Could not copy release: {0}", ex);
 							}
 							break;
 						default:
-							Logger.Log ("Invalid @MonkeyWrench command: '{0}', entire line: '{1}'", cmd, l);
+							log.ErrorFormat ("Invalid @MonkeyWrench command: '{0}', entire line: '{1}'", cmd, l);
 							break;
 						}
 					}
@@ -681,7 +683,7 @@ namespace MonkeyWrench.Builder
 						try {
 							WebService.UploadLinks (WebService.WebServiceLogin, info.work, links.ToArray ());
 						} catch (Exception ex) {
-							Logger.Log ("Could not upload links: {0}", ex);
+							log.ErrorFormat ("Could not upload links: {0}", ex);
 						}
 					}
 
