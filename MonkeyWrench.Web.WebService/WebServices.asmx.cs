@@ -33,6 +33,7 @@ namespace MonkeyWrench.WebServices
 	public class WebServices : System.Web.Services.WebService
 	{
 		private static ILog log = LogManager.GetLogger (typeof (WebServices));
+		private static ILog auditLog = LogManager.GetLogger ("audit");
 
 		internal void Authenticate (DB db, WebServiceLogin login, WebServiceResponse response)
 		{
@@ -52,6 +53,10 @@ namespace MonkeyWrench.WebServices
 		private void VerifyUserInRole (DB db, WebServiceLogin login, string role, bool @readonly)
 		{
 			Authentication.VerifyUserInRole (Context, db, login, role, @readonly);
+		}
+
+		private void Audit(WebServiceLogin login, string formatStr, params Object[] formatArgs) {
+			auditLog.InfoFormat ("User {0}@{1} {2}", login.User, login.Ip4, String.Format (formatStr, formatArgs));
 		}
 
 		[WebMethod]
@@ -1029,33 +1034,53 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		[WebMethod]
 		public void EditLane (WebServiceLogin login, DBLane lane)
 		{
-			//WebServiceResponse response = new WebServiceResponse ();
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+
+				var oldLane = FindLane (db, lane.id, null);
 				lane.Save (db);
+
+				Audit (login, "edited lane `{0}` -> `{1}`",
+					Newtonsoft.Json.JsonConvert.SerializeObject(oldLane),
+					Newtonsoft.Json.JsonConvert.SerializeObject(lane)
+				);
 			}
 		}
 
 		[WebMethod]
 		public void EditLaneWithTags (WebServiceLogin login, DBLane lane, string[] tags)
 		{
-			log.DebugFormat ("EditLaneWithTags ({0}, {1})", lane.id, tags == null ? "null" : tags.Length.ToString ());
-			using (DB db = new DB ()) {
+			using (DB db = new DB ())
+			using (var transaction = db.BeginTransaction()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+
+				var oldLane = FindLane (db, lane.id, null);
 				lane.Save (db);
 
 				using (var cmd = db.CreateCommand ()) {
-					var cmdText = new StringBuilder ();
-					cmdText.AppendFormat ("DELETE FROM LaneTag WHERE lane_id = {0};", lane.id).AppendLine ();
+					cmd.CommandText = "DELETE FROM LaneTag WHERE lane_id = @lane_id;";
+					DB.CreateParameter (cmd, "lane_id", lane.id);
+					cmd.ExecuteNonQuery ();
+
 					if (tags != null) {
-						for (int i = 0; i < tags.Length; i++) {
-							cmdText.AppendFormat ("INSERT INTO LaneTag (lane_id, tag) VALUES ({0}, @tag{1});", lane.id, i).AppendLine ();
-							DB.CreateParameter (cmd, "tag" + i.ToString (), tags [i]);
+						cmd.CommandText = "INSERT INTO LaneTag (lane_id, tag) VALUES (@lane_id, @tag);";
+						var tagParam = cmd.CreateParameter ();
+						tagParam.ParameterName = "tag";
+						cmd.Parameters.Add (tagParam);
+
+						foreach (var tag in tags) {
+							tagParam.Value = tag;
+							cmd.ExecuteNonQuery ();
 						}
 					}
-					cmd.CommandText = cmdText.ToString ();
-					cmd.ExecuteNonQuery ();
 				}
+
+				transaction.Commit ();
+
+				Audit (login, "edited lane `{0}` -> `{1}`",
+					Newtonsoft.Json.JsonConvert.SerializeObject(oldLane),
+					Newtonsoft.Json.JsonConvert.SerializeObject(lane)
+				);
 			}
 		}
 
@@ -1066,7 +1091,14 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			//WebServiceResponse response = new WebServiceResponse ();
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+
+				var oldHost = FindHost (db, host.id, null);
 				host.Save (db);
+
+				Audit (login, "edited host `{0}` -> `{1}`",
+					Newtonsoft.Json.JsonConvert.SerializeObject(oldHost),
+					Newtonsoft.Json.JsonConvert.SerializeObject(host)
+				);
 			}
 		}
 
@@ -1076,6 +1108,8 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			using (DB db = new DB ()) {
 				using (IDbTransaction transaction = db.BeginTransaction ()) {
 					VerifyUserInRole (db, login, Roles.Administrator);
+
+					var oldHost = FindHost (db, host.id, null);
 					host.Save (db);
 
 					// NOTE: it is possible to change the password of an existing account by creating 
@@ -1096,6 +1130,11 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 					person.password = password;
 					person.Save (db);
 					transaction.Commit ();
+
+					Audit (login, "edited host `{0}` -> `{1}`",
+						Newtonsoft.Json.JsonConvert.SerializeObject(oldHost),
+						Newtonsoft.Json.JsonConvert.SerializeObject(host)
+					);
 				}
 			}
 		}
@@ -1511,7 +1550,10 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+
+				var lane = FindLane (db, lane_id, null);
 				DBLane_Extensions.Delete (db, lane_id);
+				Audit (login, "deleted lane {0} (was {1})", lane_id, lane.lane);
 			}
 		}
 
@@ -1551,7 +1593,10 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
+
+				var host = FindHost (db, host_id, null);
 				DBHost_Extensions.Delete (db, host_id);
+				Audit (login, "deleted host {0} (was {1})", host_id, host.host);
 			}
 		}
 
@@ -1626,13 +1671,15 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 				VerifyUserInRole (db, login, Roles.Administrator);
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
-UPDATE Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
-WHERE Work.revisionwork_id IN (SELECT RevisionWork.id FROM RevisionWork WHERE RevisionWork.host_id = @host_id);
+						UPDATE Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
+						WHERE Work.revisionwork_id IN (SELECT RevisionWork.id FROM RevisionWork WHERE RevisionWork.host_id = @host_id);
 
-UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT WHERE host_id = @host_id;
-";
+						UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT WHERE host_id = @host_id;
+					";
 					DB.CreateParameter (cmd, "host_id", host_id);
 					cmd.ExecuteNonQuery ();
+
+					Audit (login, "cleared all work for host {0}", host_id);
 				}
 			}
 
@@ -1656,6 +1703,8 @@ UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEF
 ";
 					DB.CreateParameter (cmd, "lane_id", lane_id);
 					cmd.ExecuteNonQuery ();
+
+					Audit (login, "cleared all work for lane {0}", lane_id);
 				}
 			}
 
@@ -1671,12 +1720,14 @@ UPDATE RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEF
 				VerifyUserInRole (db, login, Roles.Administrator);
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
-DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE host_id = @host_id);
-UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE host_id = @host_id;
-";
+						DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE host_id = @host_id);
+						UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE host_id = @host_id;
+					";
 					DB.CreateParameter (cmd, "host_id", host_id);
 					cmd.ExecuteNonQuery ();
 				}
+
+				Audit (login, "deleted all work for host {0}", host_id);
 			}
 
 			return response;
@@ -1691,12 +1742,14 @@ UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT W
 				VerifyUserInRole (db, login, Roles.Administrator);
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
-DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE lane_id = @lane_id);
-UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE lane_id = @lane_id;
-";
+						DELETE FROM Work WHERE revisionwork_id IN (SELECT id FROM RevisionWork WHERE lane_id = @lane_id);
+						UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT WHERE lane_id = @lane_id;
+					";
 					DB.CreateParameter (cmd, "lane_id", lane_id);
 					cmd.ExecuteNonQuery ();
 				}
+
+				Audit (login, "deleted all work for lane {0}", lane_id);
 			}
 
 			return response;
@@ -1715,6 +1768,8 @@ UPDATE RevisionWork SET state = 10, workhost_id = DEFAULT, completed = DEFAULT W
 					cmd.ExecuteNonQuery ();
 				}
 			}
+
+			Audit (login, "deleted all revisions for lane {0}", lane_id);
 			return response;
 		}
 		[WebMethod]
@@ -1920,11 +1975,14 @@ ORDER BY date DESC LIMIT 250;
 				VerifyUserInRole (db, login, Roles.Administrator);
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = "DELETE FROM Person WHERE id = @id;";
+					cmd.CommandText = "DELETE FROM Person WHERE id = @id RETURNING login;";
 					DB.CreateParameter (cmd, "id", id);
-					cmd.ExecuteNonQuery ();
+
+					string user = (string)cmd.ExecuteScalar ();
+					Audit (login, "deleted user {0} (was {1})", id, user);
 				}
 			}
+
 			return response;
 		}
 
