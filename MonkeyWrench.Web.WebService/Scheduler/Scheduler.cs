@@ -282,10 +282,10 @@ namespace MonkeyWrench.Scheduler
 						}
 
 						if (hostlane == null) {
-							log.InfoFormat ("AddWork: Lane '{0}' is not configured for host '{1}', not adding any work.", lane.lane, host.host);
+							log.DebugFormat ("AddWork: Lane '{0}' is not configured for host '{1}', not adding any work.", lane.lane, host.host);
 							continue;
 						} else if (!hostlane.enabled) {
-							log.InfoFormat ("AddWork: Lane '{0}' is disabled for host '{1}', not adding any work.", lane.lane, host.host);
+							log.DebugFormat ("AddWork: Lane '{0}' is disabled for host '{1}', not adding any work.", lane.lane, host.host);
 							continue;
 						}
 
