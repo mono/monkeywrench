@@ -139,7 +139,7 @@ namespace MonkeyWrench.WebServices {
 			using (var proc = new Process ()) {
 				proc.StartInfo.FileName = "curl";
 				proc.StartInfo.Arguments = string.Format (
-					@"-q --fail --location --silent -X POST -d @- -A MonkeyWrench -H 'Content-Type: application/json; charset=utf-8' " +
+					@"-q --fail --location --silent --show-error -X POST -d @- -A MonkeyWrench -H 'Content-Type: application/json; charset=utf-8' " +
 					@"-u {0}:{1} {2}",
 					username, token, apiUrl
 				);
