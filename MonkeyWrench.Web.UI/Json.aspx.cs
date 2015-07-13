@@ -9,6 +9,8 @@ namespace MonkeyWrench.Web.UI
 	using System.Linq;
 	using System.Text;
 	using Newtonsoft.Json;
+	using Newtonsoft.Json.Linq;
+	using log4net;
 
 	using MonkeyWrench.DataClasses;
 	using MonkeyWrench.DataClasses.Logic;
@@ -16,6 +18,8 @@ namespace MonkeyWrench.Web.UI
 
 	public partial class Json : System.Web.UI.Page
 	{
+		private static readonly ILog log = LogManager.GetLogger (typeof(Json));
+
 		private struct HostHistoryEntry
 		{
 			public string date;
@@ -58,54 +62,159 @@ namespace MonkeyWrench.Web.UI
 			Response.AppendHeader("Access-Control-Allow-Origin", "*");
 			switch (requestType) {
 				case "laneinfo":
-					Response.Write (GetLaneInfo (login));
+					Response.Write (GetLaneInfo ());
 					break;
 				case "botinfo":
-					Response.Write (GetBotInfo (login, true));
+					GetBotInfo ();
 					break;
 				default:
-					Response.Write (GetBotInfo (login, false));
+					GetBotStatus ();
 					break;
 			}
 		}
 
-		private string GetBotInfo (WebServiceLogin login, bool showHostHistory) {
-			var hoststatusresponse = Utils.LocalWebService.GetHostStatus (login);
-			var node_information = new Dictionary<string, object> {
-				{ "inactiveNodes", GetInactiveHosts (login, hoststatusresponse) },
-				{ "activeNodes",   GetActiveHosts (login, hoststatusresponse) },
-				{ "downNodes",     GetDownHosts (login, hoststatusresponse) }
-				// { "pendingJobs", "asdf" }
-			};
-			if (showHostHistory)
-				node_information.Add ("hostHistory", GetHostHistory (login, limit, offset));
-			return JsonConvert.SerializeObject (node_information, Formatting.Indented);
+		private void GetBotStatus() {
+			using (var db = new DB ()) {
+				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, false);
+				Response.Write (this.GetHostStatuses (db).ToString ());
+			}
 		}
 
-		private Dictionary<string, IEnumerable<HostHistoryEntry>> GetHostHistory (WebServiceLogin web_service_login, int limit, int offset) {
-			var hosts = Utils.LocalWebService.GetHosts (login).Hosts.OrderBy(h => h.host);
-			var hostHistoryResponses = hosts.Select (host =>
-				Utils.LocalWebService.GetWorkHostHistory (login, host.id, "", limit, offset));
+		private void GetBotInfo () {
+			
+			using (var db = new DB ()) {
+				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, false);
 
-			var hostHistories = hostHistoryResponses.ToDictionary (
-				hr => hr.Host.host,
-				hr => Enumerable.Range(0, hr.RevisionWorks.Count)
-					.Select(i =>  new HostHistoryEntry (hr, i))
-			);
-			return hostHistories;
+				var result = this.GetHostStatuses(db);
+
+				var history = new JObject ();
+				var hosts = new Dictionary<int, string> ();
+
+				using (var cmd = db.CreateCommand (@"
+					SELECT id, host FROM Host;
+				"))
+				using (var reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						int id = reader.GetInt32 (0);
+						string hostName = reader.GetString (1);
+						hosts [id] = hostName;
+					}
+				}
+
+				foreach (var entry in hosts)
+					history [entry.Value] = this.GetHostHistory (db, entry.Key);
+				
+				result ["hostHistory"] = history;
+
+				Response.Write (result.ToString());
+			}
 		}
 
-		private string GetLastJob (WebServiceLogin login, DBLane lane)
-		{
-//			return Utils.WebService.GetRevisions (login, null, lane.lane, 1, 0).Revisions
-//				.Select(rev => rev.date.ToString ("yyyy/MM/dd HH:mm:ss UTC")).FirstOrDefault();
+		private JObject GetHostStatuses(DB db) {
+			var result = new JObject ();
 
-			var revisions = Utils.LocalWebService.GetRevisions (login, null, lane.lane, 1, 0).Revisions;
+			var activeHosts = new JArray ();
+			var inactiveHosts = new JArray ();
+			var downHosts = new JArray ();
 
-			return revisions.Any () ? revisions.First().date.ToString ("u") : "";
+			using (var cmd = db.CreateCommand (@"
+				SELECT * FROM HostStatusView;
+			"))
+			using (var reader = cmd.ExecuteReader ()) {
+				while (reader.Read ()) {
+					var status = new DBHostStatusView (reader);
+					if (IsHostActive (status))
+						activeHosts.Add (status.host);
+					else if (IsHostInactive (status))
+						inactiveHosts.Add (status.host);
+					else if (IsHostDead (status))
+						downHosts.Add (status.host);
+					else
+						log.ErrorFormat ("Host {0} ({1}) isn't active, inactive, or dead.", status.host, status.id);
+				}
+			}
+
+			result ["inactiveNodes"] = inactiveHosts;
+			result ["activeNodes"] = activeHosts;
+			result ["downNodes"] = downHosts;
+			return result;
 		}
 
-		private string GetLaneInfo (WebServiceLogin login) {
+		private JArray GetHostHistory (DB db, int hostid) {
+			using (var cmd = db.CreateCommand ()) {
+				cmd.CommandText = @"
+					SELECT
+						RevisionWork.id AS revisionwork_id,
+						RevisionWork.completed,
+						RevisionWork.state,
+						
+						RevisionWork.createdtime,
+						RevisionWork.assignedtime,
+						NULLIF(RevisionWork.startedtime, '2000-01-01 00:00:00+00'::timestamp) AS startedtime,
+						RevisionWork.endtime,
+						
+						Host.host,
+						Host.id AS host_id,
+						Lane.lane,
+						Lane.id AS lane_id,
+						Revision.revision,
+						Revision.id AS revision_id,
+						WorkHost.host AS workhost,
+						WorkHost.id AS workhost_id
+
+					FROM RevisionWork
+					INNER JOIN Revision ON RevisionWork.revision_id = Revision.id
+					INNER JOIN Lane ON RevisionWork.lane_id = Lane.id
+					INNER JOIN Host ON RevisionWork.host_id = Host.id
+					INNER JOIN Host AS WorkHost ON RevisionWork.workhost_id = WorkHost.id
+
+					WHERE RevisionWork.workhost_id = @host
+					ORDER BY RevisionWork.endtime DESC NULLS FIRST
+					LIMIT @limit
+					OFFSET @offset
+				";
+				DB.CreateParameter (cmd, "host", hostid);
+				if (limit == 0)
+					DB.CreateParameter (cmd, "limit", null);
+				else
+					DB.CreateParameter (cmd, "limit", limit);
+				DB.CreateParameter (cmd, "offset", offset);
+
+				var history = new JArray ();
+
+				using (var reader = cmd.ExecuteReader ()) {
+					while (reader.Read ()) {
+						var obj = new JObject ();
+						obj ["revisionwork_id"] = reader.GetInt32 (0);
+						obj ["completed"] = reader.GetBoolean (1);
+						obj ["state"] = ((DBState)reader.GetInt32 (2)).ToString ();
+						obj ["createdtime"] = dateTimeToMilliseconds (reader.IsDBNull (3) ? null : (DateTime?)reader.GetDateTime (3));
+						obj ["assignedtime"] = dateTimeToMilliseconds (reader.IsDBNull (4) ? null : (DateTime?)reader.GetDateTime (4));
+						obj ["startedtime"] = dateTimeToMilliseconds (reader.IsDBNull (5) ? null : (DateTime?)reader.GetDateTime (5));
+						obj ["endtime"] = dateTimeToMilliseconds (reader.IsDBNull (6) ? null : (DateTime?)reader.GetDateTime (6));
+
+						obj ["host"] = reader.GetString (7);
+						obj ["host_id"] = reader.GetInt32 (8);
+						obj ["lane"] = reader.GetString (9);
+						obj ["lane_id"] = reader.GetInt32 (10);
+						obj ["revision"] = reader.GetString (11);
+						obj ["revision_id"] = reader.GetInt32 (12);
+						obj ["workhost"] = reader.GetString (13);
+						obj ["workhost_id"] = reader.GetInt32 (14);
+
+						// Backwards compatibility fields
+						obj ["date"] = obj ["startedtime"];
+						if (!reader.IsDBNull (5) && !reader.IsDBNull (6))
+							obj ["duration"] = (reader.GetDateTime (6) - reader.GetDateTime (5)).TotalSeconds;
+
+						history.Add (obj);
+					}
+				}
+				return history;
+			}
+		}
+
+		private string GetLaneInfo () {
 			var lanesResponse = Utils.LocalWebService.GetLanes (login);
 
 			var lanes = lanesResponse.Lanes.ToDictionary (
@@ -116,7 +225,7 @@ namespace MonkeyWrench.Web.UI
 					id         = l.id
 				});
 
-			var count = lanes.Where ((kv) => !String.IsNullOrEmpty (kv.Value.repository)).Count();
+			var count = lanes.Count (kv => !String.IsNullOrEmpty (kv.Value.repository));
 
 			var results = new Dictionary<string, object> {
 				{ "count", count },
@@ -130,21 +239,21 @@ namespace MonkeyWrench.Web.UI
 			return String.IsNullOrEmpty (revision) ? "remotes/origin/master" : revision;
 		}
 
-		private IEnumerable<string> GetActiveHosts (WebServiceLogin login, GetHostStatusResponse hoststatusresponse) {
+		private IEnumerable<string> GetActiveHosts (GetHostStatusResponse hoststatusresponse) {
 			return (hoststatusresponse.HostStatus)
 				.Where (IsHostActive)
 				.Select (status => status.host)
 				.OrderBy(h => h);
 		}
 
-		private IEnumerable<string> GetInactiveHosts (WebServiceLogin login, GetHostStatusResponse hoststatusresponse) {
+		private IEnumerable<string> GetInactiveHosts (GetHostStatusResponse hoststatusresponse) {
 			return hoststatusresponse.HostStatus
 				.Where (IsHostInactive)
 				.Select (status => status.host)
 				.OrderBy(h => h);
 		}
 
-		private IEnumerable<string> GetDownHosts (WebServiceLogin login, GetHostStatusResponse hoststatusresponse) {
+		private IEnumerable<string> GetDownHosts (GetHostStatusResponse hoststatusresponse) {
 			return hoststatusresponse.HostStatus
 				.Where (IsHostDead)
 				.Select (status => status.host)
@@ -164,6 +273,10 @@ namespace MonkeyWrench.Web.UI
 		private bool IsHostDead (DBHostStatusView status) {
 			var silence = DateTime.Now - status.report_date;
 			return silence.TotalHours >= 3;
+		}
+
+		private static ulong? dateTimeToMilliseconds(DateTime? t) {
+			return t == null ? null : (ulong?)((t.Value - new DateTime (1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds);
 		}
 	}
 }

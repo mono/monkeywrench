@@ -865,13 +865,14 @@ WHERE
 UPDATE 
 	Work SET state = DEFAULT, summary = DEFAULT, starttime = DEFAULT, endtime = DEFAULT, duration = DEFAULT, logfile = DEFAULT, host_id = DEFAULT
 WHERE
-	Work.revisionwork_id IN 
+	Work.revisionwork_id = 
 		(SELECT	RevisionWork.id 
 			FROM RevisionWork
 			WHERE RevisionWork.host_id = @host_id AND RevisionWork.lane_id = @lane_id AND RevisionWork.revision_id = @revision_id);
 
 UPDATE 
-	RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT, endtime = DEFAULT
+	RevisionWork SET state = DEFAULT, lock_expires = DEFAULT, completed = DEFAULT, workhost_id = DEFAULT,
+	createdtime = DEFAULT, assignedtime = DEFAULT, startedtime = DEFAULT, endtime = DEFAULT
 WHERE 
 		lane_id = @lane_id
 	AND revision_id = @revision_id 

@@ -44,6 +44,9 @@ namespace MonkeyWrench.Web.UI
 		protected void Application_Error (object sender, EventArgs e)
 		{
 			Response.Clear ();
+
+			Response.ContentType = "text/html";
+
 			Exception ex = Server.GetLastError ();
 			Server.ClearError ();
 
