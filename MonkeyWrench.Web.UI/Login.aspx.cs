@@ -47,7 +47,8 @@ public partial class Login : System.Web.UI.Page
 	protected void Page_Load (object sender, EventArgs e)
 	{
 		string action = Request ["action"];
-		string referrer = Request ["referrer"];
+		string referrer = Request ["referrer"] ?? (string) Session ["login_referrer"];
+		Session.Remove ("login_referrer");
 		bool noOpenIdResponse = false;
 
 		if (!string.IsNullOrEmpty (referrer))
@@ -177,7 +178,8 @@ public partial class Login : System.Web.UI.Page
 
 	protected void cmdLoginOauth_Click (object sender, EventArgs e)
 	{
-		AuthenticationHelper.Authenticate();
+		Session ["login_referrer"] = Request.QueryString ["referrer"];
+		AuthenticationHelper.Authenticate ();
 	}
 
 	protected void cmdLoginOpenId_Click (object sender, EventArgs e)

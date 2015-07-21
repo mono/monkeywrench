@@ -13,7 +13,6 @@ namespace MonkeyWrench.Web.UI
 		 * header: The error page header, ex. "Page not found". HTML in the string is not escaped.
 		 * description: A description of the error, ex. "Path /foo/bar.txt not found". HTML in the string is not escaped.
 		 * code: The response code of the page, ex. 404.
-		 * redirectURL: An optional URL to redirect to, using a <meta http-equiv="redirect"> tag in the head.
 		 */
 		public static void transferToError(HttpServerUtility server, HttpContext context, string header, string description, int code) {
 			context.Items.Clear ();

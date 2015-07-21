@@ -58,7 +58,9 @@ namespace MonkeyWrench.Web.UI
 				ErrorPage.transferToError (Server, Context, "Page not found.", HttpUtility.HtmlEncode (realException.Message), 404);
 			} else if (realException is UnauthorizedException) {
 				// User is not authorized to view this page.
-				ErrorPage.transferToError (Server, Context, "Unauthorized", HttpUtility.HtmlEncode (realException.Message), 403);
+				ErrorPage.transferToError (Server, Context, "Unauthorized",
+					"Please <a href=\"Login.aspx?referrer="+ HttpUtility.UrlEncode(Request.Url.PathAndQuery) + "\">log in</a> to continue.",
+				403);
 			} else {
 				// Unhandled error. Log it and display an error page. 
 				log.ErrorFormat ("{0} {1}: {2}", Request.HttpMethod, Request.Url.AbsoluteUri, ex);
