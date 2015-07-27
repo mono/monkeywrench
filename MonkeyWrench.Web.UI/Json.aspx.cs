@@ -168,8 +168,8 @@ namespace MonkeyWrench.Web.UI
 					INNER JOIN Host ON RevisionWork.host_id = Host.id
 					INNER JOIN Host AS WorkHost ON RevisionWork.workhost_id = WorkHost.id
 
-					WHERE RevisionWork.workhost_id = @host
-					ORDER BY RevisionWork.endtime DESC NULLS FIRST
+					WHERE RevisionWork.workhost_id = @host AND RevisionWork.createdtime IS NOT NULL
+					ORDER BY RevisionWork.createdtime DESC
 					LIMIT @limit
 					OFFSET @offset
 				";
