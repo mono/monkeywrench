@@ -889,27 +889,29 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			return null;
 		}
 
-		private DBRevision FindRevision (DB db, int? revision_id, string revision)
-		{
-			if ((revision_id == null || revision_id.Value <= 0) && string.IsNullOrEmpty (revision))
-				return null;
+		private DBRevision FindRevision (DB db, int revision_id) {
+			using (var cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM Revision WHERE id = @id;";
+				DB.CreateParameter (cmd, "id", revision_id);
 
-			using (IDbCommand cmd = db.CreateCommand ()) {
-
-				if (!revision_id.HasValue) {
-					cmd.CommandText = "SELECT * FROM Revision WHERE revision = @revision;";
-					DB.CreateParameter (cmd, "revision", revision);
-				} else {
-					cmd.CommandText = "SELECT * FROM Revision WHERE id = @id;";
-					DB.CreateParameter (cmd, "id", revision_id.Value);
-				}
-
-				using (IDataReader reader = cmd.ExecuteReader ()) {
+				using (var reader = cmd.ExecuteReader ()) {
 					if (reader.Read ())
 						return new DBRevision (reader);
 				}
 			}
+			return null;
+		}
+		private DBRevision FindRevision (DB db, DBLane lane, string revision) {
+			using (var cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @laneid AND revision = @rev;";
+				DB.CreateParameter (cmd, "laneid", lane.id);
+				DB.CreateParameter (cmd, "rev", revision);
 
+				using (var reader = cmd.ExecuteReader ()) {
+					if (reader.Read ())
+						return new DBRevision (reader);
+				}
+			}
 			return null;
 		}
 
@@ -986,13 +988,13 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		}
 
 		[WebMethod]
-		public FindRevisionResponse FindRevision (WebServiceLogin login, int? revision_id, string revision)
+		public FindRevisionResponse FindRevision (WebServiceLogin login, int? revision_id, DBLane lane, string revision)
 		{
 			FindRevisionResponse response = new FindRevisionResponse ();
 
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
-				response.Revision = FindRevision (db, revision_id, revision);
+				response.Revision = revision_id.HasValue ? FindRevision (db, revision_id.Value) : FindRevision (db, lane, revision);
 			}
 
 			return response;
@@ -1155,7 +1157,12 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 				response.Now = db.Now;
 				response.Lane = FindLane (db, lane_id, lane);
 				response.Host = FindHost (db, host_id, host);
-				response.Revision = FindRevision (db, revision_id, revision);
+				if (response.Lane != null)
+					response.Revision = revision_id.HasValue ? FindRevision (db, revision_id.Value) : FindRevision (db, response.Lane, revision);
+
+				if (response.Lane == null || response.Host == null || response.Revision == null)
+					throw new HttpException (404, "Revision work not found");
+
 				response.RevisionWork = DBRevisionWork_Extensions.Find (db, response.Lane, response.Host, response.Revision);
 				if (response.RevisionWork != null && response.RevisionWork.workhost_id.HasValue) {
 					response.WorkHost = FindHost (db, response.RevisionWork.workhost_id, null);
