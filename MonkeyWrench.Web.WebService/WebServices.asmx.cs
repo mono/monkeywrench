@@ -987,14 +987,34 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			return response;
 		}
 
+		// Do not use the `revision` parameter of this method; it's broken, and can't be fixed without breaking compatibility.
+		// Use FindRevisionByHash instead.
 		[WebMethod]
-		public FindRevisionResponse FindRevision (WebServiceLogin login, int? revision_id, DBLane lane, string revision)
+		public FindRevisionResponse FindRevision (WebServiceLogin login, int? revision_id, string revision)
 		{
 			FindRevisionResponse response = new FindRevisionResponse ();
 
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
-				response.Revision = revision_id.HasValue ? FindRevision (db, revision_id.Value) : FindRevision (db, lane, revision);
+				if (!revision_id.HasValue)
+					// DBRevisions are keyed by the hash and the lane, but we only have the hash.
+					// Due to backwards compatibility, we can't add a parameter for the lane, so throw an error and direct
+					// users to the proper API call.
+					throw new ArgumentException ("revision_id is required. Use FindRevisionByHash instead for querying by hash.", "revision_id");
+				response.Revision = FindRevision (db, revision_id.Value);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public FindRevisionResponse FindRevisionByHash(WebServiceLogin login, DBLane lane, string revision)
+		{
+			FindRevisionResponse response = new FindRevisionResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
+				response.Revision = FindRevision (db, lane, revision);
 			}
 
 			return response;
