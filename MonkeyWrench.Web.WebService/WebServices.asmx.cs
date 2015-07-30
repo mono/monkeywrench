@@ -889,27 +889,29 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			return null;
 		}
 
-		private DBRevision FindRevision (DB db, int? revision_id, string revision)
-		{
-			if ((revision_id == null || revision_id.Value <= 0) && string.IsNullOrEmpty (revision))
-				return null;
+		private DBRevision FindRevision (DB db, int revision_id) {
+			using (var cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM Revision WHERE id = @id;";
+				DB.CreateParameter (cmd, "id", revision_id);
 
-			using (IDbCommand cmd = db.CreateCommand ()) {
-
-				if (!revision_id.HasValue) {
-					cmd.CommandText = "SELECT * FROM Revision WHERE revision = @revision;";
-					DB.CreateParameter (cmd, "revision", revision);
-				} else {
-					cmd.CommandText = "SELECT * FROM Revision WHERE id = @id;";
-					DB.CreateParameter (cmd, "id", revision_id.Value);
-				}
-
-				using (IDataReader reader = cmd.ExecuteReader ()) {
+				using (var reader = cmd.ExecuteReader ()) {
 					if (reader.Read ())
 						return new DBRevision (reader);
 				}
 			}
+			return null;
+		}
+		private DBRevision FindRevision (DB db, DBLane lane, string revision) {
+			using (var cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM Revision WHERE lane_id = @laneid AND revision = @rev;";
+				DB.CreateParameter (cmd, "laneid", lane.id);
+				DB.CreateParameter (cmd, "rev", revision);
 
+				using (var reader = cmd.ExecuteReader ()) {
+					if (reader.Read ())
+						return new DBRevision (reader);
+				}
+			}
 			return null;
 		}
 
@@ -985,6 +987,8 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			return response;
 		}
 
+		// Do not use the `revision` parameter of this method; it's broken, and can't be fixed without breaking compatibility.
+		// Use FindRevisionByHash instead.
 		[WebMethod]
 		public FindRevisionResponse FindRevision (WebServiceLogin login, int? revision_id, string revision)
 		{
@@ -992,7 +996,25 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
-				response.Revision = FindRevision (db, revision_id, revision);
+				if (!revision_id.HasValue)
+					// DBRevisions are keyed by the hash and the lane, but we only have the hash.
+					// Due to backwards compatibility, we can't add a parameter for the lane, so throw an error and direct
+					// users to the proper API call.
+					throw new ArgumentException ("revision_id is required. Use FindRevisionByHash instead for querying by hash.", "revision_id");
+				response.Revision = FindRevision (db, revision_id.Value);
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public FindRevisionResponse FindRevisionByHash(WebServiceLogin login, DBLane lane, string revision)
+		{
+			FindRevisionResponse response = new FindRevisionResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
+				response.Revision = FindRevision (db, lane, revision);
 			}
 
 			return response;
@@ -1155,7 +1177,12 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 				response.Now = db.Now;
 				response.Lane = FindLane (db, lane_id, lane);
 				response.Host = FindHost (db, host_id, host);
-				response.Revision = FindRevision (db, revision_id, revision);
+				if (response.Lane != null)
+					response.Revision = revision_id.HasValue ? FindRevision (db, revision_id.Value) : FindRevision (db, response.Lane, revision);
+
+				if (response.Lane == null || response.Host == null || response.Revision == null)
+					throw new HttpException (404, "Revision work not found");
+
 				response.RevisionWork = DBRevisionWork_Extensions.Find (db, response.Lane, response.Host, response.Revision);
 				if (response.RevisionWork != null && response.RevisionWork.workhost_id.HasValue) {
 					response.WorkHost = FindHost (db, response.RevisionWork.workhost_id, null);
