@@ -57,11 +57,16 @@ namespace MonkeyWrench.WebServices
 					Uri webSiteUrl = new Uri (Configuration.WebSiteUrl);
 					Uri relativePath = new Uri ("Login.aspx?referrer=" + HttpUtility.UrlEncode (Request.Url.ToString ()), UriKind.Relative);
 					Uri redirect = new Uri (webSiteUrl, relativePath);
-					Response.Redirect (redirect.AbsoluteUri);
+					Response.Redirect (redirect.AbsoluteUri, false);
 					return;
 				} else {
 					throw;
 				}
+			} catch (UnauthorizedException) {
+				Uri webSiteUrl = new Uri (Configuration.WebSiteUrl);
+				Uri relativePath = new Uri ("Login.aspx?referrer=" + HttpUtility.UrlEncode (Request.Url.ToString ()), UriKind.Relative);
+				Uri redirect = new Uri (webSiteUrl, relativePath);
+				Response.Redirect (redirect.AbsoluteUri, false);
 			}
 		}
 
