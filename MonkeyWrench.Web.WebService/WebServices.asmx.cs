@@ -1180,7 +1180,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 				if (response.Lane != null)
 					response.Revision = revision_id.HasValue ? FindRevision (db, revision_id.Value) : FindRevision (db, response.Lane, revision);
 
-				if (response.Lane == null || response.Host == null || response.Revision == null)
+				if (response.Lane == null || response.Revision == null)
 					throw new HttpException (404, "Revision work not found");
 
 				response.RevisionWork = DBRevisionWork_Extensions.Find (db, response.Lane, response.Host, response.Revision);
