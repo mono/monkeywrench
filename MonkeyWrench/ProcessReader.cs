@@ -38,6 +38,7 @@ namespace MonkeyWrench
 				try {
 					string line;
 					while (null != (line = p.StandardError.ReadLine ())) {
+						if (timestamp && !line.StartsWith("@MonkeyWrench:") && !line.StartsWith("@Moonbuilder:")) { line = "[" + DateTime.Now.ToString("h:mm:ss") + "] " + line; }
 						logstream.WriteLine (line);
 					}
 				} catch (Exception ex) {
