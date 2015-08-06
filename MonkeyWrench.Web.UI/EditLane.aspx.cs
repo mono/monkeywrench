@@ -170,6 +170,10 @@ public partial class EditLane : System.Web.UI.Page
 				if (int.TryParse (command_id, out id))
 					Utils.LocalWebService.SwitchCommandInternal (Master.WebServiceLogin, id);
 				break;
+			case "switchTimestamp":
+				if (int.TryParse (command_id, out id))
+					Utils.LocalWebService.SwitchCommandTimestamp (Master.WebServiceLogin, id);
+				break;
 			case "addCommand":
 				if (!int.TryParse (Request ["sequence"], out sequence))
 					sequence = -1;
@@ -368,6 +372,7 @@ public partial class EditLane : System.Web.UI.Page
 				string.Format ("<a href='javascript:editCommandTimeout ({2}, {0}, true, \"{1}\")'>{1} minutes</a>", command.id, command.timeout, lane.id),
 			    string.Format ("<a href='javascript:editCommandWorkingDirectory ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.working_directory, lane.id, working_directory),
 				string.Format ("<a href='javascript:editCommandUploadFiles ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.upload_files, lane.id, upload_files),
+				string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={1}&amp;action=switchTimestamp'>{2}</a>", lane.id, command.id, (command.timestamp ? "yes" : "no")),
 				is_inherited ? "-" : string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;action=deletecommand&amp;command_id={1}'>Delete</a>", lane.id, command.id),
 				is_inherited ? string.Format ("Inherited from <a href='EditLane.aspx?lane_id={1}'>{0}</a>", response.Lanes.Find ((v) => v.id == command.lane_id).lane, command.lane_id) : (lane.parent_lane_id == null ? "-" : string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={1}&amp;action=moveCommandToParentLane'>Move</a> to parent lane", lane.id, command.id, lane.parent_lane_id.Value))));
 
@@ -385,6 +390,7 @@ public partial class EditLane : System.Web.UI.Page
 			"60 minutes",
 			"-",
 			"-",
+			"no",
 			string.Format ("<a href='javascript:addCommand ({0}, {1})'>Add</a>", lane.id, response.Commands.Count > 0 ? (response.Commands [response.Commands.Count - 1].sequence + 10) : 0),
 			"-"));
 

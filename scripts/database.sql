@@ -151,7 +151,8 @@ CREATE TABLE Command (
 	nonfatal       boolean    NOT NULL DEFAULT FALSE,           -- if this command will allow subsequent steps to be executed even if this step fails. Typical case is a test command.
 	internal       boolean    NOT NULL DEFAULT FALSE,           -- if the user has to be logged in to see files this command produces.
 	timeout        int        NOT NULL DEFAULT 60,				-- after how many minutes should this step time out
-	working_directory text    NULL DEFAULT NULL,                -- path this command should run in (relative to BUILD_DATA_SOURCE if it's a relative path)
+	timestamp      boolean    NOT NULL DEFAULT FALSE,
+        working_directory text    NULL DEFAULT NULL,                -- path this command should run in (relative to BUILD_DATA_SOURCE if it's a relative path)
 	upload_files   text       NULL DEFAULT NULL                 -- comma separated list of files to upload, admits * and ? as wild cards
 );
 
