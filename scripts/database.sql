@@ -155,6 +155,7 @@ CREATE TABLE Command (
         working_directory text    NULL DEFAULT NULL,                -- path this command should run in (relative to BUILD_DATA_SOURCE if it's a relative path)
 	upload_files   text       NULL DEFAULT NULL                 -- comma separated list of files to upload, admits * and ? as wild cards
 );
+-- ALTER TABLE Command ADD COLUMN timestamp boolean NOT NULL DEFAULT FALSE;
 
 CREATE TABLE HostLane (
 	id          serial     PRIMARY KEY,
