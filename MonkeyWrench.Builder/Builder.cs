@@ -323,7 +323,7 @@ namespace MonkeyWrench.Builder
 							}
 
 							process_reader = new ProcessReader (log);
-							process_reader.Setup (p);
+							process_reader.Setup (p, command.timestamp);
 
 							p.Start ();
 

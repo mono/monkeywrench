@@ -16,7 +16,7 @@ namespace MonkeyWrench
 			this.logstream = output;
 		}
 
-		public void Setup (Job p)
+		public void Setup (Job p, bool timestamp=false)
 		{
 			p.StartInfo.UseShellExecute = false;
 			p.StartInfo.RedirectStandardError = true;
@@ -26,6 +26,7 @@ namespace MonkeyWrench
 				try {
 					string line;
 					while (null != (line = p.StandardOutput.ReadLine ())) {
+						if (timestamp && !line.StartsWith("@MonkeyWrench:") && !line.StartsWith("@Moonbuilder:")) { line = "[" + DateTime.Now.ToString("h:mm:ss") + "] " + line; }
 						logstream.WriteLine (line);
 					}
 				} catch (Exception ex) {
@@ -37,6 +38,7 @@ namespace MonkeyWrench
 				try {
 					string line;
 					while (null != (line = p.StandardError.ReadLine ())) {
+						if (timestamp && !line.StartsWith("@MonkeyWrench:") && !line.StartsWith("@Moonbuilder:")) { line = "[" + DateTime.Now.ToString("h:mm:ss") + "] " + line; }
 						logstream.WriteLine (line);
 					}
 				} catch (Exception ex) {

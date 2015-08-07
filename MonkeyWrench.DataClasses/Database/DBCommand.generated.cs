@@ -27,6 +27,7 @@ namespace MonkeyWrench.DataClasses
 		private bool _nonfatal;
 		private bool _internal;
 		private int _timeout;
+		private bool _timestamp;
 		private string _working_directory;
 		private string _upload_files;
 
@@ -39,6 +40,7 @@ namespace MonkeyWrench.DataClasses
 		public bool @nonfatal { get { return _nonfatal; } set { _nonfatal = value; } }
 		public bool @internal { get { return _internal; } set { _internal = value; } }
 		public int @timeout { get { return _timeout; } set { _timeout = value; } }
+		public bool @timestamp { get { return _timestamp; } set { _timestamp = value; } }
 		public string @working_directory { get { return _working_directory; } set { _working_directory = value; } }
 		public string @upload_files { get { return _upload_files; } set { _upload_files = value; } }
 
@@ -53,7 +55,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "lane_id", "command", "filename", "arguments", "sequence", "alwaysexecute", "nonfatal", "internal", "timeout", "working_directory", "upload_files" };
+				return new string [] { "lane_id", "command", "filename", "arguments", "sequence", "alwaysexecute", "nonfatal", "internal", "timeout", "timestamp", "working_directory", "upload_files" };
 			}
 		}
         

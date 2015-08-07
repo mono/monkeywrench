@@ -1,6 +1,6 @@
 
 generate: ../scripts/database.sql CustomTypes.sql
-	gmcs SqlToCSharp.cs -out:SqlToCSharp.exe -debug+
+	mcs SqlToCSharp.cs -out:SqlToCSharp.exe -debug+
 	cat ../scripts/database.sql > tmp
 	cat CustomTypes.sql >> tmp
 	mono --debug SqlToCSharp.exe tmp

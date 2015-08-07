@@ -289,6 +289,17 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
+		public void SwitchCommandTimestamp (WebServiceLogin login, int command_id)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				cmd.timestamp = !cmd.timestamp;
+				cmd.Save (db);
+			}
+		}
+
+		[WebMethod]
 		public void DeleteCommand (WebServiceLogin login, int command_id)
 		{
 			using (DB db = new DB ()) {
