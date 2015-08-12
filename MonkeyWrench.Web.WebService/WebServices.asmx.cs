@@ -2763,7 +2763,7 @@ INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FR
 						FROM EnvironmentVariable 
 						WHERE 
 						(host_id = @host_id OR host_id = @workhost_id OR host_id IS NULL) AND (lane_id = @lane_id OR lane_id IS NULL);
-						--ORDER BY id;
+						ORDER BY id;
 					";
 					DB.CreateParameter (cmd, "host_id", revisionwork.host_id);
 					DB.CreateParameter (cmd, "workhost_id", revisionwork.workhost_id);
