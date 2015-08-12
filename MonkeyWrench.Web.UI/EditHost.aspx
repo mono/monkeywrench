@@ -44,13 +44,12 @@
                 </asp:TableCell>
                 <asp:TableCell>
                     <asp:DropDownList ID="cmbQueueManagement" runat="server" Width="471px">
-                        <asp:ListItem Text="Completely finish a revision before starting a new one" Value="0"></asp:ListItem>
-                        <asp:ListItem Text="Execute last revision as soon as possible" Value="1"></asp:ListItem>
-                        <asp:ListItem Text="Execute one revision per lane at a time" Value="2"></asp:ListItem>
+                        <asp:ListItem Text="Take a job from each assigned lane" Value="0"></asp:ListItem>
+                        <asp:ListItem Text="Take a job from a random lane" Value="1"></asp:ListItem>
                     </asp:DropDownList>
                 </asp:TableCell>
                 <asp:TableCell>
-                    (currently ignored)
+                    (How the host should pick which lane to get jobs from)
                 </asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>

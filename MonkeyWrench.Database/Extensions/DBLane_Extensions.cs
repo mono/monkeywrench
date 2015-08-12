@@ -10,6 +10,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -25,27 +26,43 @@ namespace MonkeyWrench.Database
 			return DBRecord_Extensions.Create (db, new DBLane (), DBLane.TableName, id);
 		}
 
-		public static List<DBLanefile> GetFiles (this DBLane me, DB db, List<DBLane> all_lanes)
-		{
-			List<DBLanefile> result = new List<DBLanefile> ();
-			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = "SELECT Lanefile.* FROM Lanefile INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id WHERE Lanefiles.lane_id = " + me.id.ToString ();
+		public static List<DBLanefile> GetFiles (this DBLane me, DB db, bool recursive=false) {
+			using (var cmd = db.CreateCommand ()) {
+				if (recursive) {
+					cmd.CommandText = @"
+						WITH RECURSIVE ancestor_lanes AS (
+							SELECT @lane_id AS id
+							UNION ALL
 
-				DBLane parent = me;
-				if (all_lanes != null) {
-					while (null != (parent = all_lanes.FirstOrDefault ((v) => v.id == parent.parent_lane_id))) {
-						cmd.CommandText += " OR LaneFiles.lane_id = " + parent.id.ToString ();
-					}
+							SELECT lane.parent_lane_id AS id
+							FROM ancestor_lanes
+							INNER JOIN Lane ON lane.id = ancestor_lanes.id AND lane.parent_lane_id IS NOT NULL
+						)
+						SELECT Lanefile.*
+						FROM ancestor_lanes
+						INNER JOIN Lanefiles ON Lanefiles.lane_id = ancestor_lanes.id
+						INNER JOIN Lanefile ON Lanefile.id = LaneFiles.lanefile_id
+						ORDER BY Lanefile.name ASC;
+					";
+				} else {
+					cmd.CommandText = @"
+						SELECT Lanefile.*
+						FROM Lanefiles
+						INNER JOIN LaneFile ON Lanefile.id = Lanefiles.lanefile_id
+						WHERE Lanefiles.lane_id = @lane_id
+					";
 				}
-
-				cmd.CommandText += " ORDER BY name ASC";
-
-				using (IDataReader reader = cmd.ExecuteReader ()) {
-					while (reader.Read ())
-						result.Add (new DBLanefile (reader));
+				DB.CreateParameter (cmd, "lane_id", me.id);
+				using (var reader = cmd.ExecuteReader ()) {
+					return DBRecord.LoadMany<DBLanefile> (reader);
 				}
 			}
-			return result;
+		}
+
+		[Obsolete]
+		public static List<DBLanefile> GetFiles (this DBLane me, DB db, List<DBLane> all_lanes)
+		{
+			return me.GetFiles (db, true);
 		}
 
 		public static List<DBCommand> GetCommandsInherited (this DBLane me, DB db, List<DBLane> all_lanes)
