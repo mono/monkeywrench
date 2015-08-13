@@ -18,8 +18,10 @@ namespace MonkeyWrench.DataClasses
 {
 	public enum DBQueueManagement
 	{
-		FinishBeforeNew = 0,
+		AllLanes = 0,
+		RandomLane = 1,
+		/*FinishBeforeNew = 0,
 		ExecuteLatestAsap = 1, // currently same as FinishBeforeNew (i.e. ignored)
-		OneRevisionWorkAtATime = 2, //
+		OneRevisionWorkAtATime = 2, //*/
 	}
 }
