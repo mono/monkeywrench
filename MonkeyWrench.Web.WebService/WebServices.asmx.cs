@@ -21,7 +21,6 @@ using System.Web;
 using System.Web.Services;
 using log4net;
 
-using MonkeyWrench.Web.WebService;
 using MonkeyWrench.Database;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
@@ -2462,7 +2461,7 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 			}
 		}
 
-		public static List<DBMasterHost> FindMasterHosts (DB db, DBHost host)
+		private List<DBMasterHost> FindMasterHosts (DB db, DBHost host)
 		{
 			using (IDbCommand cmd = db.CreateCommand ()) {
 				cmd.CommandText = "SELECT * FROM MasterHost WHERE host_id = @host_id";
@@ -2587,27 +2586,284 @@ INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FR
 		[WebMethod]
 		public GetBuildInfoResponse GetBuildInfoMultiple (WebServiceLogin login, string host, bool multiple_work)
 		{
+			List<DBHost> hosts = new List<DBHost> (); // list of hosts to find work for
+			List<DBHostLane> hostlanes = new List<DBHostLane> ();
+			List<DBLane> lanes = new List<DBLane> ();
+
+			GetBuildInfoResponse response = new GetBuildInfoResponse ();
+
+			response.Work = new List<List<BuildInfoEntry>> ();
+
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.BuildBot, true);
 
-				var hostObj = FindHost (db, null, host);
-				if (!hostObj.enabled) {
-					var emptyRepsponse = new GetBuildInfoResponse ();
-					emptyRepsponse.Host = hostObj;
-					emptyRepsponse.MasterHosts = new List<DBMasterHost> ();
-					emptyRepsponse.Work = new List<List<BuildInfoEntry>> ();
-					return emptyRepsponse;
+				response.Host = FindHost (db, null, host);
+
+				if (!response.Host.enabled)
+					return response;
+
+				// find the master hosts for this host (if any)
+				response.MasterHosts = FindMasterHosts (db, response.Host);
+
+				// get the hosts to find work for
+				if (response.MasterHosts != null && response.MasterHosts.Count > 0) {
+					foreach (DBMasterHost mh in response.MasterHosts)
+						hosts.Add (DBHost_Extensions.Create (db, mh.master_host_id));
+				} else {
+					hosts.Add (response.Host);
 				}
 
-				switch (hostObj.QueueManagement) {
-				case DBQueueManagement.AllLanes:
-					return WorkAssignment.assignOnePerLane (db, hostObj, multiple_work);
-				case DBQueueManagement.RandomLane:
-					return WorkAssignment.assignRandomLane (db, hostObj, multiple_work);
-				default:
-					throw new Exception ("Unknown host queue management type: " + hostObj.queuemanagement);
+				// find the enabled hostlane combinations for these hosts
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "SELECT HostLane.* FROM HostLane INNER JOIN Lane ON Lane.id = HostLane.lane_id WHERE Lane.enabled = TRUE AND HostLane.enabled = TRUE AND (";
+					for (int i = 0; i < hosts.Count; i++) {
+						if (i > 0)
+							cmd.CommandText += " OR ";
+						cmd.CommandText += " HostLane.host_id = " + hosts [i].id;
+					}
+					cmd.CommandText += ")";
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ())
+							hostlanes.Add (new DBHostLane (reader));
+					}
+				}
+
+				if (hostlanes.Count == 0)
+					return response; // nothing to do here
+
+				lanes = db.GetAllLanes ();
+
+				switch (response.Host.QueueManagement) {
+				case DBQueueManagement.OneRevisionWorkAtATime:
+					if (hostlanes.Count > 1) {
+						int latest = -1;
+						DateTime latest_date = DateTime.MaxValue;
+
+						// we need to find the latest revisionwork each hostlane has completed.
+						// we want to work on the hostlane which has waited the longest amount
+						// of time without getting work done (but which has pending work to do).
+
+						for (int i = 0; i < hostlanes.Count; i++) {
+							DBHostLane hl = hostlanes [i];
+							// check if this hostlane has pending work.
+							// this would ideally be included in the query below, but I'm not sure
+							// how to do that while still distinguising the case where nothing has
+							// been done ever for a hostlane.
+							using (IDbCommand cmd = db.CreateCommand ()) {
+								cmd.CommandText = @"
+SELECT RevisionWork.id
+FROM RevisionWork
+WHERE
+    RevisionWork.host_id = @host_id
+AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
+AND RevisionWork.completed = false
+AND RevisionWork.state <> 9 AND RevisionWork.state <> 10 AND RevisionWork.state <> 11
+AND lane_id = @lane_id
+LIMIT 1;
+    ";
+								DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+								DB.CreateParameter (cmd, "host_id", hl.host_id);
+								DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+
+								object obj = cmd.ExecuteScalar ();
+								if (obj == DBNull.Value || obj == null) {
+									// there is nothing to do for this hostlane
+									continue;
+								}
+
+							}
+
+							// find the latest completed (this may not be correct, maybe find the latest unstarted?)
+							// revisionwork for this hostlane.
+							using (IDbCommand cmd = db.CreateCommand ()) {
+								cmd.CommandText = @"
+SELECT 	RevisionWork.endtime
+FROM RevisionWork
+WHERE 
+RevisionWork.host_id = @host_id
+AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
+AND RevisionWork.completed = true
+AND lane_id = @lane_id
+ORDER BY RevisionWork.endtime DESC
+LIMIT 1;
+";
+
+								DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+								DB.CreateParameter (cmd, "host_id", hl.host_id);
+								DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+
+								object obj = cmd.ExecuteScalar ();
+								if (obj is DateTime) {
+									DateTime dt = (DateTime) obj;
+									if (dt < latest_date) {
+										latest_date = dt;
+										latest = i;
+									}
+								} else {
+									// nothing has ever been done for this hostlane.
+									latest_date = DateTime.MinValue;
+									latest = i;
+								}
+							}
+
+						}
+						if (latest >= 0) {
+							DBHostLane tmp = hostlanes [latest];
+							hostlanes.Clear ();
+							hostlanes.Add (tmp);
+						} else {
+							hostlanes.Clear (); // there is nothing to do at all
+						}
+					}
+					break;
+				}
+
+				foreach (DBHostLane hl in hostlanes) {
+					int counter = 10;
+					DBRevisionWork revisionwork;
+					DBLane lane = null;
+					DBHost masterhost = null;
+
+					foreach (DBLane l in lanes) {
+						if (l.id == hl.lane_id) {
+							lane = l;
+							break;
+						}
+					}
+					foreach (DBHost hh in hosts) {
+						if (hh.id == hl.host_id) {
+							masterhost = hh;
+							break;
+						}
+					}
+
+					do {
+						revisionwork = db.GetRevisionWork (lane, masterhost, response.Host);
+						if (revisionwork == null)
+							break;
+					} while (!revisionwork.SetWorkHost (db, response.Host) && counter-- > 0);
+
+					if (revisionwork == null)
+						continue;
+
+					if (!revisionwork.workhost_id.HasValue || revisionwork.workhost_id != response.Host.id)
+						continue; // couldn't lock this revisionwork.
+
+					log.DebugFormat ("Found work for host {0} {4}: {1} (lane: {2} {3})", response.Host.id, revisionwork.id, revisionwork.lane_id, lane.lane, response.Host.host);
+
+					DBRevision revision = DBRevision_Extensions.Create (db, revisionwork.revision_id);
+					List<DBWorkFile> files_to_download = null;
+					List<DBLane> dependent_lanes = null;
+
+					// get dependent files
+					List<DBLaneDependency> dependencies = lane.GetDependencies (db);
+					if (dependencies != null && dependencies.Count > 0) {
+						foreach (DBLaneDependency dep in dependencies) {
+							DBLane dependent_lane;
+							DBHost dependent_host;
+							DBRevisionWork dep_revwork;
+							List<DBWorkFile> work_files;
+
+							if (string.IsNullOrEmpty (dep.download_files))
+								continue;
+
+							dependent_lane = DBLane_Extensions.Create (db, dep.dependent_lane_id);
+							dependent_host = dep.dependent_host_id.HasValue ? DBHost_Extensions.Create (db, dep.dependent_host_id.Value) : null;
+							DBRevision dep_lane_rev = dependent_lane.FindRevision (db, revision.revision);
+							if (dep_lane_rev == null)
+								continue; /* Something bad happened: the lane we're dependent on does not have the same revisions we have */
+							dep_revwork = DBRevisionWork_Extensions.Find (db, dependent_lane, dependent_host, dep_lane_rev);
+
+							work_files = dep_revwork.GetFiles (db);
+
+							foreach (DBWorkFile file in work_files) {
+								bool download = true;
+								foreach (string exp in dep.download_files.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries)) {
+									if (!System.Text.RegularExpressions.Regex.IsMatch (file.filename, FileUtilities.GlobToRegExp (exp))) {
+										download = false;
+										break;
+									}
+								}
+								if (!download)
+									continue;
+								if (files_to_download == null) {
+									files_to_download = new List<DBWorkFile> ();
+									dependent_lanes = new List<DBLane> ();
+								}
+								files_to_download.Add (file);
+								dependent_lanes.Add (dependent_lane);
+							}
+						}
+					}
+
+
+					List<DBWorkView2> pending_work = revisionwork.GetNextWork (db, lane, masterhost, revision, multiple_work);
+
+					if (pending_work == null || pending_work.Count == 0)
+						continue;
+
+					List<DBEnvironmentVariable> environment_variables = null;
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						foreach (int li in db.GetLaneHierarchy (lane.id)) {
+							cmd.CommandText += string.Format (@"
+SELECT * 
+FROM EnvironmentVariable 
+WHERE 
+(host_id = {0} OR host_id = {1} OR host_id IS NULL) AND (lane_id = {2} OR lane_id IS NULL)
+ORDER BY id;
+;", revisionwork.workhost_id, revisionwork.host_id, li);
+						}
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							var set = new HashSet<string> ();
+							do {
+								while (reader.Read ()) {
+									if (environment_variables == null)
+										environment_variables = new List<DBEnvironmentVariable> ();
+
+									var ev = new DBEnvironmentVariable (reader);
+									if (!set.Contains (ev.name)) {
+										environment_variables.Add (ev);
+										set.Add (ev.name);
+									}
+								}
+							} while (reader.NextResult ());
+						}
+					}
+
+					DBHost host_being_worked_for = hosts.Find (h => h.id == revisionwork.host_id);
+
+					foreach (DBWorkView2 work in pending_work) {
+						BuildInfoEntry entry = new BuildInfoEntry ();
+						entry.Lane = lane;
+						entry.HostLane = hl;
+						entry.Revision = revision;
+						entry.Command = DBCommand_Extensions.Create (db, work.command_id);
+						entry.FilesToDownload = files_to_download;
+						entry.DependentLaneOfFiles = dependent_lanes;
+						entry.Work = DBWork_Extensions.Create (db, work.id);
+						entry.LaneFiles = lane.GetFiles (db, lanes);
+						entry.EnvironmentVariables = environment_variables;
+						entry.Host = host_being_worked_for;
+
+						// TODO: put work with the same sequence number into one list of entries.
+						List<BuildInfoEntry> entries = new List<BuildInfoEntry> ();
+						entries.Add (entry);
+						response.Work.Add (entries);
+					}
+
+					// Notify that the revision is assigned
+					var notifyInfo = new GenericNotificationInfo ();
+					notifyInfo.laneID = revisionwork.lane_id;
+					notifyInfo.hostID = revisionwork.host_id;
+					notifyInfo.revisionID = revisionwork.revision_id;
+					notifyInfo.message = String.Format("Assigned to host '{0}' ({1})", response.Host.host, response.Host.id);
+					notifyInfo.state = DBState.Executing;
+
+					Notifications.NotifyGeneric (notifyInfo);
 				}
 			}
+
+			return response;
 		}
 
 		/// <summary>

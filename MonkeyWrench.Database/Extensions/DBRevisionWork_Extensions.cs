@@ -322,24 +322,35 @@ WHERE
 		/// <param name="host"></param>
 		public static bool SetWorkHost (this DBRevisionWork rw, DB db, DBHost host)
 		{
+			object result;
+			string update_cmd = string.Format (@"UPDATE RevisionWork SET workhost_id = {0}, assignedtime = NOW() WHERE id = {1} AND workhost_id IS NULL;", host.id, rw.id);
+
 			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = @"
-					UPDATE RevisionWork
-					SET workhost_id = @workhost_id, assignedtime = NOW()
-					WHERE id = @rw_id AND (workhost_id IS NULL OR workhost_id = @workhost_id);
-				";
-				DB.CreateParameter (cmd, "workhost_id", host.id);
-				DB.CreateParameter (cmd, "rw_id", rw.id);
+				cmd.CommandText = update_cmd;
 
 				var rv = cmd.ExecuteNonQuery ();
 
-				if (rv == 1) {
-					rw.workhost_id = host.id;
-					return true;
-				} else {
-					log.DebugFormat ("Host {0} ({1}) did not aquire lock for revision work {2}", host.host, host.id, rw.id);
+				if (rv != 1) {
+					log.DebugFormat ("{0}: {1} (failed)", cmd.CommandText, rv);
 					return false;
 				}
+			}
+
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = @"
+SELECT workhost_id FROM RevisionWork where id = @id AND workhost_id = @workhost_id;
+";
+				DB.CreateParameter (cmd, "workhost_id", host.id);
+				DB.CreateParameter (cmd, "id", rw.id);
+
+				result = cmd.ExecuteScalar ();
+				if (result != null && (result is int || result is long)) {
+					rw.workhost_id = host.id;
+					log.DebugFormat ("{0}: {1} (succeeded)", update_cmd, result);
+					return true;
+				}
+				log.DebugFormat ("{0}: {1} (failed 2)", update_cmd, result);
+				return false;
 			}
 		}
 	}

@@ -111,7 +111,6 @@
     <Compile Include="Notifications\IrcNotification.cs" />
     <Compile Include="Notifications\EmailNotification.cs" />
     <Compile Include="Notifications\GitHubNotification.cs" />
-    <Compile Include="WorkAssignment.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
