@@ -128,7 +128,7 @@ namespace MonkeyWrench.WebServices {
 		private void sendNotification(string repoURL, string hash, JObject payload) {
 			var gitHubRepo = gitRepoToGitHub (repoURL);
 
-			log.Info ("Sending notification #{0} to github for repo {1}", ++counter, repoURL);
+			log.InfoFormat ("Sending notification #{0} to github for repo {1}", ++counter, repoURL);
 
 			// Generate URL for API call
 			var apiUrl = string.Format ("{0}/repos/{1}/{2}/statuses/{3}",
