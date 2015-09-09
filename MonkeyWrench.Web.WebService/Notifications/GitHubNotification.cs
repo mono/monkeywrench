@@ -22,7 +22,7 @@ namespace MonkeyWrench.WebServices {
 		 * CLI app and a simple ASP server).
 		 * The previous version using HttpRequest can be found in the git history.
 		 */
-		
+		static int counter;
 		static readonly ILog log = LogManager.GetLogger (typeof (GitHubNotification));
 		private const string HOST = "https://api.github.com";
 
@@ -127,6 +127,8 @@ namespace MonkeyWrench.WebServices {
 		 */
 		private void sendNotification(string repoURL, string hash, JObject payload) {
 			var gitHubRepo = gitRepoToGitHub (repoURL);
+
+			log.Info ("Sending notification #{0} to github for repo {1}", ++counter, repoURL);
 
 			// Generate URL for API call
 			var apiUrl = string.Format ("{0}/repos/{1}/{2}/statuses/{3}",
