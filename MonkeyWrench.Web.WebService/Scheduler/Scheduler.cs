@@ -418,10 +418,10 @@ namespace MonkeyWrench.Scheduler
 			log.InfoFormat ("AddWork: [Done in {0} seconds]", (DateTime.Now - start).TotalSeconds);
 		}
 
-		private static void CheckDependenciesSlow (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes, List<DBLaneDependency> dependencies)
-		{
-			throw new NotImplementedException ("CheckDependenciesSlow not implemented; make sure each lane has only one dependency and that they use either DependentLaneSuccess or DependentLaneIssuesOrSuccess");
-		}
+//		private static void CheckDependenciesSlow (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes, List<DBLaneDependency> dependencies)
+//		{
+//			throw new NotImplementedException ("CheckDependenciesSlow not implemented; make sure each lane has only one dependency and that they use either DependentLaneSuccess or DependentLaneIssuesOrSuccess");
+//		}
 
 		private static void CheckDependencies (DB db, List<DBHost> hosts, List<DBLane> lanes, List<DBHostLane> hostlanes)
 		{
@@ -438,13 +438,22 @@ namespace MonkeyWrench.Scheduler
 					return;
 
 				/* Check that there is only 1 dependency per lane and only DependentLaneSuccess condition */
-				foreach (DBLaneDependency dep in dependencies) {
+				for (int i = dependencies.Count - 1; i >= 0; i--) {
+					var dep = dependencies [i];
 					if (dependencies.Any (dd => dep.id != dd.id && dep.lane_id == dd.lane_id)) {
-						CheckDependenciesSlow (db, hosts, lanes, hostlanes, dependencies);
+//						CheckDependenciesSlow (db, hosts, lanes, hostlanes, dependencies);
+						log.ErrorFormat ("CheckDependencies: Lane {0} has more than one dependency.", dep.lane_id);
+						dependencies.RemoveAt (i);
+						for (int j = i - 1; j >= 0; j--) {
+							if (dependencies [j].lane_id == dep.lane_id)
+								dependencies.RemoveAt (j);
+						}
 						return;
 					}
 					if (dep.Condition != DBLaneDependencyCondition.DependentLaneSuccess && dep.Condition != DBLaneDependencyCondition.DependentLaneIssuesOrSuccess) {
-						CheckDependenciesSlow (db, hosts, lanes, hostlanes, dependencies);
+						log.ErrorFormat ("CheckDependencies: Invalid condition: {0} for dependency id {1}", dep.Condition, dep.lane_id);
+						dependencies.RemoveAt (i);
+//						CheckDependenciesSlow (db, hosts, lanes, hostlanes, dependencies);
 						return;
 					}
 				}
