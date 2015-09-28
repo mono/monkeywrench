@@ -101,7 +101,7 @@ namespace MonkeyWrench.Web.UI
 					results.Add (new Dictionary<string, object> {
 						{ "id", host.id },
 						{ "host", host.host },
-						{ "last_seen", status.report_date.ToString ("yyyy/MM/dd HH:mm:ss UTC") },
+						{ "last_seen", status != null ? status.report_date.ToString ("yyyy/MM/dd HH:mm:ss UTC") : "" },
 						{ "last_job", this.GetHostHistory (db, host.id)},
 					});
 				}
