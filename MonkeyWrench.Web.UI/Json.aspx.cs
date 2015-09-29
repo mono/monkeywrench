@@ -67,9 +67,46 @@ namespace MonkeyWrench.Web.UI
 				case "botinfo":
 					GetBotInfo ();
 					break;
+				case "botstatus":
+					Response.Write (GetBotStatusTimes ());
+					break;
 				default:
 					GetBotStatus ();
 					break;
+			}
+		}
+
+		private string GetBotStatusTimes() {
+			using (var db = new DB ()) {
+				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, false);
+
+				limit = 1; // We only want the last job
+
+				// Get hosts and statuses
+				GetHostsResponse response = Utils.LocalWebService.GetHosts (login);
+				GetBuildBotStatusResponse statuses = Utils.LocalWebService.GetBuildBotStatus (login);
+
+				var results = new List<object>();
+
+				foreach (DBHost host in response.Hosts) {
+					DBBuildBotStatus status = null;
+
+					foreach (var tmp in statuses.Status) {
+						if (tmp.host_id == host.id) {
+							status = tmp;
+							break;
+						}
+					}
+
+					results.Add (new Dictionary<string, object> {
+						{ "id", host.id },
+						{ "host", host.host },
+						{ "last_seen", status != null ? status.report_date.ToString ("yyyy/MM/dd HH:mm:ss UTC") : "" },
+						{ "last_job", this.GetHostHistory (db, host.id)},
+					});
+				}
+
+				return JsonConvert.SerializeObject (results, Formatting.Indented);
 			}
 		}
 
