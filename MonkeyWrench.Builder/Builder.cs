@@ -353,14 +353,20 @@ namespace MonkeyWrench.Builder
 								// Check if step has timedout
 								bool timedout = false;
 								string timeoutReason = null;
-								int timeout = Configuration.NoOutputTimeout;
+								int deadlock_timeout;
+
+								if (!info.command.deadlock_timeout.HasValue) {
+									deadlock_timeout = Configuration.NoOutputTimeout;
+								} else {
+									deadlock_timeout = info.command.deadlock_timeout.Value;
+								}
 
 								if ((DateTime.Now > local_starttime.AddMinutes (info.command.timeout))) {
 									timedout = true;
 									timeoutReason = string.Format ("The build step '{0}' didn't finish in {1} minute(s).", info.command.command, info.command.timeout);
-								} else if (log.LastStamp.AddMinutes (timeout) <= DateTime.Now) {
+								} else if (deadlock_timeout > 0 && log.LastStamp.AddMinutes (deadlock_timeout) <= DateTime.Now) {
 									timedout = true;
-									timeoutReason = string.Format ("The build step '{0}' has had no output for {1} minute(s).", info.command.command, timeout);
+									timeoutReason = string.Format ("The build step '{0}' has had no output for {1} minute(s).", info.command.command, deadlock_timeout);
 								}
 
 								if (!timedout)

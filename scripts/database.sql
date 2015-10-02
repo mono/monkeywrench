@@ -153,9 +153,11 @@ CREATE TABLE Command (
 	timeout        int        NOT NULL DEFAULT 60,				-- after how many minutes should this step time out
 	timestamp      boolean    NOT NULL DEFAULT FALSE,
         working_directory text    NULL DEFAULT NULL,                -- path this command should run in (relative to BUILD_DATA_SOURCE if it's a relative path)
-	upload_files   text       NULL DEFAULT NULL                 -- comma separated list of files to upload, admits * and ? as wild cards
+	upload_files   text       NULL DEFAULT NULL,                -- comma separated list of files to upload, admits * and ? as wild cards
+	deadlock_timeout int      NULL DEFAULT NULL                 -- if deadlocks should be detected: NULL = use wrench default (30 minutes), 0 = disabled, >0 = the timeout in minutes.
 );
 -- ALTER TABLE Command ADD COLUMN timestamp boolean NOT NULL DEFAULT FALSE;
+-- ALTER TABLE Command ADD COLUMN deadlock_timeout int NULL DEFAULT NULL;
 
 CREATE TABLE HostLane (
 	id          serial     PRIMARY KEY,

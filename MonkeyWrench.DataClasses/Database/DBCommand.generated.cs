@@ -30,6 +30,7 @@ namespace MonkeyWrench.DataClasses
 		private bool _timestamp;
 		private string _working_directory;
 		private string _upload_files;
+		private int? _deadlock_timeout;
 
 		public int? @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public string @command { get { return _command; } set { _command = value; } }
@@ -43,6 +44,7 @@ namespace MonkeyWrench.DataClasses
 		public bool @timestamp { get { return _timestamp; } set { _timestamp = value; } }
 		public string @working_directory { get { return _working_directory; } set { _working_directory = value; } }
 		public string @upload_files { get { return _upload_files; } set { _upload_files = value; } }
+		public int? @deadlock_timeout { get { return _deadlock_timeout; } set { _deadlock_timeout = value; } }
 
 
 		public override string Table
@@ -55,7 +57,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "lane_id", "command", "filename", "arguments", "sequence", "alwaysexecute", "nonfatal", "internal", "timeout", "timestamp", "working_directory", "upload_files" };
+				return new string [] { "lane_id", "command", "filename", "arguments", "sequence", "alwaysexecute", "nonfatal", "internal", "timeout", "timestamp", "working_directory", "upload_files", "deadlock_timeout" };
 			}
 		}
         

@@ -123,6 +123,7 @@
                             <asp:TableHeaderCell>Executable</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Arguments</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Timeout</asp:TableHeaderCell>
+                            <asp:TableHeaderCell>Deadlock Timeout</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Working Directory</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Upload files</asp:TableHeaderCell>
                             <asp:TableHeaderCell>Timestamp</asp:TableHeaderCell>

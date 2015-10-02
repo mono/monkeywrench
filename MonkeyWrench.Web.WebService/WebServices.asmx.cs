@@ -229,7 +229,19 @@ namespace MonkeyWrench.WebServices
 				cmd.Save (db);
 			}
 		}
-		
+
+		[WebMethod]
+		public void EditCommandDeadlockTimeout (WebServiceLogin login, int command_id, int? deadlock_timeout)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
+				db.Audit (login, "WebServices.EditCommandDeadlockTimeout (command_id: {0}, deadlock_timeout: {1})", command_id, deadlock_timeout);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				cmd.deadlock_timeout = deadlock_timeout;
+				cmd.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void EditCommandWorkingDirectory (WebServiceLogin login, int command_id, string working_directory)
 		{

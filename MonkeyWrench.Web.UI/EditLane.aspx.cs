@@ -54,6 +54,7 @@ public partial class EditLane : System.Web.UI.Page
 		int id;
 		int sequence;
 		int timeout;
+		int? deadlock_timeout;
 		
 		tblCommands.Visible = true;
 		tblFiles.Visible = true;
@@ -144,6 +145,19 @@ public partial class EditLane : System.Web.UI.Page
 				if (int.TryParse (command_id, out id)) {
 					if (int.TryParse (Request ["timeout"], out timeout))
 						Utils.LocalWebService.EditCommandTimeout (Master.WebServiceLogin, id, timeout);
+				}
+				break;
+			case "editCommandDeadlockTimeout":
+				if (int.TryParse (command_id, out id) && Request.Params.AllKeys.Contains ("deadlock_timeout")) {
+					if (string.IsNullOrEmpty (Request ["deadlock_timeout"])) {
+						deadlock_timeout = null;
+					} else if (int.TryParse (Request ["deadlock_timeout"], out timeout)) {
+						deadlock_timeout = timeout;
+					} else {
+						break;
+					}
+						
+					Utils.LocalWebService.EditCommandDeadlockTimeout (Master.WebServiceLogin, id, deadlock_timeout);
 				}
 				break;
 			case "editCommandWorkingDirectory":
@@ -370,6 +384,7 @@ public partial class EditLane : System.Web.UI.Page
 				string.Format ("<a href='javascript:editCommandFilename ({2}, {0}, true, \"{1}\")'>{1}</a>", command.id, command.filename, lane.id),
 				string.Format ("<a href='javascript:editCommandArguments ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.arguments.Replace ("\"", "\\\""), lane.id, command.arguments),
 				string.Format ("<a href='javascript:editCommandTimeout ({2}, {0}, true, \"{1}\")'>{1} minutes</a>", command.id, command.timeout, lane.id),
+				string.Format ("<a href='javascript:editCommandDeadlockTimeout ({2}, {0}, true, \"{3}\")'>{1}</a>", command.id, command.deadlock_timeout == null ? "wrench default" : (command.deadlock_timeout.Value == 0 ? "disabled" : command.deadlock_timeout.Value.ToString () + " minutes"), lane.id, command.deadlock_timeout.HasValue ? command.deadlock_timeout.Value.ToString () : string.Empty),
 			    string.Format ("<a href='javascript:editCommandWorkingDirectory ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.working_directory, lane.id, working_directory),
 				string.Format ("<a href='javascript:editCommandUploadFiles ({2}, {0}, true, \"{1}\")'>{3}</a>", command.id, command.upload_files, lane.id, upload_files),
 				string.Format ("<a href='EditLane.aspx?lane_id={0}&amp;command_id={1}&amp;action=switchTimestamp'>{2}</a>", lane.id, command.id, (command.timestamp ? "yes" : "no")),
@@ -388,6 +403,7 @@ public partial class EditLane : System.Web.UI.Page
 			"bash",
 			"-ex {0}",
 			"60 minutes",
+			"wrench default",
 			"-",
 			"-",
 			"no",
@@ -730,3 +746,4 @@ public partial class EditLane : System.Web.UI.Page
 		Utils.LocalWebService.MarkAsDontBuild (Master.WebServiceLogin, lane.id);
 	}
 }
+

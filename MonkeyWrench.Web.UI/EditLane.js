@@ -31,6 +31,13 @@ function editCommandTimeout(lane_id, command_id, saved, def) {
     }
 }
 
+function editCommandDeadlockTimeout(lane_id, command_id, saved, def) {
+    var timeout = prompt("Set the new deadlock timeout (empty to use system default, 0 to disable, otherwise timeout in minutes):", def);
+    if (timeout != null && timeout != def) {
+        window.location = window.location.pathname + "?lane_id=" + lane_id + "&action=editCommandDeadlockTimeout&command_id=" + command_id + "&deadlock_timeout=" + timeout;
+    }
+}
+
 function editCommandWorkingDirectory(lane_id, command_id, saved, def) {
     var working_directory = prompt("Set the new working directory (absolute or relative):", def);
     if (working_directory != null && working_directory != def) {
