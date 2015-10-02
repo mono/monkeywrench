@@ -377,6 +377,7 @@ namespace MonkeyWrench.Builder
 									exitcode = 255;
 									Builder.log.ErrorFormat ("{0} {1}", info.number, timeoutReason);
 									log.WriteLine ("\n*** Timed out. Proceeding to get stack traces for all child processes. ***");
+									log.WriteLine ("\n*** " + timeoutReason + " *** \n");
 									p.Terminate (log);
 									log.WriteLine ("\n * " + timeoutReason + " * \n");
 								} catch (Exception ex) {
