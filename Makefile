@@ -1,23 +1,38 @@
+NUGET=/Library/Frameworks/Mono.framework/Commands/nuget
+ifeq ($(wildcard $(NUGET)),)
+NUGET=nuget
+endif
+
+XBUILD=/Library/Frameworks/Mono.framework/Commands/xbuild
+ifeq ($(wildcard $(XBUILD)),)
+XBUILD=xbuild
+endif
+
+MONO=/Library/Frameworks/Mono.framework/Commands/mono
+ifeq ($(wildcard $(MONO)),)
+MONO=mono
+endif
+
 default: all
 	@:
 
 all:
-	nuget restore
+	$(NUGET) restore
 	@$(MAKE) -C MonkeyWrench generate-assembly-info
-	xbuild /verbosity:quiet /nologo
+	$(XBUILD) /verbosity:quiet /nologo
 
 clean:
-	xbuild /target:clean
+	$(XBUILD) /target:clean
 	rm -f MonkeyWrench/AssemblyInfo.cs
 
 wsdl:
 	$(MAKE) -C MonkeyWrench.Web.WebService $@
 
 build: all
-	mono --debug MonkeyWrench.Builder/bin/Debug/MonkeyWrench.Builder.exe
+	$(MONO) --debug MonkeyWrench.Builder/bin/Debug/MonkeyWrench.Builder.exe
 
 schedule update: all
-	mono --debug MonkeyWrench.Scheduler/bin/Debug/MonkeyWrench.Scheduler.exe
+	$(MONO) --debug MonkeyWrench.Scheduler/bin/Debug/MonkeyWrench.Scheduler.exe
 
 web:
 	scripts/web.sh
@@ -26,7 +41,7 @@ generate:
 	$(MAKE) -C MonkeyWrench.DataClasses $@
 
 clean-large-objects compress-files execute-deletion-directives move-files-to-file-system move-files-to-database: all
-	mono --debug MonkeyWrench.Database.Manager/bin/Debug/MonkeyWrench.Database.Manager.exe --$@
+	$(MONO) --debug MonkeyWrench.Database.Manager/bin/Debug/MonkeyWrench.Database.Manager.exe --$@
 
 RELEASE_FILENAME=releases/MonkeyWrench.`grep AssemblyVersion MonkeyWrench/AssemblyInfo.cs | awk -F'\"' '{print $$2}'`.zip
 release: all
@@ -49,7 +64,7 @@ run-test run-tests: tests
 	# git creates read-only files, which managed code can't delete (an UnauthorizedException is thrown)
 	# delete any test directories right away
 	rm -Rf /tmp/MonkeyWrench.Test
-	mono --debug MonkeyWrench.Test/bin/Debug/MonkeyWrench.Test.exe
+	$(MONO) --debug MonkeyWrench.Test/bin/Debug/MonkeyWrench.Test.exe
 
 test-db-start:
 	PGPORT=5678 PGDATA=/tmp/MonkeyWrench.Test/db/data/db/data pg_ctl start -w
