@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ViewLane.aspx.cs
  *
  * Authors:
@@ -277,32 +277,30 @@ public partial class ViewLane : System.Web.UI.Page
 
 			// files
 			matrix.AppendLine ("<td style='text-align: left;'>");
-			var file_list = new SortedList<string, string> ();
-			foreach (DBWorkFileView file in files) {
+			var sb = new StringBuilder ();
+			var file_count = 0;
+			foreach (DBWorkFileView file in files.Where ((v) => !v.hidden).OrderBy ((v) => v.filename)) {
 				if (file.hidden)
 					continue;
-				file_list.Add (file.filename, string.Format ("<a href='GetFile.aspx?id={0}'>{1}</a> ", file.id, file.filename));
+				if (file_count > 0)
+					sb.Append (", ");
+				file_count++;
+				sb.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> ", file.id, file.filename);
 			}
 
-			foreach (var link in links)
-				file_list.Add (link.link, link.link);
-			
-			if (file_list.Count > 0) {
-				var sb = new StringBuilder ();
-				for (int i = 0; i < file_list.Count; i++) {
-					if (i > 0)
-						sb.Append (", ");
-					sb.Append (file_list.Values [i]);
-				}
-				if (file_list.Count > 3) {
-					matrix.AppendFormat ("<span id='files_{0}' style='display: none'>{1}</span>" +
-					"<a href='#' id='showFiles_{0}' onclick='javascript:document.getElementById (\"files_{0}\").style.display = \"block\"; document.getElementById (\"showFiles_{0}\").style.display = \"none\";'>Show {2} files</a>",
-						step.id, sb.ToString (), file_list.Count);
-				} else {
-					matrix.Append (sb.ToString ());
-				}
+			foreach (var link in links.OrderBy ((v) => v.link)) {
+				if (file_count > 0)
+					sb.Append (", ");
+				file_count++;
+				sb.Append (link.link);
+			}
+
+			if (file_count > 3) {
+				matrix.AppendFormat ("<span id='files_{0}' style='display: none'>{1}</span>" +
+				"<a href='#' id='showFiles_{0}' onclick='javascript:document.getElementById (\"files_{0}\").style.display = \"block\"; document.getElementById (\"showFiles_{0}\").style.display = \"none\";'>Show {2} files</a>",
+					step.id, sb.ToString (), file_count);
 			} else {
-				matrix.Append ("-");
+				matrix.Append (sb.ToString ());
 			}
 			matrix.AppendLine ("</td>");
 
@@ -319,3 +317,4 @@ public partial class ViewLane : System.Web.UI.Page
 		return matrix.ToString ();
 	}
 }
+
