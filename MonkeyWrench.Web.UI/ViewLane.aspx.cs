@@ -277,22 +277,32 @@ public partial class ViewLane : System.Web.UI.Page
 
 			// files
 			matrix.AppendLine ("<td style='text-align: left;'>");
-			bool did_first = false;
+			var file_list = new SortedList<string, string> ();
 			foreach (DBWorkFileView file in files) {
 				if (file.hidden)
 					continue;
-				if (file.hidden)
-					continue;
-				if (did_first)
-					matrix.Append (", ");
-				matrix.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> ", file.id, file.filename);
-				did_first = true;
+				file_list.Add (file.filename, string.Format ("<a href='GetFile.aspx?id={0}'>{1}</a> ", file.id, file.filename));
 			}
-			foreach (var link in links) {
-				if (did_first)
-					matrix.Append (", ");
-				matrix.Append (link.link);
-				did_first = true;
+
+			foreach (var link in links)
+				file_list.Add (link.link, link.link);
+			
+			if (file_list.Count > 0) {
+				var sb = new StringBuilder ();
+				for (int i = 0; i < file_list.Count; i++) {
+					if (i > 0)
+						sb.Append (", ");
+					sb.Append (file_list.Values [i]);
+				}
+				if (file_list.Count > 3) {
+					matrix.AppendFormat ("<span id='files_{0}' style='display: none'>{1}</span>" +
+					"<a href='#' id='showFiles_{0}' onclick='javascript:document.getElementById (\"files_{0}\").style.display = \"block\"; document.getElementById (\"showFiles_{0}\").style.display = \"none\";'>Show {2} files</a>",
+						step.id, sb.ToString (), file_list.Count);
+				} else {
+					matrix.Append (sb.ToString ());
+				}
+			} else {
+				matrix.Append ("-");
 			}
 			matrix.AppendLine ("</td>");
 
