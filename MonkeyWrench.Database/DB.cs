@@ -724,6 +724,29 @@ SELECT family.id FROM family ORDER BY depth ASC;";
 
 			return result;
 		}
+
+		/// <summary>
+		/// Returns lane that matches lane_id in the database
+		/// </summary>
+		/// <returns></returns>
+		public DBLane GetLane (int id)
+		{
+			using (IDbCommand cmd = CreateCommand ()) {
+				cmd.CommandText = "SELECT * FROM Lane WHERE id = @id ";
+				DB.CreateParameter (cmd, "id", id);
+				using (IDataReader reader = cmd.ExecuteReader ()) {
+					if (!reader.Read ())
+						return null;
+					if (reader.IsDBNull (0))
+						return null;
+
+					DBLane lane = new DBLane ();
+					lane.Load (reader);
+					return lane;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Returns all the lanes for which there are revisions in the database
 		/// </summary>

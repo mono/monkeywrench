@@ -1595,6 +1595,15 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 			}
 		}
 
+
+		public List<DBLaneTag> GetTagsForLane (WebServiceLogin login, int lane_id)
+		{
+			using (DB db = new DB ()) {
+				Authenticate (db, login, null, true);
+				return db.GetLane(lane_id).GetTags(db);
+			}
+		}
+
 		[WebMethod]
 		public void DeleteLane (WebServiceLogin login, int lane_id)
 		{

@@ -253,24 +253,27 @@ namespace MonkeyWrench.Web.UI
 		}
 
 		private string GetLaneInfo () {
-			var lanesResponse = Utils.LocalWebService.GetLanes (login);
+			using (var db = new DB ()) {
+				var lanesResponse = Utils.LocalWebService.GetLanes (login);
 
-			var lanes = lanesResponse.Lanes.ToDictionary (
-				l => l.lane,
-				l => new {
-					branch     = BranchFromRevision (l.max_revision),
-					repository = l.repository,
-					id         = l.id
-				});
+				var lanes = lanesResponse.Lanes.Select(l => 
+					new {
+						lane       = l.lane,
+						branch     = BranchFromRevision (l.max_revision),
+						repository = l.repository,
+						id         = l.id,
+						tags       = Utils.LocalWebService.GetTagsForLane(login,l.id).Select(tag => tag.tag)
+					});
 
-			var count = lanes.Count (kv => !String.IsNullOrEmpty (kv.Value.repository));
+				var count = lanes.Count (l => !String.IsNullOrEmpty (l.repository));
 
-			var results = new Dictionary<string, object> {
-				{ "count", count },
-				{ "lanes", lanes }
-			};
+				var results = new Dictionary<string, object> {
+					{ "count", count },
+					{ "lanes", lanes }
+				};
 
-			return JsonConvert.SerializeObject (results, Formatting.Indented);
+				return JsonConvert.SerializeObject (results, Formatting.Indented);
+			}
 		}
 
 		string BranchFromRevision (string revision) {
