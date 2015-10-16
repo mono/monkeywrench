@@ -78,7 +78,7 @@ namespace MonkeyWrench.Web.UI
 
 		private string GetBotStatusTimes() {
 			using (var db = new DB ()) {
-				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, false);
+				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
 
 				limit = 1; // We only want the last job
 
@@ -113,7 +113,7 @@ namespace MonkeyWrench.Web.UI
 
 		private void GetBotStatus() {
 			using (var db = new DB ()) {
-				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, false);
+				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
 				Response.Write (this.GetHostStatuses (db).ToString ());
 			}
 		}
@@ -121,7 +121,7 @@ namespace MonkeyWrench.Web.UI
 		private void GetBotInfo () {
 			
 			using (var db = new DB ()) {
-				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, false);
+				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
 
 				var result = this.GetHostStatuses(db);
 

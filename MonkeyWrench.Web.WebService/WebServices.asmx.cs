@@ -2570,7 +2570,7 @@ INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FR
 			GetBuildBotStatusResponse response = new GetBuildBotStatusResponse ();
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator, true);
+				Authenticate (db, login, null, true);
 
 				response.Status = new List<DBBuildBotStatus> ();
 				response.Hosts = new List<DBHost> ();
