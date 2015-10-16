@@ -52,6 +52,10 @@ public partial class EditHosts : System.Web.UI.Page
 
 	protected void Page_Load (object sender, EventArgs e)
 	{
+		using (DB db = new DB ()) {
+			MonkeyWrench.WebServices.Authentication.VerifyUserInRole(Context, db, Master.WebServiceLogin, Roles.Administrator, false);
+		}
+
 		if (!IsPostBack) {
 			string action = Request ["action"];
 			int host_id;
