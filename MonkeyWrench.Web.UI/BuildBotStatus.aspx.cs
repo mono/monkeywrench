@@ -36,10 +36,6 @@ public partial class BuildBotStatus : System.Web.UI.Page
 		GetBuildBotStatusResponse response;
 		string action;
 
-		using (DB db = new DB ()) {
-			MonkeyWrench.WebServices.Authentication.VerifyUserInRole(Context, db, Master.WebServiceLogin, Roles.Administrator, false);
-		}
-
 		response = Utils.LocalWebService.GetBuildBotStatus (Master.WebServiceLogin);
 
 		action = Request ["action"];
