@@ -52,15 +52,20 @@ namespace MonkeyWrench
 				log.DebugFormat ("Checking file existence for {0}", tmp);
 				if (File.Exists (tmp)) {
 					try {
-						if (ProcessHelper.Exists (int.Parse (File.ReadAllText (tmp)))) {
-							log.Debug ("File lock corresponds to an existing process.");
+						var contents = File.ReadAllText (tmp);
+						int pid;
+						if (!int.TryParse (contents, out pid)) {
+							log.DebugFormat ("File lock contains invalid data ('{0}' size: {1}), lock acquired", contents, contents.Length);
+						} else if (ProcessHelper.Exists (pid)) {
+							log.Debug ("File lock corresponds to an existing process. Lock NOT acquired.");
 							return null;
+						} else {
+							log.Debug ("File lock corresponds to a dead process, lock acquired");
 						}
 					} catch (Exception ex) {
 						log.ErrorFormat ("Could not confirm that file lock corresponds to a non-existing process: {0}", ex);
 						return null;
 					}
-					log.Debug ("File lock corresponds to a dead process, lock acquired");
 				}
 				// there is a race condition here.
 				// given that the default setup is to execute a program at most once per minute,
