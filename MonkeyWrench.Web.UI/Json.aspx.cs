@@ -80,7 +80,7 @@ namespace MonkeyWrench.Web.UI
 			using (var db = new DB ()) {
 				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
 
-				limit = 1; // We only want the last job
+				limit = Utils.TryParseInt32 (Request.QueryString ["limit"]) ?? 1; // We only want the last job by default or more if asked.
 
 				// Get hosts and statuses
 				GetHostsResponse response = Utils.LocalWebService.GetHosts (login);
