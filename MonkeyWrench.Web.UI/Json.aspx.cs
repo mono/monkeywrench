@@ -64,6 +64,9 @@ namespace MonkeyWrench.Web.UI
 				case "laneinfo":
 					Response.Write (GetLaneInfo ());
 					break;
+				case "tagdata":
+					Response.Write (GetTagData ());
+					break;
 				case "botinfo":
 					GetBotInfo ();
 					break;
@@ -74,6 +77,54 @@ namespace MonkeyWrench.Web.UI
 					GetBotStatus ();
 					break;
 			}
+		}
+
+		private string GetTagData() {
+			using (var db = new DB ()) {
+
+				string[] tags = null;
+				var results = new List<object>();
+
+				if (!string.IsNullOrEmpty (Request ["tags"]))
+					tags = Request ["tags"].Split (',');
+
+				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
+				FrontPageResponse data = Utils.LocalWebService.GetFrontPageDataWithTags (login, limit, 0, null, null, 30, tags);
+
+				var rows = new List<StringBuilder> ();
+
+				for (int i = 0; i < data.SelectedLanes.Count; i++) {
+					var lane = data.SelectedLanes [i];
+					var hostlanes = data.HostLanes.FindAll ((hl) => hl.lane_id == lane.id);
+
+					foreach (var hostlane in hostlanes) {
+						var work_views = FindRevisionWorkViews (data, hostlane.id);
+
+						for (int r = 0; r < work_views.Count; r++) {
+							results.Add (new Dictionary<string, object> {
+								{ "id", work_views[r].id },
+								{ "author", work_views[r].author },
+								{ "lane", lane.lane },
+								{ "revision", work_views[r].revision },
+								{ "completed", work_views[r].completed },
+								{ "status", work_views[r].state.ToString().ToLowerInvariant()},
+							});
+						}
+					}
+				}
+
+				return JsonConvert.SerializeObject (results, Formatting.Indented);
+			}
+		}
+
+		List<DBRevisionWorkView2> FindRevisionWorkViews (FrontPageResponse data, int hostlane_id)
+		{
+			for (int k = 0; k < data.RevisionWorkHostLaneRelation.Count; k++) {
+				if (data.RevisionWorkHostLaneRelation [k] == hostlane_id)
+					return data.RevisionWorkViews [k];
+			}
+
+			return null;
 		}
 
 		private string GetBotStatusTimes() {
