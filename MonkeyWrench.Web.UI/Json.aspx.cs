@@ -64,8 +64,8 @@ namespace MonkeyWrench.Web.UI
 				case "laneinfo":
 					Response.Write (GetLaneInfo ());
 					break;
-				case "tagdata":
-					Response.Write (GetTagData ());
+				case "taginfo":
+					Response.Write (GetTagInfo ());
 					break;
 				case "botinfo":
 					GetBotInfo ();
@@ -79,7 +79,7 @@ namespace MonkeyWrench.Web.UI
 			}
 		}
 
-		private string GetTagData() {
+		private string GetTagInfo() {
 			using (var db = new DB ()) {
 
 				string[] tags = null;
@@ -104,6 +104,8 @@ namespace MonkeyWrench.Web.UI
 							results.Add (new Dictionary<string, object> {
 								{ "id", work_views[r].id },
 								{ "author", work_views[r].author },
+								{ "host_id", work_views[r].host_id },
+								{ "host", data.Hosts.First( h => h.id == work_views[r].host_id).host },
 								{ "lane", lane.lane },
 								{ "revision", work_views[r].revision },
 								{ "completed", work_views[r].completed },
