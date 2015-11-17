@@ -86,8 +86,10 @@ public partial class index : System.Web.UI.Page
 			Response.Cookies.Set (new HttpCookie ("index:lane", HttpUtility.UrlEncode (lanes_str)));
 			Response.Cookies.Set (new HttpCookie ("index:lane_id", HttpUtility.UrlEncode (lane_ids_str)));
 		}
-
-		data = Utils.LocalWebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, 30, tags);
+			
+		// When viewing tags historically set day limit to zero otherwise we see nothing.
+		data = Utils.LocalWebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, tags != null ? 0 : 30, tags);
+		
 		this.buildtable.InnerHtml = tags != null ? GenerateTaggedOverview (data) : GenerateOverview (data);
 	}
 
