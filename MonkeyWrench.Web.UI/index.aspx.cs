@@ -190,19 +190,15 @@ public partial class index : System.Web.UI.Page
 	{
 		StringBuilder matrix = new StringBuilder ();
 
-		matrix.AppendLine ("<table class='buildstatus'>");
-
 		var lane_row = new StringBuilder ();
 		var hl_row = new StringBuilder ();
 		var rows = new List<StringBuilder> ();
 
+		// First pass to get the total ammount of rows needed.
 		for (int i = 0; i < data.SelectedLanes.Count; i++) {
 			var lane = data.SelectedLanes [i];
-			var hls = data.HostLanes.FindAll ((hl) => hl.lane_id == lane.id);
-			lane_row.AppendFormat ("<td colspan='{1}'>{0}</td>", data.SelectedLanes [i].lane, hls.Count == 0 ? 1 : hls.Count).AppendLine ();
+			var hls  = data.HostLanes.FindAll ((hl) => hl.lane_id == lane.id);
 			foreach (var hl in hls) {
-				WriteHostLane (hl_row, data.Hosts, hl);
-
 				var work_views = FindRevisionWorkViews (data, hl.id);
 				// Create more rows if needed.
 				if (rows.Count < work_views.Count) {
@@ -210,11 +206,43 @@ public partial class index : System.Web.UI.Page
 					for (int r = rows.Count; r < work_views.Count; r++)
 						rows.Add (new StringBuilder ());
 				}
+			}
+		}
+
+		// Render pass
+		matrix.AppendLine ("<table class='buildstatus'>");
+
+		for (int i = 0; i < data.SelectedLanes.Count; i++) {
+			var lane = data.SelectedLanes [i];
+			var hls  = data.HostLanes.FindAll ((hl) => hl.lane_id == lane.id);
+			lane_row.AppendFormat ("<td colspan='{1}'>{0}</td>", data.SelectedLanes [i].lane, hls.Count == 0 ? 1 : hls.Count).AppendLine ();
+			foreach (var hl in hls) {
+				// This renders all the host header lanes 
+				WriteHostLane (hl_row, data.Hosts, hl);
+
+				// Find all the builds
+				var work_views = FindRevisionWorkViews (data, hl.id);
+
+				// Create more rows if needed.
+				if (rows.Count < work_views.Count) {
+					rows.Capacity = work_views.Count;
+					for (int r = rows.Count; r < work_views.Count; r++)
+						rows.Add (new StringBuilder ());
+				}
+
 				for (int r = 0; r < work_views.Count; r++) {
 					WriteWorkCell (rows [r], work_views [r]);
 				}
+
+				// Fix the staggering, add the empty cells.
+				if (work_views.Count < rows.Count)
+					for (int r = work_views.Count; r < rows.Count; r++) {
+						WriteWorkCell (rows [r], null);
+					}
+
 			}
 		}
+
 		matrix.Append ("<tr>").Append (lane_row).AppendLine ("</tr>");
 		matrix.Append ("<tr>").Append (hl_row).AppendLine ("</tr>");
 		for (int r = 0; r < rows.Count; r++) {
@@ -301,8 +329,9 @@ public partial class index : System.Web.UI.Page
 
 		if (tree == null)
 			return string.Empty;
-
-		WriteLanes (header_rows, tree, 0, tree.Depth);
+		
+		// This renders all the host header lanes 
+		WriteLanes (header_rows, tree, 0, tree.Depth); 
 
 		matrix.AppendLine ("<table class='buildstatus'>");
 		for (int i = 0; i < header_rows.Count; i++) {
@@ -314,10 +343,12 @@ public partial class index : System.Web.UI.Page
 			matrix.AppendLine ("</tr>");
 		}
 
+		// Renders all the hosts
 		matrix.AppendLine ("<tr>");
-		WriteHostLanes (matrix, tree, data.Hosts, hostlane_order);
+		WriteHostLanes (matrix, tree, data.Hosts, hostlane_order); 
 		matrix.AppendLine ("</tr>");
 
+		// Renders all the builds
 		int counter = 0;
 		int added = 0;
 		StringBuilder row = new StringBuilder ();
