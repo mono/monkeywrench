@@ -451,11 +451,12 @@ namespace MonkeyWrench.Scheduler
 							}
 						}
 					});
+					var stderr_output = new StringBuilder ();
 					Thread stderr = new Thread (delegate ()
 					{
 						string line;
 						while (null != (line = git.StandardError.ReadLine ())) {
-							Console.Error.WriteLine (line);
+							stderr_output.AppendLine (line);
 						}
 					});
 					git.Start ();
@@ -479,7 +480,7 @@ namespace MonkeyWrench.Scheduler
 						GITUpdater.log.InfoFormat ("Got log successfully in {0} seconds", (DateTime.Now - git_start).TotalSeconds);
 						return result;
 					} else {
-						GITUpdater.log.ErrorFormat ("Didn't get log, HasExited: {0}, ExitCode: {1}", git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A");
+						GITUpdater.log.ErrorFormat ("Couldn't get git log for lane {0} repository {1}. HasExited: {2} ExitCode: {3} StandardError: \n{4}", dblane.lane, repository, git.HasExited, git.HasExited ? git.ExitCode.ToString () : "N/A", stderr_output.ToString ());
 						return null;
 					}
 				}
