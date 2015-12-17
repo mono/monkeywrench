@@ -265,6 +265,7 @@ namespace MonkeyWrench.WebServices
 	""channel"": ""{0}"",
 	""username"": ""Wrench"",
 	""text"": ""*{1}*"",
+	""link_names"": ""1"",
 	""attachments"": [
 		{{
 			""fallback"": ""{2}{3}"",
