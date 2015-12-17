@@ -107,7 +107,9 @@ namespace MonkeyWrench.Web.UI
 								{ "host_id", work_views[r].host_id },
 								{ "host", data.Hosts.First( h => h.id == work_views[r].host_id).host },
 								{ "lane", lane.lane },
+								{ "lane_id", lane.id },
 								{ "revision", work_views[r].revision },
+								{ "revision_id", work_views[r].revision_id },
 								{ "completed", work_views[r].completed },
 								{ "status", work_views[r].state.ToString().ToLowerInvariant()},
 							});
