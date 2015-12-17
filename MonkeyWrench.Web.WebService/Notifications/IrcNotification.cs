@@ -265,7 +265,7 @@ namespace MonkeyWrench.WebServices
 	""channel"": ""{0}"",
 	""username"": ""Wrench"",
 	""text"": ""*{1}*"",
-	""link_names"": ""1"",
+	""link_names"": ""{5}"",
 	""attachments"": [
 		{{
 			""fallback"": ""{2}{3}"",
@@ -284,7 +284,8 @@ namespace MonkeyWrench.WebServices
 					nonfatal ? "Test failure" : "Build failure",
 					nonfatal ? ":crying_cat_face: " : ":pouting_cat: ",
 					finalMessage.Replace ("\\", "\\\\").Replace ("\"", "\\\""),
-					nonfatal ? "warning" : "danger"
+					nonfatal ? "warning" : "danger",
+					nonfatal ? "0" : "1"
 				);
 
 				var postData = new NameValueCollection ();
