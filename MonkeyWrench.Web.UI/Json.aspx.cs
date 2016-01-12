@@ -70,6 +70,9 @@ namespace MonkeyWrench.Web.UI
 				case "botinfo":
 					GetBotInfo ();
 					break;
+				case "stephistory":
+					Response.Write (GetStepHistory ());
+				break;
 				case "botstatus":
 					Response.Write (GetBotStatusTimes ());
 					break;
@@ -90,8 +93,6 @@ namespace MonkeyWrench.Web.UI
 
 				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
 				FrontPageResponse data = Utils.LocalWebService.GetFrontPageDataWithTags (login, limit, 0, null, null, 30, tags);
-
-				var rows = new List<StringBuilder> ();
 
 				for (int i = 0; i < data.SelectedLanes.Count; i++) {
 					var lane = data.SelectedLanes [i];
@@ -129,6 +130,79 @@ namespace MonkeyWrench.Web.UI
 			}
 
 			return null;
+		}
+
+		private string GetStepHistory() {
+			using (var db = new DB ()) {
+
+				var results = new List<object>();
+
+				DBHost host = null;
+				DBLane lane = null;
+				DBCommand command = null;
+				GetViewWorkTableDataResponse response = null;
+
+				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
+				response = Utils.LocalWebService.GetViewWorkTableData (login,
+					Utils.TryParseInt32 (Request ["lane_id"]),    Request ["lane"],
+					Utils.TryParseInt32 (Request ["host_id"]),    Request ["host"],
+					Utils.TryParseInt32 (Request ["command_id"]), Request ["command"]);
+
+				lane    = response.Lane;
+				host    = response.Host;
+				command = response.Command;
+
+				if (lane == null || host == null || command == null) {
+					return "[]";
+				}
+
+				List<DBWorkView2> steps;
+
+				steps = response.WorkViews;
+				for (int i = 0; i < steps.Count; i++) {
+					DBWorkView2 view = steps [i];
+					List<DBWorkFileView> files = response.WorkFileViews [i];
+					DBState state = (DBState) view.state;
+
+					// revision
+					string result;
+					switch (state) {
+						case DBState.NotDone:
+							result = "queued"; break;
+						case DBState.Executing:
+							result = "running"; break;
+						case DBState.Failed:
+							result = view.nonfatal ? "issues" : "failure"; break;
+						case DBState.Success:
+						case DBState.Aborted:
+						case DBState.Timeout:
+						case DBState.Paused:
+						default:
+							result = state.ToString ().ToLowerInvariant ();
+						break;
+					}
+
+					DateTime starttime = view.starttime.ToLocalTime ();
+					DateTime endtime   = view.endtime.ToLocalTime ();
+					int duration = (int) (endtime - starttime).TotalSeconds;
+
+					results.Add (new Dictionary<string, object> {
+						{ "id", view.id },
+						{ "author", view.author },
+						{ "workhost_id", view.workhost_id == null ? -1 : view.workhost_id },
+						{ "workhost", view.workhost == null ? "" : view.workhost },
+						{ "start", view.starttime },
+						{ "duration", duration },
+						{ "duration_string", MonkeyWrench.Utilities.GetDurationFromWorkView (view).ToString () },
+						{ "lane", lane.lane },
+						{ "revision_id", view.revision_id },
+						{ "revision", view.revision },
+						{ "status", result},
+					});
+				}
+
+				return JsonConvert.SerializeObject (results, Formatting.Indented);
+			}
 		}
 
 		private string GetBotStatusTimes() {
