@@ -70,8 +70,8 @@ namespace MonkeyWrench.Web.UI
 				case "botinfo":
 					GetBotInfo ();
 					break;
-				case "worktableinfo":
-					Response.Write (WorkTableInfo ());
+				case "stephistory":
+					Response.Write (GetStepHistory ());
 				break;
 				case "botstatus":
 					Response.Write (GetBotStatusTimes ());
@@ -93,8 +93,6 @@ namespace MonkeyWrench.Web.UI
 
 				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
 				FrontPageResponse data = Utils.LocalWebService.GetFrontPageDataWithTags (login, limit, 0, null, null, 30, tags);
-
-				var rows = new List<StringBuilder> ();
 
 				for (int i = 0; i < data.SelectedLanes.Count; i++) {
 					var lane = data.SelectedLanes [i];
@@ -134,7 +132,7 @@ namespace MonkeyWrench.Web.UI
 			return null;
 		}
 
-		private string WorkTableInfo() {
+		private string GetStepHistory() {
 			using (var db = new DB ()) {
 
 				var results = new List<object>();
@@ -158,7 +156,6 @@ namespace MonkeyWrench.Web.UI
 					return "[]";
 				}
 
-				StringBuilder matrix = new StringBuilder ();
 				List<DBWorkView2> steps;
 
 				steps = response.WorkViews;
@@ -166,8 +163,6 @@ namespace MonkeyWrench.Web.UI
 					DBWorkView2 view = steps [i];
 					List<DBWorkFileView> files = response.WorkFileViews [i];
 					DBState state = (DBState) view.state;
-
-					matrix.Append ("<tr>");
 
 					// revision
 					string result;
