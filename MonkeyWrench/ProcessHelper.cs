@@ -84,6 +84,16 @@ namespace MonkeyWrench
 
 	internal abstract class IProcessHelper
 	{
+		protected static string GetProcessName (int pid)
+		{
+			try {
+				var process = Process.GetProcessById (pid);
+				return process == null ? "<NIL>" : process.ProcessName;
+			} catch {
+				return "<error getting process name>";
+			}
+		}
+
 		protected virtual List<int> GetChildren (int pid)
 		{
 			if (string.IsNullOrEmpty (Configuration.ChildProcessAlgorithm)) {

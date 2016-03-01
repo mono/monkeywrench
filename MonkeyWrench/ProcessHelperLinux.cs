@@ -50,7 +50,7 @@ namespace MonkeyWrench
 
 		internal static void RenderStackTraceWithGdb (int pid, SynchronizedStreamWriter log)
 		{
-			log.WriteLine (string.Format ("\n * Fetching stack trace for process {0} * \n", pid));
+			log.WriteLine (string.Format ("\n * Fetching stack trace for process {0} (name '{1}') * \n", pid, GetProcessName (pid)));
 
 			using (var gdb = new Job ()) {
 				gdb.StartInfo.FileName = "gdb";
