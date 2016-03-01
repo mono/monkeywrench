@@ -29,7 +29,7 @@ namespace MonkeyWrench
 
 		internal static void RenderStackTraceWithGdb (int pid, SynchronizedStreamWriter log)
 		{
-			log.WriteLine (string.Format ("\n * Fetching stack trace for process {0} * \n", pid));
+			log.WriteLine (string.Format ("\n * Fetching stack trace for process {0} (name '{1}') * \n", pid, GetProcessName (pid)));
 
 			var template = Path.GetTempFileName ();
 			try {
@@ -93,6 +93,11 @@ namespace MonkeyWrench
 				RenderStackTraceWithGdb (pid, log);
 
 			ProcessHelperLinux.KillImpl (pids, log);
+		}
+
+		public override void PrintProcesses (SynchronizedStreamWriter log)
+		{
+			ProcessHelperLinux.PrintProcessesImplPS (log);
 		}
 	}
 }

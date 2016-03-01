@@ -48,9 +48,34 @@ namespace MonkeyWrench
 			return ProcessHelperLinux.GetChildrenImplPS (pid);
 		}
 
+		public override void PrintProcesses (SynchronizedStreamWriter log)
+		{
+			PrintProcessesImplPS (log);
+		}
+
+		internal static void PrintProcessesImplPS (SynchronizedStreamWriter log)
+		{
+			using (var ps = new Job ()) {
+				ps.StartInfo.FileName = "ps";
+				ps.StartInfo.Arguments = "aux";
+
+				var reader = new ProcessReader (log);
+				reader.Setup (ps);
+				ps.Start ();
+				reader.Start ();
+
+				try {
+					if (!ps.WaitForExit (1000 * 30 /* 30 seconds */))
+						throw new ApplicationException (string.Format ("The 'ps' process didn't exit in 30 seconds."));
+				} finally {
+					reader.Join ();
+				}
+			}
+		}
+
 		internal static void RenderStackTraceWithGdb (int pid, SynchronizedStreamWriter log)
 		{
-			log.WriteLine (string.Format ("\n * Fetching stack trace for process {0} * \n", pid));
+			log.WriteLine (string.Format ("\n * Fetching stack trace for process {0} (name '{1}') * \n", pid, GetProcessName (pid)));
 
 			using (var gdb = new Job ()) {
 				gdb.StartInfo.FileName = "gdb";
