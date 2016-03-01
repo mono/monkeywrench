@@ -20,5 +20,9 @@ namespace MonkeyWrench
 {
 	internal class ProcessHelperWindows : IProcessHelper
 	{
+		public override void PrintProcesses (SynchronizedStreamWriter log)
+		{
+			log.WriteLine ("IProcessHelper.PrintProcesses is unimplemented on windows");
+		}
 	}
 }

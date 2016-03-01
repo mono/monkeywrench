@@ -30,6 +30,7 @@ namespace MonkeyWrench
 		/// <param name="process"></param>
 		public static void KillTree (this Process process, SynchronizedStreamWriter log)
 		{
+			GetHelper ().PrintProcesses (log);
 			GetHelper ().KillTree (process, log);
 		}
 
@@ -239,5 +240,7 @@ namespace MonkeyWrench
 
 			return null;
 		}
+
+		public abstract void PrintProcesses (SynchronizedStreamWriter log);
 	}
 }
