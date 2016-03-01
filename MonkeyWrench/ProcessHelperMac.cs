@@ -94,5 +94,10 @@ namespace MonkeyWrench
 
 			ProcessHelperLinux.KillImpl (pids, log);
 		}
+
+		public override void PrintProcesses (SynchronizedStreamWriter log)
+		{
+			ProcessHelperLinux.PrintProcessesImplPS (log);
+		}
 	}
 }
