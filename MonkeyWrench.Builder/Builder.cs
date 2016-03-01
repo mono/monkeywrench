@@ -557,7 +557,7 @@ namespace MonkeyWrench.Builder
 						if (infos [i].progress_stamp.AddMinutes (Configuration.NoProgressTimeout) < DateTime.Now) {
 							// No progress for Configuration.NoProgressTimeout minutes.
 							// Commit suicide.
-							ProcessHelper.KillTree (Process.GetCurrentProcess (), null);
+							ProcessHelper.KillTree (Process.GetCurrentProcess (), new SynchronizedStreamWriter (StreamWriter.Null));
 						}
 					} while (true);
 				}
