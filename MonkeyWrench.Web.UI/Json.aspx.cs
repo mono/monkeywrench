@@ -198,6 +198,7 @@ namespace MonkeyWrench.Web.UI
 						{ "revision_id", view.revision_id },
 						{ "revision", view.revision },
 						{ "status", result},
+						{ "summary", view.summary }
 					});
 				}
 
@@ -250,7 +251,7 @@ namespace MonkeyWrench.Web.UI
 		}
 
 		private void GetBotInfo () {
-			
+
 			using (var db = new DB ()) {
 				MonkeyWrench.WebServices.Authentication.Authenticate (Context, db, login, null, true);
 
@@ -272,7 +273,7 @@ namespace MonkeyWrench.Web.UI
 
 				foreach (var entry in hosts)
 					history [entry.Value] = this.GetHostHistory (db, entry.Key);
-				
+
 				result ["hostHistory"] = history;
 
 				Response.Write (result.ToString());
@@ -316,12 +317,12 @@ namespace MonkeyWrench.Web.UI
 						RevisionWork.id AS revisionwork_id,
 						RevisionWork.completed,
 						RevisionWork.state,
-						
+
 						RevisionWork.createdtime,
 						RevisionWork.assignedtime,
 						NULLIF(RevisionWork.startedtime, '2000-01-01 00:00:00+00'::timestamp) AS startedtime,
 						RevisionWork.endtime,
-						
+
 						Host.host,
 						Host.id AS host_id,
 						Lane.lane,
@@ -387,7 +388,7 @@ namespace MonkeyWrench.Web.UI
 			using (var db = new DB ()) {
 				var lanesResponse = Utils.LocalWebService.GetLanes (login);
 
-				var lanes = lanesResponse.Lanes.Select(l => 
+				var lanes = lanesResponse.Lanes.Select(l =>
 					new {
 						lane       = l.lane,
 						branch     = BranchFromRevision (l.max_revision),
