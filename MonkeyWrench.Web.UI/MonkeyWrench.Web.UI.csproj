@@ -262,6 +262,7 @@
     <Content Include="ErrorPage.aspx" />
     <Content Include="GetManifest.aspx" />
     <Content Include="GetMetadata.aspx" />
+    <Content Include="ViewAuditEntries.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.aspx.cs">
@@ -529,6 +530,12 @@
     </Compile>
     <Compile Include="GetMetadata.aspx.designer.cs">
       <DependentUpon>GetMetadata.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewAuditEntries.aspx.cs">
+      <DependentUpon>ViewAuditEntries.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewAuditEntries.aspx.designer.cs">
+      <DependentUpon>ViewAuditEntries.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

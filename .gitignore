@@ -17,3 +17,5 @@ bin
 obj
 Meebey.SmartIrc4net.xml
 packages/
+data/
+tmp/
