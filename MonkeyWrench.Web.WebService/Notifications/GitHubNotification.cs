@@ -68,6 +68,7 @@ namespace MonkeyWrench.WebServices {
 			public string laneName;
 			public int laneID;
 			public string command;
+			public string hostName;
 		}
 
 		/**
@@ -76,10 +77,11 @@ namespace MonkeyWrench.WebServices {
 		private RevisionWorkInfo getWorkInfo(DB db, int revisionWorkID, int workID) {
 			using (var cmd = db.CreateCommand ()) {
 				cmd.CommandText = @"
-					SELECT revision.revision, lane.id, lane.repository, lane.lane
+					SELECT revision.revision, lane.id, lane.repository, lane.lane, host.host
 					FROM revisionwork
 					INNER JOIN revision ON revision.id = revisionwork.revision_id
 					INNER JOIN lane ON lane.id = revision.lane_id
+					INNER JOIN host ON host.id = revisionwork.host_id
 					WHERE revisionwork.id = @rwID;
 
 					SELECT command.command
@@ -98,6 +100,7 @@ namespace MonkeyWrench.WebServices {
 					info.laneID = reader.GetInt32 (1);
 					info.repoURL = reader.GetString (2);
 					info.laneName = reader.GetString (3);
+					info.hostName = reader.GetString (4);
 
 					reader.NextResult ();
 					reader.Read ();
@@ -194,11 +197,12 @@ namespace MonkeyWrench.WebServices {
 			RevisionWorkInfo info;
 			using (var db = new DB ())
 				info = getWorkInfo (db, revision_work.id, work.id);
-			
+
 			// Create object to send
 			var statusObj = createPayload(revision_work.lane_id, revision_work.host_id, revision_work.revision_id,
-				String.Format("Lane: {0}, Status: {1}, Step: {2}, StepStatus: {3}",
+				String.Format("Lane: {0}, Host: {1}, Status: {2}, Step: {3}, StepStatus: {4}",
 					info.laneName,
+					info.hostName,
 					revision_work.State,
 					info.command,
 					work.State
