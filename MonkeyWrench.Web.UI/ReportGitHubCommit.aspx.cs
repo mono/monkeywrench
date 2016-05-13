@@ -78,6 +78,12 @@ public partial class ReportGitHubCommit : System.Web.UI.Page
 			JavaScriptSerializer json = new JavaScriptSerializer ();
 			GitHub.Payload pl = json.Deserialize<GitHub.Payload> (payload);
 
+			if (pl.commits == null) {
+				log.InfoFormat ("Payload did not contain any commits.");
+				Response.StatusCode = 204;
+				return;
+			}
+
 			XmlWriterSettings settings = new XmlWriterSettings ();
 			settings.CloseOutput = true;
 			settings.Indent = true;
