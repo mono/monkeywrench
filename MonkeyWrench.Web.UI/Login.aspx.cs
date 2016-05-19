@@ -36,6 +36,7 @@ using System.Threading;
 using MonkeyWrench.Web.UI;
 using DotNetOpenAuth.AspNet;
 using MonkeyWrench.Database;
+using System.Linq;
 
 public partial class Login : System.Web.UI.Page
 {
@@ -74,6 +75,52 @@ public partial class Login : System.Web.UI.Page
 			lblPassword.Visible = Configuration.AllowPasswordLogin;
 		}
 
+		// If we have a provider of GitHub in the query string,
+		// try to log in using our Oauth session state.
+		if (cmdLoginGitHubOauth.Visible
+		    && Request.QueryString.GetValues("__provider__") != null
+		    && Request.QueryString.GetValues("__provider__")[0] == "github")
+		{
+			var authResult = GitHubAuthenticationHelper.VerifyAuthentication();
+			if (!authResult.IsSuccessful) {
+				lblMessageOpenId.Text = "Failed to get user authenication from GitHub";
+				return;
+			}
+
+			var accessToken = authResult.GetAccessToken();
+			var userOrgList = GitHubAuthenticationHelper.GetUserOrgs(accessToken);
+
+			// Linq select has Runtime Binder issues with dynamic objects, so these are typed.
+			var orgLoginNameList = new List<string>();
+			foreach (var org in userOrgList) {
+				string orgName = org.login;
+				orgLoginNameList.Add(orgName);
+			}
+
+			LoginResponse loginResponse = new LoginResponse();
+			using (DB db = new DB()) {
+				try {
+					DBLogin_Extensions.LoginOutsideProvider(db, loginResponse, string.Empty, 
+					                              Utilities.GetExternalIP(Request), 
+					                              orgLoginNameList, 
+					                              true, 
+					                              authResult.GetGitHubLogin());
+				} catch (Exception ex) {
+					loginResponse.Exception = new WebServiceException(ex);
+				}
+			}
+			if (loginResponse.Exception != null) {
+				lblMessageOpenId.Text = loginResponse.Exception.Message;
+			}
+			else {
+				Authentication.SetCookies(Response, loginResponse);
+				Response.Redirect(txtReferrer.Value, false);
+			}
+			return;
+		}
+
+		// If "state" is in the query string callback, it's Google OAuth, so try to log in with that
+
 		if (cmdLoginOauth.Visible && Request.QueryString.GetValues ("state") != null) {
 			var authResult = AuthenticationHelper.VerifyAuthentication ();
 			if (!authResult.IsSuccessful) {
@@ -84,7 +131,9 @@ public partial class Login : System.Web.UI.Page
 			LoginResponse loginResponse = new LoginResponse ();
 			using (DB db = new DB ()) {
 				try {
-					DBLogin_Extensions.LoginOpenId (db, loginResponse, authResult.GetEmail (), Utilities.GetExternalIP (Request));
+					DBLogin_Extensions.LoginOutsideProvider (db, loginResponse, authResult.GetEmail (), 
+					                               Utilities.GetExternalIP (Request), 
+					                               new List<string> ());
 				} catch (Exception ex) {
 					loginResponse.Exception = new WebServiceException (ex);
 				}
@@ -174,6 +223,12 @@ public partial class Login : System.Web.UI.Page
 		} else {
 			Response.Redirect (txtReferrer.Value, false);
 		}
+	}
+
+	protected void cmdLoginGitHubOauth_Click (object sender, EventArgs e)
+	{
+		Session["login_referrer"] = Request.QueryString["referrer"];
+		GitHubAuthenticationHelper.Authenticate();
 	}
 
 	protected void cmdLoginOauth_Click (object sender, EventArgs e)

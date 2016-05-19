@@ -11,7 +11,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -34,7 +36,7 @@ namespace MonkeyWrench.Database
 		/// <param name="user"></param>
 		/// <param name="password"></param>
 		/// <returns></returns>
-		public static DBLogin Login (DB db, string login, string password, string ip4, bool @readonly)
+		public static DBLogin LoginUser (DB db, string login, string password, string ip4, bool @readonly)
 		{
 			DBLogin result;
 			int id;
@@ -69,33 +71,41 @@ namespace MonkeyWrench.Database
 			return result;
 		}
 
-		public static void LoginOpenId (DB db, LoginResponse response, string email, string ip4)
+		public static void Login (DB db, LoginResponse response, string email, string ip4, List<string> userOrgs, bool useGitHub = false, string gitHubLogin = "")
 		{
-			if (string.IsNullOrEmpty (Configuration.OpenIdProvider) && string.IsNullOrEmpty (Configuration.OauthClientId))
-				throw new Exception ("No OpenId provider available");
+			string [] specs;
 
-			if (string.IsNullOrEmpty (Configuration.OpenIdRoles))
-				throw new Exception ("No OpenId roles specified");
+			string username = useGitHub ? gitHubLogin : email;
 
-			if (string.IsNullOrEmpty (email))
-				throw new Exception ("OpenId authentication requires an email");
-			
-			string [] specs = Configuration.OpenIdRoles.Split (';');
+			if (useGitHub) {
+				specs = Configuration.GitHubOrganizationList;
+			}
+			else {
+				specs = Configuration.OpenIdRoles;
+			}
+
 			foreach (var spec in specs) {
+				// org:role1,role2
 				// email:role1,role2
 				string [] split = spec.Split (':');
 				if (split.Length != 2) {
-					log.ErrorFormat ("AuthenticateOpenId: Invalid role spec: {0}", spec);
+					log.ErrorFormat ("AuthenticateLogin: Invalid role spec: {0}", spec);
 					continue;
 				}
 
 				if (string.IsNullOrEmpty (split [1])) {
-					log.ErrorFormat ("AuthenticateOpenId: No roles specified for {0}", split [0]);
+					log.ErrorFormat ("AuthenticateLogin: No roles specified for {0}", split [0]);
 					continue;
 				}
 
-				if (!Regex.IsMatch (email, split [0]))
-					continue;
+				if(useGitHub) {
+					if (!userOrgs.Contains(split[0]))
+						continue;
+				}
+				else {
+					if (!Regex.IsMatch (email, split [0]))
+						continue;
+				}
 
 				// We now create an account with an empty password and the specified roles.
 				// Note that it is not possible to log into an account with an empty password
@@ -105,7 +115,7 @@ namespace MonkeyWrench.Database
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"SELECT * FROM Person WHERE login = @login;";
-					DB.CreateParameter (cmd, "login", email);
+					DB.CreateParameter (cmd, "login", username);
 					using (var reader = cmd.ExecuteReader ()) {
 						if (reader.Read ())
 							open_person = new DBPerson (reader);
@@ -114,7 +124,7 @@ namespace MonkeyWrench.Database
 
 				if (open_person == null) {
 					open_person = new DBPerson ();
-					open_person.login = email;
+					open_person.login = username;
 					open_person.roles = split [1];
 					open_person.Save (db);
 				} else {
@@ -127,7 +137,7 @@ namespace MonkeyWrench.Database
 				WebServiceLogin login = new WebServiceLogin ();
 				login.Ip4 = ip4;
 				login.User = open_person.login;
-				db.Audit (login, "DBLogin_Extensions.LoginOpenId (email: {0}, ip4: {1})", email, ip4);
+				db.Audit (login, "DBLogin_Extensions.Login (username: {0}, ip4: {1})", username, ip4);
 
 				var result = new DBLogin ();
 				result.person_id = open_person.id;
@@ -136,8 +146,8 @@ namespace MonkeyWrench.Database
 				result.expires = DateTime.Now.AddDays (1);
 				result.Save (db);
 				
-				response.User = email;
-				response.UserName = email;
+				response.User = username;
+				response.UserName = username;
 				response.UserRoles = open_person.Roles;
 				response.Cookie = result.cookie;
 
