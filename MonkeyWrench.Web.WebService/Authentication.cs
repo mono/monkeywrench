@@ -59,7 +59,7 @@ namespace MonkeyWrench.WebServices
 			string ip = !string.IsNullOrEmpty (login.Ip4) ? login.Ip4 : user_host_address;
 
 			if (!string.IsNullOrEmpty (login.Password)) {
-				DBLogin result = DBLogin_Extensions.Login (db, login.User, login.Password, ip, @readonly);
+				DBLogin result = DBLogin_Extensions.LoginUser (db, login.User, login.Password, ip, @readonly);
 				if (result != null) {
 					if (@readonly) {
 						person_id = result.person_id;
