@@ -248,7 +248,6 @@ namespace MonkeyWrench
 				UploadPort = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/UploadPort").GetNodeValue (UploadPort.ToString ()));
 				AllowAnonymousAccess = bool.Parse(xml.SelectSingleNode("MonkeyWrench/Configuration/AllowAnonymousAccess").GetNodeValue(AllowAnonymousAccess.ToString()));
 				OpenIdProvider = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdProvider").GetNodeValue (OpenIdProvider);
-				OpenIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue ("OpenIdRoles").Split(';');
 				AutomaticScheduler = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticScheduler").GetNodeValue (AutomaticScheduler.ToString ()));
 				AutomaticSchedulerInterval = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticSchedulerInterval").GetNodeValue (AutomaticSchedulerInterval.ToString ()));
 				AllowPasswordLogin = bool.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AllowPasswordLogin").GetNodeValue (AllowPasswordLogin.ToString ()));
@@ -260,7 +259,12 @@ namespace MonkeyWrench
 				GitHubOauthClientId = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOauthClientId").GetNodeValue(GitHubOauthClientId);
 				GitHubOauthClientSecret = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOauthClientSecret").GetNodeValue(GitHubOauthClientSecret);
 				GitHubOauthRedirect = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOauthRedirect").GetNodeValue(GitHubOauthRedirect);
-				GitHubOrganizationList = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOrganizationList").GetNodeValue("GitHubOrganizationList").Split(';');
+
+				var openIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue ("OpenIdRoles");
+				OpenIdRoles = !string.IsNullOrEmpty(openIdRoles) ? openIdRoles.Split(';') : new string[0];
+
+				var gitHubOrganizationList = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOrganizationList").GetNodeValue("GitHubOrganizationList");
+				GitHubOrganizationList = !string.IsNullOrEmpty(gitHubOrganizationList) ? gitHubOrganizationList.Split(';') : new string[0];
 
 				// override from command line
 
