@@ -100,7 +100,7 @@ public partial class Login : System.Web.UI.Page
 			LoginResponse loginResponse = new LoginResponse();
 			using (DB db = new DB()) {
 				try {
-					DBLogin_Extensions.LoginOutsideProvider(db, loginResponse, string.Empty, 
+					DBLogin_Extensions.Login(db, loginResponse, string.Empty, 
 					                              Utilities.GetExternalIP(Request), 
 					                              orgLoginNameList, 
 					                              true, 
@@ -131,7 +131,7 @@ public partial class Login : System.Web.UI.Page
 			LoginResponse loginResponse = new LoginResponse ();
 			using (DB db = new DB ()) {
 				try {
-					DBLogin_Extensions.LoginOutsideProvider (db, loginResponse, authResult.GetEmail (), 
+					DBLogin_Extensions.Login (db, loginResponse, authResult.GetEmail (), 
 					                               Utilities.GetExternalIP (Request), 
 					                               new List<string> ());
 				} catch (Exception ex) {
