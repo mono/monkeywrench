@@ -79,6 +79,7 @@
     <Compile Include="ProcessReader.cs" />
     <Compile Include="SynchronizedStreamWriter.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
