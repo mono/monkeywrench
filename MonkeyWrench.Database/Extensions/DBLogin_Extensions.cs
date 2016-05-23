@@ -75,21 +75,18 @@ namespace MonkeyWrench.Database
 		{
 			string [] specs;
 
+			// email is used when using OpenID/Google Auth, 
+			// and is checked against the OpenIdRoles in the Wrench Config.
+			// For GitHub auth, userOrgs is used to store the users
+			// GitHub organizations which are checked against the configs.
+
+			// Setting the useGitHub flag will pick which format to auth against,
+			// GitHub or OpenID/Google.
+
+			// Note: username is NOT used for checking for authorization.
+			// It is used for adding that users name as the users Wrench account name
+
 			string username = useGitHub ? gitHubLogin : email;
-
-			// Do basic filter for username instances. 
-			// A GitHub username should not contain an @
-			// An OpenID/Google Login should be an email, so it should contain an @
-
-			// username is the GitHub username if we are using GitHub login.
-
-			if (useGitHub && username.Contains('@'))
-				log.ErrorFormat ("AuthenticateLogin: Invalid username for GitHub, can't contain @: {0}", username);
-
-			// username is the OpenID/Google Email if we are not using GitHub login.
-
-			if (!useGitHub && !username.Contains('@'))
-				log.ErrorFormat ("AuthenticateLogin: Invalid email for OpenID/Google, needs to have @: {0}", username);
 
 			if (useGitHub) {
 				specs = Configuration.GitHubOrganizationList;
