@@ -112,15 +112,18 @@ namespace MonkeyWrench.Database
 					continue;
 				}
 
+				var roleSpecCheck = split[0];
+				var roles = split[1];
+
 				if (useGitHub) {
 					// userOrgs is the current orginizations the user is in.
 					// If the org in the config file is in one the user is in, we can log them in.
 					// Otherwise, continue until we find one, or fail.
-					if (!userOrgs.Contains(split[0]))
+					if (!userOrgs.Contains (roleSpecCheck))
 						continue;
 				}
 				else {
-					if (!Regex.IsMatch (email, split [0]))
+					if (!Regex.IsMatch (email, roleSpecCheck))
 						continue;
 				}
 
@@ -142,12 +145,12 @@ namespace MonkeyWrench.Database
 				if (open_person == null) {
 					open_person = new DBPerson ();
 					open_person.login = username;
-					open_person.roles = split [1];
+					open_person.roles = roles;
 					open_person.Save (db);
 				} else {
 					// only save if something has changed
-					if (open_person.roles != split [1]) {
-						open_person.roles = split [1];
+					if (open_person.roles != roles) {
+						open_person.roles = roles;
 						open_person.Save (db);
 					}
 				}
