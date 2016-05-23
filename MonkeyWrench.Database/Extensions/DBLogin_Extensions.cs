@@ -83,12 +83,12 @@ namespace MonkeyWrench.Database
 
 			// username is the GitHub username if we are using GitHub login.
 
-			if(useGitHub && username.Contains('@'))
+			if (useGitHub && username.Contains('@'))
 				log.ErrorFormat ("AuthenticateLogin: Invalid username for GitHub, can't contain @: {0}", username);
 
 			// username is the OpenID/Google Email if we are not using GitHub login.
 
-			if(!useGitHub && !username.Contains('@'))
+			if (!useGitHub && !username.Contains('@'))
 				log.ErrorFormat ("AuthenticateLogin: Invalid email for OpenID/Google, needs to have @: {0}", username);
 
 			if (useGitHub) {
@@ -112,7 +112,7 @@ namespace MonkeyWrench.Database
 					continue;
 				}
 
-				if(useGitHub) {
+				if (useGitHub) {
 					// userOrgs is the current orginizations the user is in.
 					// If the org in the config file is in one the user is in, we can log them in.
 					// Otherwise, continue until we find one, or fail.
