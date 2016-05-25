@@ -146,7 +146,8 @@ namespace MonkeyWrench.Web.UI
 				response = Utils.LocalWebService.GetViewWorkTableData (login,
 					Utils.TryParseInt32 (Request ["lane_id"]),    Request ["lane"],
 					Utils.TryParseInt32 (Request ["host_id"]),    Request ["host"],
-					Utils.TryParseInt32 (Request ["command_id"]), Request ["command"]);
+					Utils.TryParseInt32 (Request ["command_id"]), Request ["command"],
+				    offset, limit);
 
 				lane    = response.Lane;
 				host    = response.Host;

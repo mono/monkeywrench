@@ -40,7 +40,8 @@ public partial class ViewWorkTable : System.Web.UI.Page
 		response = Utils.LocalWebService.GetViewWorkTableData (Master.WebServiceLogin,
 			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
 			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
-			Utils.TryParseInt32 (Request ["command_id"]), Request ["command"]);
+			Utils.TryParseInt32 (Request ["command_id"]), Request ["command"],
+		    int.Parse(Request["offset"]), int.Parse(Request["limit"]));
 
 		lane = response.Lane;
 		host = response.Host;

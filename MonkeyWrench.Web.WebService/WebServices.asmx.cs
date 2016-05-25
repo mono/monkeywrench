@@ -1913,9 +1913,13 @@ UPDATE Work SET state = @state WHERE Work.revisionwork_id = (SELECT RevisionWork
 		}
 
 		[WebMethod]
-		public GetViewWorkTableDataResponse GetViewWorkTableData (WebServiceLogin login, int? lane_id, string lane, int? host_id, string host, int? command_id, string command)
+		public GetViewWorkTableDataResponse GetViewWorkTableData (WebServiceLogin login, int? lane_id, string lane, int? host_id, string host, int? command_id, string command, int offset = 0, int limit = 250)
 		{
 			GetViewWorkTableDataResponse response = new GetViewWorkTableDataResponse ();
+
+			// Enforce the 250 limit
+			if (limit > 250)
+				limit = 250;
 
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
@@ -1929,8 +1933,16 @@ UPDATE Work SET state = @state WHERE Work.revisionwork_id = (SELECT RevisionWork
 SELECT * 
 FROM WorkView2
 WHERE command_id = @command_id AND masterhost_id = @host_id AND lane_id = @lane_id
-ORDER BY date DESC LIMIT 250;
-";
+ORDER BY date DESC ";
+					
+					if (limit > 0)
+						cmd.CommandText += " LIMIT " + limit.ToString();
+					if (offset > 0)
+						cmd.CommandText += " OFFSET " + offset.ToString();
+					cmd.CommandText += ";";
+
+					Console.WriteLine(cmd.CommandText);
+
 					DB.CreateParameter (cmd, "command_id", response.Command.id);
 					DB.CreateParameter (cmd, "host_id", response.Host.id);
 					DB.CreateParameter (cmd, "lane_id", response.Lane.id);
