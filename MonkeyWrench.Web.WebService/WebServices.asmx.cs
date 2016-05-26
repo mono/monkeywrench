@@ -83,7 +83,7 @@ namespace MonkeyWrench.WebServices
 
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
-				DBLogin_Extensions.LoginOpenId (db, response, email, ip4);
+				DBLogin_Extensions.Login (db, response, email, ip4, new List<string>());
 				return response;
 			}
 		}

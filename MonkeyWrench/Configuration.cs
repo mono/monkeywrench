@@ -61,10 +61,17 @@ namespace MonkeyWrench
 		public static string OauthClientId = null;
 		public static string OauthClientSecret = null;
 		public static string OauthRedirect = null;
+
+		// GitHub oauth
+		public static string GitHubOauthClientId = null;
+		public static string GitHubOauthClientSecret = null;
+		public static string GitHubOauthRedirect = null;
+		public static string[] GitHubOrganizationList = null;
+
 		// openid
 
 		public static string OpenIdProvider = null;
-		public static string OpenIdRoles = null;
+		public static string[] OpenIdRoles = null;
 		public static bool AllowPasswordLogin = true;
 		public static bool AutomaticScheduler = false;
 		public static int AutomaticSchedulerInterval = 60;
@@ -241,7 +248,6 @@ namespace MonkeyWrench
 				UploadPort = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/UploadPort").GetNodeValue (UploadPort.ToString ()));
 				AllowAnonymousAccess = bool.Parse(xml.SelectSingleNode("MonkeyWrench/Configuration/AllowAnonymousAccess").GetNodeValue(AllowAnonymousAccess.ToString()));
 				OpenIdProvider = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdProvider").GetNodeValue (OpenIdProvider);
-				OpenIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue (OpenIdRoles);
 				AutomaticScheduler = Boolean.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticScheduler").GetNodeValue (AutomaticScheduler.ToString ()));
 				AutomaticSchedulerInterval = int.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AutomaticSchedulerInterval").GetNodeValue (AutomaticSchedulerInterval.ToString ()));
 				AllowPasswordLogin = bool.Parse (xml.SelectSingleNode ("MonkeyWrench/Configuration/AllowPasswordLogin").GetNodeValue (AllowPasswordLogin.ToString ()));
@@ -249,6 +255,16 @@ namespace MonkeyWrench
 				OauthClientId = xml.SelectSingleNode ("MonkeyWrench/Configuration/OauthClientId").GetNodeValue (OauthClientId);
 				OauthClientSecret = xml.SelectSingleNode ("MonkeyWrench/Configuration/OauthClientSecret").GetNodeValue (OauthClientSecret);
 				OauthRedirect = xml.SelectSingleNode ("MonkeyWrench/Configuration/OauthRedirect").GetNodeValue (OauthRedirect);
+
+				GitHubOauthClientId = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOauthClientId").GetNodeValue(GitHubOauthClientId);
+				GitHubOauthClientSecret = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOauthClientSecret").GetNodeValue(GitHubOauthClientSecret);
+				GitHubOauthRedirect = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOauthRedirect").GetNodeValue(GitHubOauthRedirect);
+
+				var openIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue ("OpenIdRoles");
+				OpenIdRoles = !string.IsNullOrEmpty(openIdRoles) ? openIdRoles.Split(';') : new string[0];
+
+				var gitHubOrganizationList = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOrganizationList").GetNodeValue("GitHubOrganizationList");
+				GitHubOrganizationList = !string.IsNullOrEmpty(gitHubOrganizationList) ? gitHubOrganizationList.Split(';') : new string[0];
 
 				// override from command line
 
@@ -281,7 +297,6 @@ namespace MonkeyWrench
 					{"uploadport=", v => UploadPort = int.Parse (v.Trim ())},
 					{"allowanonymousaccess=", v => AllowAnonymousAccess = bool.Parse (v.Trim ())},
 					{"openidprovider=", v => OpenIdProvider = v },
-					{"openidroles=", v => OpenIdRoles = v },
 					{"automaticscheduler=", v => Boolean.Parse (v.Trim ())},
 					{"automaticschedulerinterval=", v => int.Parse (v.Trim ())},
 					{"allowpasswordlogin=", v => bool.Parse (v.Trim ())},

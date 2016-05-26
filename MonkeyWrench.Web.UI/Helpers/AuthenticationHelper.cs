@@ -44,4 +44,3 @@ namespace MonkeyWrench.Web.UI
 		}
 	}
 }
-

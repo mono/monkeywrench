@@ -62,7 +62,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="FileUtilities.cs" />
@@ -80,6 +79,7 @@
     <Compile Include="ProcessReader.cs" />
     <Compile Include="SynchronizedStreamWriter.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
