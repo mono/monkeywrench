@@ -2,6 +2,8 @@
 namespace MonkeyWrench.Web.UI
 {
 	using System;
+	using System.IO;
+	using System.Net;
 	using System.Web;
 	using System.Web.UI;
 	using System.Linq;
@@ -28,6 +30,10 @@ namespace MonkeyWrench.Web.UI
 
 			var laneName = Request.QueryString ["laneName"];
 			var baseURL = Request.QueryString ["url"] ?? "http://storage.bos.internalx.com";
+			var storagePref = Request.QueryString ["prefer"];
+			if (storagePref && storagePref.ToLower () == "azure") {
+				baseURL = "https://bosstoragemirror.blob.core.windows.net";
+			}
 			var updateRequest = false;
 			var step =  10;
 			var limit =  200;
@@ -35,21 +41,43 @@ namespace MonkeyWrench.Web.UI
 			var revision = getLatestRevision (webServiceLogin, laneName, step, 0, limit);
 
 			Action handleGetLatest = () => {
-				var homePage = Page.ResolveUrl ("~/index.aspx");
-				var URL = revision != "" ? String.Format ("{0}/{1}/{2}/{3}/manifest", baseURL, laneName, revision.Substring (0, 2), revision) : homePage;
-				Response.AppendHeader ("Access-Control-Allow-Origin", "*");
-				Response.Redirect (URL);
+//				var homePage = Page.ResolveUrl ("~/index.aspx");
+				var URL = revision != "" ? String.Format ("{0}/{1}/{2}/{3}/manifest", baseURL, laneName, revision.Substring (0, 2), revision) : null;
+//				Response.AppendHeader ("Access-Control-Allow-Origin", "*");
+//				Response.Redirect (URL);
+				if (URL) {
+					HttpWebResponse response = HttpWebRequest.Create (URL).GetResponse ();
+					if (response.StatusCode != 200) {
+						// Default to NAS
+						if (!URL.Contains ("storage.bos")) {
+							URL = String.Format ("{0}/{1}/{2}/{3}/manifest", "http://storage.bos.internalx.com", laneName, revision.Substring (0, 2), revision);
+							response = HttpWebRequest.Create (URL).GetResponse ();
+							if (response.StatusCode != 200) {
+								Response.Write ("Can't find manifest");
+								return;
+							}	
+						}
+						Response.Write ("Can't find manifest");
+						return; 
+					}
+					StreamReader reader = new StreamReader (response.GetResponseStream ());
+					string manifest = reader.ReadToEnd ();
+					reader.Close ();
+					Response.Write (manifest);
+				} else {
+					Response.Write ("No valid revisions");
+				}
 			};
 
-			Action handleUpdate = () => {
-				Response.Write("");
-			};
-
-			if (updateRequest) {
-				handleUpdate ();
-			} else {
-				handleGetLatest ();
-			}
+//			Action handleUpdate = () => {
+//				Response.Write("");
+//			};
+//
+//			if (updateRequest) {
+//				handleUpdate ();
+//			} else {
+//				handleGetLatest ();
+//			}
 		}
 
 		string getLatestRevision (WebServiceLogin login, string laneName, int step, int offset, int limit){
@@ -74,7 +102,7 @@ namespace MonkeyWrench.Web.UI
 		bool validRevision (WebServiceLogin login, List<DBRevisionWork> revisionWorkList) {
 			return revisionWorkList.Any (r => 
 				Utils.WebService.GetViewLaneData (login, r.lane_id, "", r.host_id, "", r.revision_id, "").WorkViews.Any (w => 
-					w.command.Equals ("upload-to-storage") && w.State == DBState.Success));
+					w.command.Contains ("upload-to-storage") && w.State == DBState.Success));
 		}
 	}
 }
