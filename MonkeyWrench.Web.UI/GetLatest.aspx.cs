@@ -41,30 +41,24 @@ namespace MonkeyWrench.Web.UI
 			var revision = getLatestRevision (webServiceLogin, laneName, step, 0, limit);
 
 			Action handleGetLatest = () => {
-				var URL = String.Format ("{0}/{1}/{2}/{3}/manifest", baseURL, laneName, revision.Substring (0, 2), revision);
 				Response.AppendHeader ("Access-Control-Allow-Origin", "*");
 				Response.AppendHeader ("Content-Type", "text/plain");
 
-				if (!string.IsNullOrEmpty(URL)) {
-					HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create (URL);
-					HttpWebResponse response = (HttpWebResponse)request.GetResponse ();
-					if (response.StatusCode != HttpStatusCode.OK) {
-						// Default to NAS
-						if (!URL.Contains ("storage.bos")) {
-							URL = String.Format ("{0}/{1}/{2}/{3}/manifest", "http://storage.bos.internalx.com", laneName, revision.Substring (0, 2), revision);
-							request = (HttpWebRequest)HttpWebRequest.Create (URL);
-							response = (HttpWebResponse)request.GetResponse ();
-							if (response.StatusCode != HttpStatusCode.OK) {
-								Response.Write ("Can't find manifest");
-								return;
-							}	
+				HttpWebResponse response = makeHttpRequest (getManifestUrl (baseURL, laneName, revision));
+				if (response.StatusCode != HttpStatusCode.OK) {
+					// Default to NAS
+					if (storagePref != "NAS") {
+						response = makeHttpRequest (getManifestUrl ("http://storage.bos.internalx.com", laneName, revision));
+						if (response.StatusCode != HttpStatusCode.OK) {
+							Response.Write ("Can't find manifest");
+							return;
 						}
-						Response.Write ("Can't find manifest");
-						return; 
 					}
-					using (var reader = new StreamReader (response.GetResponseStream ())) {
-						Response.Write (reader.ReadToEnd ());
-					}
+					Response.Write ("Can't find manifest");
+					return;
+				}
+				using (var reader = new StreamReader (response.GetResponseStream ())) {
+					Response.Write (reader.ReadToEnd ());
 				}
 			};
 
@@ -73,6 +67,15 @@ namespace MonkeyWrench.Web.UI
 			} else {
 				Response.Write ("No Valid Revisions");
 			}
+		}
+
+		HttpWebResponse makeHttpRequest (string url) {
+			HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create (url);
+			return (HttpWebResponse)request.GetResponse ();
+		}
+
+		string getManifestUrl (string host, string laneName, string revision) {
+			return String.Format ("{0}/{1}/{2}/{3}/manifest", host, laneName, revision.Substring (0, 2), revision);
 		}
 
 		string getLatestRevision (WebServiceLogin login, string laneName, int step, int offset, int limit){
