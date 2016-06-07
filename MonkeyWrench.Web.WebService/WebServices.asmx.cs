@@ -55,6 +55,11 @@ namespace MonkeyWrench.WebServices
 			Authentication.VerifyUserInRole (Context, db, login, role, @readonly);
 		}
 
+		private void VerifyUserInRoles (DB db, WebServiceLogin login, string[] roles, bool @readonly)
+		{
+			Authentication.VerifyUserInRoles (Context, db, login, roles, @readonly);
+		}
+
 		private void Audit(WebServiceLogin login, string formatStr, params Object[] formatArgs) {
 			auditLog.InfoFormat ("User {0}@{1} {2}", login.User, login.Ip4, String.Format (formatStr, formatArgs));
 		}
@@ -1589,8 +1594,9 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 		[WebMethod]
 		public int CloneLane (WebServiceLogin login, int lane_id, string new_name, bool copy_files)
 		{
+			var roles = new string[] { Roles.Administrator, Roles.CanCloneLanes };
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				VerifyUserInRoles (db, login, roles, false);
 				return db.CloneLane (lane_id, new_name, copy_files).id;
 			}
 		}

@@ -127,13 +127,24 @@ namespace MonkeyWrench.WebServices
 
 		public static void VerifyUserInRole (HttpContext Context, DB db, WebServiceLogin login, string role, bool @readonly)
 		{
+			VerifyUserInRoles(Context, db, login, new string[] { role }, @readonly);
+		}
+
+		public static void VerifyUserInRoles (HttpContext Context, DB db, WebServiceLogin login, string[] roles, bool @readonly)
+		{
 			WebServiceResponse dummy = new WebServiceResponse ();
 			Authenticate (Context, db, login, dummy, @readonly);
 
-			if (!dummy.IsInRole (role)) {
-				log.InfoFormat ("The user '{0}' has the roles '{1}', and requested role is: {2}", login.User, dummy.UserRoles == null ? "<null>" : string.Join (",", dummy.UserRoles), role);
-				throw new UnauthorizedException ("You don't have the required permissions.");
+			foreach (var role in roles) {
+				if (dummy.IsInRole(role))
+					return;
 			}
+
+			var userRoles = dummy.UserRoles == null ? "<null>" : string.Join(",", dummy.UserRoles);
+			var requestedRoles = roles == null ? "<null>" : string.Join(",", roles);
+
+			log.InfoFormat("The user '{0}' has the roles '{1}', and requested roles are: {2}", login.User, userRoles, requestedRoles);
+			throw new UnauthorizedException("You don't have the required permissions.");
 		}
 
 		public static void VerifyUserInRole (string remote_ip, DB db, WebServiceLogin login, string role, bool @readonly)

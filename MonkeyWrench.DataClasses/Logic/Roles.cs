@@ -20,6 +20,7 @@ namespace MonkeyWrench.DataClasses.Logic
 	public static class Roles
 	{
 		public const string Administrator = "Administrator";
+		public const string CanCloneLanes = "CanCloneLanes";
 		public const string MonoTeam = "MonoTeam";
 		public const string BuildBot = "BuildBot";
 	}
