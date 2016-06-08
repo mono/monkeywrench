@@ -1594,7 +1594,7 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 		[WebMethod]
 		public int CloneLane (WebServiceLogin login, int lane_id, string new_name, bool copy_files)
 		{
-			var roles = new string[] { Roles.Administrator, Roles.CanCloneLanes };
+			var roles = new string[] { Roles.Administrator, Roles.QualityAssurance };
 			using (DB db = new DB ()) {
 				VerifyUserInRoles (db, login, roles, false);
 				return db.CloneLane (lane_id, new_name, copy_files).id;
