@@ -19,6 +19,7 @@ using System.Web.UI.WebControls;
 
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.Web.WebServices;
+using MonkeyWrench.DataClasses.Logic;
 
 namespace MonkeyWrench.Web.UI
 {
@@ -28,11 +29,14 @@ namespace MonkeyWrench.Web.UI
 		public DBHost Host;
 		public DBLane Lane;
 		public Master Master;
+		public string[] RequiredRoles;
 
 		protected void Page_Load (object sender, EventArgs e)
 		{
 			if (Variables == null)
 				return;
+
+			RequiredRoles = Lane != null ? Lane.required_roles.Split(',') : new string[0];
 
 			foreach (DBEnvironmentVariable variable in Variables) {
 				tblVariables.Rows.AddAt (
@@ -50,11 +54,11 @@ namespace MonkeyWrench.Web.UI
 		{
 			switch (e.CommandName) {
 			case "delete":
-				Utils.LocalWebService.DeleteEnvironmentVariable (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
+				Utils.LocalWebService.DeleteEnvironmentVariable (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), RequiredRoles);
 				Response.Redirect (Request.Url.ToString (), false);
 				break;
 			case "add":
-				Utils.LocalWebService.AddEnvironmentVariable (Master.WebServiceLogin, Lane == null ? (int?) null : Lane.id, Host  == null ? (int?) null : Host.id, txtVariableName.Text, txtVariableValue.Text);
+				Utils.LocalWebService.AddEnvironmentVariable (Master.WebServiceLogin, Lane == null ? (int?) null : Lane.id, Host  == null ? (int?) null : Host.id, txtVariableName.Text, txtVariableValue.Text, RequiredRoles);
 				Response.Redirect (Request.Url.ToString (), false);
 				break;
 			}
