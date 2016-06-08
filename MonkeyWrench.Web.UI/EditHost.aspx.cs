@@ -24,6 +24,8 @@ public partial class EditHost : System.Web.UI.Page
 {
 	GetHostForEditResponse response;
 
+	string[] requiredRoles;
+
 	private new Master Master
 	{
 		get { return base.Master as Master; }
@@ -52,6 +54,8 @@ public partial class EditHost : System.Web.UI.Page
 		int id;
 		bool redirect = false;
 
+		requiredRoles = new string[] { Roles.Administrator };
+
 		txtID.Attributes ["readonly"] = "readonly";
 
 		response = Utils.LocalWebService.GetHostForEdit (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"]);
@@ -68,7 +72,7 @@ public partial class EditHost : System.Web.UI.Page
 					foreach (DBEnvironmentVariable ev in response.Variables) {
 						if (ev.id == id) {
 							ev.value = Request ["value"];
-							Utils.LocalWebService.EditEnvironmentVariable (Master.WebServiceLogin, ev);
+							Utils.LocalWebService.EditEnvironmentVariable (Master.WebServiceLogin, ev, requiredRoles);
 							break;
 						}
 					}
@@ -78,22 +82,22 @@ public partial class EditHost : System.Web.UI.Page
 			}
 
 			if (!string.IsNullOrEmpty (disable) && int.TryParse (disable, out id)) {
-				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id);
+				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id, requiredRoles);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (enable) && int.TryParse (enable, out id)) {
-				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id);
+				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id, requiredRoles);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (remove) && int.TryParse (remove, out id)) {
-				Utils.LocalWebService.RemoveHostForLane (Master.WebServiceLogin, id, response.Host.id);
+				Utils.LocalWebService.RemoveHostForLane (Master.WebServiceLogin, id, response.Host.id, requiredRoles);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (add) && int.TryParse (add, out id)) {
-				Utils.LocalWebService.AddHostToLane (Master.WebServiceLogin, id, response.Host.id);
+				Utils.LocalWebService.AddHostToLane (Master.WebServiceLogin, id, response.Host.id, requiredRoles);
 				redirect = true;
 			}
 			if (redirect) {
