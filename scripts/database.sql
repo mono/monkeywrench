@@ -77,7 +77,8 @@ CREATE TABLE Lane (
 	commit_filter  text       NOT NULL DEFAULT '',    -- a filter to filter out commits. Syntax not decided yet. An empty filter means include all commits to the repository.
 	traverse_merge boolean    NOT NULL DEFAULT FALSE, -- if commits from a merge (besides the merge commit itself) should be included.
 	enabled        boolean    NOT NULL DEFAULT TRUE,  -- if a lane is enabled or not.
-	changed_date   timestamp  NULL DEFAULT NULL,      -- the latest date something happened in this lane
+	changed_date   timestamp  NULL DEFAULT NULL,      -- the latest date something happened in this lane,
+	required_roles text       NULL DEFAULT NULL,      -- required roles for access (for users who are not admin)
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
