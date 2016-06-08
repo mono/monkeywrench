@@ -180,7 +180,9 @@ CREATE TABLE Lanefile (
 	-- this is some simple change tracking
 	-- on every change a new Lanefile is stored, with the old contents and original_id referencing the real Lanefile
 	original_id    int        NULL REFERENCES Lanefile (id),
-	changed_date   timestamp  NULL -- the date the change was made	
+	changed_date   timestamp  NULL, -- the date the change was made
+
+	required_roles text NULL DEFAULT NULL	-- Roles required to access the Lanefile
 );
 
 CREATE TABLE Lanefiles (
