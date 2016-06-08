@@ -123,15 +123,15 @@ public partial class EditLane : System.Web.UI.Page
 		if (!string.IsNullOrEmpty (action)) {
 			switch (action) {
 			case "createFile":
-				Utils.LocalWebService.CreateLanefile (Master.WebServiceLogin, lane.id, Request ["filename"], requiredRoles);
+				Utils.LocalWebService.CreateLanefile (Master.WebServiceLogin, lane, Request ["filename"]);
 				break;
 			case "addFile":
 				if (int.TryParse (Request ["lanefile_id"], out id))
-					Utils.LocalWebService.AttachFileToLane (Master.WebServiceLogin, lane.id, id, requiredRoles);
+					Utils.LocalWebService.AttachFileToLane (Master.WebServiceLogin, lane, id);
 				break;
 			case "deleteFile":
 				if (int.TryParse (Request ["file_id"], out id))
-					Utils.LocalWebService.DeattachFileFromLane (Master.WebServiceLogin, lane.id, id, requiredRoles);
+					Utils.LocalWebService.DeattachFileFromLane (Master.WebServiceLogin, lane, id);
 				break;
 			case "editCommandFilename":
 				if (int.TryParse (command_id, out id))
@@ -197,23 +197,23 @@ public partial class EditLane : System.Web.UI.Page
 			case "addCommand":
 				if (!int.TryParse (Request ["sequence"], out sequence))
 					sequence = -1;
-				Utils.LocalWebService.AddCommand (Master.WebServiceLogin, lane.id, Request ["command"], false, false, 60, sequence, requiredRoles);
+				Utils.LocalWebService.AddCommand (Master.WebServiceLogin, lane, Request ["command"], false, false, 60, sequence);
 				break;
 			case "switchHostEnabled":
 				if (int.TryParse (Request ["host_id"], out id))
-					Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, lane.id, id, requiredRoles);
+					Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, lane, id);
 				break;
 			case "switchHostHidden":
 				if (int.TryParse (Request ["host_id"], out id))
-					Utils.LocalWebService.SwitchHostHiddenForLane (Master.WebServiceLogin, lane.id, id, requiredRoles);
+					Utils.LocalWebService.SwitchHostHiddenForLane (Master.WebServiceLogin, lane, id);
 				break;
 			case "removeHost":
 				if (int.TryParse (Request ["host_id"], out id))
-					Utils.LocalWebService.RemoveHostForLane (Master.WebServiceLogin, lane.id, id, requiredRoles);
+					Utils.LocalWebService.RemoveHostForLane (Master.WebServiceLogin, lane, id);
 				break;
 			case "addHost":
 				if (int.TryParse (Request ["host_id"], out id))
-					Utils.LocalWebService.AddHostToLane (Master.WebServiceLogin, lane.id, id, requiredRoles);
+					Utils.LocalWebService.AddHostToLane (Master.WebServiceLogin, lane, id);
 				break;
 			case "addDependency":
 				if (int.TryParse (Request ["dependent_lane_id"], out id)) {
@@ -223,7 +223,7 @@ public partial class EditLane : System.Web.UI.Page
 						if (int.TryParse (Request ["dependent_host_id"], out host_id)) {
 
 							var hostid = host_id > 0 ? (Nullable<int>) host_id : (Nullable<int>) null;
-							Utils.LocalWebService.AddDependencyToLane (Master.WebServiceLogin, lane.id, id, hostid, (DBLaneDependencyCondition) condition, requiredRoles);
+							Utils.LocalWebService.AddDependencyToLane (Master.WebServiceLogin, lane, id, hostid, (DBLaneDependencyCondition) condition);
 						}
 					}
 				}

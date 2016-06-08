@@ -55,6 +55,13 @@ namespace MonkeyWrench.WebServices
 			Authentication.VerifyUserInRole (Context, db, login, role, @readonly);
 		}
 
+		private void VerifyUserInRoles(DB db, WebServiceLogin login, string roles, bool @readonly)
+		{
+			string[] r = (roles == null) ? new string[0] : roles.Split(',');
+
+			Authentication.VerifyUserInRoles(Context, db, login, r, @readonly);
+		}
+
 		private void VerifyUserInRoles (DB db, WebServiceLogin login, string[] roles, bool @readonly)
 		{
 			Authentication.VerifyUserInRoles (Context, db, login, roles, @readonly);
@@ -122,17 +129,17 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void CreateLanefile (WebServiceLogin login, int lane_id, string filename, string[] requiredRoles)
+		public void CreateLanefile (WebServiceLogin login, DBLane lane, string filename)
 		{
 			if (string.IsNullOrEmpty (filename))
 				throw new ArgumentException ("filename");
 
-			if (lane_id <= 0)
+			if (lane.id <= 0)
 				throw new ArgumentException ("lane_id");
 
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
-				db.Audit (login, "WebServices.CreateLaneFile (lane_id: {0}, filename: {1})", lane_id, filename);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
+				db.Audit (login, "WebServices.CreateLaneFile (lane_id: {0}, filename: {1})", lane.id, filename);
 
 				DBLanefile file = new DBLanefile ();
 				file.name = filename;
@@ -141,7 +148,7 @@ namespace MonkeyWrench.WebServices
 				file.Save (db);
 
 				DBLanefiles lanefile = new DBLanefiles ();
-				lanefile.lane_id = lane_id;
+				lanefile.lane_id = lane.id;
 				lanefile.lanefile_id = file.id;
 				lanefile.Save (db);
 
@@ -150,27 +157,27 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void AttachFileToLane (WebServiceLogin login, int lane_id, int lanefile_id, string[] requiredRoles)
+		public void AttachFileToLane (WebServiceLogin login, DBLane lane, int lanefile_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
-				db.Audit (login, "WebServices.AttachFileToLane (lane_id: {0}, lanefile_id: {1})", lane_id, lanefile_id);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
+				db.Audit (login, "WebServices.AttachFileToLane (lane_id: {0}, lanefile_id: {1})", lane.id, lanefile_id);
 				DBLanefiles lanefile = new DBLanefiles ();
-				lanefile.lane_id = lane_id;
+				lanefile.lane_id = lane.id;
 				lanefile.lanefile_id = lanefile_id;
 				lanefile.Save (db);
 			}
 		}
 
 		[WebMethod]
-		public void DeattachFileFromLane (WebServiceLogin login, int lane_id, int lanefile_id, string[] requiredRoles)
+		public void DeattachFileFromLane (WebServiceLogin login, DBLane lane, int lanefile_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
-				db.Audit (login, "WebServices.DeattachFileFromLane (lane_id: {0}, lanefile_id: {1})", lane_id, lanefile_id);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
+				db.Audit (login, "WebServices.DeattachFileFromLane (lane_id: {0}, lanefile_id: {1})", lane.id, lanefile_id);
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = "DELETE FROM Lanefiles WHERE lane_id = @lane_id AND lanefile_id = @lanefile_id;";
-					DB.CreateParameter (cmd, "lane_id", lane_id);
+					DB.CreateParameter (cmd, "lane_id", lane.id);
 					DB.CreateParameter (cmd, "lanefile_id", lanefile_id);
 					cmd.ExecuteNonQuery ();
 				}
@@ -328,82 +335,82 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void AddCommand (WebServiceLogin login, int lane_id, string command, bool always_execute, bool nonfatal, int timeout, int sequence, string[] requiredRoles)
+		public void AddCommand (WebServiceLogin login, DBLane lane, string command, bool always_execute, bool nonfatal, int timeout, int sequence)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
 				DBCommand cmd = new DBCommand ();
 				cmd.arguments = "-ex {0}";
 				cmd.filename = "bash";
 				cmd.command = command;
-				cmd.lane_id = lane_id;
+				cmd.lane_id = lane.id;
 				cmd.alwaysexecute = always_execute;
 				cmd.nonfatal = nonfatal;
 				cmd.timeout = 60;
 				if (sequence < 0) {
 					cmd.sequence = sequence;
 				} else {
-					cmd.sequence = 10 * (int) (long) (db.ExecuteScalar ("SELECT Count(*) FROM Command WHERE lane_id = " + lane_id.ToString ()));
+					cmd.sequence = 10 * (int) (long) (db.ExecuteScalar ("SELECT Count(*) FROM Command WHERE lane_id = " + lane.id.ToString ()));
 				}
 				cmd.Save (db);
 			}
 		}
 
 		[WebMethod]
-		public void SwitchHostEnabledForLane (WebServiceLogin login, int lane_id, int host_id, string[] requiredRoles)
+		public void SwitchHostEnabledForLane (WebServiceLogin login, DBLane lane, int host_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
-				DBHostLane hostlane = db.GetHostLane (host_id, lane_id);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
+				DBHostLane hostlane = db.GetHostLane (host_id, lane.id);
 				hostlane.enabled = !hostlane.enabled;
 				hostlane.Save (db);
 			}
 		}
 
 		[WebMethod]
-		public void SwitchHostHiddenForLane (WebServiceLogin login, int lane_id, int host_id, string[] requiredRoles)
+		public void SwitchHostHiddenForLane (WebServiceLogin login, DBLane lane, int host_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
-				DBHostLane hostlane = db.GetHostLane (host_id, lane_id);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
+				DBHostLane hostlane = db.GetHostLane (host_id, lane.id);
 				hostlane.hidden = !hostlane.hidden;
 				hostlane.Save (db);
 			}
 		}
 
 		[WebMethod]
-		public void RemoveHostForLane (WebServiceLogin login, int lane_id, int host_id, string[] requiredRoles)
+		public void RemoveHostForLane (WebServiceLogin login, DBLane lane, int host_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
 				DBHost host = DBHost_Extensions.Create (db, host_id);
-				host.RemoveLane (db, lane_id);
+				host.RemoveLane (db, lane.id);
 			}
 		}
 
 		[WebMethod]
-		public void AddHostToLane (WebServiceLogin login, int lane_id, int host_id, string[] requiredRoles)
+		public void AddHostToLane (WebServiceLogin login, DBLane lane, int host_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
 				DBHost host = DBHost_Extensions.Create (db, host_id);
 				host.enabled = true;
-				host.AddLane (db, lane_id);
+				host.AddLane (db, lane.id);
 			}
 		}
 
 		[WebMethod]
-		public void AddDependencyToLane (WebServiceLogin login, int lane_id, int dependent_lane_id, int? host_id, DBLaneDependencyCondition condition, string[] requiredRoles)
+		public void AddDependencyToLane (WebServiceLogin login, DBLane lane, int dependent_lane_id, int? host_id, DBLaneDependencyCondition condition)
 		{
 			if (!Enum.IsDefined (typeof (DBLaneDependencyCondition), condition))
 				throw new ArgumentOutOfRangeException ("condition");
 
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
+				VerifyUserInRoles (db, login, lane.required_roles, false);
 				DBLaneDependency dep = new DBLaneDependency ();
 				dep.Condition = condition;
 				dep.dependent_lane_id = dependent_lane_id;
-				dep.lane_id = lane_id;
+				dep.lane_id = lane.id;
 				dep.dependent_host_id = host_id;
 				dep.Save (db);
 			}
@@ -1609,7 +1616,6 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 				return db.CloneLane (lane_id, new_name, copy_files).id;
 			}
 		}
-
 
 		public List<DBLaneTag> GetTagsForLane (WebServiceLogin login, int lane_id)
 		{
