@@ -6,6 +6,17 @@
         <br />
         <asp:Button ID="cmdSave" runat="server" OnClick="cmdSave_Click" Text="Save" />
         <asp:Button ID="cmdCancel" runat="server" OnClick="cmdCancel_Click" Text="Cancel" />
+        <br/>
+		<asp:Table>
+			<asp:TableRow>
+                <asp:TableCell>Required Roles:</asp:TableCell>
+                	<asp:TableCell>
+                    	<asp:TextBox ID="txtRoles" runat="server" Width="600px"></asp:TextBox>
+                	</asp:TableCell>
+                	<br/>
+				<asp:TableCell>Comma-separated list of roles that can edit this lane.</asp:TableCell>
+            </asp:TableRow>
+		</asp:Table>
         <h5>This file is used by the following lanes:</h5>
         <asp:ListBox ID="lstLanes" runat="server"></asp:ListBox>
         <h5>

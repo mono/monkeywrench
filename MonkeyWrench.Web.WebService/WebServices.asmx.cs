@@ -145,6 +145,7 @@ namespace MonkeyWrench.WebServices
 				file.name = filename;
 				file.contents = "#!/bin/bash -ex\n\n#Your commands here\n";
 				file.mime = "text/plain";
+				file.required_roles = lane.required_roles;
 				file.Save (db);
 
 				DBLanefiles lanefile = new DBLanefiles ();
@@ -695,7 +696,7 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 
 					// 6: response.Files = response.Lane.GetFiles (db, response.Lanes);
 					cmdText.Append (@"
-SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date 
+SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date, LaneFile.required_roles
 FROM Lanefile 
 INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id 
 WHERE Lanefile.original_id IS NULL AND Lanefiles.lane_id = ").Append (response.Lane.id);
@@ -716,7 +717,7 @@ WHERE Lanefile.original_id IS NULL AND Lanefiles.lane_id = ").Append (response.L
 
 					// 10: response.ExistingFiles = new List<DBLanefile> (); [...]
 					cmdText.AppendFormat (@"
-SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date 
+SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date, Lanefile.required_roles
 FROM Lanefile
 INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id
 WHERE Lanefile.original_id IS NULL AND Lanefiles.lane_id <> {0}
@@ -1976,8 +1977,8 @@ ORDER BY date DESC LIMIT 250;
 			GetLaneFileForEditResponse response = new GetLaneFileForEditResponse ();
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
 				response.Lanefile = DBLanefile_Extensions.Create (db, lanefile_id);
+				VerifyUserInRoles (db, login, response.Lanefile.required_roles, false);
 				response.Lanes = DBLanefile_Extensions.GetLanesForFile (db, response.Lanefile);
 			}
 
@@ -1987,9 +1988,8 @@ ORDER BY date DESC LIMIT 250;
 		[WebMethod]
 		public void EditLaneFile (WebServiceLogin login, DBLanefile lanefile)
 		{
-			var roles = new string[] { Roles.Administrator, Roles.QualityAssurance };
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, roles, false);
+				VerifyUserInRoles (db, login, lanefile.required_roles, false);
 
 				DBLanefile original = DBLanefile_Extensions.Create (db, lanefile.id);
 
@@ -2000,6 +2000,7 @@ ORDER BY date DESC LIMIT 250;
 					old_file.name = lanefile.name;
 					old_file.original_id = lanefile.id;
 					old_file.changed_date = DBRecord.DatabaseNow;
+					old_file.required_roles = lanefile.required_roles;
 					old_file.Save (db);
 
 					lanefile.Save (db);
@@ -2015,7 +2016,10 @@ ORDER BY date DESC LIMIT 250;
 			GetViewLaneFileHistoryDataResponse response = new GetViewLaneFileHistoryDataResponse ();
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				// Get the original file, so we can see who can access the history.
+				var originalFile = DBLanefile_Extensions.Create (db, lanefile_id);
+
+				VerifyUserInRoles (db, login, originalFile.required_roles, false);
 
 				response.Lanefiles = new List<DBLanefile> ();
 
