@@ -699,7 +699,13 @@ public partial class EditLane : System.Web.UI.Page
 		lane.traverse_merge = chkTraverseMerges.Checked;
 		lane.enabled = chkEnabled.Checked;
 		lane.required_roles = txtRoles.Text;
-		Utils.LocalWebService.EditLaneWithTags (Master.WebServiceLogin, lane, !string.IsNullOrEmpty (txtTags.Text) ? txtTags.Text.Split (',') : null);
+
+		var requiredRoles = new List<string>();
+		if (!string.IsNullOrEmpty(txtRoles.Text))
+			requiredRoles.AddRange(txtRoles.Text.Split(',').ToList());
+		requiredRoles.Add(Roles.Administrator);
+
+		Utils.LocalWebService.EditLaneWithTags (Master.WebServiceLogin, lane, !string.IsNullOrEmpty (txtTags.Text) ? txtTags.Text.Split (',') : null, requiredRoles.ToArray());
 		RedirectToSelf ();
 	}
 

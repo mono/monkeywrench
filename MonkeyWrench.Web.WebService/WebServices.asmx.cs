@@ -641,7 +641,6 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 			GetLaneForEditResponse response = new GetLaneForEditResponse ();
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
-				VerifyUserInRole (db, login, Roles.Administrator);
 
 				// We do 2 trips to the database: first to get a list of all the lanes,
 				// then to get all the rest of the information.
@@ -653,6 +652,16 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 				} else {
 					response.Lane = response.Lanes.Find ((l) => l.lane == lane);
 				}
+
+				// Get the required roles for the lane. Administrator can access all lanes.
+				var requiredRoles = new List<string> ();
+
+				if (!string.IsNullOrEmpty(response.Lane.required_roles))
+					requiredRoles.AddRange(response.Lane.required_roles.Split(',').ToList ());
+				
+				requiredRoles.Add (Roles.Administrator);
+
+				VerifyUserInRoles (db, login, requiredRoles.ToArray(), false);
 
 				var cmdText = new StringBuilder ();
 
@@ -1084,8 +1093,9 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		[WebMethod]
 		public void EditLane (WebServiceLogin login, DBLane lane)
 		{
+			var roles = new string[] { Roles.Administrator, Roles.QualityAssurance };
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				VerifyUserInRoles (db, login, roles, false);
 
 				var oldLane = FindLane (db, lane.id, null);
 				lane.Save (db);
@@ -1098,11 +1108,11 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		}
 
 		[WebMethod]
-		public void EditLaneWithTags (WebServiceLogin login, DBLane lane, string[] tags)
+		public void EditLaneWithTags (WebServiceLogin login, DBLane lane, string[] tags, string[] requiredRoles)
 		{
 			using (DB db = new DB ())
 			using (var transaction = db.BeginTransaction()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				VerifyUserInRoles (db, login, requiredRoles, false);
 
 				var oldLane = FindLane (db, lane.id, null);
 				lane.Save (db);
@@ -1972,8 +1982,9 @@ ORDER BY date DESC LIMIT 250;
 		[WebMethod]
 		public void EditLaneFile (WebServiceLogin login, DBLanefile lanefile)
 		{
+			var roles = new string[] { Roles.Administrator, Roles.QualityAssurance };
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				VerifyUserInRoles (db, login, roles, false);
 
 				DBLanefile original = DBLanefile_Extensions.Create (db, lanefile.id);
 
