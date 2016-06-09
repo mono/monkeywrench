@@ -150,7 +150,7 @@ namespace MonkeyWrench.WebServices
 				file.Save (db);
 
 				DBLanefiles lanefile = new DBLanefiles ();
-				lanefile.lane_id = lane.id;
+				lanefile.lane_id = lane_id;
 				lanefile.lanefile_id = file.id;
 				lanefile.Save (db);
 
@@ -166,7 +166,7 @@ namespace MonkeyWrench.WebServices
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				db.Audit (login, "WebServices.AttachFileToLane (lane_id: {0}, lanefile_id: {1})", lane.id, lanefile_id);
 				DBLanefiles lanefile = new DBLanefiles ();
-				lanefile.lane_id = lane.id;
+				lanefile.lane_id = lane_id;
 				lanefile.lanefile_id = lanefile_id;
 				lanefile.Save (db);
 			}
