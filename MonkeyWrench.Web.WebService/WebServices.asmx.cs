@@ -3412,8 +3412,9 @@ WHERE Revision.lane_id = @lane_id AND ";
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = "DELETE FROM LaneNotification WHERE id = @id;";
+					cmd.CommandText = "DELETE FROM LaneNotification WHERE id = @id and lane_id = @lane_id;";
 					DB.CreateParameter (cmd, "id", id);
+					DB.CreateParameter (cmd, "lane_id", lane_id);
 					cmd.ExecuteNonQuery ();
 					Notifications.Restart ();
 				}
