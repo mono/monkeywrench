@@ -2495,12 +2495,20 @@ ORDER BY date DESC LIMIT 250;
 			}
 		}
 
+		public void VerifyEnvironmentVariableIsForLane(DBEnvironmentVariable variable, int lane_id) 
+		{
+			if (variable.lane_id != lane_id) {
+				throw new UnauthorizedException ("You don't have the required permissions.");
+			}
+		}
+
 		[WebMethod]
 		public void EditEnvironmentVariableInLane (WebServiceLogin login, DBEnvironmentVariable variable, int lane_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				VerifyEnvironmentVariableIsForLane (variable, lane_id);
 				variable.Save (db);
 			}
 		}
@@ -2515,12 +2523,13 @@ ORDER BY date DESC LIMIT 250;
 		}
 
 		[WebMethod]
-		public void DeleteEnvironmentVariableInLane (WebServiceLogin login, int variable_id, int lane_id)
+		public void DeleteEnvironmentVariableInLane (WebServiceLogin login, DBEnvironmentVariable variable, int lane_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
-				DBRecord_Extensions.Delete (db, variable_id, DBEnvironmentVariable.TableName);
+				VerifyEnvironmentVariableIsForLane (variable, lane_id);
+				DBRecord_Extensions.Delete (db, variable.id, DBEnvironmentVariable.TableName);
 			}
 		}
 

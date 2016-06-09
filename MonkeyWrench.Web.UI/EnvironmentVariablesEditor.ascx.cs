@@ -52,7 +52,8 @@ namespace MonkeyWrench.Web.UI
 			switch (e.CommandName) {
 			case "delete":
 				if (Lane != null) {
-					Utils.LocalWebService.DeleteEnvironmentVariableInLane (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), Lane.id);
+					var variable = this.Variables.First(node => node.id == int.Parse ((string) e.CommandArgument));
+					Utils.LocalWebService.DeleteEnvironmentVariableInLane (Master.WebServiceLogin, variable, Lane.id);
 				} else {
 					Utils.LocalWebService.DeleteEnvironmentVariable (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
 				}
