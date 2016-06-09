@@ -184,7 +184,7 @@ namespace MonkeyWrench.WebServices
 				db.Audit (login, "WebServices.DeattachFileFromLane (lane_id: {0}, lanefile_id: {1})", lane.id, lanefile_id);
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = "DELETE FROM Lanefiles WHERE lane_id = @lane_id AND lanefile_id = @lanefile_id;";
-					DB.CreateParameter (cmd, "lane_id", lane.id);
+					DB.CreateParameter (cmd, "lane_id", lane_id);
 					DB.CreateParameter (cmd, "lanefile_id", lanefile_id);
 					cmd.ExecuteNonQuery ();
 				}
