@@ -24,8 +24,6 @@ public partial class EditHost : System.Web.UI.Page
 {
 	GetHostForEditResponse response;
 
-	string[] requiredRoles;
-
 	private new Master Master
 	{
 		get { return base.Master as Master; }
@@ -54,8 +52,6 @@ public partial class EditHost : System.Web.UI.Page
 		int id;
 		bool redirect = false;
 
-		requiredRoles = new string[] { Roles.Administrator };
-
 		txtID.Attributes ["readonly"] = "readonly";
 
 		response = Utils.LocalWebService.GetHostForEdit (Master.WebServiceLogin, Utils.TryParseInt32 (Request ["host_id"]), Request ["host"]);
@@ -72,7 +68,7 @@ public partial class EditHost : System.Web.UI.Page
 					foreach (DBEnvironmentVariable ev in response.Variables) {
 						if (ev.id == id) {
 							ev.value = Request ["value"];
-							Utils.LocalWebService.EditEnvironmentVariable (Master.WebServiceLogin, ev, requiredRoles);
+							Utils.LocalWebService.EditEnvironmentVariable (Master.WebServiceLogin, ev);
 							break;
 						}
 					}

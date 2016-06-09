@@ -251,7 +251,7 @@ public partial class EditLane : System.Web.UI.Page
 							ev.lane_id = lane_id == 0 ? (int?)null : lane_id;
 							ev.name = Request ["name"];
 							ev.value = Request ["value"];
-							Utils.LocalWebService.EditEnvironmentVariable (Master.WebServiceLogin, ev, requiredRoles);
+							Utils.LocalWebService.EditEnvironmentVariable (Master.WebServiceLogin, ev);
 						}
 					}
 				}

@@ -2462,10 +2462,11 @@ ORDER BY date DESC LIMIT 250;
 		}
 
 		[WebMethod]
-		public int AddEnvironmentVariable (WebServiceLogin login, int? lane_id, int? host_id, string name, string value, string[] requiredRoles)
+		public int AddEnvironmentVariableInLane (WebServiceLogin login, int lane_id, int? host_id, string name, string value)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 
 				DBEnvironmentVariable var = new DBEnvironmentVariable ();
 				var.name = name;
@@ -2478,19 +2479,55 @@ ORDER BY date DESC LIMIT 250;
 		}
 
 		[WebMethod]
-		public void EditEnvironmentVariable (WebServiceLogin login, DBEnvironmentVariable variable, string[] requiredRoles)
+		public int AddEnvironmentVariable (WebServiceLogin login, int? lane_id, int? host_id, string name, string value)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
+				VerifyUserInRole (db, login, Roles.Administrator);
+
+				DBEnvironmentVariable var = new DBEnvironmentVariable ();
+				var.name = name;
+				var.value = value;
+				var.host_id = host_id;
+				var.lane_id = lane_id;
+				var.Save (db);
+				return var.id;
+			}
+		}
+
+		[WebMethod]
+		public void EditEnvironmentVariableInLane (WebServiceLogin login, DBEnvironmentVariable variable, int lane_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				variable.Save (db);
 			}
 		}
 
 		[WebMethod]
-		public void DeleteEnvironmentVariable (WebServiceLogin login, int variable_id, string[] requiredRoles)
+		public void EditEnvironmentVariable (WebServiceLogin login, DBEnvironmentVariable variable)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRoles (db, login, requiredRoles, false);
+				VerifyUserInRole (db, login, Roles.Administrator);
+				variable.Save (db);
+			}
+		}
+
+		[WebMethod]
+		public void DeleteEnvironmentVariableInLane (WebServiceLogin login, int variable_id, int lane_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBRecord_Extensions.Delete (db, variable_id, DBEnvironmentVariable.TableName);
+			}
+		}
+
+		[WebMethod]
+		public void DeleteEnvironmentVariable (WebServiceLogin login, int variable_id)
+		{
+			using (DB db = new DB ()) {
+				VerifyUserInRole (db, login, Roles.Administrator);
 				DBRecord_Extensions.Delete (db, variable_id, DBEnvironmentVariable.TableName);
 			}
 		}
