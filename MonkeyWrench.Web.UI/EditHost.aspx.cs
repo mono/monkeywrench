@@ -82,26 +82,22 @@ public partial class EditHost : System.Web.UI.Page
 			}
 
 			if (!string.IsNullOrEmpty (disable) && int.TryParse (disable, out id)) {
-				DBLane lane = Utils.LocalWebService.FindLane (Master.WebServiceLogin, id, null).lane;
-				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, lane.id, response.Host.id);
+				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (enable) && int.TryParse (enable, out id)) {
-				DBLane lane = Utils.LocalWebService.FindLane (Master.WebServiceLogin, id, null).lane;
-				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, lane.id, response.Host.id);
+				Utils.LocalWebService.SwitchHostEnabledForLane (Master.WebServiceLogin, id, response.Host.id);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (remove) && int.TryParse (remove, out id)) {
-				DBLane lane = Utils.LocalWebService.FindLane (Master.WebServiceLogin, id, null).lane;
-				Utils.LocalWebService.RemoveHostForLane (Master.WebServiceLogin, lane.id, response.Host.id);
+				Utils.LocalWebService.RemoveHostForLane (Master.WebServiceLogin, id, response.Host.id);
 				redirect = true;
 			}
 
 			if (!string.IsNullOrEmpty (add) && int.TryParse (add, out id)) {
-				DBLane lane = Utils.LocalWebService.FindLane (Master.WebServiceLogin, id, null).lane;
-				Utils.LocalWebService.AddHostToLane (Master.WebServiceLogin, lane.id, response.Host.id);
+				Utils.LocalWebService.AddHostToLane (Master.WebServiceLogin, id, response.Host.id);
 				redirect = true;
 			}
 			if (redirect) {
