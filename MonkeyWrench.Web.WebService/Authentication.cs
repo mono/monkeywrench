@@ -136,6 +136,8 @@ namespace MonkeyWrench.WebServices
 			Authenticate (Context, db, login, dummy, @readonly);
 
 			foreach (var role in roles) {
+				if (string.IsNullOrEmpty(role))
+					continue;
 				if (dummy.IsInRole(role))
 					return;
 			}
