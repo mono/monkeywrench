@@ -77,7 +77,8 @@ CREATE TABLE Lane (
 	commit_filter  text       NOT NULL DEFAULT '',    -- a filter to filter out commits. Syntax not decided yet. An empty filter means include all commits to the repository.
 	traverse_merge boolean    NOT NULL DEFAULT FALSE, -- if commits from a merge (besides the merge commit itself) should be included.
 	enabled        boolean    NOT NULL DEFAULT TRUE,  -- if a lane is enabled or not.
-	changed_date   timestamp  NULL DEFAULT NULL,      -- the latest date something happened in this lane
+	changed_date   timestamp  NULL DEFAULT NULL,      -- the latest date something happened in this lane,
+	additional_roles text       NULL DEFAULT NULL,      -- additional roles for access (for users who are not admin)
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
@@ -179,7 +180,9 @@ CREATE TABLE Lanefile (
 	-- this is some simple change tracking
 	-- on every change a new Lanefile is stored, with the old contents and original_id referencing the real Lanefile
 	original_id    int        NULL REFERENCES Lanefile (id),
-	changed_date   timestamp  NULL -- the date the change was made	
+	changed_date   timestamp  NULL, -- the date the change was made
+
+	additional_roles text NULL DEFAULT NULL	-- Additional roles which can access the Lanefile
 );
 
 CREATE TABLE Lanefiles (

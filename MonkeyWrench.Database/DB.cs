@@ -455,6 +455,7 @@ namespace MonkeyWrench
 					result.repository = master.repository;
 					result.source_control = master.source_control;
 					result.parent_lane_id = master.parent_lane_id;
+					result.additional_roles = master.additional_roles;
 					result.enabled = master.enabled;
 					result.Save (this);
 
@@ -466,6 +467,7 @@ namespace MonkeyWrench
 							clone.contents = filemaster.contents;
 							clone.mime = filemaster.mime;
 							clone.name = filemaster.name;
+							clone.additional_roles = filemaster.additional_roles;
 							clone.Save (this);
 							fid = clone.id;
 						} else {

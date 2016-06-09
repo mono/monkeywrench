@@ -100,6 +100,8 @@ public partial class EditLane : System.Web.UI.Page
 			txtMaxRevision.Text = lane.max_revision;
 			if (response.Tags != null)
 				txtTags.Text = string.Join (",", response.Tags.ConvertAll<string> ((DBLaneTag tag) => tag.tag).ToArray ());
+			if (response.Lane.additional_roles != null)
+				txtRoles.Text = response.Lane.additional_roles;
 			txtLane.Text = lane.lane;
 			txtID.Text = lane.id.ToString ();
 			// find (direct) child lanes
@@ -129,22 +131,22 @@ public partial class EditLane : System.Web.UI.Page
 				break;
 			case "editCommandFilename":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.EditCommandFilename (Master.WebServiceLogin, id, Request ["filename"]);
+					Utils.LocalWebService.EditCommandFilenameInLane (Master.WebServiceLogin, lane.id, id, Request ["filename"]);
 				break;
 			case "editCommandSequence":
 				if (int.TryParse (command_id, out id)) {
 					if (int.TryParse (Request ["sequence"], out sequence))
-						Utils.LocalWebService.EditCommandSequence (Master.WebServiceLogin, id, sequence);
+						Utils.LocalWebService.EditCommandSequenceInLane (Master.WebServiceLogin, lane.id, id, sequence);
 				}
 				break;
 			case "editCommandArguments":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.EditCommandArguments (Master.WebServiceLogin, id, Request ["arguments"]);
+					Utils.LocalWebService.EditCommandArgumentsInLane (Master.WebServiceLogin, lane.id, id, Request ["arguments"]);
 				break;
 			case "editCommandTimeout":
 				if (int.TryParse (command_id, out id)) {
 					if (int.TryParse (Request ["timeout"], out timeout))
-						Utils.LocalWebService.EditCommandTimeout (Master.WebServiceLogin, id, timeout);
+						Utils.LocalWebService.EditCommandTimeoutInLane (Master.WebServiceLogin, lane.id, id, timeout);
 				}
 				break;
 			case "editCommandDeadlockTimeout":
@@ -157,36 +159,36 @@ public partial class EditLane : System.Web.UI.Page
 						break;
 					}
 						
-					Utils.LocalWebService.EditCommandDeadlockTimeout (Master.WebServiceLogin, id, deadlock_timeout);
+					Utils.LocalWebService.EditCommandDeadlockTimeoutInLane (Master.WebServiceLogin, lane.id, id, deadlock_timeout);
 				}
 				break;
 			case "editCommandWorkingDirectory":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.EditCommandWorkingDirectory (Master.WebServiceLogin, id, Request ["working_directory"]);
+					Utils.LocalWebService.EditCommandWorkingDirectoryInLane (Master.WebServiceLogin, lane.id, id, Request ["working_directory"]);
 				break;
 			case "editCommandUploadFiles":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.EditCommandUploadFiles (Master.WebServiceLogin, id, Request ["upload_files"]);
+					Utils.LocalWebService.EditCommandUploadFilesInLane (Master.WebServiceLogin, lane.id, id, Request ["upload_files"]);
 				break;
 			case "deletecommand":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.DeleteCommand (Master.WebServiceLogin, id);
+					Utils.LocalWebService.DeleteCommandInLane (Master.WebServiceLogin, lane.id, id);
 				break;
 			case "switchNonFatal":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.SwitchCommandNonFatal (Master.WebServiceLogin, id);
+					Utils.LocalWebService.SwitchCommandNonFatalInLane (Master.WebServiceLogin, lane.id, id);
 				break;
 			case "switchAlwaysExecute":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.SwitchCommandAlwaysExecute (Master.WebServiceLogin, id);
+					Utils.LocalWebService.SwitchCommandAlwaysExecuteInLane (Master.WebServiceLogin, lane.id, id);
 				break;
 			case "switchInternal":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.SwitchCommandInternal (Master.WebServiceLogin, id);
+					Utils.LocalWebService.SwitchCommandInternalInLane (Master.WebServiceLogin, lane.id, id);
 				break;
 			case "switchTimestamp":
 				if (int.TryParse (command_id, out id))
-					Utils.LocalWebService.SwitchCommandTimestamp (Master.WebServiceLogin, id);
+					Utils.LocalWebService.SwitchCommandTimestampInLane (Master.WebServiceLogin, lane.id, id);
 				break;
 			case "addCommand":
 				if (!int.TryParse (Request ["sequence"], out sequence))
@@ -215,22 +217,24 @@ public partial class EditLane : System.Web.UI.Page
 					int host_id;
 					if (int.TryParse (Request ["condition"], out condition)) {
 						if (int.TryParse (Request ["dependent_host_id"], out host_id)) {
-							Utils.LocalWebService.AddDependencyToLane (Master.WebServiceLogin, lane.id, id, host_id > 0 ? (Nullable<int>) host_id : (Nullable<int>) null, (DBLaneDependencyCondition) condition);
+
+							var hostid = host_id > 0 ? (Nullable<int>) host_id : (Nullable<int>) null;
+							Utils.LocalWebService.AddDependencyToLane (Master.WebServiceLogin, lane.id, id, hostid, (DBLaneDependencyCondition) condition);
 						}
 					}
 				}
 				break;
 			case "editDependencyFilename":
 				if (int.TryParse (Request ["lanedependency_id"], out id))
-					Utils.LocalWebService.EditLaneDependencyFilename (Master.WebServiceLogin, id, Request ["filename"]);
+					Utils.LocalWebService.EditLaneDependencyFilenameInLane (Master.WebServiceLogin, lane.id, id, Request ["filename"]);
 				break;
 			case "deleteDependency":
 				if (int.TryParse (Request ["dependency_id"], out id))
-					Utils.LocalWebService.DeleteLaneDependency (Master.WebServiceLogin, id);
+					Utils.LocalWebService.DeleteLaneDependencyInLane (Master.WebServiceLogin, lane.id, id);
 				break;
 			case "editDependencyDownloads":
 				if (int.TryParse (Request ["lanedependency_id"], out id))
-					Utils.LocalWebService.EditLaneDependencyDownloads (Master.WebServiceLogin, id, Request ["downloads"]);
+					Utils.LocalWebService.EditLaneDependencyDownloadsInLane (Master.WebServiceLogin, lane.id, id, Request ["downloads"]);
 				break;
 			case "editEnvironmentVariableValue": {
 				int host_id, lane_id;
@@ -254,7 +258,7 @@ public partial class EditLane : System.Web.UI.Page
 							DBCommand cmd = response.Commands.Find ((v) => v.id == id);
 							if (cmd != null) {
 								cmd.lane_id = response.Lane.parent_lane_id.Value;
-								Utils.LocalWebService.EditCommand (Master.WebServiceLogin, cmd);
+								Utils.LocalWebService.EditCommandInLane (Master.WebServiceLogin, cmd, lane.id);
 							}
 						}
 					}
@@ -696,6 +700,8 @@ public partial class EditLane : System.Web.UI.Page
 		lane.parent_lane_id = (parent_lane_id.HasValue && parent_lane_id.Value != 0) ? parent_lane_id : null;
 		lane.traverse_merge = chkTraverseMerges.Checked;
 		lane.enabled = chkEnabled.Checked;
+		lane.additional_roles = txtRoles.Text;
+
 		Utils.LocalWebService.EditLaneWithTags (Master.WebServiceLogin, lane, !string.IsNullOrEmpty (txtTags.Text) ? txtTags.Text.Split (',') : null);
 		RedirectToSelf ();
 	}
@@ -716,7 +722,7 @@ public partial class EditLane : System.Web.UI.Page
 		WebServiceResponse response;
 		switch (e.CommandName) {
 		case "RemoveNotification":
-			response = Utils.LocalWebService.RemoveLaneNotification (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
+			response = Utils.LocalWebService.RemoveLaneNotificationForLane (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument), lane.id);
 			if (response.Exception != null) {
 				lblMessage.Text = response.Exception.Message;
 			} else {

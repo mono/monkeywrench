@@ -50,6 +50,13 @@
                 </asp:TableCell>
                 <asp:TableCell>Comma-separated list of tags for this lane. Descendant lanes do not inherit tags. Tags can contain any character except commas (in particular spaces are allowed).</asp:TableCell>
             </asp:TableRow>
+			<asp:TableRow>
+                <asp:TableCell>Additional Roles:</asp:TableCell>
+                <asp:TableCell>
+                    <asp:TextBox ID="txtRoles" runat="server" Width="600px"></asp:TextBox>
+                </asp:TableCell>
+                <asp:TableCell>Comma-separated list of additional roles (besides admin) that can edit this lane.</asp:TableCell>
+            </asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>Parent lane:</asp:TableCell>
                 <asp:TableCell>

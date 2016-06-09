@@ -55,6 +55,21 @@ namespace MonkeyWrench.WebServices
 			Authentication.VerifyUserInRole (Context, db, login, role, @readonly);
 		}
 
+		private void VerifyUserInRoles(DB db, WebServiceLogin login, string roles, bool @readonly)
+		{
+			string[] r = (roles == null) ? new string[0] : roles.Split(',');
+
+			VerifyUserInRoles(db, login, r, @readonly);
+		}
+
+		private void VerifyUserInRoles (DB db, WebServiceLogin login, string[] roles, bool @readonly)
+		{
+			// Administrator should be given access to everything.
+			// So any call to VerifyUserInRoles should add Administrator to that list.
+			var completeRoles = roles.Concat(new string[] { Roles.Administrator }).ToArray();
+			Authentication.VerifyUserInRoles (Context, db, login, completeRoles, @readonly);
+		}
+
 		private void Audit(WebServiceLogin login, string formatStr, params Object[] formatArgs) {
 			auditLog.InfoFormat ("User {0}@{1} {2}", login.User, login.Ip4, String.Format (formatStr, formatArgs));
 		}
@@ -126,13 +141,15 @@ namespace MonkeyWrench.WebServices
 				throw new ArgumentException ("lane_id");
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
-				db.Audit (login, "WebServices.CreateLaneFile (lane_id: {0}, filename: {1})", lane_id, filename);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				db.Audit (login, "WebServices.CreateLaneFile (lane_id: {0}, filename: {1})", lane.id, filename);
 
 				DBLanefile file = new DBLanefile ();
 				file.name = filename;
 				file.contents = "#!/bin/bash -ex\n\n#Your commands here\n";
 				file.mime = "text/plain";
+				file.additional_roles = lane.additional_roles;
 				file.Save (db);
 
 				DBLanefiles lanefile = new DBLanefiles ();
@@ -148,8 +165,9 @@ namespace MonkeyWrench.WebServices
 		public void AttachFileToLane (WebServiceLogin login, int lane_id, int lanefile_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
-				db.Audit (login, "WebServices.AttachFileToLane (lane_id: {0}, lanefile_id: {1})", lane_id, lanefile_id);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				db.Audit (login, "WebServices.AttachFileToLane (lane_id: {0}, lanefile_id: {1})", lane.id, lanefile_id);
 				DBLanefiles lanefile = new DBLanefiles ();
 				lanefile.lane_id = lane_id;
 				lanefile.lanefile_id = lanefile_id;
@@ -161,14 +179,26 @@ namespace MonkeyWrench.WebServices
 		public void DeattachFileFromLane (WebServiceLogin login, int lane_id, int lanefile_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
-				db.Audit (login, "WebServices.DeattachFileFromLane (lane_id: {0}, lanefile_id: {1})", lane_id, lanefile_id);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				db.Audit (login, "WebServices.DeattachFileFromLane (lane_id: {0}, lanefile_id: {1})", lane.id, lanefile_id);
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = "DELETE FROM Lanefiles WHERE lane_id = @lane_id AND lanefile_id = @lanefile_id;";
 					DB.CreateParameter (cmd, "lane_id", lane_id);
 					DB.CreateParameter (cmd, "lanefile_id", lanefile_id);
 					cmd.ExecuteNonQuery ();
 				}
+			}
+		}
+
+		public void EditCommandInLane (WebServiceLogin login, DBCommand command, int lane_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				VerifyCommandIsForLane (command, lane_id);
+				db.Audit (login, "WebServices.EditCommand (command: {0})", command);
+				command.Save (db);
 			}
 		}
 
@@ -182,6 +212,19 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		public void EditCommandFilenameInLane (WebServiceLogin login, int lane_id, int command_id, string filename)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				db.Audit (login, "WebServices.EditCommandFilename (command_id: {0}, filename: {1})", command_id, filename);
+				cmd.filename = filename;
+				cmd.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void EditCommandFilename (WebServiceLogin login, int command_id, string filename)
 		{
@@ -190,6 +233,19 @@ namespace MonkeyWrench.WebServices
 				db.Audit (login, "WebServices.EditCommandFilename (command_id: {0}, filename: {1})", command_id, filename);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.filename = filename;
+				cmd.Save (db);
+			}
+		}
+
+		public void EditCommandSequenceInLane (WebServiceLogin login, int lane_id, int command_id, int sequence)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				db.Audit (login, "WebServices.EditCommandSequence (command_id: {0}, sequence: {1})", command_id, sequence);
+				cmd.sequence = sequence;
 				cmd.Save (db);
 			}
 		}
@@ -206,6 +262,19 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		public void EditCommandArgumentsInLane (WebServiceLogin login, int lane_id, int command_id, string arguments)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				db.Audit (login, "WebServices.EditCommandArguments (command_id: {0}, arguments: {1})", command_id, arguments);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.arguments = arguments;
+				cmd.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void EditCommandArguments (WebServiceLogin login, int command_id, string arguments)
 		{
@@ -214,6 +283,19 @@ namespace MonkeyWrench.WebServices
 				db.Audit (login, "WebServices.EditCommandArguments (command_id: {0}, arguments: {1})", command_id, arguments);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.arguments = arguments;
+				cmd.Save (db);
+			}
+		}
+
+		public void EditCommandTimeoutInLane (WebServiceLogin login, int lane_id, int command_id, int timeout)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				db.Audit (login, "WebServices.EditCommandTimeout (command_id: {0}, timeout: {1})", command_id, timeout);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.timeout = timeout;
 				cmd.Save (db);
 			}
 		}
@@ -230,6 +312,19 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		public void EditCommandDeadlockTimeoutInLane (WebServiceLogin login, int lane_id, int command_id, int? deadlock_timeout)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				db.Audit (login, "WebServices.EditCommandDeadlockTimeout (command_id: {0}, deadlock_timeout: {1})", command_id, deadlock_timeout);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.deadlock_timeout = deadlock_timeout;
+				cmd.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void EditCommandDeadlockTimeout (WebServiceLogin login, int command_id, int? deadlock_timeout)
 		{
@@ -238,6 +333,21 @@ namespace MonkeyWrench.WebServices
 				db.Audit (login, "WebServices.EditCommandDeadlockTimeout (command_id: {0}, deadlock_timeout: {1})", command_id, deadlock_timeout);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.deadlock_timeout = deadlock_timeout;
+				cmd.Save (db);
+			}
+		}
+
+		public void EditCommandWorkingDirectoryInLane (WebServiceLogin login, int lane_id, int command_id, string working_directory)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				if (working_directory.Equals(".") || working_directory.Equals(""))
+					cmd.working_directory = null;
+				else
+					cmd.working_directory = working_directory;
 				cmd.Save (db);
 			}
 		}
@@ -255,7 +365,19 @@ namespace MonkeyWrench.WebServices
 				cmd.Save (db);
 			}
 		}
-		
+
+		public void EditCommandUploadFilesInLane (WebServiceLogin login, int lane_id, int command_id, string upload_files)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.upload_files = string.IsNullOrEmpty (upload_files) ? null : upload_files;
+				cmd.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void EditCommandUploadFiles (WebServiceLogin login, int command_id, string upload_files)
 		{
@@ -266,7 +388,19 @@ namespace MonkeyWrench.WebServices
 				cmd.Save (db);
 			}
 		}
-		
+
+		public void SwitchCommandNonFatalInLane (WebServiceLogin login, int lane_id, int command_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.nonfatal = !cmd.nonfatal;
+				cmd.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void SwitchCommandNonFatal (WebServiceLogin login, int command_id)
 		{
@@ -274,6 +408,18 @@ namespace MonkeyWrench.WebServices
 				VerifyUserInRole (db, login, Roles.Administrator);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.nonfatal = !cmd.nonfatal;
+				cmd.Save (db);
+			}
+		}
+
+		public void SwitchCommandAlwaysExecuteInLane (WebServiceLogin login, int lane_id, int command_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.alwaysexecute = !cmd.alwaysexecute;
 				cmd.Save (db);
 			}
 		}
@@ -289,6 +435,18 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		public void SwitchCommandInternalInLane (WebServiceLogin login, int lane_id, int command_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.@internal = !cmd.@internal;
+				cmd.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void SwitchCommandInternal (WebServiceLogin login, int command_id)
 		{
@@ -296,6 +454,18 @@ namespace MonkeyWrench.WebServices
 				VerifyUserInRole (db, login, Roles.Administrator);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
 				cmd.@internal = !cmd.@internal;
+				cmd.Save (db);
+			}
+		}
+
+		public void SwitchCommandTimestampInLane (WebServiceLogin login, int lane_id, int command_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.timestamp = !cmd.timestamp;
 				cmd.Save (db);
 			}
 		}
@@ -311,6 +481,18 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		public void DeleteCommandInLane (WebServiceLogin login, int lane_id, int command_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				cmd.lane_id = null; // TODO: Check if the command has any work, if not just delete it.
+				cmd.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void DeleteCommand (WebServiceLogin login, int command_id)
 		{
@@ -322,34 +504,45 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+
 		[WebMethod]
 		public void AddCommand (WebServiceLogin login, int lane_id, string command, bool always_execute, bool nonfatal, int timeout, int sequence)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBCommand cmd = new DBCommand ();
 				cmd.arguments = "-ex {0}";
 				cmd.filename = "bash";
 				cmd.command = command;
-				cmd.lane_id = lane_id;
+				cmd.lane_id = lane.id;
 				cmd.alwaysexecute = always_execute;
 				cmd.nonfatal = nonfatal;
 				cmd.timeout = 60;
 				if (sequence < 0) {
 					cmd.sequence = sequence;
 				} else {
-					cmd.sequence = 10 * (int) (long) (db.ExecuteScalar ("SELECT Count(*) FROM Command WHERE lane_id = " + lane_id.ToString ()));
+					cmd.sequence = 10 * (int) (long) (db.ExecuteScalar ("SELECT Count(*) FROM Command WHERE lane_id = " + lane.id.ToString ()));
 				}
 				cmd.Save (db);
 			}
 		}
 
+		public void VerifyCommandIsForLane(DBCommand cmd, int lane_id) 
+		{
+			if (cmd.lane_id != lane_id) {
+				throw new UnauthorizedException ("You don't have the required permissions.");
+			}
+		}
+
+
 		[WebMethod]
 		public void SwitchHostEnabledForLane (WebServiceLogin login, int lane_id, int host_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
-				DBHostLane hostlane = db.GetHostLane (host_id, lane_id);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBHostLane hostlane = db.GetHostLane (host_id, lane.id);
 				hostlane.enabled = !hostlane.enabled;
 				hostlane.Save (db);
 			}
@@ -359,8 +552,9 @@ namespace MonkeyWrench.WebServices
 		public void SwitchHostHiddenForLane (WebServiceLogin login, int lane_id, int host_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
-				DBHostLane hostlane = db.GetHostLane (host_id, lane_id);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBHostLane hostlane = db.GetHostLane (host_id, lane.id);
 				hostlane.hidden = !hostlane.hidden;
 				hostlane.Save (db);
 			}
@@ -370,9 +564,10 @@ namespace MonkeyWrench.WebServices
 		public void RemoveHostForLane (WebServiceLogin login, int lane_id, int host_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBHost host = DBHost_Extensions.Create (db, host_id);
-				host.RemoveLane (db, lane_id);
+				host.RemoveLane (db, lane.id);
 			}
 		}
 
@@ -380,10 +575,11 @@ namespace MonkeyWrench.WebServices
 		public void AddHostToLane (WebServiceLogin login, int lane_id, int host_id)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBHost host = DBHost_Extensions.Create (db, host_id);
 				host.enabled = true;
-				host.AddLane (db, lane_id);
+				host.AddLane (db, lane.id);
 			}
 		}
 
@@ -394,12 +590,27 @@ namespace MonkeyWrench.WebServices
 				throw new ArgumentOutOfRangeException ("condition");
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBLaneDependency dep = new DBLaneDependency ();
 				dep.Condition = condition;
 				dep.dependent_lane_id = dependent_lane_id;
-				dep.lane_id = lane_id;
+				dep.lane_id = lane.id;
 				dep.dependent_host_id = host_id;
+				dep.Save (db);
+			}
+		}
+
+		public void EditLaneDependencyFilenameInLane (WebServiceLogin login, int lane_id, int lanedependency_id, string filename)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBLaneDependency dep = DBLaneDependency_Extensions.Create (db, lanedependency_id);
+				if (dep.lane_id != lane_id) {
+					throw new UnauthorizedException ("You don't have the required permissions.");
+				}
+				dep.filename = filename;
 				dep.Save (db);
 			}
 		}
@@ -415,12 +626,33 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
+		public void DeleteLaneDependencyInLane (WebServiceLogin login, int lane_id, int lanedependency_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBRecord_Extensions.Delete (db, lanedependency_id, DBLaneDependency.TableName);
+			}
+		}
+
 		[WebMethod]
 		public void DeleteLaneDependency (WebServiceLogin login, int lanedependency_id)
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				DBRecord_Extensions.Delete (db, lanedependency_id, DBLaneDependency.TableName);
+			}
+		}
+
+
+		public void EditLaneDependencyDownloadsInLane (WebServiceLogin login, int lane_id, int lanedependency_id, string downloads)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				DBLaneDependency dep = DBLaneDependency_Extensions.Create (db, lanedependency_id);
+				dep.download_files = downloads;
+				dep.Save (db);
 			}
 		}
 
@@ -434,6 +666,7 @@ namespace MonkeyWrench.WebServices
 				dep.Save (db);
 			}
 		}
+
 
 		[WebMethod]
 		public void UnlinkDeletionDirective (WebServiceLogin login, int directive_id)
@@ -636,7 +869,6 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 			GetLaneForEditResponse response = new GetLaneForEditResponse ();
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
-				VerifyUserInRole (db, login, Roles.Administrator);
 
 				// We do 2 trips to the database: first to get a list of all the lanes,
 				// then to get all the rest of the information.
@@ -648,6 +880,14 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 				} else {
 					response.Lane = response.Lanes.Find ((l) => l.lane == lane);
 				}
+
+				// Get the required roles for the lane. Administrator can access all lanes.
+				var additionalRoles = new List<string> ();
+
+				if (!string.IsNullOrEmpty(response.Lane.additional_roles))
+					additionalRoles.AddRange(response.Lane.additional_roles.Split(',').ToList ());
+				
+				VerifyUserInRoles (db, login, additionalRoles.ToArray(), false);
 
 				var cmdText = new StringBuilder ();
 
@@ -674,7 +914,7 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 
 					// 6: response.Files = response.Lane.GetFiles (db, response.Lanes);
 					cmdText.Append (@"
-SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date 
+SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date, LaneFile.additional_roles
 FROM Lanefile 
 INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id 
 WHERE Lanefile.original_id IS NULL AND Lanefiles.lane_id = ").Append (response.Lane.id);
@@ -695,7 +935,7 @@ WHERE Lanefile.original_id IS NULL AND Lanefiles.lane_id = ").Append (response.L
 
 					// 10: response.ExistingFiles = new List<DBLanefile> (); [...]
 					cmdText.AppendFormat (@"
-SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date 
+SELECT Lanefile.id, LaneFile.name, '' AS contents, LaneFile.mime, Lanefile.original_id, LaneFile.changed_date, Lanefile.additional_roles
 FROM Lanefile
 INNER JOIN Lanefiles ON Lanefiles.lanefile_id = Lanefile.id
 WHERE Lanefile.original_id IS NULL AND Lanefiles.lane_id <> {0}
@@ -1080,9 +1320,8 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		public void EditLane (WebServiceLogin login, DBLane lane)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
-
 				var oldLane = FindLane (db, lane.id, null);
+				VerifyUserInRoles (db, login, oldLane.additional_roles, false);
 				lane.Save (db);
 
 				Audit (login, "edited lane `{0}` -> `{1}`",
@@ -1097,9 +1336,9 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		{
 			using (DB db = new DB ())
 			using (var transaction = db.BeginTransaction()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
-
+				// Get the original lane so we can check the permissions on it.
 				var oldLane = FindLane (db, lane.id, null);
+				VerifyUserInRoles (db, login, oldLane.additional_roles, false);
 				lane.Save (db);
 
 				using (var cmd = db.CreateCommand ()) {
@@ -1590,11 +1829,11 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 		public int CloneLane (WebServiceLogin login, int lane_id, string new_name, bool copy_files)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				var lane = FindLane (db, lane_id, null);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				return db.CloneLane (lane_id, new_name, copy_files).id;
 			}
 		}
-
 
 		public List<DBLaneTag> GetTagsForLane (WebServiceLogin login, int lane_id)
 		{
@@ -1955,8 +2194,8 @@ ORDER BY date DESC LIMIT 250;
 			GetLaneFileForEditResponse response = new GetLaneFileForEditResponse ();
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
 				response.Lanefile = DBLanefile_Extensions.Create (db, lanefile_id);
+				VerifyUserInRoles (db, login, response.Lanefile.additional_roles, false);
 				response.Lanes = DBLanefile_Extensions.GetLanesForFile (db, response.Lanefile);
 			}
 
@@ -1967,10 +2206,9 @@ ORDER BY date DESC LIMIT 250;
 		public void EditLaneFile (WebServiceLogin login, DBLanefile lanefile)
 		{
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
-
 				DBLanefile original = DBLanefile_Extensions.Create (db, lanefile.id);
-
+				VerifyUserInRoles (db, login, original.additional_roles, false);
+				db.Audit (login, "WebServices.EditLaneFile (lane_id: {0})", lanefile.id);
 				if (original.original_id == null) {// This is the latest version of the file
 					DBLanefile old_file = new DBLanefile ();
 					old_file.contents = lanefile.contents;
@@ -1978,6 +2216,7 @@ ORDER BY date DESC LIMIT 250;
 					old_file.name = lanefile.name;
 					old_file.original_id = lanefile.id;
 					old_file.changed_date = DBRecord.DatabaseNow;
+					old_file.additional_roles = lanefile.additional_roles;
 					old_file.Save (db);
 
 					lanefile.Save (db);
@@ -1993,7 +2232,10 @@ ORDER BY date DESC LIMIT 250;
 			GetViewLaneFileHistoryDataResponse response = new GetViewLaneFileHistoryDataResponse ();
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				// Get the original file, so we can see who can access the history.
+				var originalFile = DBLanefile_Extensions.Create (db, lanefile_id);
+
+				VerifyUserInRoles (db, login, originalFile.additional_roles, false);
 
 				response.Lanefiles = new List<DBLanefile> ();
 
@@ -2204,6 +2446,22 @@ ORDER BY date DESC LIMIT 250;
 			return Upload.GetListenPort ();
 		}
 
+		public int AddEnvironmentVariableInLane (WebServiceLogin login, int lane_id, int? host_id, string name, string value)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+
+				DBEnvironmentVariable var = new DBEnvironmentVariable ();
+				var.name = name;
+				var.value = value;
+				var.host_id = host_id;
+				var.lane_id = lane_id;
+				var.Save (db);
+				return var.id;
+			}
+		}
+
 		[WebMethod]
 		public int AddEnvironmentVariable (WebServiceLogin login, int? lane_id, int? host_id, string name, string value)
 		{
@@ -2220,12 +2478,39 @@ ORDER BY date DESC LIMIT 250;
 			}
 		}
 
+		public void VerifyEnvironmentVariableIsForLane(DBEnvironmentVariable variable, int lane_id) 
+		{
+			if (variable.lane_id != lane_id) {
+				throw new UnauthorizedException ("You don't have the required permissions.");
+			}
+		}
+
+		public void EditEnvironmentVariableInLane (WebServiceLogin login, DBEnvironmentVariable variable, int lane_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				VerifyEnvironmentVariableIsForLane (variable, lane_id);
+				variable.Save (db);
+			}
+		}
+
 		[WebMethod]
 		public void EditEnvironmentVariable (WebServiceLogin login, DBEnvironmentVariable variable)
 		{
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.Administrator);
 				variable.Save (db);
+			}
+		}
+
+		public void DeleteEnvironmentVariableInLane (WebServiceLogin login, DBEnvironmentVariable variable, int lane_id)
+		{
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				VerifyEnvironmentVariableIsForLane (variable, lane_id);
+				DBRecord_Extensions.Delete (db, variable.id, DBEnvironmentVariable.TableName);
 			}
 		}
 
@@ -3083,12 +3368,34 @@ WHERE Revision.lane_id = @lane_id AND ";
 			WebServiceResponse response = new WebServiceResponse ();
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = "INSERT INTO LaneNotification (lane_id, notification_id) VALUES (@lane_id, @notification_id);";
 					DB.CreateParameter (cmd, "lane_id", lane_id);
 					DB.CreateParameter (cmd, "notification_id", notification_id);
+					cmd.ExecuteNonQuery ();
+					Notifications.Restart ();
+				}
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public WebServiceResponse RemoveLaneNotificationForLane (WebServiceLogin login, int id, int lane_id)
+		{
+			WebServiceResponse response = new WebServiceResponse ();
+
+			using (DB db = new DB ()) {
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
+
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = "DELETE FROM LaneNotification WHERE id = @id and lane_id = @lane_id;";
+					DB.CreateParameter (cmd, "id", id);
+					DB.CreateParameter (cmd, "lane_id", lane_id);
 					cmd.ExecuteNonQuery ();
 					Notifications.Restart ();
 				}
@@ -3172,7 +3479,8 @@ WHERE Revision.lane_id = @lane_id AND ";
 			WebServiceResponse response = new WebServiceResponse ();
 
 			using (DB db = new DB ()) {
-				VerifyUserInRole (db, login, Roles.Administrator);
+				var lane = DBLane_Extensions.Create (db, lane_id);
+				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = "UPDATE RevisionWork SET state = 11 WHERE state = 0 AND lane_id = @lane_id;";
 					DB.CreateParameter (cmd, "lane_id", lane_id);

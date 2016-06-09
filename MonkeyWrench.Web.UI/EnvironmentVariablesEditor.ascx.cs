@@ -19,6 +19,7 @@ using System.Web.UI.WebControls;
 
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.Web.WebServices;
+using MonkeyWrench.DataClasses.Logic;
 
 namespace MonkeyWrench.Web.UI
 {
@@ -50,11 +51,20 @@ namespace MonkeyWrench.Web.UI
 		{
 			switch (e.CommandName) {
 			case "delete":
-				Utils.LocalWebService.DeleteEnvironmentVariable (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
+				if (Lane != null) {
+					var variable = this.Variables.First(node => node.id == int.Parse ((string) e.CommandArgument));
+					Utils.LocalWebService.DeleteEnvironmentVariableInLane (Master.WebServiceLogin, variable, Lane.id);
+				} else {
+					Utils.LocalWebService.DeleteEnvironmentVariable (Master.WebServiceLogin, int.Parse ((string) e.CommandArgument));
+				}
 				Response.Redirect (Request.Url.ToString (), false);
 				break;
 			case "add":
-				Utils.LocalWebService.AddEnvironmentVariable (Master.WebServiceLogin, Lane == null ? (int?) null : Lane.id, Host  == null ? (int?) null : Host.id, txtVariableName.Text, txtVariableValue.Text);
+				if (Lane != null) {
+					Utils.LocalWebService.AddEnvironmentVariableInLane (Master.WebServiceLogin, Lane.id, Host  == null ? (int?) null : Host.id, txtVariableName.Text, txtVariableValue.Text);
+				} else {
+					Utils.LocalWebService.AddEnvironmentVariable (Master.WebServiceLogin, Lane == null ? (int?) null : Lane.id, Host  == null ? (int?) null : Host.id, txtVariableName.Text, txtVariableValue.Text);
+				}
 				Response.Redirect (Request.Url.ToString (), false);
 				break;
 			}

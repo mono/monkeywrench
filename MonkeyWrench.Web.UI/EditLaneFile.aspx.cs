@@ -38,6 +38,7 @@ public partial class EditLaneFile : System.Web.UI.Page
 				GetLaneFileForEditResponse response = Utils.LocalWebService.GetLaneFileForEdit (Master.WebServiceLogin, id);
 				DBLanefile file = response.Lanefile;
 				txtEditor.Text = file.contents;
+				txtRoles.Text = file.additional_roles;
 
 				if (file.original_id != null)
 					cmdSave.Visible = false; // Don't allow editing previous versions of a file
@@ -63,6 +64,8 @@ public partial class EditLaneFile : System.Web.UI.Page
 		if (int.TryParse (Request ["file_id"], out id)) {
 			GetLaneFileForEditResponse response = Utils.LocalWebService.GetLaneFileForEdit (Master.WebServiceLogin, id);
 			response.Lanefile.contents = txtEditor.Text;
+			response.Lanefile.additional_roles = txtRoles.Text;
+
 			Utils.LocalWebService.EditLaneFile (Master.WebServiceLogin, response.Lanefile);
 
 			if (Request.UrlReferrer != null && Request.UrlReferrer.LocalPath.Contains ("ViewLaneFileHistory.aspx")) {
