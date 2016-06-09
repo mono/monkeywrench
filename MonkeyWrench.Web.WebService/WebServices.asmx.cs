@@ -191,7 +191,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void EditCommandInLane (WebServiceLogin login, DBCommand command, int lane_id)
 		{
 			using (DB db = new DB ()) {
@@ -213,7 +212,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void EditCommandFilenameInLane (WebServiceLogin login, int lane_id, int command_id, string filename)
 		{
 			using (DB db = new DB ()) {
@@ -239,7 +237,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void EditCommandSequenceInLane (WebServiceLogin login, int lane_id, int command_id, int sequence)
 		{
 			using (DB db = new DB ()) {
@@ -265,7 +262,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void EditCommandArgumentsInLane (WebServiceLogin login, int lane_id, int command_id, string arguments)
 		{
 			using (DB db = new DB ()) {
@@ -291,7 +287,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void EditCommandTimeoutInLane (WebServiceLogin login, int lane_id, int command_id, int timeout)
 		{
 			using (DB db = new DB ()) {
@@ -317,7 +312,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void EditCommandDeadlockTimeoutInLane (WebServiceLogin login, int lane_id, int command_id, int? deadlock_timeout)
 		{
 			using (DB db = new DB ()) {
@@ -343,7 +337,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void EditCommandWorkingDirectoryInLane (WebServiceLogin login, int lane_id, int command_id, string working_directory)
 		{
 			using (DB db = new DB ()) {
@@ -372,8 +365,7 @@ namespace MonkeyWrench.WebServices
 				cmd.Save (db);
 			}
 		}
-		
-		[WebMethod]
+
 		public void EditCommandUploadFilesInLane (WebServiceLogin login, int lane_id, int command_id, string upload_files)
 		{
 			using (DB db = new DB ()) {
@@ -396,8 +388,7 @@ namespace MonkeyWrench.WebServices
 				cmd.Save (db);
 			}
 		}
-		
-		[WebMethod]
+
 		public void SwitchCommandNonFatalInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
@@ -421,7 +412,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void SwitchCommandAlwaysExecuteInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
@@ -445,7 +435,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void SwitchCommandInternalInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
@@ -469,7 +458,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void SwitchCommandTimestampInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
@@ -493,7 +481,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void DeleteCommandInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
@@ -614,7 +601,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void EditLaneDependencyFilenameInLane (WebServiceLogin login, int lane_id, int lanedependency_id, string filename)
 		{
 			using (DB db = new DB ()) {
@@ -640,7 +626,6 @@ namespace MonkeyWrench.WebServices
 			}
 		}
 
-		[WebMethod]
 		public void DeleteLaneDependencyInLane (WebServiceLogin login, int lane_id, int lanedependency_id)
 		{
 			using (DB db = new DB ()) {
@@ -660,7 +645,6 @@ namespace MonkeyWrench.WebServices
 		}
 
 
-		[WebMethod]
 		public void EditLaneDependencyDownloadsInLane (WebServiceLogin login, int lane_id, int lanedependency_id, string downloads)
 		{
 			using (DB db = new DB ()) {
@@ -2462,7 +2446,6 @@ ORDER BY date DESC LIMIT 250;
 			return Upload.GetListenPort ();
 		}
 
-		[WebMethod]
 		public int AddEnvironmentVariableInLane (WebServiceLogin login, int lane_id, int? host_id, string name, string value)
 		{
 			using (DB db = new DB ()) {
@@ -2502,7 +2485,6 @@ ORDER BY date DESC LIMIT 250;
 			}
 		}
 
-		[WebMethod]
 		public void EditEnvironmentVariableInLane (WebServiceLogin login, DBEnvironmentVariable variable, int lane_id)
 		{
 			using (DB db = new DB ()) {
@@ -2522,7 +2504,6 @@ ORDER BY date DESC LIMIT 250;
 			}
 		}
 
-		[WebMethod]
 		public void DeleteEnvironmentVariableInLane (WebServiceLogin login, DBEnvironmentVariable variable, int lane_id)
 		{
 			using (DB db = new DB ()) {
