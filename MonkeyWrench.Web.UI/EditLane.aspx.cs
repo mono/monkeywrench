@@ -29,8 +29,6 @@ public partial class EditLane : System.Web.UI.Page
 {
 	private DBLane lane;
 
-	private string[] requiredRoles;
-
 	private new Master Master
 	{
 		get { return base.Master as Master; }
@@ -70,8 +68,6 @@ public partial class EditLane : System.Web.UI.Page
 			Response.Redirect ("EditLanes.aspx", false);
 			return;
 		}
-
-		requiredRoles = !string.IsNullOrEmpty(lane.additional_roles) ? lane.additional_roles.Split (',') : new string[0];
 
 		lblH2.Text = "Lane: " + lane.lane;
 //			lblDeletionDirectiveErrors.Visible = false;
