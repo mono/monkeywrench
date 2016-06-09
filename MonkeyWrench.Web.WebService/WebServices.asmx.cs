@@ -621,6 +621,9 @@ namespace MonkeyWrench.WebServices
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBLaneDependency dep = DBLaneDependency_Extensions.Create (db, lanedependency_id);
+				if (dep.lane_id != lane_id) {
+					throw new UnauthorizedException ("You don't have the required permissions.");
+				}
 				dep.filename = filename;
 				dep.Save (db);
 			}
@@ -895,12 +898,12 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 				}
 
 				// Get the required roles for the lane. Administrator can access all lanes.
-				var requiredRoles = new List<string> ();
+				var additionalRoles = new List<string> ();
 
 				if (!string.IsNullOrEmpty(response.Lane.additional_roles))
-					requiredRoles.AddRange(response.Lane.additional_roles.Split(',').ToList ());
+					additionalRoles.AddRange(response.Lane.additional_roles.Split(',').ToList ());
 				
-				VerifyUserInRoles (db, login, requiredRoles.ToArray(), false);
+				VerifyUserInRoles (db, login, additionalRoles.ToArray(), false);
 
 				var cmdText = new StringBuilder ();
 
