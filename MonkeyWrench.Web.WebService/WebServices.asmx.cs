@@ -197,6 +197,7 @@ namespace MonkeyWrench.WebServices
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
+				VerifyCommandIsForLane (command, lane_id);
 				db.Audit (login, "WebServices.EditCommand (command: {0})", command);
 				command.Save (db);
 			}
@@ -218,8 +219,9 @@ namespace MonkeyWrench.WebServices
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
-				db.Audit (login, "WebServices.EditCommandFilename (command_id: {0}, filename: {1})", command_id, filename);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				db.Audit (login, "WebServices.EditCommandFilename (command_id: {0}, filename: {1})", command_id, filename);
 				cmd.filename = filename;
 				cmd.Save (db);
 			}
@@ -243,8 +245,9 @@ namespace MonkeyWrench.WebServices
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
-				db.Audit (login, "WebServices.EditCommandSequence (command_id: {0}, sequence: {1})", command_id, sequence);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
+				db.Audit (login, "WebServices.EditCommandSequence (command_id: {0}, sequence: {1})", command_id, sequence);
 				cmd.sequence = sequence;
 				cmd.Save (db);
 			}
@@ -270,6 +273,7 @@ namespace MonkeyWrench.WebServices
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				db.Audit (login, "WebServices.EditCommandArguments (command_id: {0}, arguments: {1})", command_id, arguments);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.arguments = arguments;
 				cmd.Save (db);
 			}
@@ -295,6 +299,7 @@ namespace MonkeyWrench.WebServices
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				db.Audit (login, "WebServices.EditCommandTimeout (command_id: {0}, timeout: {1})", command_id, timeout);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.timeout = timeout;
 				cmd.Save (db);
 			}
@@ -320,6 +325,7 @@ namespace MonkeyWrench.WebServices
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				db.Audit (login, "WebServices.EditCommandDeadlockTimeout (command_id: {0}, deadlock_timeout: {1})", command_id, deadlock_timeout);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.deadlock_timeout = deadlock_timeout;
 				cmd.Save (db);
 			}
@@ -344,6 +350,7 @@ namespace MonkeyWrench.WebServices
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				if (working_directory.Equals(".") || working_directory.Equals(""))
 					cmd.working_directory = null;
 				else
@@ -373,6 +380,7 @@ namespace MonkeyWrench.WebServices
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.upload_files = string.IsNullOrEmpty (upload_files) ? null : upload_files;
 				cmd.Save (db);
 			}
@@ -396,6 +404,7 @@ namespace MonkeyWrench.WebServices
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.nonfatal = !cmd.nonfatal;
 				cmd.Save (db);
 			}
@@ -419,6 +428,7 @@ namespace MonkeyWrench.WebServices
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.alwaysexecute = !cmd.alwaysexecute;
 				cmd.Save (db);
 			}
@@ -442,6 +452,7 @@ namespace MonkeyWrench.WebServices
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.@internal = !cmd.@internal;
 				cmd.Save (db);
 			}
@@ -465,6 +476,7 @@ namespace MonkeyWrench.WebServices
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.timestamp = !cmd.timestamp;
 				cmd.Save (db);
 			}
@@ -488,6 +500,7 @@ namespace MonkeyWrench.WebServices
 				var lane = DBLane_Extensions.Create (db, lane_id);
 				VerifyUserInRoles (db, login, lane.additional_roles, false);
 				DBCommand cmd = DBCommand_Extensions.Create (db, command_id);
+				VerifyCommandIsForLane (cmd, lane_id);
 				cmd.lane_id = null; // TODO: Check if the command has any work, if not just delete it.
 				cmd.Save (db);
 			}
@@ -527,6 +540,14 @@ namespace MonkeyWrench.WebServices
 				cmd.Save (db);
 			}
 		}
+
+		public void VerifyCommandIsForLane(DBCommand cmd, int lane_id) 
+		{
+			if (cmd.lane_id != lane_id) {
+				throw new UnauthorizedException ("You don't have the required permissions.");
+			}
+		}
+
 
 		[WebMethod]
 		public void SwitchHostEnabledForLane (WebServiceLogin login, int lane_id, int host_id)
