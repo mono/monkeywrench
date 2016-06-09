@@ -36,7 +36,7 @@ namespace MonkeyWrench.Web.UI
 			if (Variables == null)
 				return;
 
-			RequiredRoles = Lane != null ? Lane.required_roles.Split(',') : new string[0];
+			RequiredRoles = Lane != null ? Lane.additional_roles.Split(',') : new string[0];
 
 			foreach (DBEnvironmentVariable variable in Variables) {
 				tblVariables.Rows.AddAt (

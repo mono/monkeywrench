@@ -23,14 +23,14 @@ namespace MonkeyWrench.DataClasses
 		private string _mime;
 		private int? _original_id;
 		private DateTime? _changed_date;
-		private string _required_roles;
+		private string _additional_roles;
 
 		public string @name { get { return _name; } set { _name = value; } }
 		public string @contents { get { return _contents; } set { _contents = value; } }
 		public string @mime { get { return _mime; } set { _mime = value; } }
 		public int? @original_id { get { return _original_id; } set { _original_id = value; } }
 		public DateTime? @changed_date { get { return _changed_date; } set { _changed_date = value; } }
-		public string @required_roles { get { return _required_roles; } set { _required_roles = value; } }
+		public string @additional_roles { get { return _additional_roles; } set { _additional_roles = value; } }
 
 
 		public override string Table
@@ -43,7 +43,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "name", "contents", "mime", "original_id", "changed_date", "required_roles" };
+				return new string [] { "name", "contents", "mime", "original_id", "changed_date", "additional_roles" };
 			}
 		}
         

@@ -28,7 +28,7 @@ namespace MonkeyWrench.DataClasses
 		private bool _traverse_merge;
 		private bool _enabled;
 		private DateTime? _changed_date;
-		private string _required_roles;
+		private string _additional_roles;
 
 		public string @lane { get { return _lane; } set { _lane = value; } }
 		public string @source_control { get { return _source_control; } set { _source_control = value; } }
@@ -40,7 +40,7 @@ namespace MonkeyWrench.DataClasses
 		public bool @traverse_merge { get { return _traverse_merge; } set { _traverse_merge = value; } }
 		public bool @enabled { get { return _enabled; } set { _enabled = value; } }
 		public DateTime? @changed_date { get { return _changed_date; } set { _changed_date = value; } }
-		public string @required_roles { get { return _required_roles; } set { _required_roles = value; } }
+		public string @additional_roles { get { return _additional_roles; } set { _additional_roles = value; } }
 
 
 		public override string Table
@@ -53,7 +53,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "lane", "source_control", "repository", "min_revision", "max_revision", "parent_lane_id", "commit_filter", "traverse_merge", "enabled", "changed_date", "required_roles" };
+				return new string [] { "lane", "source_control", "repository", "min_revision", "max_revision", "parent_lane_id", "commit_filter", "traverse_merge", "enabled", "changed_date", "additional_roles" };
 			}
 		}
         

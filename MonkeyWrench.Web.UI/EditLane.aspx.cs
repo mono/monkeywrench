@@ -71,7 +71,7 @@ public partial class EditLane : System.Web.UI.Page
 			return;
 		}
 
-		requiredRoles = !string.IsNullOrEmpty(lane.required_roles) ? lane.required_roles.Split (',') : new string[0];
+		requiredRoles = !string.IsNullOrEmpty(lane.additional_roles) ? lane.additional_roles.Split (',') : new string[0];
 
 		lblH2.Text = "Lane: " + lane.lane;
 //			lblDeletionDirectiveErrors.Visible = false;
@@ -104,8 +104,8 @@ public partial class EditLane : System.Web.UI.Page
 			txtMaxRevision.Text = lane.max_revision;
 			if (response.Tags != null)
 				txtTags.Text = string.Join (",", response.Tags.ConvertAll<string> ((DBLaneTag tag) => tag.tag).ToArray ());
-			if (response.Lane.required_roles != null)
-				txtRoles.Text = response.Lane.required_roles;
+			if (response.Lane.additional_roles != null)
+				txtRoles.Text = response.Lane.additional_roles;
 			txtLane.Text = lane.lane;
 			txtID.Text = lane.id.ToString ();
 			// find (direct) child lanes
@@ -704,7 +704,7 @@ public partial class EditLane : System.Web.UI.Page
 		lane.parent_lane_id = (parent_lane_id.HasValue && parent_lane_id.Value != 0) ? parent_lane_id : null;
 		lane.traverse_merge = chkTraverseMerges.Checked;
 		lane.enabled = chkEnabled.Checked;
-		lane.required_roles = txtRoles.Text;
+		lane.additional_roles = txtRoles.Text;
 
 		Utils.LocalWebService.EditLaneWithTags (Master.WebServiceLogin, lane, !string.IsNullOrEmpty (txtTags.Text) ? txtTags.Text.Split (',') : null);
 		RedirectToSelf ();

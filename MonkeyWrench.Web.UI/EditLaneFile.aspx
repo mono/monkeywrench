@@ -9,12 +9,12 @@
         <br/>
 		<asp:Table>
 			<asp:TableRow>
-                <asp:TableCell>Required Roles:</asp:TableCell>
+                <asp:TableCell>Additional Roles:</asp:TableCell>
                 	<asp:TableCell>
                     	<asp:TextBox ID="txtRoles" runat="server" Width="600px"></asp:TextBox>
                 	</asp:TableCell>
                 	<br/>
-				<asp:TableCell>Comma-separated list of roles that can edit this lane.</asp:TableCell>
+				<asp:TableCell>Comma-separated list of additional roles (besides admin) that can edit this lane.</asp:TableCell>
             </asp:TableRow>
 		</asp:Table>
         <h5>This file is used by the following lanes:</h5>

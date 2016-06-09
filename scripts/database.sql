@@ -78,7 +78,7 @@ CREATE TABLE Lane (
 	traverse_merge boolean    NOT NULL DEFAULT FALSE, -- if commits from a merge (besides the merge commit itself) should be included.
 	enabled        boolean    NOT NULL DEFAULT TRUE,  -- if a lane is enabled or not.
 	changed_date   timestamp  NULL DEFAULT NULL,      -- the latest date something happened in this lane,
-	required_roles text       NULL DEFAULT NULL,      -- required roles for access (for users who are not admin)
+	additional_roles text       NULL DEFAULT NULL,      -- additional roles for access (for users who are not admin)
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
@@ -182,7 +182,7 @@ CREATE TABLE Lanefile (
 	original_id    int        NULL REFERENCES Lanefile (id),
 	changed_date   timestamp  NULL, -- the date the change was made
 
-	required_roles text NULL DEFAULT NULL	-- Roles required to access the Lanefile
+	additional_roles text NULL DEFAULT NULL	-- Additional roles which can access the Lanefile
 );
 
 CREATE TABLE Lanefiles (
