@@ -64,6 +64,9 @@ namespace MonkeyWrench.WebServices
 
 		private void VerifyUserInRoles (DB db, WebServiceLogin login, string[] roles, bool @readonly)
 		{
+			// Administrator should be given access to everything.
+			// So any call to VerifyUserInRoles should add Administrator to that list.
+			roles.Concat(new string[] { Roles.Administrator });
 			Authentication.VerifyUserInRoles (Context, db, login, roles, @readonly);
 		}
 
