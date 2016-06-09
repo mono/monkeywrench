@@ -59,15 +59,15 @@ namespace MonkeyWrench.WebServices
 		{
 			string[] r = (roles == null) ? new string[0] : roles.Split(',');
 
-			Authentication.VerifyUserInRoles(Context, db, login, r, @readonly);
+			VerifyUserInRoles(db, login, r, @readonly);
 		}
 
 		private void VerifyUserInRoles (DB db, WebServiceLogin login, string[] roles, bool @readonly)
 		{
 			// Administrator should be given access to everything.
 			// So any call to VerifyUserInRoles should add Administrator to that list.
-			roles.Concat(new string[] { Roles.Administrator });
-			Authentication.VerifyUserInRoles (Context, db, login, roles, @readonly);
+			var completeRoles = roles.Concat(new string[] { Roles.Administrator }).ToArray();
+			Authentication.VerifyUserInRoles (Context, db, login, completeRoles, @readonly);
 		}
 
 		private void Audit(WebServiceLogin login, string formatStr, params Object[] formatArgs) {
@@ -900,8 +900,6 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 				if (!string.IsNullOrEmpty(response.Lane.additional_roles))
 					requiredRoles.AddRange(response.Lane.additional_roles.Split(',').ToList ());
 				
-				requiredRoles.Add (Roles.Administrator);
-
 				VerifyUserInRoles (db, login, requiredRoles.ToArray(), false);
 
 				var cmdText = new StringBuilder ();
