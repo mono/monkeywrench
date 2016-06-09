@@ -192,7 +192,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void EditCommand (WebServiceLogin login, DBCommand command, int lane_id)
+		public void EditCommandInLane (WebServiceLogin login, DBCommand command, int lane_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -214,7 +214,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void EditCommandFilename (WebServiceLogin login, int lane_id, int command_id, string filename)
+		public void EditCommandFilenameInLane (WebServiceLogin login, int lane_id, int command_id, string filename)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -240,7 +240,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void EditCommandSequence (WebServiceLogin login, int lane_id, int command_id, int sequence)
+		public void EditCommandSequenceInLane (WebServiceLogin login, int lane_id, int command_id, int sequence)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -266,7 +266,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void EditCommandArguments (WebServiceLogin login, int lane_id, int command_id, string arguments)
+		public void EditCommandArgumentsInLane (WebServiceLogin login, int lane_id, int command_id, string arguments)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -292,7 +292,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void EditCommandTimeout (WebServiceLogin login, int lane_id, int command_id, int timeout)
+		public void EditCommandTimeoutInLane (WebServiceLogin login, int lane_id, int command_id, int timeout)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -318,7 +318,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void EditCommandDeadlockTimeout (WebServiceLogin login, int lane_id, int command_id, int? deadlock_timeout)
+		public void EditCommandDeadlockTimeoutInLane (WebServiceLogin login, int lane_id, int command_id, int? deadlock_timeout)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -344,7 +344,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void EditCommandWorkingDirectory (WebServiceLogin login, int lane_id, int command_id, string working_directory)
+		public void EditCommandWorkingDirectoryInLane (WebServiceLogin login, int lane_id, int command_id, string working_directory)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -374,7 +374,7 @@ namespace MonkeyWrench.WebServices
 		}
 		
 		[WebMethod]
-		public void EditCommandUploadFiles (WebServiceLogin login, int lane_id, int command_id, string upload_files)
+		public void EditCommandUploadFilesInLane (WebServiceLogin login, int lane_id, int command_id, string upload_files)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -398,7 +398,7 @@ namespace MonkeyWrench.WebServices
 		}
 		
 		[WebMethod]
-		public void SwitchCommandNonFatal (WebServiceLogin login, int lane_id, int command_id)
+		public void SwitchCommandNonFatalInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -422,7 +422,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void SwitchCommandAlwaysExecute (WebServiceLogin login, int lane_id, int command_id)
+		public void SwitchCommandAlwaysExecuteInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -446,7 +446,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void SwitchCommandInternal (WebServiceLogin login, int lane_id, int command_id)
+		public void SwitchCommandInternalInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -470,7 +470,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void SwitchCommandTimestamp (WebServiceLogin login, int lane_id, int command_id)
+		public void SwitchCommandTimestampInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -494,7 +494,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void DeleteCommand (WebServiceLogin login, int lane_id, int command_id)
+		public void DeleteCommandInLane (WebServiceLogin login, int lane_id, int command_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -615,7 +615,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void EditLaneDependencyFilename (WebServiceLogin login, int lane_id, int lanedependency_id, string filename)
+		public void EditLaneDependencyFilenameInLane (WebServiceLogin login, int lane_id, int lanedependency_id, string filename)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -638,7 +638,7 @@ namespace MonkeyWrench.WebServices
 		}
 
 		[WebMethod]
-		public void DeleteLaneDependency (WebServiceLogin login, int lane_id, int lanedependency_id)
+		public void DeleteLaneDependencyInLane (WebServiceLogin login, int lane_id, int lanedependency_id)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -658,7 +658,7 @@ namespace MonkeyWrench.WebServices
 
 
 		[WebMethod]
-		public void EditLaneDependencyDownloads (WebServiceLogin login, int lane_id, int lanedependency_id, string downloads)
+		public void EditLaneDependencyDownloadsInLane (WebServiceLogin login, int lane_id, int lanedependency_id, string downloads)
 		{
 			using (DB db = new DB ()) {
 				var lane = DBLane_Extensions.Create (db, lane_id);
@@ -3356,7 +3356,7 @@ WHERE Revision.lane_id = @lane_id AND ";
 		}
 
 		[WebMethod]
-		public WebServiceResponse RemoveLaneNotification (WebServiceLogin login, int id, int lane_id)
+		public WebServiceResponse RemoveLaneNotificationForLane (WebServiceLogin login, int id, int lane_id)
 		{
 			WebServiceResponse response = new WebServiceResponse ();
 
