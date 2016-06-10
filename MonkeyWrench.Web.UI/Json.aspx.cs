@@ -412,33 +412,36 @@ namespace MonkeyWrench.Web.UI
 		}
 
 		private string GetJobInfo () {
+			var lane_id = Utils.TryParseInt32 (Request ["lane_id"]);
+			var host_id = Utils.TryParseInt32 (Request ["host_id"]);
 			var response = Utils.LocalWebService.GetViewLaneData2 (
 				login,
-				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
-				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
+				lane_id, Request ["lane"],
+				host_id, Request ["host"],
 				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
 			var workviews = response.WorkViews.Select(node => new {
 				lane = node.lane,
 				command_id = node.command_id,
 				command = node.command,
 				state = node.state,
-				starttime = node.starttime,
-				endtime = node.endtime,
+				start_time = node.starttime,
+				end_time = node.endtime,
 				duration = node.duration,
-				logfile = node.logfile,
+				log_file = node.logfile,
 				summary = node.summary,
 				workhost_id = node.workhost_id,
 				workhost = node.workhost,
-				nonfatal = node.nonfatal,
-				alwaysexecute = node.alwaysexecute,
+				non_fatal = node.nonfatal,
+				always_execute = node.alwaysexecute,
 				sequence = node.sequence,
 				@internal = node.@internal,
-				revisionwork_id = node.revision_id,
+				revision_work_id = node.revision_id,
 				revision = node.revision,
-				masterhost_id = node.masterhost_id,
-				masterhost = node.masterhost,
+				master_host_id = node.masterhost_id,
+				master_host = node.masterhost,
 				author = node.author,
-				date = node.date
+				date = node.date,
+				step_history_link = string.Format("ViewWorkTable.aspx?lane_id={0}&host_id={1}&command_id={2}", lane_id, host_id, node.command_id)
 			});
 			return JsonConvert.SerializeObject (workviews, Formatting.Indented);
 		}
