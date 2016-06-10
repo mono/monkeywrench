@@ -66,6 +66,7 @@ public partial class Login : System.Web.UI.Page
 
 		cmdLoginOpenId.Visible = !string.IsNullOrEmpty (Configuration.OpenIdProvider);
 		cmdLoginOauth.Visible = !string.IsNullOrEmpty (Configuration.OauthClientId);
+		cmdLoginGitHubOauth.Visible = !string.IsNullOrEmpty (Configuration.GitHubOauthClientId);
 
 		if (!Configuration.AllowPasswordLogin) {
 			cmdLogin.Visible = Configuration.AllowPasswordLogin;
