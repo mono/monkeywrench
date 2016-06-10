@@ -76,6 +76,9 @@ namespace MonkeyWrench.Web.UI
 				case "botstatus":
 					Response.Write (GetBotStatusTimes ());
 					break;
+				case "jobinfo":
+					Response.Write (GetJobInfo ());
+				break;
 				default:
 					GetBotStatus ();
 					break;
@@ -406,6 +409,38 @@ namespace MonkeyWrench.Web.UI
 
 				return JsonConvert.SerializeObject (results, Formatting.Indented);
 			}
+		}
+
+		private string GetJobInfo () {
+			var response = Utils.LocalWebService.GetViewLaneData2 (
+				login,
+				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
+				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
+				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
+			var workviews = response.WorkViews.Select(node => new {
+				lane = node.lane,
+				command_id = node.command_id,
+				command = node.command,
+				state = node.state,
+				starttime = node.starttime,
+				endtime = node.endtime,
+				duration = node.duration,
+				logfile = node.logfile,
+				summary = node.summary,
+				workhost_id = node.workhost_id,
+				workhost = node.workhost,
+				nonfatal = node.nonfatal,
+				alwaysexecute = node.alwaysexecute,
+				sequence = node.sequence,
+				@internal = node.@internal,
+				revisionwork_id = node.revision_id,
+				revision = node.revision,
+				masterhost_id = node.masterhost_id,
+				masterhost = node.masterhost,
+				author = node.author,
+				date = node.date
+			});
+			return JsonConvert.SerializeObject (workviews, Formatting.Indented);
 		}
 
 		string BranchFromRevision (string revision) {
