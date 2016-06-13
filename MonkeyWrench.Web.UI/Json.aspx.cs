@@ -441,7 +441,7 @@ namespace MonkeyWrench.Web.UI
 				master_host = node.masterhost,
 				author = node.author,
 				date = node.date,
-				step_history_link = string.Format("ViewWorkTable.aspx?lane_id={0}&host_id={1}&command_id={2}", lane_id, host_id, node.command_id)
+				step_history_link = string.Format("Json.aspx?type={0}&lane_id={1}&host_id={2}&command_id={3}", "stephistory", lane_id, host_id, node.command_id)
 			});
 			return JsonConvert.SerializeObject (workviews, Formatting.Indented);
 		}
