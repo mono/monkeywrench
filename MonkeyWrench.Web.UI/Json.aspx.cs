@@ -76,6 +76,9 @@ namespace MonkeyWrench.Web.UI
 				case "botstatus":
 					Response.Write (GetBotStatusTimes ());
 					break;
+				case "jobinfo":
+					Response.Write (GetJobInfo ());
+				break;
 				default:
 					GetBotStatus ();
 					break;
@@ -406,6 +409,41 @@ namespace MonkeyWrench.Web.UI
 
 				return JsonConvert.SerializeObject (results, Formatting.Indented);
 			}
+		}
+
+		private string GetJobInfo () {
+			var lane_id = Utils.TryParseInt32 (Request ["lane_id"]);
+			var host_id = Utils.TryParseInt32 (Request ["host_id"]);
+			var response = Utils.LocalWebService.GetViewLaneData2 (
+				login,
+				lane_id, Request ["lane"],
+				host_id, Request ["host"],
+				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
+			var workviews = response.WorkViews.Select(node => new {
+				lane = node.lane,
+				command_id = node.command_id,
+				command = node.command,
+				state = node.state,
+				start_time = node.starttime,
+				end_time = node.endtime,
+				duration = node.duration,
+				log_file = node.logfile,
+				summary = node.summary,
+				workhost_id = node.workhost_id,
+				workhost = node.workhost,
+				non_fatal = node.nonfatal,
+				always_execute = node.alwaysexecute,
+				sequence = node.sequence,
+				@internal = node.@internal,
+				revision_work_id = node.revision_id,
+				revision = node.revision,
+				master_host_id = node.masterhost_id,
+				master_host = node.masterhost,
+				author = node.author,
+				date = node.date,
+				step_history_link = string.Format("Json.aspx?type={0}&lane_id={1}&host_id={2}&command_id={3}", "stephistory", lane_id, host_id, node.command_id)
+			});
+			return JsonConvert.SerializeObject (workviews, Formatting.Indented);
 		}
 
 		string BranchFromRevision (string revision) {
