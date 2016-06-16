@@ -432,7 +432,7 @@ namespace MonkeyWrench.Web.UI
 				revision = dbr.revision,
 				status = revisionwork.State,
 				author = dbr.author,
-				created_at = dbr.date.ToUniversalTime(),
+				commit_date = dbr.date.ToUniversalTime(),
 				host = response.WorkHost.host,
 				host_id = response.WorkHost.id
 			};
