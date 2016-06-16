@@ -11,6 +11,6 @@
 namespace MonkeyWrench.Web.UI {
 	
 	
-	public partial class GetLatestManifest {
+	public partial class GetMetadata {
 	}
 }

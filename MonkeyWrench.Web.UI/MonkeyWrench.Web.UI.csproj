@@ -260,8 +260,8 @@
     <Content Include="ViewServerLog.aspx" />
     <Content Include="GetLatest.aspx" />
     <Content Include="ErrorPage.aspx" />
-    <Content Include="GetLatestManifest.aspx" />
-    <Content Include="GetLatestMetadata.aspx" />
+    <Content Include="GetManifest.aspx" />
+    <Content Include="GetMetadata.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.aspx.cs">
@@ -518,17 +518,17 @@
       <DependentUpon>ErrorPage.aspx</DependentUpon>
     </Compile>
     <Compile Include="Helpers\GitHubAuthenticationHelper.cs" />
-    <Compile Include="GetLatestManifest.aspx.cs">
-      <DependentUpon>GetLatestManifest.aspx</DependentUpon>
+    <Compile Include="GetManifest.aspx.cs">
+      <DependentUpon>GetManifest.aspx</DependentUpon>
     </Compile>
-    <Compile Include="GetLatestManifest.aspx.designer.cs">
-      <DependentUpon>GetLatestManifest.aspx</DependentUpon>
+    <Compile Include="GetManifest.aspx.designer.cs">
+      <DependentUpon>GetManifest.aspx</DependentUpon>
     </Compile>
-    <Compile Include="GetLatestMetadata.aspx.cs">
-      <DependentUpon>GetLatestMetadata.aspx</DependentUpon>
+    <Compile Include="GetMetadata.aspx.cs">
+      <DependentUpon>GetMetadata.aspx</DependentUpon>
     </Compile>
-    <Compile Include="GetLatestMetadata.aspx.designer.cs">
-      <DependentUpon>GetLatestMetadata.aspx</DependentUpon>
+    <Compile Include="GetMetadata.aspx.designer.cs">
+      <DependentUpon>GetMetadata.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

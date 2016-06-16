@@ -13,7 +13,7 @@ using MonkeyWrench.Web.WebServices;
 namespace MonkeyWrench.Web.UI
 {
 
-	public partial class GetLatestMetadata : System.Web.UI.Page
+	public partial class GetMetadata : System.Web.UI.Page
 	{
 		private new Master Master
 		{

@@ -13,7 +13,7 @@ using MonkeyWrench.Web.WebServices;
 namespace MonkeyWrench.Web.UI
 {
 
-	public partial class GetLatestManifest : System.Web.UI.Page
+	public partial class GetManifest : System.Web.UI.Page
 	{
 		private new Master Master
 		{
