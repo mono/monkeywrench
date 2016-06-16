@@ -79,8 +79,8 @@ namespace MonkeyWrench.Web.UI
 				case "jobinfo":
 					Response.Write (GetJobInfo ());
 					break;
-				case "statusinfo":
-					Response.Write (GetStatusInfo ());
+				case "stepinfo":
+					Response.Write (GetStepInfo ());
 				break;
 				default:
 					GetBotStatus ();
@@ -441,7 +441,7 @@ namespace MonkeyWrench.Web.UI
 			return JsonConvert.SerializeObject (jobinfo, Formatting.Indented);
 		}
 
-		private string GetStatusInfo () {
+		private string GetStepInfo () {
 			var lane_id = Utils.TryParseInt32 (Request ["lane_id"]);
 			var host_id = Utils.TryParseInt32 (Request ["host_id"]);
 			var response = Utils.LocalWebService.GetViewLaneData2 (
