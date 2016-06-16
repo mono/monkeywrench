@@ -432,8 +432,8 @@ namespace MonkeyWrench.Web.UI
 				revision = dbr.revision,
 				status = revisionwork.State,
 				author = dbr.author,
-				commit_date = dbr.date.ToLocalTime(),
-				commit_date_utc = dbr.date.ToString ("yyyy/MM/dd HH:mm:ss UTC"),
+				created_at = dbr.date.ToLocalTime(),
+				created_at_utc = dbr.date.ToUniversalTime().ToString("u"),
 				host = response.WorkHost.host,
 				host_id = response.WorkHost.id
 			};
