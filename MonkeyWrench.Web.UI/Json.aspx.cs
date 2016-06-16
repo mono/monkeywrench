@@ -76,6 +76,9 @@ namespace MonkeyWrench.Web.UI
 				case "botstatus":
 					Response.Write (GetBotStatusTimes ());
 					break;
+				case "jobinfo":
+					Response.Write (GetJobInfo ());
+					break;
 				case "statusinfo":
 					Response.Write (GetStatusInfo ());
 				break;
@@ -409,6 +412,33 @@ namespace MonkeyWrench.Web.UI
 
 				return JsonConvert.SerializeObject (results, Formatting.Indented);
 			}
+		}
+
+		private string GetJobInfo () {
+			var lane_id = Utils.TryParseInt32 (Request ["lane_id"]);
+			var host_id = Utils.TryParseInt32 (Request ["host_id"]);
+			var response = Utils.LocalWebService.GetViewLaneData2 (
+				login,
+				lane_id, Request ["lane"],
+				host_id, Request ["host"],
+				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
+			DBRevision dbr = response.Revision;
+			DBRevisionWork revisionwork = response.RevisionWork;
+			DBLane lane = response.Lane;
+			DBHost host = response.Host;
+			DBRevision revision = response.Revision;
+
+			var jobinfo = new {
+				revision = dbr.revision,
+				status = revisionwork.State,
+				author = dbr.author,
+				commit_date = dbr.date.ToLocalTime(),
+				commit_date_utc = dbr.date.ToString ("yyyy/MM/dd HH:mm:ss UTC"),
+				host = response.WorkHost.host,
+				host_id = response.WorkHost.id
+			};
+
+			return JsonConvert.SerializeObject (jobinfo, Formatting.Indented);
 		}
 
 		private string GetStatusInfo () {
