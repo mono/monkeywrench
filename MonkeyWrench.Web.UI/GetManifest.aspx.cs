@@ -27,7 +27,7 @@ namespace MonkeyWrench.Web.UI
 			base.OnLoad (e); 
 			webServiceLogin = Authentication.CreateLogin (Request);
 
-			var laneName = Request.QueryString ["laneName"];
+			var lane = Request.QueryString ["lane"];
 			var revision = Request.QueryString ["revision"];
 			var baseURL = Request.QueryString ["url"] ?? "http://storage.bos.internalx.com";
 			var storagePref = Request.QueryString ["prefer"];
@@ -38,10 +38,10 @@ namespace MonkeyWrench.Web.UI
 			var step =  10;
 			var limit =  200;
 
-			revision = string.IsNullOrEmpty(revision) ? getLatestRevision (webServiceLogin, laneName, step, 0, limit) : revision;
+			revision = string.IsNullOrEmpty(revision) ? getLatestRevision (webServiceLogin, lane, step, 0, limit) : revision;
 
 			if (revision != "") {
-				handleGetManifest (baseURL, laneName, revision, storagePref);
+				handleGetManifest (baseURL, lane, revision, storagePref);
 			} else {
 				Response.Write ("No Valid Revisions");
 			}
