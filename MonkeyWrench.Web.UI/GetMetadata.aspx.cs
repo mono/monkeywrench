@@ -27,45 +27,43 @@ namespace MonkeyWrench.Web.UI
 			base.OnLoad (e); 
 			webServiceLogin = Authentication.CreateLogin (Request);
 
-			var laneName = Request.QueryString ["laneName"];
+			var lane = Request.QueryString ["lane"];
 			var revision = Request.QueryString ["revision"];
 			var baseURL = Request.QueryString ["url"] ?? "http://storage.bos.internalx.com";
 			var storagePref = Request.QueryString ["prefer"];
 			if (!string.IsNullOrEmpty(storagePref) && (storagePref.ToLower () == "azure")) {
 				baseURL = "https://bosstoragemirror.blob.core.windows.net";
 			}
-			var updateRequest = false;
+
 			var step =  10;
 			var limit =  200;
 
-			revision = string.IsNullOrEmpty(revision) ? getLatestRevision (webServiceLogin, laneName, step, 0, limit) : revision;
-
-			Action handleGetLatest = () => {
-				Response.AppendHeader ("Access-Control-Allow-Origin", "*");
-				Response.AppendHeader ("Content-Type", "application/json");
-
-				HttpWebResponse response = makeHttpRequest (getManifestUrl (baseURL, laneName, revision));
-				if (response.StatusCode != HttpStatusCode.OK) {
-					// Default to NAS
-					if (storagePref != "NAS") {
-						response = makeHttpRequest (getManifestUrl ("http://storage.bos.internalx.com", laneName, revision));
-						if (response.StatusCode != HttpStatusCode.OK) {
-							Response.Write ("Can't find metadata");
-							return;
-						}
-					}
-					Response.Write ("Can't find metadata");
-					return;
-				}
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
-					Response.Write (reader.ReadToEnd ());
-				}
-			};
+			revision = string.IsNullOrEmpty(revision) ? getLatestRevision (webServiceLogin, lane, step, 0, limit) : revision;
 
 			if (revision != "") {
-				handleGetLatest ();
+				handleGetMetadata (baseURL, lane, revision, storagePref);
 			} else {
-				Response.Write ("No Valid Revisions");
+				throw new HttpException (404, "No Valid Revisions");
+			}
+		}
+
+		void handleGetMetadata (string baseURL, string laneName, string revision, string storagePref) {
+			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
+			Response.AppendHeader ("Content-Type", "application/json");
+
+			HttpWebResponse response = makeHttpRequest (getMetadataUrl (baseURL, laneName, revision));
+			if (response.StatusCode != HttpStatusCode.OK) {
+				// Default to NAS
+				if (storagePref != "NAS") {
+					response = makeHttpRequest (getMetadataUrl ("http://storage.bos.internalx.com", laneName, revision));
+					if (response.StatusCode != HttpStatusCode.OK) {
+						throw new HttpException (404, "Can't find metadata");
+						return;
+					}
+				}
+			}
+			using (var reader = new StreamReader (response.GetResponseStream ())) {
+				Response.Write (reader.ReadToEnd ());
 			}
 		}
 
@@ -74,7 +72,7 @@ namespace MonkeyWrench.Web.UI
 			return (HttpWebResponse)request.GetResponse ();
 		}
 
-		string getManifestUrl (string host, string laneName, string revision) {
+		string getMetadataUrl (string host, string laneName, string revision) {
 			return String.Format ("{0}/{1}/{2}/{3}/metadata", host, laneName, revision.Substring (0, 2), revision);
 		}
 

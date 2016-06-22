@@ -27,45 +27,42 @@ namespace MonkeyWrench.Web.UI
 			base.OnLoad (e); 
 			webServiceLogin = Authentication.CreateLogin (Request);
 
-			var laneName = Request.QueryString ["laneName"];
+			var lane = Request.QueryString ["lane"];
 			var revision = Request.QueryString ["revision"];
 			var baseURL = Request.QueryString ["url"] ?? "http://storage.bos.internalx.com";
 			var storagePref = Request.QueryString ["prefer"];
 			if (!string.IsNullOrEmpty(storagePref) && (storagePref.ToLower () == "azure")) {
 				baseURL = "https://bosstoragemirror.blob.core.windows.net";
 			}
-			var updateRequest = false;
+
 			var step =  10;
 			var limit =  200;
 
-			revision = string.IsNullOrEmpty(revision) ? getLatestRevision (webServiceLogin, laneName, step, 0, limit) : revision;
-
-			Action handleGetLatest = () => {
-				Response.AppendHeader ("Access-Control-Allow-Origin", "*");
-				Response.AppendHeader ("Content-Type", "text/plain");
-
-				HttpWebResponse response = makeHttpRequest (getManifestUrl (baseURL, laneName, revision));
-				if (response.StatusCode != HttpStatusCode.OK) {
-					// Default to NAS
-					if (storagePref != "NAS") {
-						response = makeHttpRequest (getManifestUrl ("http://storage.bos.internalx.com", laneName, revision));
-						if (response.StatusCode != HttpStatusCode.OK) {
-							Response.Write ("Can't find manifest");
-							return;
-						}
-					}
-					Response.Write ("Can't find manifest");
-					return;
-				}
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
-					Response.Write (reader.ReadToEnd ());
-				}
-			};
+			revision = string.IsNullOrEmpty(revision) ? getLatestRevision (webServiceLogin, lane, step, 0, limit) : revision;
 
 			if (revision != "") {
-				handleGetLatest ();
+				handleGetManifest (baseURL, lane, revision, storagePref);
 			} else {
-				Response.Write ("No Valid Revisions");
+				throw new HttpException (404, "No Valid Revisions");
+			}
+		}
+
+		void handleGetManifest (string baseURL, string laneName, string revision, string storagePref) {
+			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
+			Response.AppendHeader ("Content-Type", "text/plain");
+
+			HttpWebResponse response = makeHttpRequest (getManifestUrl (baseURL, laneName, revision));
+			if (response.StatusCode != HttpStatusCode.OK) {
+				// Default to NAS
+				if (storagePref != "NAS") {
+					response = makeHttpRequest (getManifestUrl ("http://storage.bos.internalx.com", laneName, revision));
+					if (response.StatusCode != HttpStatusCode.OK) {
+						throw new HttpException (404, "Can't find manifest");
+					}
+				}
+			}
+			using (var reader = new StreamReader (response.GetResponseStream ())) {
+				Response.Write (reader.ReadToEnd ());
 			}
 		}
 
