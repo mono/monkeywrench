@@ -300,6 +300,9 @@ namespace MonkeyWrench.Builder
 							p.StartInfo.EnvironmentVariables ["C_INCLUDE_PATH"] = Configuration.CygwinizePath (Configuration.GetCIncludePath (info.lane.id, info.revision.revision));
 							p.StartInfo.EnvironmentVariables ["CPLUS_INCLUDE_PATH"] = Configuration.CygwinizePath (Configuration.GetCPlusIncludePath (info.lane.id, info.revision.revision));
 
+							p.StartInfo.EnvironmentVariables["WRENCH_USERNAME"] = Configuration.Host;
+							p.StartInfo.EnvironmentVariables["WRENCH_PASSWORD"] = Configuration.WebServicePassword;
+
 							// We need to remove all paths from environment variables that were
 							// set for this executable to work so that they don't mess with 
 							// whatever we're trying to execute
