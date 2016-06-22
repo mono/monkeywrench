@@ -51,18 +51,16 @@ namespace MonkeyWrench.Web.UI
 			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
 			Response.AppendHeader ("Content-Type", "application/json");
 
-			HttpWebResponse response = makeHttpRequest (getManifestUrl (baseURL, laneName, revision));
+			HttpWebResponse response = makeHttpRequest (getMetadataUrl (baseURL, laneName, revision));
 			if (response.StatusCode != HttpStatusCode.OK) {
 				// Default to NAS
 				if (storagePref != "NAS") {
-					response = makeHttpRequest (getManifestUrl ("http://storage.bos.internalx.com", laneName, revision));
+					response = makeHttpRequest (getMetadataUrl ("http://storage.bos.internalx.com", laneName, revision));
 					if (response.StatusCode != HttpStatusCode.OK) {
-						Response.Write ("Can't find metadata");
+						throw new HttpException (404, "Can't find metadata");
 						return;
 					}
 				}
-				Response.Write ("Can't find metadata");
-				return;
 			}
 			using (var reader = new StreamReader (response.GetResponseStream ())) {
 				Response.Write (reader.ReadToEnd ());
@@ -74,7 +72,7 @@ namespace MonkeyWrench.Web.UI
 			return (HttpWebResponse)request.GetResponse ();
 		}
 
-		string getManifestUrl (string host, string laneName, string revision) {
+		string getMetadataUrl (string host, string laneName, string revision) {
 			return String.Format ("{0}/{1}/{2}/{3}/metadata", host, laneName, revision.Substring (0, 2), revision);
 		}
 

@@ -57,12 +57,9 @@ namespace MonkeyWrench.Web.UI
 				if (storagePref != "NAS") {
 					response = makeHttpRequest (getManifestUrl ("http://storage.bos.internalx.com", laneName, revision));
 					if (response.StatusCode != HttpStatusCode.OK) {
-						Response.Write ("Can't find manifest");
-						return;
+						throw new HttpException (404, "Can't find manifest");
 					}
 				}
-				Response.Write ("Can't find manifest");
-				return;
 			}
 			using (var reader = new StreamReader (response.GetResponseStream ())) {
 				Response.Write (reader.ReadToEnd ());
