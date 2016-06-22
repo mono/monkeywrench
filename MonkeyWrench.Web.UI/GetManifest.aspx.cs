@@ -43,7 +43,7 @@ namespace MonkeyWrench.Web.UI
 			if (revision != "") {
 				handleGetManifest (baseURL, lane, revision, storagePref);
 			} else {
-				Response.Write ("No Valid Revisions");
+				throw new HttpException (404, "No Valid Revisions");
 			}
 		}
 
