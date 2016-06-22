@@ -34,38 +34,38 @@ namespace MonkeyWrench.Web.UI
 			if (!string.IsNullOrEmpty(storagePref) && (storagePref.ToLower () == "azure")) {
 				baseURL = "https://bosstoragemirror.blob.core.windows.net";
 			}
-			var updateRequest = false;
+
 			var step =  10;
 			var limit =  200;
 
 			revision = string.IsNullOrEmpty(revision) ? getLatestRevision (webServiceLogin, laneName, step, 0, limit) : revision;
 
-			Action handleGetLatest = () => {
-				Response.AppendHeader ("Access-Control-Allow-Origin", "*");
-				Response.AppendHeader ("Content-Type", "application/json");
-
-				HttpWebResponse response = makeHttpRequest (getManifestUrl (baseURL, laneName, revision));
-				if (response.StatusCode != HttpStatusCode.OK) {
-					// Default to NAS
-					if (storagePref != "NAS") {
-						response = makeHttpRequest (getManifestUrl ("http://storage.bos.internalx.com", laneName, revision));
-						if (response.StatusCode != HttpStatusCode.OK) {
-							Response.Write ("Can't find metadata");
-							return;
-						}
-					}
-					Response.Write ("Can't find metadata");
-					return;
-				}
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
-					Response.Write (reader.ReadToEnd ());
-				}
-			};
-
 			if (revision != "") {
-				handleGetLatest ();
+				handleGetMetadata (baseURL, laneName, revision, storagePref);
 			} else {
 				Response.Write ("No Valid Revisions");
+			}
+		}
+
+		void handleGetMetadata (string baseURL, string laneName, string revision, string storagePref) {
+			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
+			Response.AppendHeader ("Content-Type", "application/json");
+
+			HttpWebResponse response = makeHttpRequest (getManifestUrl (baseURL, laneName, revision));
+			if (response.StatusCode != HttpStatusCode.OK) {
+				// Default to NAS
+				if (storagePref != "NAS") {
+					response = makeHttpRequest (getManifestUrl ("http://storage.bos.internalx.com", laneName, revision));
+					if (response.StatusCode != HttpStatusCode.OK) {
+						Response.Write ("Can't find metadata");
+						return;
+					}
+				}
+				Response.Write ("Can't find metadata");
+				return;
+			}
+			using (var reader = new StreamReader (response.GetResponseStream ())) {
+				Response.Write (reader.ReadToEnd ());
 			}
 		}
 
