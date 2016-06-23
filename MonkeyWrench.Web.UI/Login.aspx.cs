@@ -89,13 +89,19 @@ public partial class Login : System.Web.UI.Page
 			}
 
 			var accessToken = authResult.GetAccessToken();
-			var userOrgList = GitHubAuthenticationHelper.GetUserOrgs(accessToken);
-
-			// Linq select has Runtime Binder issues with dynamic objects, so these are typed.
-			var orgLoginNameList = new List<string>();
-			foreach (var org in userOrgList) {
-				string orgName = org.login;
-				orgLoginNameList.Add(orgName);
+			var userTeamList = GitHubAuthenticationHelper.GetUserTeams(accessToken);
+			var gitHubOrgTeamList = new List<Tuple<string, List<string>>>();
+			// We can't use select/group by with dynamic objects.
+			// So instead, we put together the org and team list ourselves as a tuple.
+			foreach (var userTeam in userTeamList) {
+				var teamName = userTeam.name.ToString();
+				var orgName = userTeam.organization.login.ToString();
+				var org = gitHubOrgTeamList.FirstOrDefault(node => node.Item1 == orgName);
+				if (org == null) {
+					org = new Tuple<string, List<string>>(orgName, new List<string>());
+					gitHubOrgTeamList.Add(org);
+				}
+				org.Item2.Add(teamName);
 			}
 
 			LoginResponse loginResponse = new LoginResponse();
@@ -103,7 +109,7 @@ public partial class Login : System.Web.UI.Page
 				try {
 					DBLogin_Extensions.Login(db, loginResponse, string.Empty, 
 					                              Utilities.GetExternalIP(Request), 
-					                              orgLoginNameList, 
+					                              gitHubOrgTeamList,
 					                              true, 
 					                              authResult.GetGitHubLogin());
 				} catch (Exception ex) {
@@ -134,7 +140,7 @@ public partial class Login : System.Web.UI.Page
 				try {
 					DBLogin_Extensions.Login (db, loginResponse, authResult.GetEmail (), 
 					                               Utilities.GetExternalIP (Request), 
-					                               new List<string> ());
+					                               null);
 				} catch (Exception ex) {
 					loginResponse.Exception = new WebServiceException (ex);
 				}

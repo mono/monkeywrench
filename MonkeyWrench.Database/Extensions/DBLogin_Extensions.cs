@@ -71,7 +71,7 @@ namespace MonkeyWrench.Database
 			return result;
 		}
 
-		public static void Login (DB db, LoginResponse response, string email, string ip4, List<string> userOrgs, bool useGitHub = false, string gitHubLogin = "")
+		public static void Login (DB db, LoginResponse response, string email, string ip4, List<Tuple<string, List<string>>> userOrgs, bool useGitHub = false, string gitHubLogin = "")
 		{
 			string [] specs;
 
@@ -116,7 +116,18 @@ namespace MonkeyWrench.Database
 					// userOrgs is the current orginizations the user is in.
 					// If the org in the config file is in one the user is in, we can log them in.
 					// Otherwise, continue until we find one, or fail.
-					if (!userOrgs.Contains (roleSpecCheck))
+					var teamString = roleSpecCheck.Split ('*');
+					if (!teamString.Any ())
+						continue;
+					if (!userOrgs.Any (node => node.Item1 == teamString[0])) {
+						continue;
+					}
+					var teams = teamString.Last ().Split (',');
+					if (!teams.Any ()) 
+						continue;
+					var org = userOrgs.First (node => node.Item1 == teamString[0]);
+					var teamIntersect = org.Item2.Intersect (teams);
+					if (!teamIntersect.Any ())
 						continue;
 				}
 				else {
