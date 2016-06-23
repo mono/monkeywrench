@@ -68,7 +68,16 @@ namespace MonkeyWrench.Web.UI
 
 		HttpWebResponse makeHttpRequest (string url) {
 			HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create (url);
-			return (HttpWebResponse)request.GetResponse ();
+			try {
+				// If we get an exception, we want to return the failed response back up the chain.
+				return (HttpWebResponse)request.GetResponse();
+			}
+			catch (WebException exception) {
+				var response = exception.Response as HttpWebResponse;
+				if (response == null)
+					throw;
+				return response;
+			}
 		}
 
 		string getManifestUrl (string host, string laneName, string revision) {
