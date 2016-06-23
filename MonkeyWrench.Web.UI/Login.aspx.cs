@@ -82,26 +82,21 @@ public partial class Login : System.Web.UI.Page
 		    && Request.QueryString.GetValues("__provider__") != null
 		    && Request.QueryString.GetValues("__provider__")[0] == "github")
 		{
-			var authResult = GitHubAuthenticationHelper.VerifyAuthentication();
+			var authResult = GitHubAuthenticationHelper.VerifyAuthentication ();
 			if (!authResult.IsSuccessful) {
 				lblMessageOpenId.Text = "Failed to get user authenication from GitHub";
 				return;
 			}
 
-			var accessToken = authResult.GetAccessToken();
-			var userTeamList = GitHubAuthenticationHelper.GetUserTeams(accessToken);
-			var gitHubOrgTeamList = new List<Tuple<string, List<string>>>();
+			var accessToken = authResult.GetAccessToken ();
+			var userTeamList = GitHubAuthenticationHelper.GetUserTeams (accessToken);
+			var gitHubOrgTeamList = new List<string[]> ();
 			// We can't use select/group by with dynamic objects.
 			// So instead, we put together the org and team list ourselves as a tuple.
 			foreach (var userTeam in userTeamList) {
-				var teamName = userTeam.name.ToString();
-				var orgName = userTeam.organization.login.ToString();
-				var org = gitHubOrgTeamList.FirstOrDefault(node => node.Item1 == orgName);
-				if (org == null) {
-					org = new Tuple<string, List<string>>(orgName, new List<string>());
-					gitHubOrgTeamList.Add(org);
-				}
-				org.Item2.Add(teamName);
+				var teamName = userTeam.name.ToString ();
+				var orgName = userTeam.organization.login.ToString ();
+				gitHubOrgTeamList.Add (new string[] { orgName, teamName });
 			}
 
 			LoginResponse loginResponse = new LoginResponse();
