@@ -71,7 +71,24 @@ namespace MonkeyWrench.Database
 			return result;
 		}
 
-		public static void Login (DB db, LoginResponse response, string email, string ip4, List<string[]> userOrgs, bool useGitHub = false, string gitHubLogin = "")
+		public static void GitHubLogin (DB db, LoginResponse response, string ip4, List<string[]> userOrgs, string gitHubLogin = "") {
+			var userrole = Configuration.GitHubOrganizationList.FirstOrDefault(node => {
+				var split = node.Split (':');
+				var roleSpecCheck = split[0];
+				var roles = split[1];
+				var orgAndTeamString = roleSpecCheck.Split ('*');
+				// If we only have an org, just check for that.
+				return orgAndTeamString.Length == 1 ?
+					               userOrgs.Any (org => org[0] == orgAndTeamString[0]) :
+					               userOrgs.Any (org => org[0] == orgAndTeamString[0] && org[1] == orgAndTeamString[1]);
+			});
+			if (userrole == null) {
+				throw new Exception ("No valid organizations or teams available for logging in");
+			}
+			LoginDB (db, response, gitHubLogin, userrole.Split(':')[1], ip4);
+		}
+
+		public static void Login (DB db, LoginResponse response, string email, string ip4)
 		{
 			string [] specs;
 
@@ -86,14 +103,9 @@ namespace MonkeyWrench.Database
 			// Note: username is NOT used for checking for authorization.
 			// It is used for adding that users name as the users Wrench account name
 
-			string username = useGitHub ? gitHubLogin : email;
+			string username = email;
 
-			if (useGitHub) {
-				specs = Configuration.GitHubOrganizationList;
-			}
-			else {
-				specs = Configuration.OpenIdRoles;
-			}
+			specs = Configuration.OpenIdRoles;
 
 			foreach (var spec in specs) {
 				// org:role1,role2
@@ -112,75 +124,61 @@ namespace MonkeyWrench.Database
 				var roleSpecCheck = split[0];
 				var roles = split[1];
 
-				if (useGitHub) {
-					// userOrgs is the current orginizations the user is in.
-					// If the org in the config file is in one the user is in, we can log them in.
-					// Otherwise, continue until we find one, or fail.
-					// orgAndTeamString[0] is the Org
-					// orgAndTeamString[1] is the Team
-					var orgAndTeamString = roleSpecCheck.Split ('*');
-					if (orgAndTeamString.Length <= 1)
-						continue;
-					if (!userOrgs.Any (node => node[0] == orgAndTeamString[0])) {
-						continue;
-					}
-					// Get all of the teams the users belongs to in that org.
-					if(!userOrgs.Any (node => node[0] == orgAndTeamString[0] && node[1] == orgAndTeamString[1])) 
-						continue;
-				}
-				else {
-					if (!Regex.IsMatch (email, roleSpecCheck))
-						continue;
-				}
+				if (!Regex.IsMatch (email, roleSpecCheck))
+					continue;
 
-				// We now create an account with an empty password and the specified roles.
-				// Note that it is not possible to log into an account with an empty password
-				// using the normal login procedure.
-
-				DBPerson open_person = null;
-
-				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = @"SELECT * FROM Person WHERE login = @login;";
-					DB.CreateParameter (cmd, "login", username);
-					using (var reader = cmd.ExecuteReader ()) {
-						if (reader.Read ())
-							open_person = new DBPerson (reader);
-					}
-				}
-
-				if (open_person == null) {
-					open_person = new DBPerson ();
-					open_person.login = username;
-					open_person.roles = roles;
-					open_person.Save (db);
-				} else {
-					// only save if something has changed
-					if (open_person.roles != roles) {
-						open_person.roles = roles;
-						open_person.Save (db);
-					}
-				}
-				WebServiceLogin login = new WebServiceLogin ();
-				login.Ip4 = ip4;
-				login.User = open_person.login;
-				db.Audit (login, "DBLogin_Extensions.Login (username: {0}, ip4: {1})", username, ip4);
-
-				var result = new DBLogin ();
-				result.person_id = open_person.id;
-				result.ip4 = ip4;
-				result.cookie = CreateCookie ();
-				result.expires = DateTime.Now.AddDays (1);
-				result.Save (db);
-				
-				response.User = username;
-				response.UserName = username;
-				response.UserRoles = open_person.Roles;
-				response.Cookie = result.cookie;
+				LoginDB (db, response, username, roles, ip4);
 
 				return;
 			}
 
 			throw new Exception ("The provided email address is not allowed to log in");
+		}
+
+		public static void LoginDB (DB db, LoginResponse response, string username, string roles, string ip4) {
+			// We now create an account with an empty password and the specified roles.
+			// Note that it is not possible to log into an account with an empty password
+			// using the normal login procedure.
+
+			DBPerson open_person = null;
+
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = @"SELECT * FROM Person WHERE login = @login;";
+				DB.CreateParameter (cmd, "login", username);
+				using (var reader = cmd.ExecuteReader ()) {
+					if (reader.Read ())
+						open_person = new DBPerson (reader);
+				}
+			}
+
+			if (open_person == null) {
+				open_person = new DBPerson ();
+				open_person.login = username;
+				open_person.roles = roles;
+				open_person.Save (db);
+			} else {
+				// only save if something has changed
+				if (open_person.roles != roles) {
+					open_person.roles = roles;
+					open_person.Save (db);
+				}
+			}
+			WebServiceLogin login = new WebServiceLogin ();
+			login.Ip4 = ip4;
+			login.User = open_person.login;
+			db.Audit (login, "DBLogin_Extensions.Login (username: {0}, ip4: {1})", username, ip4);
+
+			var result = new DBLogin ();
+			result.person_id = open_person.id;
+			result.ip4 = ip4;
+			result.cookie = CreateCookie ();
+			result.expires = DateTime.Now.AddDays (1);
+			result.Save (db);
+
+			response.User = username;
+			response.UserName = username;
+			response.UserRoles = open_person.Roles;
+			response.Cookie = result.cookie;
 		}
 
 		public static string CreateCookie ()

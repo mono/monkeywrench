@@ -102,10 +102,9 @@ public partial class Login : System.Web.UI.Page
 			LoginResponse loginResponse = new LoginResponse();
 			using (DB db = new DB()) {
 				try {
-					DBLogin_Extensions.Login(db, loginResponse, string.Empty, 
+					DBLogin_Extensions.GitHubLogin(db, loginResponse,
 					                              Utilities.GetExternalIP(Request), 
 					                              gitHubOrgTeamList,
-					                              true, 
 					                              authResult.GetGitHubLogin());
 				} catch (Exception ex) {
 					loginResponse.Exception = new WebServiceException(ex);
@@ -134,8 +133,7 @@ public partial class Login : System.Web.UI.Page
 			using (DB db = new DB ()) {
 				try {
 					DBLogin_Extensions.Login (db, loginResponse, authResult.GetEmail (), 
-					                               Utilities.GetExternalIP (Request), 
-					                               null);
+					                               Utilities.GetExternalIP (Request));
 				} catch (Exception ex) {
 					loginResponse.Exception = new WebServiceException (ex);
 				}
