@@ -41,6 +41,11 @@ namespace MonkeyWrench.Web.UI
 			return ms.GetOrganizations(accessToken);
 		}
 
+		public static dynamic GetUserTeams(string accessToken)
+		{
+			return ms.GetUserTeams(accessToken);
+		}
+
 		public static AuthenticationResult VerifyAuthentication()
 		{
 			var manager = new OpenAuthSecurityManager(new HttpContextWrapper(HttpContext.Current),

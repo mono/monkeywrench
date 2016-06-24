@@ -82,20 +82,21 @@ public partial class Login : System.Web.UI.Page
 		    && Request.QueryString.GetValues("__provider__") != null
 		    && Request.QueryString.GetValues("__provider__")[0] == "github")
 		{
-			var authResult = GitHubAuthenticationHelper.VerifyAuthentication();
+			var authResult = GitHubAuthenticationHelper.VerifyAuthentication ();
 			if (!authResult.IsSuccessful) {
 				lblMessageOpenId.Text = "Failed to get user authenication from GitHub";
 				return;
 			}
 
-			var accessToken = authResult.GetAccessToken();
-			var userOrgList = GitHubAuthenticationHelper.GetUserOrgs(accessToken);
-
-			// Linq select has Runtime Binder issues with dynamic objects, so these are typed.
-			var orgLoginNameList = new List<string>();
-			foreach (var org in userOrgList) {
-				string orgName = org.login;
-				orgLoginNameList.Add(orgName);
+			var accessToken = authResult.GetAccessToken ();
+			var userTeamList = GitHubAuthenticationHelper.GetUserTeams (accessToken);
+			var gitHubOrgTeamList = new List<string[]> ();
+			// We can't use select/group by with dynamic objects.
+			// So instead, we put together the org and team list ourselves as a tuple.
+			foreach (var userTeam in userTeamList) {
+				var teamName = userTeam.name.ToString ();
+				var orgName = userTeam.organization.login.ToString ();
+				gitHubOrgTeamList.Add (new string[] { orgName, teamName });
 			}
 
 			LoginResponse loginResponse = new LoginResponse();
@@ -103,7 +104,7 @@ public partial class Login : System.Web.UI.Page
 				try {
 					DBLogin_Extensions.Login(db, loginResponse, string.Empty, 
 					                              Utilities.GetExternalIP(Request), 
-					                              orgLoginNameList, 
+					                              gitHubOrgTeamList,
 					                              true, 
 					                              authResult.GetGitHubLogin());
 				} catch (Exception ex) {
@@ -134,7 +135,7 @@ public partial class Login : System.Web.UI.Page
 				try {
 					DBLogin_Extensions.Login (db, loginResponse, authResult.GetEmail (), 
 					                               Utilities.GetExternalIP (Request), 
-					                               new List<string> ());
+					                               null);
 				} catch (Exception ex) {
 					loginResponse.Exception = new WebServiceException (ex);
 				}
