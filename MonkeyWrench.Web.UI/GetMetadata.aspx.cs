@@ -22,6 +22,10 @@ namespace MonkeyWrench.Web.UI
 
 		private WebServiceLogin webServiceLogin;
 
+		static readonly string NAS_ROOT = "http://storage.bos.internalx.com";
+		static readonly string AZURE_ROOT_1 = "https://bosstoragemirror.blob.core.windows.net/wrench";
+		static readonly string AZURE_ROOT_2 = "https://bosstoragemirror.blob.core.windows.net";
+
 		protected override void OnLoad (EventArgs e)
 		{
 			base.OnLoad (e); 
@@ -29,11 +33,10 @@ namespace MonkeyWrench.Web.UI
 
 			var lane = Request.QueryString ["lane"];
 			var revision = Request.QueryString ["revision"];
-			var baseURL = Request.QueryString ["url"] ?? "http://storage.bos.internalx.com";
 			var storagePref = Request.QueryString ["prefer"];
-			if (!string.IsNullOrEmpty(storagePref) && (storagePref.ToLower () == "azure")) {
-				baseURL = "https://bosstoragemirror.blob.core.windows.net";
-			}
+			var preferAzure = !string.IsNullOrEmpty(storagePref) && (storagePref.ToLower() == "azure");
+
+			var baseUrls = preferAzure ? new string[] { AZURE_ROOT_1, AZURE_ROOT_2, NAS_ROOT } : new string[] { NAS_ROOT };
 
 			var step =  10;
 			var limit =  200;
@@ -41,30 +44,27 @@ namespace MonkeyWrench.Web.UI
 			revision = string.IsNullOrEmpty(revision) ? getLatestRevision (webServiceLogin, lane, step, 0, limit) : revision;
 
 			if (revision != "") {
-				handleGetMetadata (baseURL, lane, revision, storagePref);
+				handleGetMetadata (baseUrls, lane, revision, storagePref);
 			} else {
 				throw new HttpException (404, "No Valid Revisions");
 			}
 		}
 
-		void handleGetMetadata (string baseURL, string laneName, string revision, string storagePref) {
+		void handleGetMetadata (string[] baseUrls, string laneName, string revision, string storagePref) {
 			Response.AppendHeader ("Access-Control-Allow-Origin", "*");
 			Response.AppendHeader ("Content-Type", "application/json");
 
-			HttpWebResponse response = makeHttpRequest (getMetadataUrl (baseURL, laneName, revision));
-			if (response.StatusCode != HttpStatusCode.OK) {
-				// Default to NAS
-				if (storagePref != "NAS") {
-					response = makeHttpRequest (getMetadataUrl ("http://storage.bos.internalx.com", laneName, revision));
-					if (response.StatusCode != HttpStatusCode.OK) {
-						throw new HttpException (404, "Can't find metadata");
-						return;
+			foreach (var url in baseUrls) {
+				HttpWebResponse response = makeHttpRequest(getMetadataUrl(url, laneName, revision));
+				if (response.StatusCode == HttpStatusCode.OK) {
+					using (var reader = new StreamReader (response.GetResponseStream())) {
+						Response.Write (reader.ReadToEnd ());
 					}
+					return;
 				}
 			}
-			using (var reader = new StreamReader (response.GetResponseStream ())) {
-				Response.Write (reader.ReadToEnd ());
-			}
+
+			throw new HttpException (404, "Can't find manifest");
 		}
 
 		HttpWebResponse makeHttpRequest (string url) {
