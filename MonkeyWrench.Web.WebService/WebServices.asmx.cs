@@ -813,6 +813,50 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 		}
 
 		[WebMethod]
+		public GetAuditResponse GetAuditHistory (WebServiceLogin login, int limit, int offset)
+		{
+			GetAuditResponse response = new GetAuditResponse ();
+
+			using (DB db = new DB ()) {
+				VerifyUserInRole(db, login, Roles.Administrator);
+
+				response.AuditEntries = new List<DBAudit> ();
+
+				using (IDbCommand cmd = db.CreateCommand ()) {
+
+					// 1: Get audit records
+					cmd.CommandText = @"SELECT id, person_id, person_login, ip, stamp, action FROM audit";
+					cmd.CommandText += " ORDER BY id DESC ";
+					if (limit > 0)
+						cmd.CommandText += " LIMIT " + limit.ToString ();
+					if (offset > 0)
+						cmd.CommandText += " OFFSET " + offset.ToString ();
+					cmd.CommandText += ";";
+
+					// 2: Get total number of audit records
+					cmd.CommandText += "SELECT Count(*) FROM audit;";
+
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+
+						// 1: Get audit records
+						while (reader.Read()) {
+							var audit = new DBAudit(reader);
+							response.AuditEntries.Add(audit);
+						}
+						reader.NextResult();
+
+						// 2: Get total number of audit records
+						while (reader.Read()) {
+							response.Count = (int)reader.GetInt64(0);
+						}
+					}
+				}
+			}
+
+			return response;
+		}
+
+		[WebMethod]
 		public GetHostForEditResponse GetHostForEdit (WebServiceLogin login, int? host_id, string host)
 		{
 			GetHostForEditResponse response = new GetHostForEditResponse ();
