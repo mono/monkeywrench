@@ -818,20 +818,14 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 			GetAuditResponse response = new GetAuditResponse ();
 
 			using (DB db = new DB ()) {
-				Authenticate (db, login, response, true);
+				VerifyUserInRole(db, login, Roles.Administrator);
 
 				response.AuditEntries = new List<DBAudit> ();
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
-					cmd.CommandText = @"SELECT
-					id,
-					person_id,
-					person_login,
-					ip,
-					stamp,
-					action
 
-					FROM audit";
+					// 1: Get audit records
+					cmd.CommandText = @"SELECT id, person_id, person_login, ip, stamp, action FROM audit";
 					cmd.CommandText += " ORDER BY id DESC ";
 					if (limit > 0)
 						cmd.CommandText += " LIMIT " + limit.ToString ();
@@ -839,34 +833,27 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 						cmd.CommandText += " OFFSET " + offset.ToString ();
 					cmd.CommandText += ";";
 
-					response.Count = GetAuditRecordCount(db);
+					// 2: Get total number of audit records
+					cmd.CommandText += "SELECT Count(*) FROM audit;";
 
 					using (IDataReader reader = cmd.ExecuteReader ()) {
-						while (reader.Read ()) {
-							var audit = new DBAudit (reader);
-							response.AuditEntries.Add (audit);
+
+						// 1: Get audit records
+						while (reader.Read()) {
+							var audit = new DBAudit(reader);
+							response.AuditEntries.Add(audit);
+						}
+						reader.NextResult();
+
+						// 2: Get total number of audit records
+						while (reader.Read()) {
+							response.Count = (int)reader.GetInt64(0);
 						}
 					}
 				}
 			}
 
 			return response;
-		}
-
-
-		public static int GetAuditRecordCount (DB db)
-		{
-			object result;
-
-			using (IDbCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = "SELECT Count(*) FROM audit";
-				result = cmd.ExecuteScalar ();
-				if (result is int)
-					return (int) result;
-				else if (result is long)
-					return (int) (long) result;
-				return 0;
-			}
 		}
 
 		[WebMethod]

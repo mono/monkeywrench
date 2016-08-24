@@ -42,8 +42,6 @@ public partial class ViewAuditEntries : System.Web.UI.Page
 
 		response = Utils.LocalWebService.GetAuditHistory (Master.WebServiceLogin, limit, limit * page);
 
-		auditList.InnerHtml = "<h2>HELLO WORLD</h2>";
-
 		StringBuilder table = new StringBuilder ();
 		table.AppendLine ("<table class='buildstatus'>");
 		table.AppendLine ("<tr><td>Timstamp</td><td>User</td><td>IP</td><td>Action</td></tr>");
@@ -74,7 +72,6 @@ public partial class ViewAuditEntries : System.Web.UI.Page
 
 		if (total % limit != 0)
 			pages++;
-		Console.WriteLine ("Pages: {0} total: {1}", pages, total);
 
 		if (page > pages - 1)
 			page = pages - 1;
