@@ -89,7 +89,7 @@ namespace MonkeyWrench.Web.UI
 			var lane = Utils.LocalWebService.FindLane (login, null, laneName).lane;
 			var revisions = Utils.LocalWebService.GetRevisions (login, null, laneName, step, offset).Revisions;
 			var revisionWorks = revisions.Select (r => Utils.LocalWebService.GetRevisionWorkForLane (login, lane.id, r.id, -1).RevisionWork).ToList ();
-			var validRevisions = revisionWorks.Find (wl => validRevision (login, wl));
+			var validRevisions = revisionWorks.Find (wl => isValidRevision (login, wl));
 
 			if (validRevisions != null) {
 				return getRevisionName (revisions, validRevisions.First ().revision_id);
@@ -104,10 +104,26 @@ namespace MonkeyWrench.Web.UI
 			return revisions.Find (r => r.id == revision_id).revision;
 		}
 
-		bool validRevision (WebServiceLogin login, List<DBRevisionWork> revisionWorkList) {
-			return revisionWorkList.Any (r => 
-			                             Utils.LocalWebService.GetViewLaneData (login, r.lane_id, "", r.host_id, "", r.revision_id, "").WorkViews.Any (w => 
-			                                                                                                                      w.command.Contains ("upload-to-storage") && w.State == DBState.Success));
+		bool hasManifest(DBWorkView2 w)
+		{
+			if (!w.command.Contains("upload-to-storage"))
+				return false;
+
+			if (w.State != DBState.Success)
+				return false;
+
+			if (w.summary == null || !w.summary.Contains("manifest"))
+				return false;
+
+			return true;
+		}
+
+		bool isValidRevision (WebServiceLogin login, List<DBRevisionWork> revisionWorkList) {
+
+			Func<DBRevisionWork, bool> validRevisions = r =>
+				Utils.LocalWebService.GetViewLaneData(login, r.lane_id, "", r.host_id, "", r.revision_id, "").WorkViews.Any(hasManifest);
+
+			return revisionWorkList.Any (validRevisions);
 		}
 	}
 }
