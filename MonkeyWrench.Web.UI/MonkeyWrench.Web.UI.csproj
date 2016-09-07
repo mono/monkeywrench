@@ -537,6 +537,7 @@
     <Compile Include="ViewAuditEntries.aspx.designer.cs">
       <DependentUpon>ViewAuditEntries.aspx</DependentUpon>
     </Compile>
+    <Compile Include="GetData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ChangeLog" />
