@@ -50,10 +50,10 @@ public partial class ViewLane : System.Web.UI.Page
 
 	bool IsBranchProtected(DBLane lane)
 	{
+		if (!lane.repository.Contains("github")) return false;
+
 		var repo = ParseRepo(lane.repository);
 		var branch = ParseBranch(lane.max_revision);
-
-		if (!repo.Contains("github")) return false;
 
 		var key = repo + ":" + branch;
 		var token = Session["github_token"];
