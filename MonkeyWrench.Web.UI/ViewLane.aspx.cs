@@ -50,8 +50,8 @@ public partial class ViewLane : System.Web.UI.Page
 
 	bool IsBranchProtected(DBLane lane)
 	{
-		var repo = lane.repository;
-		var branch = lane.max_revision;
+		var repo = ParseRepo(lane.repository);
+		var branch = ParseBranch(lane.max_revision);
 
 		if (!repo.Contains("github")) return false;
 
@@ -177,13 +177,10 @@ public partial class ViewLane : System.Web.UI.Page
 		return String.Format("javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action={3}\", \"{4}\");", lane.id, dbr.id, host.id, action, command);
 	}
 
-	void GenerateLink(StringBuilder header, DBLane lane, DBHost host, DBRevision dbr, string cmd, string short_label, string long_label, bool hidden)
+	void GenerateActionLink(StringBuilder header, DBLane lane, DBHost host, DBRevision dbr, string cmd, string short_label, string long_label)
 	{
 		var href = confirmViewLaneAction(lane, host, dbr, cmd, short_label);
-		if (hidden)
-			header.AppendFormat("<a href='{0}' style='{1}'>{2}</a>", href, "display:none", long_label);
-		else
-			header.AppendFormat("- <a href='{0}'>{1}</a>", href, long_label);
+		header.AppendFormat("- <a href='{0}'>{1}</a>", href, long_label);
 	}
 
 	public string GenerateLane (GetViewLaneDataResponse response)
@@ -206,9 +203,11 @@ public partial class ViewLane : System.Web.UI.Page
 		if (Authentication.IsInRole (response, Roles.Administrator)) {
 			bool isExecuting = revisionwork.State == DBState.Executing || (revisionwork.State == DBState.Issues && !revisionwork.completed) || revisionwork.State == DBState.Aborted;
 			if (isExecuting) {
-				GenerateLink(header, lane, host, dbr, "clearrevision", "clear", "reset work", hidden);
-				GenerateLink(header, lane, host, dbr, "deleterevision", "delete", "delete work", hidden);
-				GenerateLink(header, lane, host, dbr, "abortrevision", "abort", "abort work", hidden);
+				header.AppendFormat("<div style='{0}'>", hidden ? "display:none" : "");
+				GenerateActionLink(header, lane, host, dbr, "clearrevision", "clear", "reset work");
+				GenerateActionLink(header, lane, host, dbr, "deleterevision", "delete", "delete work");
+				GenerateActionLink(header, lane, host, dbr, "abortrevision", "abort", "abort work");
+				header.Append("</div>");
 			} else if (response.RevisionWork.State == DBState.Ignore) {
 				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>build this revision</a>", lane.id, dbr.id, host.id);
 			} else {
