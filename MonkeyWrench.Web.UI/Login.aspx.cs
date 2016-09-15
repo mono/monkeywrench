@@ -117,6 +117,8 @@ public partial class Login : System.Web.UI.Page
 				Authentication.SetCookies(Response, loginResponse);
 				Response.Redirect(txtReferrer.Value, false);
 			}
+
+			Session["github_token"] = accessToken;
 			return;
 		}
 

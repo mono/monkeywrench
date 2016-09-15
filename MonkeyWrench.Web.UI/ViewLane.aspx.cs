@@ -3,7 +3,7 @@
  *
  * Authors:
  *   Rolf Bjarne Kvinge (RKvinge@novell.com)
- *   
+ *
  * Copyright 2009 Novell, Inc. (http://www.novell.com)
  *
  * See the LICENSE file included with the distribution for details.
@@ -16,6 +16,7 @@ using System.Xml;
 using System.Net;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -29,10 +30,57 @@ using MonkeyWrench.Web.WebServices;
 public partial class ViewLane : System.Web.UI.Page
 {
 	GetViewLaneDataResponse response;
+	static Dictionary<string, string> protectedBranches = new Dictionary<string, string>();
 
 	private new Master Master
 	{
 		get { return base.Master as Master; }
+	}
+	string ParseRepo(string repo)
+	{
+		var regex  = new Regex(@"github\.com[:/](.*)$");
+		var result = regex.Match(repo).Groups[1].Value;
+		return result.Replace(".git", "");
+	}
+
+	string ParseBranch(string branch)
+	{
+		return branch.Split('/').Last();
+	}
+
+	bool IsBranchProtected(DBLane lane)
+	{
+		var repo = lane.repository;
+		var branch = lane.max_revision;
+
+		if (!repo.Contains("github")) return false;
+
+		var key = repo + ":" + branch;
+		var token = Session["github_token"];
+
+		var url = "https://api.github.com/repos/" + repo + "/branches/" + branch + "/protection";
+
+		var client = WebRequest.Create(url) as HttpWebRequest;
+		client.Accept = "application/vnd.github.loki-preview+json";
+		client.ContentType = "application/json";
+		client.Method = WebRequestMethods.Http.Get;
+		client.PreAuthenticate = true;
+		client.UserAgent = "app";
+
+		client.Headers.Add("Authorization", "token " + token);
+
+		if (protectedBranches.ContainsKey(key)) client.Headers.Add("If-None-Match", protectedBranches[key]);
+
+		try {
+			var resp = client.GetResponse() as HttpWebResponse;
+			if (resp.Headers.AllKeys.Contains("Etag"))
+				protectedBranches.Add(key, resp.Headers["Etag"]);
+
+			return resp.StatusCode == HttpStatusCode.OK || resp.StatusCode == HttpStatusCode.NotModified;
+
+		} catch (WebException) {
+			return false;
+		}
 	}
 
 	protected override void OnLoad (EventArgs e)
@@ -115,13 +163,27 @@ public partial class ViewLane : System.Web.UI.Page
 	{
 		if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			return string.Format (@"
-<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '{2}' on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>' 
+<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '{2}' on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>'
 (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, description, revision.revision, revision.id);
 		} else {
 			return string.Format (@"
-<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '<a href='EditLane.aspx?lane_id={0}'>{2}</a>' on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>' 
+<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '<a href='EditLane.aspx?lane_id={0}'>{2}</a>' on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>'
 (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, description, revision.revision, revision.id);
 		}
+	}
+
+	string confirmViewLaneAction(DBLane lane, DBHost host, DBRevision dbr, string action, string command)
+	{
+		return String.Format("javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action={3}\", \"{4}\");", lane.id, dbr.id, host.id, action, command);
+	}
+
+	void GenerateLink(StringBuilder header, DBLane lane, DBHost host, DBRevision dbr, string cmd, string short_label, string long_label, bool hidden)
+	{
+		var href = confirmViewLaneAction(lane, host, dbr, cmd, short_label);
+		if (hidden)
+			header.AppendFormat("<a href='{0}' style='{1}'>{2}</a>", href, "display:none", long_label);
+		else
+			header.AppendFormat("- <a href='{0}'>{1}</a>", href, long_label);
 	}
 
 	public string GenerateLane (GetViewLaneDataResponse response)
@@ -133,6 +195,7 @@ public partial class ViewLane : System.Web.UI.Page
 		DBLane lane = response.Lane;
 		DBHost host = response.Host;
 		DBRevision revision = response.Revision;
+		bool hidden = IsBranchProtected(lane) || revisionwork.State == DBState.Success;
 
 		StringBuilder header = new StringBuilder ();
 		header.AppendFormat ("Revision: <a href='GetRevisionLog.aspx?id={0}'>{1}</a>", dbr.id, dbr.revision);
@@ -140,12 +203,12 @@ public partial class ViewLane : System.Web.UI.Page
 		header.AppendFormat (" - Author: {0}", dbr.author);
 		header.AppendFormat (" - Commit date: {0}", dbr.date.ToString ("yyyy/MM/dd HH:mm:ss UTC"));
 
-		if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
-			bool isExecuting = response.RevisionWork.State == DBState.Executing || (response.RevisionWork.State == DBState.Issues && !response.RevisionWork.completed) || response.RevisionWork.State == DBState.Aborted;
+		if (Authentication.IsInRole (response, Roles.Administrator)) {
+			bool isExecuting = revisionwork.State == DBState.Executing || (revisionwork.State == DBState.Issues && !revisionwork.completed) || revisionwork.State == DBState.Aborted;
 			if (isExecuting) {
-				header.AppendFormat (" - <a href='javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision\", \"clear\");'>reset work</a>", lane.id, dbr.id, host.id);
-				header.AppendFormat (" - <a href='javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision\", \"delete\");'>delete work</a>", lane.id, dbr.id, host.id);
-				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=abortrevision'>abort work</a>", lane.id, dbr.id, host.id);
+				GenerateLink(header, lane, host, dbr, "clearrevision", "clear", "reset work", hidden);
+				GenerateLink(header, lane, host, dbr, "deleterevision", "delete", "delete work", hidden);
+				GenerateLink(header, lane, host, dbr, "abortrevision", "abort", "abort work", hidden);
 			} else if (response.RevisionWork.State == DBState.Ignore) {
 				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>build this revision</a>", lane.id, dbr.id, host.id);
 			} else {
