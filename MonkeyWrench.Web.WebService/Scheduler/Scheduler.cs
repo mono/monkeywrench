@@ -448,13 +448,11 @@ namespace MonkeyWrench.Scheduler
 							if (dependencies [j].lane_id == dep.lane_id)
 								dependencies.RemoveAt (j);
 						}
-						return;
 					}
 					if (dep.Condition != DBLaneDependencyCondition.DependentLaneSuccess && dep.Condition != DBLaneDependencyCondition.DependentLaneIssuesOrSuccess) {
 						log.ErrorFormat ("CheckDependencies: Invalid condition: {0} for dependency id {1}", dep.Condition, dep.lane_id);
 						dependencies.RemoveAt (i);
 //						CheckDependenciesSlow (db, hosts, lanes, hostlanes, dependencies);
-						return;
 					}
 				}
 
