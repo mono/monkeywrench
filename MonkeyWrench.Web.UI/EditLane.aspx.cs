@@ -483,7 +483,7 @@ public partial class EditLane : System.Web.UI.Page
 		row.Cells.Add (Utils.CreateTableCell (html));
 		html = "<select id='lstDependencyConditions'>";
 		foreach (object value in Enum.GetValues (typeof (DBLaneDependencyCondition))) {
-			if ((int) value == 0)
+			if ((int) value == 0 || ((DBLaneDependencyCondition) value) == DBLaneDependencyCondition.DependentLaneSuccessWithFile)
 				continue;
 			html += string.Format ("<option value='{0}'>{1}</option>", (int) value, value.ToString ());
 		}
