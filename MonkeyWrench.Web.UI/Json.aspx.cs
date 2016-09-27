@@ -395,14 +395,14 @@ namespace MonkeyWrench.Web.UI
 				var lanesResponse = Utils.LocalWebService.GetLanes (login);
 
 				var lanes = lanesResponse.Lanes.Select(l => {
-					var resp = Utils.LocalWebService.GetLaneForEdit(login, l.id, l.lane);
+					// var resp = Utils.LocalWebService.GetLaneForEdit(login, l.id, l.lane);
 					return new {
 						lane = l.lane,
 						branch = BranchFromRevision(l.max_revision),
 						repository = l.repository,
 						id = l.id,
 						tags = Utils.LocalWebService.GetTagsForLane(login, l.id).Select(tag => tag.tag),
-						hosts = resp.Hosts.Select(h => h.host)
+						// hosts = resp.Hosts.Select(h => h.host)
 					};
 				});
 
@@ -427,9 +427,6 @@ namespace MonkeyWrench.Web.UI
 				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
 			DBRevision dbr = response.Revision;
 			DBRevisionWork revisionwork = response.RevisionWork;
-			DBLane lane = response.Lane;
-			DBHost host = response.Host;
-			DBRevision revision = response.Revision;
 
 			var jobinfo = new {
 				revision = dbr.revision,
