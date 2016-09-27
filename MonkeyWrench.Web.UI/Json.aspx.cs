@@ -394,14 +394,17 @@ namespace MonkeyWrench.Web.UI
 			using (var db = new DB ()) {
 				var lanesResponse = Utils.LocalWebService.GetLanes (login);
 
-				var lanes = lanesResponse.Lanes.Select(l =>
-					new {
-						lane       = l.lane,
-						branch     = BranchFromRevision (l.max_revision),
+				var lanes = lanesResponse.Lanes.Select(l => {
+					var resp = Utils.LocalWebService.GetLaneForEdit(login, l.id, l.lane);
+					return new {
+						lane = l.lane,
+						branch = BranchFromRevision(l.max_revision),
 						repository = l.repository,
-						id         = l.id,
-						tags       = Utils.LocalWebService.GetTagsForLane(login,l.id).Select(tag => tag.tag)
-					});
+						id = l.id,
+						tags = Utils.LocalWebService.GetTagsForLane(login, l.id).Select(tag => tag.tag),
+						hosts = resp.Hosts.Select(h => h.host)
+					};
+				});
 
 				var count = lanes.Count (l => !String.IsNullOrEmpty (l.repository));
 
