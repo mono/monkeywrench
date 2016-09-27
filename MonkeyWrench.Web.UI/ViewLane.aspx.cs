@@ -192,7 +192,6 @@ public partial class ViewLane : System.Web.UI.Page
 		DBLane lane = response.Lane;
 		DBHost host = response.Host;
 		DBRevision revision = response.Revision;
-		bool hidden = IsBranchProtected(lane) || revisionwork.State == DBState.Success;
 
 		StringBuilder header = new StringBuilder ();
 		header.AppendFormat ("Revision: <a href='GetRevisionLog.aspx?id={0}'>{1}</a>", dbr.id, dbr.revision);
@@ -201,6 +200,7 @@ public partial class ViewLane : System.Web.UI.Page
 		header.AppendFormat (" - Commit date: {0}", dbr.date.ToString ("yyyy/MM/dd HH:mm:ss UTC"));
 
 		if (Authentication.IsInRole (response, Roles.Administrator)) {
+			bool hidden = IsBranchProtected(lane);
 			bool isExecuting = revisionwork.State == DBState.Executing || (revisionwork.State == DBState.Issues && !revisionwork.completed) || revisionwork.State == DBState.Aborted;
 			if (isExecuting) {
 				header.AppendFormat("<div style='{0}'>", hidden ? "display:none" : "");
