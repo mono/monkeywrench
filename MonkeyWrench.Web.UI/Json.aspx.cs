@@ -72,7 +72,7 @@ namespace MonkeyWrench.Web.UI
 					break;
 				case "stephistory":
 					Response.Write (GetStepHistory ());
-				break;
+					break;
 				case "botstatus":
 					Response.Write (GetBotStatusTimes ());
 					break;
@@ -81,7 +81,7 @@ namespace MonkeyWrench.Web.UI
 					break;
 				case "stepinfo":
 					Response.Write (GetStepInfo ());
-				break;
+					break;
 				default:
 					GetBotStatus ();
 					break;
@@ -209,6 +209,34 @@ namespace MonkeyWrench.Web.UI
 				}
 
 				return JsonConvert.SerializeObject (results, Formatting.Indented);
+			}
+		}
+
+		private Dictionary<string, string[]> GetLanesWithHosts()
+		{
+			using (var db = new DB()) {
+				MonkeyWrench.WebServices.Authentication.Authenticate(Context, db, login, null, true);
+
+				var results = new Dictionary<string, string[]>();
+
+				using (var cmd = db.CreateCommand(@"
+					SELECT l.lane, array_to_string(array_agg(h.host), ',')
+					FROM lane l
+					INNER JOIN hostlane hl
+					ON l.id=hl.lane_id
+					INNER JOIN host h
+					ON h.id=hl.host_id
+					group by l.lane
+				"))
+				using (var reader = cmd.ExecuteReader()) {
+					while (reader.Read()) {
+						string lane = reader.GetString(0);
+						string[] hosts = reader.GetString(1).Split(',');
+						results[lane] = hosts;
+					}
+				}
+
+				return results;
 			}
 		}
 
@@ -393,18 +421,17 @@ namespace MonkeyWrench.Web.UI
 		private string GetLaneInfo () {
 			using (var db = new DB ()) {
 				var lanesResponse = Utils.LocalWebService.GetLanes (login);
-
-				var lanes = lanesResponse.Lanes.Select(l => {
-					// var resp = Utils.LocalWebService.GetLaneForEdit(login, l.id, l.lane);
-					return new {
+				var hosts = GetLanesWithHosts();
+				var lanes = lanesResponse.Lanes.Where(l => hosts.ContainsKey(l.lane)).Select(l =>
+					new {
 						lane = l.lane,
 						branch = BranchFromRevision(l.max_revision),
 						repository = l.repository,
 						id = l.id,
 						tags = Utils.LocalWebService.GetTagsForLane(login, l.id).Select(tag => tag.tag),
-						// hosts = resp.Hosts.Select(h => h.host)
-					};
-				});
+						hosts = hosts[l.lane]
+					}
+				);
 
 				var count = lanes.Count (l => !String.IsNullOrEmpty (l.repository));
 
