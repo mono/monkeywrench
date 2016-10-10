@@ -177,10 +177,13 @@ public partial class ViewLane : System.Web.UI.Page
 		return String.Format("javascript:confirmViewLaneAction (\"ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action={3}\", \"{4}\");", lane.id, dbr.id, host.id, action, command);
 	}
 
-	void GenerateActionLink(StringBuilder header, DBLane lane, DBHost host, DBRevision dbr, string cmd, string short_label, string long_label)
+	void GenerateActionLink(StringBuilder header, DBLane lane, DBHost host, DBRevision dbr, string cmd, string short_label, string long_label, bool hidden = false)
 	{
 		var href = confirmViewLaneAction(lane, host, dbr, cmd, short_label);
-		header.AppendFormat("- <a href='{0}'>{1}</a>", href, long_label);
+		if (hidden)
+			header.AppendFormat("- <a style='{0}' href='{1}'>{2}</a>", "display:none", href, long_label);
+		else
+			header.AppendFormat("- <a href='{0}'>{1}</a>", href, long_label);
 	}
 
 	public string GenerateLane (GetViewLaneDataResponse response)
@@ -211,10 +214,10 @@ public partial class ViewLane : System.Web.UI.Page
 			} else {
 				if (response.RevisionWork.State == DBState.NotDone)
 					header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=ignorerevision'>don't build</a>", lane.id, dbr.id, host.id);
-				if (response.RevisionWork.State != DBState.NoWorkYet && !hidden) {
-					header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>reset work</a>", lane.id, dbr.id, host.id);
-					header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision'>delete work</a>", lane.id, dbr.id, host.id);
-			}
+				if (response.RevisionWork.State != DBState.NoWorkYet) {     
+					GenerateActionLink(header, lane, host, dbr, "clearrevision", "clear", "reset work");
+					GenerateActionLink(header, lane, host, dbr, "deleterevision", "delete", "delete work");
+				}
 			}
 		}
 

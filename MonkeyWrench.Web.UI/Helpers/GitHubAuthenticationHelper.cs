@@ -55,7 +55,7 @@ namespace MonkeyWrench.Web.UI
 
 		public static void Authenticate()
 		{
-			ms = new GitHubOAuth2Client(Configuration.GitHubOauthClientId, Configuration.GitHubOauthClientSecret, "GitHubLogin", "user:email,read:org");
+			ms = new GitHubOAuth2Client(Configuration.GitHubOauthClientId, Configuration.GitHubOauthClientSecret, "GitHubLogin", "user:email,read:org,repo");
 			new OpenAuthSecurityManager(new HttpContextWrapper(HttpContext.Current),
 				ms, OAuthDataProvider.Instance).RequestAuthentication(Configuration.GitHubOauthRedirect);
 		}
