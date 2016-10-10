@@ -203,17 +203,15 @@ public partial class ViewLane : System.Web.UI.Page
 			bool hidden = IsBranchProtected(lane);
 			bool isExecuting = revisionwork.State == DBState.Executing || (revisionwork.State == DBState.Issues && !revisionwork.completed) || revisionwork.State == DBState.Aborted;
 			if (isExecuting) {
-				header.AppendFormat("<div style='{0}'>", hidden ? "display:none" : "");
 				GenerateActionLink(header, lane, host, dbr, "clearrevision", "clear", "reset work");
 				GenerateActionLink(header, lane, host, dbr, "deleterevision", "delete", "delete work");
 				GenerateActionLink(header, lane, host, dbr, "abortrevision", "abort", "abort work");
-				header.Append("</div>");
 			} else if (response.RevisionWork.State == DBState.Ignore) {
 				header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>build this revision</a>", lane.id, dbr.id, host.id);
 			} else {
 				if (response.RevisionWork.State == DBState.NotDone)
 					header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=ignorerevision'>don't build</a>", lane.id, dbr.id, host.id);
-				if (response.RevisionWork.State != DBState.NoWorkYet) {
+				if (response.RevisionWork.State != DBState.NoWorkYet && !hidden) {
 					header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=clearrevision'>reset work</a>", lane.id, dbr.id, host.id);
 					header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=deleterevision'>delete work</a>", lane.id, dbr.id, host.id);
 			}
