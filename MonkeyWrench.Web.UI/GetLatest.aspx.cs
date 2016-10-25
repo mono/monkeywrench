@@ -29,6 +29,8 @@ namespace MonkeyWrench.Web.UI
 			webServiceLogin = Authentication.CreateLogin (Request);
 
 			var laneName = Request.QueryString ["laneName"];
+
+			// NOTE: This is deliberately left this way because this endpoint has been superceded by GetManifest/GetMetadata.
 			var baseURL = Request.QueryString ["url"] ?? "http://storage.bos.internalx.com";
 			var storagePref = Request.QueryString ["prefer"];
 			if (!string.IsNullOrEmpty(storagePref) && (storagePref.ToLower () == "azure")) {

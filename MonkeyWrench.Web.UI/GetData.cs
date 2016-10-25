@@ -25,7 +25,7 @@ namespace MonkeyWrench.Web.UI
 
 		private WebServiceLogin webServiceLogin;
 
-		static readonly string NAS_ROOT = "http://storage.bos.internalx.com";
+		static readonly string NAS_ROOT = "http://xamarin-storage";
 		static readonly string AZURE_ROOT_1 = "https://bosstoragemirror.blob.core.windows.net/wrench";
 		static readonly string AZURE_ROOT_2 = "https://bosstoragemirror.blob.core.windows.net";
 
