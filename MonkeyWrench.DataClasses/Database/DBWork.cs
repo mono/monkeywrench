@@ -47,9 +47,9 @@ namespace MonkeyWrench.DataClasses
 
 			try {
 				while ((line = reader.ReadLine ()) != null) {
-					if (line.StartsWith ("Failed:")) {
+					if (line.StartsWith ("Failed:", StringComparison.Ordinal)) {
 						line = line.Replace ("Failed:", "");
-						int end = line.IndexOf ("--");
+						int end = line.IndexOf ("--", StringComparison.Ordinal);
 						if (end >= 0) {
 							line = line.Substring (0, end).Trim ();
 						} else {
@@ -65,8 +65,7 @@ namespace MonkeyWrench.DataClasses
 							file = "<unknown>";
 						}
 						failures.Add (file + " " + id);
-					}
-					if (line.StartsWith ("Tests run:")) {
+					} else if (line.StartsWith ("Tests run:", StringComparison.Ordinal)) {
 						var test_run = line;
 						if (failures.Count > 0) {
 							test_run += " (Failures: ";
@@ -79,6 +78,8 @@ namespace MonkeyWrench.DataClasses
 							failures.Clear ();
 						}
 						test_runs.Add (test_run);
+					} else if (line.StartsWith ("  Test Count:", StringComparison.Ordinal)) {
+						test_runs.Add (line.TrimStart ());
 					}
 				}
 				if (test_runs.Count == 0) {
