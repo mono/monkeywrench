@@ -78,6 +78,8 @@ namespace MonkeyWrench.DataClasses
 							failures.Clear ();
 						}
 						test_runs.Add (test_run);
+					} else if (line.StartsWith ("  Test Count:", StringComparison.Ordinal)) {
+						test_runs.Add (line.TrimStart ());
 					}
 				}
 				if (test_runs.Count == 0) {
