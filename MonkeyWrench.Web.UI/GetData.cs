@@ -58,8 +58,16 @@ namespace MonkeyWrench.Web.UI
 			Response.AppendHeader("Access-Control-Allow-Origin", "*");
 			Response.AppendHeader("Content-Type", "application/json");
 
-			foreach (var url in baseUrls) {
-				HttpWebResponse response = makeHttpRequest(getUrl(url, laneName, revision));
+			foreach (var baseUrl in baseUrls) {
+				var url = getUrl(baseUrl, laneName, revision);
+
+				if (url.StartsWith(NAS_ROOT, StringComparison.Ordinal)) {
+					Response.Redirect(url);
+					return;
+				}
+
+				HttpWebResponse response = makeHttpRequest(url);
+
 				if (response.StatusCode == HttpStatusCode.OK) {
 					using (var reader = new StreamReader(response.GetResponseStream())) {
 						Response.Write(reader.ReadToEnd());
