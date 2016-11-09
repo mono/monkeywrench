@@ -186,6 +186,44 @@ public partial class ViewLane : System.Web.UI.Page
 			header.AppendFormat("- <a href='{0}'>{1}</a>", href, long_label);
 	}
 
+	public static string CalculateDiffLink (string repository, string revision)
+	{
+		if (string.IsNullOrEmpty (repository))
+			return revision;
+
+		string path, hostname;
+
+		if (repository.StartsWith ("git@", StringComparison.Ordinal)) {
+			var colon = repository.IndexOf (':');
+			if (colon < 4)
+				return revision;
+			path = repository.Substring (colon + 1);
+			hostname = repository.Substring (4, colon - 4);
+		} else {
+			Uri uri;
+			if (!Uri.TryCreate (repository, UriKind.Absolute, out uri))
+				return revision;
+
+			hostname = uri.Host;
+			path = uri.GetComponents (UriComponents.Path, UriFormat.UriEscaped);
+		}
+
+		if (hostname != "github.com")
+			return revision;
+		
+		if (string.IsNullOrEmpty (path))
+			return revision;
+
+		if (string.IsNullOrEmpty (path))
+			return revision;
+
+		var paths = path.Split (new char [] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+		if (paths.Length < 2)
+			return revision;
+
+		return $"<a href='https://github.com/{paths [0]}/{paths [1]}/commit/{revision}'>diff</a>";
+	}
+
 	public string GenerateLane (GetViewLaneDataResponse response)
 	{
 		StringBuilder matrix = new StringBuilder ();
@@ -197,7 +235,7 @@ public partial class ViewLane : System.Web.UI.Page
 		DBRevision revision = response.Revision;
 
 		StringBuilder header = new StringBuilder ();
-		header.AppendFormat ("Revision: <a href='GetRevisionLog.aspx?id={0}'>{1}</a>", dbr.id, dbr.revision);
+		header.AppendFormat ("Revision: {0}", CalculateDiffLink (lane.repository, dbr.revision));
 		header.AppendFormat (" - Status: {0}", revisionwork.State);
 		header.AppendFormat (" - Author: {0}", dbr.author);
 		header.AppendFormat (" - Commit date: {0}", dbr.date.ToString ("yyyy/MM/dd HH:mm:ss UTC"));

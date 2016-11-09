@@ -310,7 +310,7 @@ public partial class ViewTable : System.Web.UI.Page
 					tooltip.AppendFormat (" Build start date: {0}.", view.starttime.ToUniversalTime ().ToString ("yyyy/MM/dd HH:mm:ss UTC"));
 
 				row.Add (new TableNode (string.Format ("<a href='ViewLane.aspx?lane_id={0}&amp;host_id={1}&amp;revision_id={2}' title='{4}'>{3}</a>", lane.id, host.id, view.revision_id, revision, tooltip.ToString ()), clazz));
-				row.Add (new TableNode (string.Format ("<a href='GetRevisionLog.aspx?id={0}'>diff</a>", view.revision_id)));
+				row.Add (new TableNode (string.Format (ViewLane.CalculateDiffLink (lane.repository, view.revision))));
 				row.Add (new TableNode (view.author));
 				
 				//if (Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator))

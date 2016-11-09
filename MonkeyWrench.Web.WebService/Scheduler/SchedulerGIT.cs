@@ -129,7 +129,6 @@ namespace MonkeyWrench.Scheduler
 				string unix_timestamp_str = entry.timestamp;
 				long unix_timestamp;
 				string author = entry.author;
-				string msg = entry.message;
 				DateTime date;
 
 				if (!long.TryParse (unix_timestamp_str, out unix_timestamp)) {
@@ -197,17 +196,12 @@ namespace MonkeyWrench.Scheduler
 					r.author = "?";
 				}
 				r.date = date;
-				if (!string.IsNullOrEmpty (msg)) {
-					r.log_file_id = db.UploadString (msg, ".log", false).id;
-				} else {
-					GITUpdater.log.WarnFormat ("No msg specified in r{0} in {1}", r.revision, repository);
-					r.log_file_id = null;
-				}
+				r.log_file_id = null;
 
 				r.Save (db);
 
 				update_steps = true;
-				GITUpdater.log.DebugFormat ("Saved revision '{0}' for lane '{1}' author: {2}, date: {3:yyyy/MM/dd HH:mm:ss.ffffff} {5} {6}", r.revision, lane.lane, r.author, r.date, msg, unix_timestamp, unix_timestamp_str);
+				GITUpdater.log.DebugFormat ("Saved revision '{0}' for lane '{1}' author: {2}, date: {3:yyyy/MM/dd HH:mm:ss.ffffff} {4} {5}", r.revision, lane.lane, r.author, r.date, unix_timestamp, unix_timestamp_str);
 			}
 
 			return update_steps;
@@ -415,7 +409,6 @@ namespace MonkeyWrench.Scheduler
 								/* end of record */
 								if (result == null)
 									result = new List<GitEntry> ();
-								current.message = builder.ToString ();
 								result.Add (current);
 								current = new GitEntry ();
 								in_header = true;

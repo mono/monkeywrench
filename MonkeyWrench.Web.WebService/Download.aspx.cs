@@ -29,13 +29,11 @@ namespace MonkeyWrench.WebServices
 		protected void Page_Load (object sender, EventArgs e)
 		{
 			int workfile_id;
-			int revision_id;
 			int work_id;
 			bool diff;
 			string md5;
 			string filename;
 
-			int.TryParse (Request ["revision_id"], out revision_id);
 			int.TryParse (Request ["workfile_id"], out workfile_id);
 			int.TryParse (Request ["work_id"], out work_id);
 			bool.TryParse (Request ["diff"], out diff);
@@ -47,8 +45,6 @@ namespace MonkeyWrench.WebServices
 					DownloadWorkFile (workfile_id, md5);
 				} else if (!string.IsNullOrEmpty (filename) && work_id != 0) {
 					DownloadNamedWorkFile (work_id, filename);
-				} else if (revision_id != 0) {
-					DownloadRevisionLog (revision_id, diff);
 				} else {
 					throw new HttpException (404, "Nothing to download.");
 				}
@@ -141,59 +137,6 @@ namespace MonkeyWrench.WebServices
 			} else {
 				using (Stream str = db.Download (file)) {
 					DownloadStream (str, file.compressed_mime);
-				}
-			}
-		}
-
-		private void DownloadRevisionLog (int revision_id, bool diff /* diff or log */)
-		{
-			DBRevision revision;
-			DBLane lane;
-
-			using (DB db = new DB ()) {
-				WebServiceLogin login = Authentication.CreateLogin (Request);
-
-				revision = DBRevision_Extensions.Create (db, revision_id);
-
-				// no access restricion on revision logs/diffs
-				Authentication.VerifyAnonymousAccess (Context, db, login);
-
-				Response.ContentType = MimeTypes.TXT;
-
-				if (revision == null) {
-					Response.Write ("Revision not found.");
-				} else {
-					lane = DBLane_Extensions.Create (db, revision.lane_id);
-					using (Process git = new Process ()) {
-						git.StartInfo.RedirectStandardOutput = true;
-						git.StartInfo.RedirectStandardError = true;
-						git.StartInfo.UseShellExecute = false;
-						git.StartInfo.FileName = "git";
-						if (diff) {
-							git.StartInfo.Arguments = "diff --no-color --no-prefix " + revision.revision + "~ " + revision.revision;
-						} else {
-							git.StartInfo.Arguments = "log -1 --no-color --no-prefix " + revision.revision;
-						}
-						git.StartInfo.WorkingDirectory = Configuration.GetSchedulerRepositoryCacheDirectory (lane.repository);
-						git.OutputDataReceived += (object sender, DataReceivedEventArgs ea) =>
-						{
-							Response.Write (ea.Data);
-							Response.Write ('\n');
-						};
-						git.ErrorDataReceived += (object sender, DataReceivedEventArgs ea) =>
-						{
-							Response.Write (ea.Data);
-							Response.Write ('\n');
-						};
-						// Logger.Log ("Executing: '{0} {1}' in {2}", git.StartInfo.FileName, git.StartInfo.Arguments, git.StartInfo.WorkingDirectory);
-						git.Start ();
-						git.BeginErrorReadLine ();
-						git.BeginOutputReadLine ();
-						if (!git.WaitForExit (1000 * 60 * 5 /* 5 minutes */)) {
-							git.Kill ();
-							Response.Write ("Error: git diff didn't finish in 5 minutes, aborting.\n");
-						}
-					}
 				}
 			}
 		}

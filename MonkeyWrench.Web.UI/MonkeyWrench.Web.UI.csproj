@@ -238,7 +238,6 @@
     <Content Include="EditLanes.js" />
     <Content Include="EnvironmentVariablesEditor.ascx" />
     <Content Include="GetFile.aspx" />
-    <Content Include="GetRevisionLog.aspx" />
     <Content Include="Global.asax" />
     <Content Include="index.aspx" />
     <Content Include="Login.aspx" />
@@ -367,9 +366,6 @@
     <Compile Include="GetFile.aspx.designer.cs">
       <DependentUpon>GetFile.aspx</DependentUpon>
     </Compile>
-    <Compile Include="GetRevisionLog.aspx.designer.cs">
-      <DependentUpon>GetRevisionLog.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -407,10 +403,6 @@
     </Compile>
     <Compile Include="GetFile.aspx.cs">
       <DependentUpon>GetFile.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="GetRevisionLog.aspx.cs">
-      <DependentUpon>GetRevisionLog.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="index.aspx.cs">
