@@ -82,10 +82,41 @@ namespace MonkeyWrench.Web.UI
 				case "stepinfo":
 					Response.Write (GetStepInfo ());
 					break;
+				case "frontpage":
+					Response.Write(GetFrontPage());
+					break;
 				default:
 					GetBotStatus ();
 					break;
 			}
+		}
+
+		private string GetFrontPage() {
+			using (var db = new DB()) {
+				MonkeyWrench.WebServices.Authentication.Authenticate(Context, db, login, null, true);
+				var data = Utils.LocalWebService.GetFrontPageDataWithTags(login, limit, 0, null, null, 30, new string[0]);
+				var lanes = data.Lanes.Select(l => new { Lane = l, HostLanes = data.HostLanes.FindAll(hl => hl.lane_id == l.id) });
+				var results = lanes.ToDictionary(l => l.Lane.lane, l => l.HostLanes.SelectMany(hl => RenderHostList(data, hl)));
+
+				return JsonConvert.SerializeObject(results.Where(kv => kv.Value.Count() > 0).ToDictionary(i => i.Key, i => i.Value), Formatting.Indented);
+			}
+		}
+
+		private List<Dictionary<string, object>> RenderHostList(FrontPageResponse data, DBHostLane hl) {
+			return FindRevisionWorkViews(data, hl.id).Select(w => RevisionWorkToDict(data, w)).ToList();
+		}
+
+		private Dictionary<string, object> RevisionWorkToDict(FrontPageResponse data, DBRevisionWorkView2 w) {
+			return new Dictionary<string, object> {
+				{ "id", w.id },
+				{ "author", w.author },
+				{ "host_id", w.host_id },
+				{ "host", data.Hosts.Find( h => h.id == w.host_id).host },
+				{ "revision", w.revision },
+				{ "revision_id", w.revision_id },
+				{ "completed", w.completed },
+				{ "status", w.state.ToString().ToLowerInvariant() },
+			};
 		}
 
 		private string GetTagInfo() {
