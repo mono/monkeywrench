@@ -96,17 +96,21 @@ namespace MonkeyWrench.Web.UI
 				MonkeyWrench.WebServices.Authentication.Authenticate(Context, db, login, null, true);
 				var data = Utils.LocalWebService.GetFrontPageDataWithTags(login, limit, 0, null, null, 30, new string[0]);
 				var lanes = data.Lanes.Select(l => new { Lane = l, HostLanes = data.HostLanes.FindAll(hl => hl.lane_id == l.id) });
-				var results = lanes.ToDictionary(l => l.Lane.lane, l => l.HostLanes.SelectMany(hl => RenderHostList(data, hl)));
+				var laneResult = lanes.SelectMany(l => l.HostLanes.SelectMany(hl => RenderHostList(data, l.Lane, hl))).ToList();
 
-				return JsonConvert.SerializeObject(results.Where(kv => kv.Value.Count() > 0).ToDictionary(i => i.Key, i => i.Value), Formatting.Indented);
+				return JsonConvert.SerializeObject(
+					new Dictionary<string, object> { 
+						{ "lanes", laneResult } 
+					}, 
+					Formatting.Indented);
 			}
 		}
 
-		private List<Dictionary<string, object>> RenderHostList(FrontPageResponse data, DBHostLane hl) {
-			return FindRevisionWorkViews(data, hl.id).Select(w => RevisionWorkToDict(data, w)).ToList();
+		private List<Dictionary<string, object>> RenderHostList(FrontPageResponse data, DBLane l, DBHostLane hl) {
+			return FindRevisionWorkViews(data, hl.id).Select(w => RevisionWorkToDict(data, l, w)).ToList();
 		}
 
-		private Dictionary<string, object> RevisionWorkToDict(FrontPageResponse data, DBRevisionWorkView2 w) {
+		private Dictionary<string, object> RevisionWorkToDict(FrontPageResponse data, DBLane l, DBRevisionWorkView2 w) {
 			return new Dictionary<string, object> {
 				{ "id", w.id },
 				{ "author", w.author },
@@ -116,6 +120,10 @@ namespace MonkeyWrench.Web.UI
 				{ "revision_id", w.revision_id },
 				{ "completed", w.completed },
 				{ "status", w.state.ToString().ToLowerInvariant() },
+				{ "endtime", w.endtime },
+				{ "date", w.date },
+				{ "lane", l.lane },
+				{ "branch", l.max_revision }
 			};
 		}
 
