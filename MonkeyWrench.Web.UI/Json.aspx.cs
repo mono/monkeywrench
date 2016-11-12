@@ -123,6 +123,7 @@ namespace MonkeyWrench.Web.UI
 				{ "endtime", w.endtime },
 				{ "date", w.date },
 				{ "lane", l.lane },
+				{ "repository", l.repository },
 				{ "branch", l.max_revision }
 			};
 		}
