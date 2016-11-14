@@ -387,22 +387,20 @@ public partial class ViewLane : System.Web.UI.Page
 			foreach (DBWorkFileView file in files.Where ((v) => !v.hidden).OrderBy ((v) => v.filename)) {
 				if (file.hidden)
 					continue;
-				if (file_count > 0)
-					sb.Append (", ");
 				file_count++;
-				sb.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> ", file.id, file.filename);
+				sb.AppendFormat ("<a href='GetFile.aspx?id={0}'>{1}</a> <br /> ", file.id, file.filename);
 			}
 
 			foreach (var link in links.OrderBy ((v) => v.link)) {
-				if (file_count > 0)
-					sb.Append (", ");
 				file_count++;
-				sb.Append (link.link);
+				sb.Append (link.link).Append ("<br />");
 			}
 
 			if (file_count > 3) {
-				matrix.AppendFormat ("<span id='files_{0}' style='display: none'>{1}</span>" +
-				"<a href='#' id='showFiles_{0}' onclick='javascript:document.getElementById (\"files_{0}\").style.display = \"block\"; document.getElementById (\"showFiles_{0}\").style.display = \"none\";'>Show {2} files</a>",
+				matrix.AppendFormat (
+				"<a href='#' id='showFiles_{0}' onclick='javascript:document.getElementById (\"files_{0}\").style.display = \"block\"; document.getElementById (\"showFiles_{0}\").style.display = \"none\"; document.getElementById (\"hideFiles_{0}\").style.display = \"block\";'>Show {2} files</a>" +
+				"<a href='#' id='hideFiles_{0}' onclick='javascript:document.getElementById (\"files_{0}\").style.display = \"none\"; document.getElementById (\"showFiles_{0}\").style.display = \"block\"; document.getElementById (\"hideFiles_{0}\").style.display = \"none\";' style='display: none'>Hide {2} files</a>" +
+				"<span id='files_{0}' style='display: none'>{1}</span>",
 					step.id, sb.ToString (), file_count);
 			} else {
 				matrix.Append (sb.ToString ());
