@@ -221,6 +221,10 @@ public partial class ViewLane : System.Web.UI.Page
 		if (paths.Length < 2)
 			return revision;
 
+		// Strip off any trailing '.git'
+		if (paths [1].EndsWith (".git", StringComparison.Ordinal))
+			paths [1] = paths [1].Substring (0, paths [1].Length - 4);
+
 		return $"<a href='https://github.com/{paths [0]}/{paths [1]}/commit/{revision}'>diff</a>";
 	}
 
