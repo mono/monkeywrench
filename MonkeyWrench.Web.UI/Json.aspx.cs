@@ -96,11 +96,11 @@ namespace MonkeyWrench.Web.UI
 				MonkeyWrench.WebServices.Authentication.Authenticate(Context, db, login, null, true);
 				var data = Utils.LocalWebService.GetFrontPageDataWithTags(login, limit, 0, null, null, 30, new string[0]);
 				var lanes = data.Lanes.Select(l => new { Lane = l, HostLanes = data.HostLanes.FindAll(hl => hl.lane_id == l.id) });
-				var laneResult = lanes.SelectMany(l => l.HostLanes.SelectMany(hl => RenderHostList(data, l.Lane, hl))).ToList();
+				var jobs = lanes.SelectMany(l => l.HostLanes.SelectMany(hl => RenderHostList(data, l.Lane, hl))).ToList();
 
 				return JsonConvert.SerializeObject(
 					new Dictionary<string, object> { 
-						{ "lanes", laneResult } 
+						{ "jobs", jobs } 
 					}, 
 					Formatting.Indented);
 			}
@@ -119,7 +119,7 @@ namespace MonkeyWrench.Web.UI
 				{ "revision", w.revision },
 				{ "revision_id", w.revision_id },
 				{ "completed", w.completed },
-				{ "status", w.state.ToString().ToLowerInvariant() },
+				{ "status", w.state },
 				{ "endtime", w.endtime },
 				{ "date", w.date },
 				{ "lane", l.lane },
