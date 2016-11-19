@@ -307,12 +307,12 @@ namespace MonkeyWrench.Builder
 							foreach (string bot_dependency in bot_dependencies) {
 								if (!p.StartInfo.EnvironmentVariables.ContainsKey (bot_dependency))
 									continue;
-								List<string> paths = new List<string> (p.StartInfo.EnvironmentVariables [bot_dependency].Split (new char [] { ':' /* XXX: does windows use ';' here? */}, StringSplitOptions.None));
+								List<string> paths = new List<string> (p.StartInfo.EnvironmentVariables [bot_dependency].Split (new char [] { Path.PathSeparator }, StringSplitOptions.None));
 								for (int i = paths.Count - 1; i >= 0; i--) {
 									if (paths [i].Contains ("bot-dependencies"))
 										paths.RemoveAt (i);
 								}
-								p.StartInfo.EnvironmentVariables [bot_dependency] = string.Join (":", paths.ToArray ());
+								p.StartInfo.EnvironmentVariables [bot_dependency] = string.Join (Path.PathSeparator.ToString(), paths.ToArray ());
 							}
 
 							if (info.environment_variables != null) {
