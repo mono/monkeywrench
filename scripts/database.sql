@@ -78,7 +78,12 @@ CREATE TABLE Lane (
 	traverse_merge boolean    NOT NULL DEFAULT FALSE, -- if commits from a merge (besides the merge commit itself) should be included.
 	enabled        boolean    NOT NULL DEFAULT TRUE,  -- if a lane is enabled or not.
 	changed_date   timestamp  NULL DEFAULT NULL,      -- the latest date something happened in this lane,
-	additional_roles text       NULL DEFAULT NULL,      -- additional roles for access (for users who are not admin)
+	additional_roles text     NULL DEFAULT NULL,      -- additional roles for access (for users who are not admin)
+	priority       int        NOT NULL DEFAULT 1 CHECK (priority >= 0),     -- default priority for new revisionworks
+	  -- Possible values:
+	  -- * 0: PR lanes, least priority
+	  -- * 1: Unremarkable lanes
+	  -- * 2: Release lanes, highest priority
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
@@ -254,6 +259,7 @@ CREATE TABLE RevisionWork (
 	assignedtime timestamptz NULL,               -- Time that workhost_id was assigned
 	startedtime  timestamptz NULL,               -- Time that the first work was created, denormalized from `MIN(work.starttime) WHERE work.revisionwork_id = id`
 	endtime      timestamptz NULL,               -- Time that the RevisionWork was completed
+	priority     int         NOT NULL DEFAULT 1 CHECK (priority >= 0),
 	
 	-- alter table revisionwork add column endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0';
 	
