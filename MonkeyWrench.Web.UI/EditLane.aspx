@@ -57,6 +57,13 @@
                 </asp:TableCell>
                 <asp:TableCell>Comma-separated list of additional roles (besides admin) that can edit this lane.</asp:TableCell>
             </asp:TableRow>
+			<asp:TableRow>
+                <asp:TableCell>Priority:</asp:TableCell>
+                <asp:TableCell>
+                    <asp:DropDownList ID="lstPriority" runat="server" Width="600px"></asp:DropDownList>
+                </asp:TableCell>
+                <asp:TableCell>Default priority of all builds in the lane.</asp:TableCell>
+            </asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>Parent lane:</asp:TableCell>
                 <asp:TableCell>
