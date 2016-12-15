@@ -21,5 +21,6 @@ namespace MonkeyWrench.DataClasses
 		FinishBeforeNew = 0,
 		ExecuteLatestAsap = 1, // currently same as FinishBeforeNew (i.e. ignored)
 		OneRevisionWorkAtATime = 2, //
+		ChooseHighestPriorityLeastRecent = 3
 	}
 }

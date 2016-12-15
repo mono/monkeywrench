@@ -60,7 +60,11 @@
 			<asp:TableRow>
                 <asp:TableCell>Priority:</asp:TableCell>
                 <asp:TableCell>
-                    <asp:DropDownList ID="lstPriority" runat="server" Width="600px"></asp:DropDownList>
+                    <asp:DropDownList ID="lstPriority" runat="server" Width="600px">
+						<asp:ListItem Text="Pull Request" Value="0"></asp:ListItem>
+						<asp:ListItem Text="Normal" Value="1"></asp:ListItem>
+						<asp:ListItem Text="Release" Value="2"></asp:ListItem>
+					</asp:DropDownList>
                 </asp:TableCell>
                 <asp:TableCell>Default priority of all builds in the lane.</asp:TableCell>
             </asp:TableRow>
