@@ -194,7 +194,7 @@ namespace MonkeyWrench.Scheduler
 			try {
 				using (var cmd = db.CreateCommand (@"
 					INSERT INTO RevisionWork (lane_id, host_id, revision_id, priority, state)
-					SELECT Lane.id, Host.id, Revision.id, Lane.prioirty, 10
+					SELECT Lane.id, Host.id, Revision.id, Lane.priority, 10
 					FROM HostLane
 					INNER JOIN Host ON HostLane.host_id = Host.id
 					INNER JOIN Lane ON HostLane.lane_id = Lane.id
@@ -205,7 +205,7 @@ namespace MonkeyWrench.Scheduler
 							FROM RevisionWork 
 							WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
 							)
-					RETURNING lane_id, host_id, revision_id, priority
+					RETURNING lane_id, host_id, revision_id
 				"))
 				using (IDataReader reader = cmd.ExecuteReader ()) {
 					while (reader.Read ()) {
@@ -278,7 +278,7 @@ namespace MonkeyWrench.Scheduler
 								FROM RevisionWork 
 								WHERE RevisionWork.lane_id = Lane.id AND RevisionWork.host_id = Host.id AND RevisionWork.revision_id = Revision.id
 								)
-						RETURNING lane_id, host_id, revision_id, priority
+						RETURNING lane_id, host_id, revision_id
 					", id)))
 					using (IDataReader reader = cmd.ExecuteReader ()) {
 						while (reader.Read ()) {

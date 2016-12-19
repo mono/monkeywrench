@@ -91,6 +91,7 @@ INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git
 -- ALTER TABLE Lane ADD COLUMN enabled boolean NOT NULL DEFAULT TRUE;
 -- ALTER TABLE Lane ADD COLUMN changed_date timestamp NULL DEFAULT NULL;
 -- ALTER TABLE Lane ADD CONSTRAINT parentlane_fkey FOREIGN KEY (parent_lane_id) REFERENCES Lane (id);
+-- ALTER TABLE Lane ADD COLUMN priority integer DEFAULT 1 CHECK (priority >= 0), ALTER COLUMN priority SET NOT NULL;
 
 -- Command to set the latest changed_date on every lane.
 -- UPDATE Lane SET changed_date = (SELECT MAX(endtime) FROM RevisionWork WHERE RevisionWork.lane_id = Lane.id);
@@ -275,6 +276,7 @@ CREATE TABLE RevisionWork (
 	-- 	WHERE endtime != '2000-01-01 00:00:00+0'::timestamp;
 	-- ALTER TABLE revisionwork DROP COLUMN endtime;
 	-- ALTER TABLE revisionwork RENAME COLUMN end_time_temp TO endtime;
+
 	
 	UNIQUE (lane_id, host_id, revision_id)
 );
@@ -305,6 +307,7 @@ CREATE INDEX RevisionWork_state_idx ON RevisionWork (state);
 -- alter table RevisionWork drop constraint revisionwork_workhost_id_fkey;
 -- alter table RevisionWork add constraint revisionwork_workhost_id_fkey foreign key (workhost_id) references host (id) on delete cascade;
 -- alter table RevisionWork drop constraint revisionwork_workhost_id_fkey2;
+-- ALTER TABLE revisionwork ADD COLUMN priority integer DEFAULT 1 CHECK (priority >= 0), ALTER COLUMN priority SET NOT NULL;
 
 CREATE TABLE Work (
 	id               serial    PRIMARY KEY,

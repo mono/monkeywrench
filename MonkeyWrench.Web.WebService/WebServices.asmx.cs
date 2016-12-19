@@ -3095,11 +3095,14 @@ AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL
 AND RevisionWork.completed = false
 AND RevisionWork.state <> 9 AND RevisionWork.state <> 10 AND RevisionWork.state <> 11
 AND lane_id = @lane_id
+AND RevisionWork.priority >= @priority
+ORDER BY RevisionWork.priority DESC
 LIMIT 1;
     ";
 								DB.CreateParameter (cmd, "lane_id", hl.lane_id);
 								DB.CreateParameter (cmd, "host_id", hl.host_id);
 								DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+								DB.CreateParameter (cmd, "priority", highest_priority);
 
 								object obj = cmd.ExecuteScalar ();
 								if (obj == DBNull.Value || obj == null) {

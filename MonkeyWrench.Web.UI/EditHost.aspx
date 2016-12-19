@@ -47,7 +47,7 @@
                         <asp:ListItem Text="Completely finish a revision before starting a new one" Value="0"></asp:ListItem>
                         <asp:ListItem Text="[Don't use]" Value="1"></asp:ListItem>
                         <asp:ListItem Text="Execute one revision per lane at a time" Value="2"></asp:ListItem>
-						<asp:ListItem Text="Choose highest priority lane" Value="3"></asp:ListItem>
+                        <asp:ListItem Text="Choose highest priority lane" Value="3"></asp:ListItem>
                     </asp:DropDownList>
                 </asp:TableCell>
                 <asp:TableCell>

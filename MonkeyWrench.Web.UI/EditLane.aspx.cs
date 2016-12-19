@@ -90,7 +90,7 @@ public partial class EditLane : System.Web.UI.Page
 			}
 		}
 
-		lstPriority.SelectedIndex = Int32.Parse(lstPriority.Items.FindByValue(response.Lane.priority.ToString()).Value);
+		lstPriority.SelectedIndex = Int32.Parse (lstPriority.Items.FindByValue (response.Lane.priority.ToString ()).Value);
 
 		if (!IsPostBack) {
 			for (int i = 0; i < cmbSourceControl.Items.Count; i++) {
@@ -703,7 +703,7 @@ public partial class EditLane : System.Web.UI.Page
 		lane.traverse_merge = chkTraverseMerges.Checked;
 		lane.enabled = chkEnabled.Checked;
 		lane.additional_roles = txtRoles.Text;
-		lane.priority = Int32.Parse(lstPriority.SelectedItem.Value);
+		lane.priority = Int32.Parse (lstPriority.SelectedItem.Value);
 
 		Utils.LocalWebService.EditLaneWithTags (Master.WebServiceLogin, lane, !string.IsNullOrEmpty (txtTags.Text) ? txtTags.Text.Split (',') : null);
 		RedirectToSelf ();
