@@ -3066,6 +3066,98 @@ LIMIT 1;
 						}
 					}
 					break;
+
+				case DBQueueManagement.ChooseHighestPriorityLeastRecent:
+					if (hostlanes.Count > 1) {
+						int lane_index = -1;
+						int highest_priority = 0;
+						int p = 0;
+						DateTime latest_date = DateTime.MaxValue;
+						DateTime ld = DateTime.MaxValue;
+
+						// we need to find the latest revisionwork each hostlane has completed.
+						// we want to work on the hostlane which has waited the longest amount
+						// of time without getting work done (but which has pending work to do).
+
+						for (int i = 0; i < hostlanes.Count; i++) {
+							DBHostLane hl = hostlanes [i];
+							// check if this hostlane has pending work and get its priority.
+							// this would ideally be included in the query below, but I'm not sure
+							// how to do that while still distinguising the case where nothing has
+							// been done ever for a hostlane.
+							using (IDbCommand cmd = db.CreateCommand ()) {
+								cmd.CommandText = @"
+SELECT RevisionWork.priority
+FROM RevisionWork
+WHERE
+    RevisionWork.host_id = @host_id
+AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
+AND RevisionWork.completed = false
+AND RevisionWork.state <> 9 AND RevisionWork.state <> 10 AND RevisionWork.state <> 11
+AND lane_id = @lane_id
+AND RevisionWork.priority >= @priority
+ORDER BY RevisionWork.priority DESC
+LIMIT 1;
+    ";
+								DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+								DB.CreateParameter (cmd, "host_id", hl.host_id);
+								DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+								DB.CreateParameter (cmd, "priority", highest_priority);
+
+								object obj = cmd.ExecuteScalar ();
+								if (obj == DBNull.Value || obj == null) {
+									// there is nothing to do for this hostlane
+									continue;
+								} else {
+									p = (int)obj;
+								}
+							}
+
+							// find the latest completed (this may not be correct, maybe find the latest unstarted?)
+							// revisionwork for this hostlane.
+							using (IDbCommand cmd = db.CreateCommand ()) {
+								cmd.CommandText = @"
+SELECT RevisionWork.endtime
+FROM RevisionWork
+WHERE
+	RevisionWork.host_id = @host_id
+AND (RevisionWork.workhost_id = @workhost_id OR RevisionWork.workhost_id IS NULL)
+AND RevisionWork.completed = true
+AND lane_id = @lane_id
+ORDER BY RevisionWork.endtime DESC
+LIMIT 1;
+	";
+
+								DB.CreateParameter (cmd, "lane_id", hl.lane_id);
+								DB.CreateParameter (cmd, "host_id", hl.host_id);
+								DB.CreateParameter (cmd, "workhost_id", response.Host.id);
+
+								object obj = cmd.ExecuteScalar ();
+
+								if (obj is DateTime) {
+									ld = (DateTime) obj;
+								} else {
+									// Nothing has been done for this lane
+									ld = DateTime.MinValue;
+								}
+
+								if (p > highest_priority || (p == highest_priority && ld < latest_date)) {
+									highest_priority = p;
+									latest_date = ld;
+									lane_index = i;
+								}
+							}
+						}
+
+						if (lane_index >= 0) {
+							DBHostLane tmp = hostlanes [lane_index];
+							hostlanes.Clear ();
+							hostlanes.Add (tmp);
+						} else {
+							hostlanes.Clear (); // there is nothing to do at all
+						}
+					}
+					break;
 				}
 
 				foreach (DBHostLane hl in hostlanes) {

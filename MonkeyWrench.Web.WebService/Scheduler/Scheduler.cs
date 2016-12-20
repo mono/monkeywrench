@@ -193,8 +193,8 @@ namespace MonkeyWrench.Scheduler
 
 			try {
 				using (var cmd = db.CreateCommand (@"
-					INSERT INTO RevisionWork (lane_id, host_id, revision_id, state)
-					SELECT Lane.id, Host.id, Revision.id, 10
+					INSERT INTO RevisionWork (lane_id, host_id, revision_id, priority, state)
+					SELECT Lane.id, Host.id, Revision.id, Lane.priority, 10
 					FROM HostLane
 					INNER JOIN Host ON HostLane.host_id = Host.id
 					INNER JOIN Lane ON HostLane.lane_id = Lane.id
@@ -266,8 +266,8 @@ namespace MonkeyWrench.Scheduler
 				}
 				foreach (var id in selected_lanes.Keys) {
 					using (var cmd = db.CreateCommand (string.Format (@"
-						INSERT INTO RevisionWork (lane_id, host_id, revision_id, state)
-						SELECT Lane.id, Host.id, Revision.id, 10
+						INSERT INTO RevisionWork (lane_id, host_id, revision_id, priority, state)
+						SELECT Lane.id, Host.id, Revision.id, Lane.priority, 10
 						FROM HostLane
 						INNER JOIN Host ON HostLane.host_id = Host.id
 						INNER JOIN Lane ON HostLane.lane_id = Lane.id

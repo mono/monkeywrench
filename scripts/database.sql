@@ -78,7 +78,12 @@ CREATE TABLE Lane (
 	traverse_merge boolean    NOT NULL DEFAULT FALSE, -- if commits from a merge (besides the merge commit itself) should be included.
 	enabled        boolean    NOT NULL DEFAULT TRUE,  -- if a lane is enabled or not.
 	changed_date   timestamp  NULL DEFAULT NULL,      -- the latest date something happened in this lane,
-	additional_roles text       NULL DEFAULT NULL,      -- additional roles for access (for users who are not admin)
+	additional_roles text     NULL DEFAULT NULL,      -- additional roles for access (for users who are not admin)
+	priority       int        NOT NULL DEFAULT 1 CHECK (priority >= 0),     -- default priority for new revisionworks
+	  -- Possible values:
+	  -- * 0: PR lanes, least priority
+	  -- * 1: Unremarkable lanes
+	  -- * 2: Release lanes, highest priority
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
@@ -86,6 +91,7 @@ INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git
 -- ALTER TABLE Lane ADD COLUMN enabled boolean NOT NULL DEFAULT TRUE;
 -- ALTER TABLE Lane ADD COLUMN changed_date timestamp NULL DEFAULT NULL;
 -- ALTER TABLE Lane ADD CONSTRAINT parentlane_fkey FOREIGN KEY (parent_lane_id) REFERENCES Lane (id);
+-- ALTER TABLE Lane ADD COLUMN priority integer DEFAULT 1 CHECK (priority >= 0), ALTER COLUMN priority SET NOT NULL;
 
 -- Command to set the latest changed_date on every lane.
 -- UPDATE Lane SET changed_date = (SELECT MAX(endtime) FROM RevisionWork WHERE RevisionWork.lane_id = Lane.id);
@@ -254,6 +260,7 @@ CREATE TABLE RevisionWork (
 	assignedtime timestamptz NULL,               -- Time that workhost_id was assigned
 	startedtime  timestamptz NULL,               -- Time that the first work was created, denormalized from `MIN(work.starttime) WHERE work.revisionwork_id = id`
 	endtime      timestamptz NULL,               -- Time that the RevisionWork was completed
+	priority     int         NOT NULL DEFAULT 1 CHECK (priority >= 0),
 	
 	-- alter table revisionwork add column endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0';
 	
@@ -269,6 +276,7 @@ CREATE TABLE RevisionWork (
 	-- 	WHERE endtime != '2000-01-01 00:00:00+0'::timestamp;
 	-- ALTER TABLE revisionwork DROP COLUMN endtime;
 	-- ALTER TABLE revisionwork RENAME COLUMN end_time_temp TO endtime;
+
 	
 	UNIQUE (lane_id, host_id, revision_id)
 );
@@ -299,6 +307,7 @@ CREATE INDEX RevisionWork_state_idx ON RevisionWork (state);
 -- alter table RevisionWork drop constraint revisionwork_workhost_id_fkey;
 -- alter table RevisionWork add constraint revisionwork_workhost_id_fkey foreign key (workhost_id) references host (id) on delete cascade;
 -- alter table RevisionWork drop constraint revisionwork_workhost_id_fkey2;
+-- ALTER TABLE revisionwork ADD COLUMN priority integer DEFAULT 1 CHECK (priority >= 0), ALTER COLUMN priority SET NOT NULL;
 
 CREATE TABLE Work (
 	id               serial    PRIMARY KEY,
