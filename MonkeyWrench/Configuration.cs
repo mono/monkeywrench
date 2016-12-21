@@ -456,7 +456,7 @@ namespace MonkeyWrench
 			string current = Environment.GetEnvironmentVariable ("PKG_CONFIG_PATH");
 			string result = Path.Combine (Path.Combine (GetDataInstallDir (lane_id, revision), "lib"), "pkgconfig");
 			if (!string.IsNullOrEmpty (current))
-				result += ":" + current;
+				result += Path.PathSeparator.ToString() + current;
 			return result;
 		}
 
@@ -465,7 +465,7 @@ namespace MonkeyWrench
 			string current = Environment.GetEnvironmentVariable ("LD_LIBRARY_PATH");
 			string result = Path.Combine (GetDataInstallDir (lane_id, revision), "lib");
 			if (!string.IsNullOrEmpty (current))
-				result += ":" + current;
+				result += Path.PathSeparator.ToString() + current;
 			return result;
 		}
 
@@ -474,7 +474,7 @@ namespace MonkeyWrench
 			string current = Environment.GetEnvironmentVariable ("PATH");
 			string result = Path.Combine (GetDataInstallDir (lane_id, revision), "bin");
 			if (!string.IsNullOrEmpty (current))
-				result += ":" + current;
+				result += Path.PathSeparator.ToString() + current;
 			return result;
 		}
 
@@ -483,7 +483,7 @@ namespace MonkeyWrench
 			string current = Environment.GetEnvironmentVariable ("C_INCLUDE_PATH");
 			string result = Path.Combine (GetDataInstallDir (lane_id, revision), "include");
 			if (!string.IsNullOrEmpty (current))
-				result += ":" + current;
+				result += Path.PathSeparator.ToString() + current;
 			return result;
 		}
 
@@ -492,7 +492,7 @@ namespace MonkeyWrench
 			string current = Environment.GetEnvironmentVariable ("CPLUS_INCLUDE_PATH");
 			string result = Path.Combine (GetDataInstallDir (lane_id, revision), "include");
 			if (!string.IsNullOrEmpty (current))
-				result += ":" + current;
+				result += Path.PathSeparator.ToString() + current;
 			return result;
 		}
 		
