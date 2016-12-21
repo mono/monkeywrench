@@ -457,6 +457,7 @@ namespace MonkeyWrench
 					result.parent_lane_id = master.parent_lane_id;
 					result.additional_roles = master.additional_roles;
 					result.enabled = master.enabled;
+					result.priority = 1;
 					result.Save (this);
 
 					foreach (DBLanefile filemaster in master.GetFiles (this, null)) {
