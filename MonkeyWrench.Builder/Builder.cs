@@ -376,7 +376,7 @@ namespace MonkeyWrench.Builder
 									result = DBState.Timeout;
 									exitcode = 255;
 									Builder.log.ErrorFormat ("{0} {1}", info.number, timeoutReason);
-									log.WriteLine ("\n*** Timed out. Proceeding to get stack traces for all child processes. ***");
+									log.WriteLine (string.Format("\n*** Timed out. Proceeding to get stack traces for all child processes. ({0})***", DateTime.UtcNow.ToString("s")));
 									log.WriteLine ("\n*** " + timeoutReason + " *** \n");
 									p.Terminate (log);
 									log.WriteLine ("\n * " + timeoutReason + " * \n");
