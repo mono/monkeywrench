@@ -587,7 +587,7 @@ namespace MonkeyWrench.Builder
 					List<bool> hidden = new List<bool> ();
 
 					while (null != (l = reader.ReadLine ())) {
-						line = l.TrimStart (' ');
+						line = l.TrimStart ();
 						
 						if (line.StartsWith ("@Moonbuilder:")) {
 							line = line.Substring ("@Moonbuilder:".Length);
