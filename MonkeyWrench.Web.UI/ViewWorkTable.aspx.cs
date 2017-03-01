@@ -80,7 +80,7 @@ public partial class ViewWorkTable : System.Web.UI.Page
 		matrix.AppendLine ("\t<th>Duration</th>");;
 		matrix.AppendLine ("\t<th>Html report</th>");
 		matrix.AppendLine ("\t<th>Summary</th>");
-		matrix.AppendLine ("\t<th>Files</th>");
+		matrix.AppendLine ("\t<th>Host</th>");
 		matrix.AppendLine ("</tr>");
 
 
@@ -150,6 +150,10 @@ public partial class ViewWorkTable : System.Web.UI.Page
 			matrix.AppendLine (view.summary);
 			matrix.AppendLine ("</td>");
 
+			// host
+			matrix.AppendLine ("<td>");
+			matrix.AppendLine (view.workhost);
+			matrix.AppendLine ("</td>");
 
 			matrix.AppendLine ("</tr>");
 		}
