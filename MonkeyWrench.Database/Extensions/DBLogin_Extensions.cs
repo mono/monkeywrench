@@ -79,9 +79,25 @@ namespace MonkeyWrench.Database
 			});
 
 			if (user == null) {
-				throw new Exception (String.Format("No valid organizations or teams available for logging in. Got {0}", String.Join(" ", userOrgs)));
+				throw new Exception (String.Format("No valid organizations or teams available for logging in. Got {0}", UserOrgsToString(userOrgs)));
 			}
 			LoginDB (db, response, gitHubLogin, user.Role, ip4);
+		}
+
+		private static string UserOrgsToString(List<string[]> userOrgs)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append("<ul>");
+			foreach (var pair in userOrgs) {
+				sb.Append("<li>")
+				  .Append(pair[0])
+				  .Append(" - ")
+				  .Append(pair[1])
+				  .Append("</li>");
+			}
+			sb.Append("</ul>");
+			return sb.ToString();
 		}
 
 		public static void Login (DB db, LoginResponse response, string email, string ip4)
