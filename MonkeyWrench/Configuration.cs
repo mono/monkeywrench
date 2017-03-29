@@ -66,7 +66,7 @@ namespace MonkeyWrench
 		public static string GitHubOauthClientId = null;
 		public static string GitHubOauthClientSecret = null;
 		public static string GitHubOauthRedirect = null;
-		public static string[] GitHubOrganizationList = null;
+		public static IEnumerable<GitHub> GitHubOrganizationList = null;
 
 		// openid
 
@@ -263,8 +263,8 @@ namespace MonkeyWrench
 				var openIdRoles = xml.SelectSingleNode ("MonkeyWrench/Configuration/OpenIdRoles").GetNodeValue ("OpenIdRoles");
 				OpenIdRoles = !string.IsNullOrEmpty(openIdRoles) ? openIdRoles.Split(';') : new string[0];
 
-				var gitHubOrganizationList = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOrganizationList").GetNodeValue("GitHubOrganizationList");
-				GitHubOrganizationList = !string.IsNullOrEmpty(gitHubOrganizationList) ? gitHubOrganizationList.Split(';') : new string[0];
+				var gitHubOrganizationList = xml.SelectSingleNode("MonkeyWrench/Configuration/GitHubOrganizationList");
+				GitHubOrganizationList = GitHub.ParseConfiguration(gitHubOrganizationList);
 
 				// override from command line
 
@@ -632,6 +632,40 @@ namespace MonkeyWrench
 				WebSiteUrl = new Uri (WebServiceUrl).GetComponents (UriComponents.SchemeAndServer, UriFormat.UriEscaped);	
 			}
 			return WebSiteUrl;
+		}
+	}
+
+	public class GitHub {
+
+		public GitHub(string org, string team, string role)
+		{
+			this.Organization = org;
+			this.Team = team;
+			this.Role = role;
+		}
+
+		public string Organization;
+		public string Team;
+		public string Role;
+
+		public static IEnumerable<GitHub> ParseConfiguration(XmlNode node)
+		{
+			foreach (XmlElement team in node.ChildNodes) {
+				// Check the shape of the Team element. The 'team' attribute is optional.
+				//
+				// <GitHubOrganizationList>
+				//  <Team org="GitHub org" team="GitHub team" role="Wrench role" />
+				// </GitHubOrganizationList >
+				// 
+				if (team.Name == "Team" && team.HasAttribute("org") && team.HasAttribute("role")) {
+					yield return new GitHub(
+						team.GetAttribute("org"),
+						team.GetAttribute("team"),
+						team.GetAttribute("role"));
+				} else {
+					throw new Exception(String.Format("The configuration is malformed: {0}", node.OuterXml));
+				}
+			}
 		}
 	}
 }

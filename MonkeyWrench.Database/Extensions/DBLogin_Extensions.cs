@@ -72,20 +72,32 @@ namespace MonkeyWrench.Database
 		}
 
 		public static void GitHubLogin (DB db, LoginResponse response, string ip4, List<string[]> userOrgs, string gitHubLogin = "") {
-			var userrole = Configuration.GitHubOrganizationList.FirstOrDefault(node => {
-				var split = node.Split (':');
-				var roleSpecCheck = split[0];
-				var roles = split[1];
-				var orgAndTeamString = roleSpecCheck.Split ('*');
-				// If we only have an org, just check for that.
-				return orgAndTeamString.Length == 1 ?
-					               userOrgs.Any (org => org[0] == orgAndTeamString[0]) :
-					               userOrgs.Any (org => org[0] == orgAndTeamString[0] && org[1] == orgAndTeamString[1]);
+			var user = Configuration.GitHubOrganizationList.FirstOrDefault(node => {
+				return (node.Team != String.Empty) ?
+						userOrgs.Any(org => org[0] == node.Organization && org[1] == node.Team) :
+						userOrgs.Any(org => org[0] == node.Organization);
 			});
-			if (userrole == null) {
-				throw new Exception ("No valid organizations or teams available for logging in");
+
+			if (user == null) {
+				throw new Exception (String.Format("No valid organizations or teams available for logging in. Got {0}", UserOrgsToString(userOrgs)));
 			}
-			LoginDB (db, response, gitHubLogin, userrole.Split(':')[1], ip4);
+			LoginDB (db, response, gitHubLogin, user.Role, ip4);
+		}
+
+		private static string UserOrgsToString(List<string[]> userOrgs)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append("<ul>");
+			foreach (var pair in userOrgs) {
+				sb.Append("<li>")
+				  .Append(pair[0])
+				  .Append(" - ")
+				  .Append(pair[1])
+				  .Append("</li>");
+			}
+			sb.Append("</ul>");
+			return sb.ToString();
 		}
 
 		public static void Login (DB db, LoginResponse response, string email, string ip4)
