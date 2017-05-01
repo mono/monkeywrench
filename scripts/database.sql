@@ -84,6 +84,7 @@ CREATE TABLE Lane (
 	  -- * 0: PR lanes, least priority
 	  -- * 1: Unremarkable lanes
 	  -- * 2: Release lanes, highest priority
+	is_protected   boolean    NOT NULL DEFAULT FALSE, -- protection from people resetting builds
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
@@ -92,6 +93,7 @@ INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git
 -- ALTER TABLE Lane ADD COLUMN changed_date timestamp NULL DEFAULT NULL;
 -- ALTER TABLE Lane ADD CONSTRAINT parentlane_fkey FOREIGN KEY (parent_lane_id) REFERENCES Lane (id);
 -- ALTER TABLE Lane ADD COLUMN priority integer DEFAULT 1 CHECK (priority >= 0), ALTER COLUMN priority SET NOT NULL;
+-- ALTER TABLE Lane ADD COLUMN is_protected boolean DEFAULT FALSE, ALTER COLUMN is_protected SET NOT NULL;
 
 -- Command to set the latest changed_date on every lane.
 -- UPDATE Lane SET changed_date = (SELECT MAX(endtime) FROM RevisionWork WHERE RevisionWork.lane_id = Lane.id);
@@ -261,6 +263,7 @@ CREATE TABLE RevisionWork (
 	startedtime  timestamptz NULL,               -- Time that the first work was created, denormalized from `MIN(work.starttime) WHERE work.revisionwork_id = id`
 	endtime      timestamptz NULL,               -- Time that the RevisionWork was completed
 	priority     int         NOT NULL DEFAULT 1 CHECK (priority >= 0),
+	is_protected boolean     NOT NULL DEFAULT FALSE,
 	
 	-- alter table revisionwork add column endtime        timestamp  NOT NULL DEFAULT '2000-01-01 00:00:00+0';
 	
@@ -308,6 +311,7 @@ CREATE INDEX RevisionWork_state_idx ON RevisionWork (state);
 -- alter table RevisionWork add constraint revisionwork_workhost_id_fkey foreign key (workhost_id) references host (id) on delete cascade;
 -- alter table RevisionWork drop constraint revisionwork_workhost_id_fkey2;
 -- ALTER TABLE revisionwork ADD COLUMN priority integer DEFAULT 1 CHECK (priority >= 0), ALTER COLUMN priority SET NOT NULL;
+-- ALTER TABLE revisionwork ADD COLUMN is_protected boolean DEFAULT FALSE, ALTER COLUMN is_protected SET NOT NULL;
 
 CREATE TABLE Work (
 	id               serial    PRIMARY KEY,

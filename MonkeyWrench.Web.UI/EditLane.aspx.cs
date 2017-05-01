@@ -116,6 +116,7 @@ public partial class EditLane : System.Web.UI.Page
 			}
 			chkTraverseMerges.Checked = lane.traverse_merge;
 			chkEnabled.Checked = lane.enabled;
+			chkProtected.Checked = lane.is_protected;
 		}
 
 		if (!string.IsNullOrEmpty (action)) {
@@ -704,6 +705,7 @@ public partial class EditLane : System.Web.UI.Page
 		lane.enabled = chkEnabled.Checked;
 		lane.additional_roles = txtRoles.Text;
 		lane.priority = Int32.Parse (lstPriority.SelectedItem.Value);
+		lane.is_protected = chkProtected.Checked;
 
 		Utils.LocalWebService.EditLaneWithTags (Master.WebServiceLogin, lane, !string.IsNullOrEmpty (txtTags.Text) ? txtTags.Text.Split (',') : null);
 		RedirectToSelf ();

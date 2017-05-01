@@ -97,6 +97,13 @@
                 <asp:TableCell>If a lane is enabled. If not enabled nothing will be done for it and it won't show up on the front page.</asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
+                <asp:TableCell>Protected:</asp:TableCell>
+                <asp:TableCell>
+                    <asp:CheckBox ID="chkProtected" runat="server" Width="600px"></asp:CheckBox>
+                </asp:TableCell>
+                <asp:TableCell>Builds that finish from protected lanes cannot be reset.</asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
                 <asp:TableCell>
                 </asp:TableCell>
                 <asp:TableCell>

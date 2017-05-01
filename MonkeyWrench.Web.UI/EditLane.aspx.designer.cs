@@ -43,6 +43,8 @@ public partial class EditLane {
 	protected System.Web.UI.WebControls.CheckBox chkTraverseMerges;
 	
 	protected System.Web.UI.WebControls.CheckBox chkEnabled;
+
+	protected System.Web.UI.WebControls.CheckBox chkProtected;
 	
 	protected System.Web.UI.WebControls.Button cmdSave;
 	

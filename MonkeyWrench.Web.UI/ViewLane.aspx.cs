@@ -257,8 +257,12 @@ public partial class ViewLane : System.Web.UI.Page
 				if (response.RevisionWork.State == DBState.NotDone)
 					header.AppendFormat (" - <a href='ViewLane.aspx?lane_id={0}&amp;host_id={2}&amp;revision_id={1}&amp;action=ignorerevision'>don't build</a>", lane.id, dbr.id, host.id);
 				if (response.RevisionWork.State != DBState.NoWorkYet) {
-					GenerateActionLink(header, lane, host, dbr, "clearrevision", "clear", "reset work", hidden);
-					GenerateActionLink(header, lane, host, dbr, "deleterevision", "delete", "delete work", hidden);
+					if (revisionwork.is_protected && response.RevisionWork.State != DBState.Failed) {
+						header.AppendFormat (" - {0}", MonkeyWrench.Configuration.ProtectedMessage);
+					} else {
+						GenerateActionLink (header, lane, host, dbr, "clearrevision", "clear", "reset work", hidden);
+						GenerateActionLink (header, lane, host, dbr, "deleterevision", "delete", "delete work", hidden);
+					}
 				}
 			}
 		}
