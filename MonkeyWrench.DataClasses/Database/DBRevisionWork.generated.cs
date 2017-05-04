@@ -30,6 +30,7 @@ namespace MonkeyWrench.DataClasses
 		private DateTime? _startedtime;
 		private DateTime? _endtime;
 		private int _priority;
+		private bool _is_protected;
 
 		public int @lane_id { get { return _lane_id; } set { _lane_id = value; } }
 		public int @host_id { get { return _host_id; } set { _host_id = value; } }
@@ -43,6 +44,7 @@ namespace MonkeyWrench.DataClasses
 		public DateTime? @startedtime { get { return _startedtime; } set { _startedtime = value; } }
 		public DateTime? @endtime { get { return _endtime; } set { _endtime = value; } }
 		public int @priority { get { return _priority; } set { _priority = value; } }
+		public bool @is_protected { get { return _is_protected; } set { _is_protected = value; } }
 
 
 		public override string Table
@@ -55,7 +57,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "lane_id", "host_id", "workhost_id", "revision_id", "state", "lock_expires", "completed", "createdtime", "assignedtime", "startedtime", "endtime", "priority" };
+				return new string [] { "lane_id", "host_id", "workhost_id", "revision_id", "state", "lock_expires", "completed", "createdtime", "assignedtime", "startedtime", "endtime", "priority", "is_protected" };
 			}
 		}
         
