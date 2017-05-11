@@ -120,7 +120,7 @@ namespace MonkeyWrench.Scheduler
 				reports = GetReports (forcefullupdate);
 
 				using (DB db = new DB (true)) {
-					lanes = db.GetAllLanes ();
+					lanes = db.GetAllLanes ().FindAll(lane => lane.enabled);
 					hosts = db.GetHosts ();
 					hostlanes = db.GetAllHostLanes ();
 
