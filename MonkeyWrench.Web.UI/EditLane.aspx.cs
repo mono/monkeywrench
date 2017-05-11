@@ -104,6 +104,7 @@ public partial class EditLane : System.Web.UI.Page
 				txtTags.Text = string.Join (",", response.Tags.ConvertAll<string> ((DBLaneTag tag) => tag.tag).ToArray ());
 			if (response.Lane.additional_roles != null)
 				txtRoles.Text = response.Lane.additional_roles;
+			txtFetchCommits.Text = String.Format("{0}", lane.max_commits_to_fetch);
 			txtLane.Text = lane.lane;
 			txtID.Text = lane.id.ToString ();
 			// find (direct) child lanes
@@ -706,6 +707,15 @@ public partial class EditLane : System.Web.UI.Page
 		lane.additional_roles = txtRoles.Text;
 		lane.priority = Int32.Parse (lstPriority.SelectedItem.Value);
 		lane.is_protected = chkProtected.Checked;
+
+		// Don't ever pull more than 100 commits
+		try {
+			int commits = Int32.Parse (txtFetchCommits.Text);
+			lane.max_commits_to_fetch = commits >= 100 ? 100 : commits;
+		} catch (OverflowException ex) {
+			lane.max_commits_to_fetch = 1;
+		}
+
 
 		Utils.LocalWebService.EditLaneWithTags (Master.WebServiceLogin, lane, !string.IsNullOrEmpty (txtTags.Text) ? txtTags.Text.Split (',') : null);
 		RedirectToSelf ();

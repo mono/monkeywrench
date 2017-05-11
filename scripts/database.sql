@@ -85,6 +85,7 @@ CREATE TABLE Lane (
 	  -- * 1: Unremarkable lanes
 	  -- * 2: Release lanes, highest priority
 	is_protected   boolean    NOT NULL DEFAULT FALSE, -- protection from people resetting builds
+  max_commits_to_fetch int  NOT NULL DEFAULT 1 CHECK (max_commits_to_fetch >= 1)
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
@@ -94,6 +95,7 @@ INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git
 -- ALTER TABLE Lane ADD CONSTRAINT parentlane_fkey FOREIGN KEY (parent_lane_id) REFERENCES Lane (id);
 -- ALTER TABLE Lane ADD COLUMN priority integer DEFAULT 1 CHECK (priority >= 0), ALTER COLUMN priority SET NOT NULL;
 -- ALTER TABLE Lane ADD COLUMN is_protected boolean DEFAULT FALSE, ALTER COLUMN is_protected SET NOT NULL;
+-- ALTER TABLE Lane ADD COLUMN max_commits_to_fetch int DEFAULT 1 CHECK (max_commits_to_fetch >= 1), ALTER COLUMN is_protected SET NOT NULL;
 
 -- Command to set the latest changed_date on every lane.
 -- UPDATE Lane SET changed_date = (SELECT MAX(endtime) FROM RevisionWork WHERE RevisionWork.lane_id = Lane.id);

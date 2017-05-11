@@ -58,6 +58,12 @@
                 <asp:TableCell>Comma-separated list of additional roles (besides admin) that can edit this lane.</asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
+                <asp:TableCell>Max Commits to Fetch Per Push</asp:TableCell>
+                <asp:TableCell>
+                    <asp:TextBox id="txtFetchCommits" runat="server" Width="200px" OnKeyPress="return event.which == 8 || (event.which >= 48 && event.which <= 57);"></asp:TextBox>
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow>
                 <asp:TableCell>Priority:</asp:TableCell>
                 <asp:TableCell>
                     <asp:DropDownList ID="lstPriority" runat="server" Width="600px">
