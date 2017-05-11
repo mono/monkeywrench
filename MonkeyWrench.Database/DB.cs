@@ -459,6 +459,7 @@ namespace MonkeyWrench
 					result.enabled = master.enabled;
 					result.priority = 1;
 					result.is_protected = master.is_protected;
+					result.max_commits_to_fetch = master.max_commits_to_fetch;
 					result.Save (this);
 
 					foreach (DBLanefile filemaster in master.GetFiles (this, null)) {
@@ -499,7 +500,7 @@ namespace MonkeyWrench
 
 					foreach (DBHostLaneView hostlanemaster in master.GetHosts (this)) {
 						DBHostLane clone = new DBHostLane ();
-						clone.enabled = false;
+						clone.enabled = hostlanemaster.enabled;
 						clone.lane_id = result.id;
 						clone.host_id = hostlanemaster.host_id;
 						clone.Save (this);
