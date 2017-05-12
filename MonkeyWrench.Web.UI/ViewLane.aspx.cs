@@ -48,6 +48,7 @@ public partial class ViewLane : System.Web.UI.Page
 		return branch.Split('/').Last();
 	}
 
+	// TODO: kill this
 	bool IsBranchProtected(DBLane lane)
 	{
 		if (!lane.repository.Contains("github")) return false;
@@ -91,10 +92,16 @@ public partial class ViewLane : System.Web.UI.Page
 
 		int id;
 
-		response = Utils.LocalWebService.GetViewLaneData2 (Master.WebServiceLogin,
-			Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
-			Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
-			Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
+		if (Request ["commit"] == null) {
+			response = Utils.LocalWebService.GetViewLaneData2 (Master.WebServiceLogin,
+				Utils.TryParseInt32 (Request ["lane_id"]), Request ["lane"],
+				Utils.TryParseInt32 (Request ["host_id"]), Request ["host"],
+				Utils.TryParseInt32 (Request ["revision_id"]), Request ["revision"], false);
+		} else {
+			response = Utils.LocalWebService.GetViewLaneData3 (Master.WebServiceLogin,
+															  Request ["lane"],
+															  Request ["commit"]);
+		}
 
 		if (response.Exception != null) {
 			if (response.Exception.HttpCode == 403) {
