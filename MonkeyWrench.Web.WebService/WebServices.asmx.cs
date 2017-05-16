@@ -1125,7 +1125,6 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 						return new DBLane (reader);
 				}
 			}
-
 			return null;
 		}
 
@@ -1194,6 +1193,26 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 			}
 
 			return null;
+		}
+
+		private int FindHostIDByLaneCommit (DB db, string lane, string revision)
+		{
+			int host_id = -1;
+
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = @"SELECT host_id FROM RevisionWork
+					JOIN Lane on RevisionWork.lane_id = Lane.id
+					JOIN Revision on RevisionWork.revision_id = Revision.id
+					WHERE (Lane.lane = @lane) AND (Revision.Revision = @revision)
+					LIMIT 1";
+				DB.CreateParameter (cmd, "lane", lane);
+				DB.CreateParameter (cmd, "revision", revision);
+
+				var result = cmd.ExecuteScalar ();
+				if (result is int) host_id = (int)result;
+			}
+
+			return host_id;
 		}
 
 		private DBRevision FindRevision (DB db, int revision_id) {
@@ -1497,6 +1516,39 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 				response.WorkFileViews = new List<List<DBWorkFileView>> ();
 				for (int i = 0; i < response.WorkViews.Count; i++) {
 					response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id, include_hidden_files));
+				}
+				response.Links = DBWork_Extensions.GetLinks (db, response.WorkViews.Select<DBWorkView2, int> ((DBWorkView2 a, int b) => a.id));
+			}
+
+			return response;
+		}
+
+		[WebMethod]
+		public GetViewLaneDataResponse GetViewLaneData3 (WebServiceLogin login, string lane, string commit)
+		{
+			GetViewLaneDataResponse response = new GetViewLaneDataResponse ();
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response);
+
+				int host_id = FindHostIDByLaneCommit (db, lane, commit);
+
+				response.Now = db.Now;
+				response.Lane = FindLane (db, null, lane);
+				response.Host = FindHost (db, host_id, null);
+				if (response.Lane != null)
+					response.Revision = FindRevision (db, response.Lane, commit);
+
+				if (response.Lane == null || response.Revision == null)
+					throw new HttpException (404, "Revision work not found");
+
+				response.RevisionWork = DBRevisionWork_Extensions.Find (db, response.Lane, response.Host, response.Revision);
+				if (response.RevisionWork != null && response.RevisionWork.workhost_id.HasValue) {
+					response.WorkHost = FindHost (db, response.RevisionWork.workhost_id, null);
+				}
+				response.WorkViews = db.GetWork (response.RevisionWork);
+				response.WorkFileViews = new List<List<DBWorkFileView>> ();
+				for (int i = 0; i<response.WorkViews.Count; i++) {
+					response.WorkFileViews.Add (DBWork_Extensions.GetFiles (db, response.WorkViews [i].id));
 				}
 				response.Links = DBWork_Extensions.GetLinks (db, response.WorkViews.Select<DBWorkView2, int> ((DBWorkView2 a, int b) => a.id));
 			}
