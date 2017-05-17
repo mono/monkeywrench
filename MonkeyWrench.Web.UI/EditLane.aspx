@@ -60,7 +60,7 @@
             <asp:TableRow>
                 <asp:TableCell>Max Commits to Fetch Per Push</asp:TableCell>
                 <asp:TableCell>
-                    <asp:TextBox id="txtFetchCommits" runat="server" Width="200px" OnKeyPress="return event.which == 8 || (event.which >= 48 && event.which <= 57);"></asp:TextBox>
+                    <asp:TextBox id="txtFetchCommits" runat="server" Width="200px" OnKeyPress="return event.which == 8 || (event.which >= 48 &amp;&amp; event.which &lt;= 57);"></asp:TextBox>
                 </asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>

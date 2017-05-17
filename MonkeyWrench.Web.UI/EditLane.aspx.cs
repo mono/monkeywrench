@@ -709,13 +709,8 @@ public partial class EditLane : System.Web.UI.Page
 		lane.is_protected = chkProtected.Checked;
 
 		// Don't ever pull more than 100 commits
-		try {
-			int commits = Int32.Parse (txtFetchCommits.Text);
-			lane.max_commits_to_fetch = commits >= 100 ? 100 : commits;
-		} catch (OverflowException ex) {
-			lane.max_commits_to_fetch = 1;
-		}
-
+		int commits = Int32.Parse (txtFetchCommits.Text);
+		lane.max_commits_to_fetch = commits >= 100 ? 100 : commits;
 
 		Utils.LocalWebService.EditLaneWithTags (Master.WebServiceLogin, lane, !string.IsNullOrEmpty (txtTags.Text) ? txtTags.Text.Split (',') : null);
 		RedirectToSelf ();

@@ -456,7 +456,7 @@ namespace MonkeyWrench
 					result.source_control = master.source_control;
 					result.parent_lane_id = master.parent_lane_id;
 					result.additional_roles = master.additional_roles;
-					result.enabled = master.enabled;
+					result.enabled = false;
 					result.priority = 1;
 					result.is_protected = master.is_protected;
 					result.max_commits_to_fetch = master.max_commits_to_fetch;
