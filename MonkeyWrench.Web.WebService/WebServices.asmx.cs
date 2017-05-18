@@ -1977,6 +1977,7 @@ WHERE hidden = false AND Lane.enabled = TRUE";
 				DBLane dblane = new DBLane ();
 				dblane.lane = lane;
 				dblane.priority = 1;
+				dblane.max_commits_to_fetch = 1;
 				dblane.source_control = "svn";
 				dblane.Save (db);
 				return dblane.id;

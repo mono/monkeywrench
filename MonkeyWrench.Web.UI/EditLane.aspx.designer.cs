@@ -34,6 +34,8 @@ public partial class EditLane {
 	
 	protected System.Web.UI.WebControls.TextBox txtRoles;
 
+	protected System.Web.UI.WebControls.TextBox txtFetchCommits;
+
 	protected System.Web.UI.WebControls.DropDownList lstPriority;
 	
 	protected System.Web.UI.WebControls.DropDownList lstParentLane;

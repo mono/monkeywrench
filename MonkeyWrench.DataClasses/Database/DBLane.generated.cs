@@ -31,6 +31,7 @@ namespace MonkeyWrench.DataClasses
 		private string _additional_roles;
 		private int _priority;
 		private bool _is_protected;
+		private int _max_commits_to_fetch;
 
 		public string @lane { get { return _lane; } set { _lane = value; } }
 		public string @source_control { get { return _source_control; } set { _source_control = value; } }
@@ -45,6 +46,7 @@ namespace MonkeyWrench.DataClasses
 		public string @additional_roles { get { return _additional_roles; } set { _additional_roles = value; } }
 		public int @priority { get { return _priority; } set { _priority = value; } }
 		public bool @is_protected { get { return _is_protected; } set { _is_protected = value; } }
+		public int @max_commits_to_fetch { get { return _max_commits_to_fetch; } set { _max_commits_to_fetch = value; } }
 
 
 		public override string Table
@@ -57,7 +59,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "lane", "source_control", "repository", "min_revision", "max_revision", "parent_lane_id", "commit_filter", "traverse_merge", "enabled", "changed_date", "additional_roles", "priority", "is_protected" };
+				return new string [] { "lane", "source_control", "repository", "min_revision", "max_revision", "parent_lane_id", "commit_filter", "traverse_merge", "enabled", "changed_date", "additional_roles", "priority", "is_protected", "max_commits_to_fetch" };
 			}
 		}
         
