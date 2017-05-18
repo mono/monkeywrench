@@ -3215,7 +3215,7 @@ LIMIT 1;
 				}
 
 				foreach (DBHostLane hl in hostlanes) {
-					int counter = 10;
+					int counter = 1;
 					DBRevisionWork revisionwork;
 					DBLane lane = null;
 					DBHost masterhost = null;
