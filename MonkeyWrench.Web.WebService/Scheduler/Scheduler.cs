@@ -317,13 +317,14 @@ namespace MonkeyWrench.Scheduler
 		{
 			DateTime start = DateTime.Now;
 			List<DBCommand> commands = null;
-			List<DBLaneDependency> dependencies = null;
+			List<DBLaneDependency> dependencies = DBLaneDependency_Extensions.GetDependencies (db, null);
 			List<DBCommand> commands_in_lane;
 			List<DBRevisionWork> revisionwork_without_work = new List<DBRevisionWork> ();
 			DBHostLane hostlane;
 			StringBuilder sql = new StringBuilder ();
-			bool fetched_dependencies = false;
+			List<DBHostLane> editedHostLanes = new List<DBHostLane> ();
 			int lines = 0;
+			bool has_dependencies;
 
 			try {
 				/* Find the revision works which don't have work yet */
@@ -361,7 +362,6 @@ namespace MonkeyWrench.Scheduler
 						log.InfoFormat ("AddWork: Lane '{0}' is enabled for host '{1}', adding work!", lane.lane, host.host);
 
 						foreach (DBRevisionWork revisionwork in revisionwork_without_work) {
-							bool has_dependencies;
 
 							/* revisionwork_without_work contains rw for all hosts/lanes, filter out the ones we want */
 							if (revisionwork.host_id != host.id || revisionwork.lane_id != lane.id)
@@ -373,11 +373,6 @@ namespace MonkeyWrench.Scheduler
 							if (commands_in_lane == null) {
 								commands_in_lane = new List<DBCommand> ();
 								CollectWork (commands_in_lane, lanes, lane, commands);
-							}
-
-							if (!fetched_dependencies) {
-								fetched_dependencies = true;
-								dependencies = DBLaneDependency_Extensions.GetDependencies (db, null);
 							}
 
 							has_dependencies = dependencies != null && dependencies.Any (dep => dep.lane_id == lane.id);
@@ -400,11 +395,36 @@ namespace MonkeyWrench.Scheduler
 								}
 							}
 
-							sql.AppendFormat ("UPDATE RevisionWork SET state = {0} WHERE id = {1} AND state = 10;", (int) (has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone), revisionwork.id);
-
+							sql.AppendFormat ("UPDATE RevisionWork SET state = 11 WHERE id = {0} AND state = 10;", revisionwork.id);
+							if (!editedHostLanes.Contains (hostlane)) editedHostLanes.Add (hostlane);
 						}
 					}
 				}
+
+				foreach (var editedHostLane in editedHostLanes) {
+					int mostRecent = -1;
+					using (IDbCommand cmd = db.CreateCommand ()) {
+						cmd.CommandText = @"
+SELECT RevisionWork.id
+FROM RevisionWork
+INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
+WHERE
+     RevisionWork.host_id = @host_id
+ AND RevisionWork.lane_id = @lane_id
+ORDER BY Revision.Date DESC
+LIMIT 1
+";
+						DB.CreateParameter (cmd, "host_id", editedHostLane.host_id);
+						DB.CreateParameter (cmd, "lane_id", editedHostLane.lane_id);
+						var result = cmd.ExecuteScalar ();
+						if (result != null) mostRecent = (int)result;
+					}
+					if (mostRecent >= 0) {
+						has_dependencies = dependencies != null && dependencies.Any (dep => dep.lane_id == editedHostLane.lane_id);
+						sql.AppendFormat ("UPDATE Revisionwork SET state = {0} where id = {1};", (int)(has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone), mostRecent);
+					}
+				}
+
 				if (sql.Length > 0)
 					db.ExecuteNonQuery (sql.ToString ());
 			} catch (Exception ex) {
