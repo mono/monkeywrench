@@ -85,7 +85,7 @@ CREATE TABLE Lane (
 	  -- * 1: Unremarkable lanes
 	  -- * 2: Release lanes, highest priority
 	is_protected   boolean    NOT NULL DEFAULT FALSE, -- protection from people resetting builds
-  max_commits_to_fetch int  NOT NULL DEFAULT 1 CHECK (max_commits_to_fetch >= 1)
+  max_commits_to_fetch int  NOT NULL DEFAULT 100 CHECK (max_commits_to_fetch >= 1)
 	UNIQUE (lane)
 );
 INSERT INTO Lane (lane, source_control, repository) VALUES ('monkeywrench', 'git', 'git://github.com/mono/monkeywrench');
