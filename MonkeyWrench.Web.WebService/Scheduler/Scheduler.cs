@@ -382,7 +382,7 @@ namespace MonkeyWrench.Scheduler
 							foreach (DBCommand command in commands_in_lane) {
 								int work_state = (int) (has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone);
 
-								sql.AppendFormat ("INSERT INTO Work (command_id, revisionwork_id, state) VALUES ({0}, {1}, {2});\n", command.id, revisionwork.id, work_state);
+								sql.AppendFormat ("INSERT INTO Work (command_id, revisionwork_id, state) VALUES ({0}, {1}, 11);\n", command.id, revisionwork.id);
 								lines++;
 
 
@@ -403,9 +403,10 @@ namespace MonkeyWrench.Scheduler
 
 				foreach (var editedHostLane in editedHostLanes) {
 					int mostRecent = -1;
+					int mostRecentState = -1;
 					using (IDbCommand cmd = db.CreateCommand ()) {
 						cmd.CommandText = @"
-SELECT RevisionWork.id
+SELECT RevisionWork.id, RevisionWork.state
 FROM RevisionWork
 INNER JOIN Revision ON Revision.id = RevisionWork.revision_id
 WHERE
@@ -416,12 +417,18 @@ LIMIT 1
 ";
 						DB.CreateParameter (cmd, "host_id", editedHostLane.host_id);
 						DB.CreateParameter (cmd, "lane_id", editedHostLane.lane_id);
-						var result = cmd.ExecuteScalar ();
-						if (result != null) mostRecent = (int)result;
+						using (IDataReader reader = cmd.ExecuteReader ()) {
+							if (reader.Read ()) {
+								mostRecent = reader.GetInt32 (0);
+								mostRecentState = reader.GetInt32 (1);;
+							}
+						}
 					}
-					if (mostRecent >= 0) {
+
+					if (mostRecent >= 0 && mostRecentState == (int)DBState.NoWorkYet) {
 						has_dependencies = dependencies != null && dependencies.Any (dep => dep.lane_id == editedHostLane.lane_id);
 						sql.AppendFormat ("UPDATE Revisionwork SET state = {0} where id = {1};", (int)(has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone), mostRecent);
+						sql.AppendFormat ("UPDATE Work SET state = {0} where revisionwork_id = {1};", (int)(has_dependencies? DBState.DependencyNotFulfilled : DBState.NotDone), mostRecent);
 					}
 				}
 
