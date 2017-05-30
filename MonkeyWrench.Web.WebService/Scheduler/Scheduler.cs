@@ -317,7 +317,8 @@ namespace MonkeyWrench.Scheduler
 		{
 			DateTime start = DateTime.Now;
 			List<DBCommand> commands = null;
-			List<DBLaneDependency> dependencies = DBLaneDependency_Extensions.GetDependencies (db, null);
+			List<DBLaneDependency> dependencies = null;
+			bool fetched_dependencies = false;
 			List<DBCommand> commands_in_lane;
 			List<DBRevisionWork> revisionwork_without_work = new List<DBRevisionWork> ();
 			DBHostLane hostlane;
@@ -375,6 +376,11 @@ namespace MonkeyWrench.Scheduler
 								CollectWork (commands_in_lane, lanes, lane, commands);
 							}
 
+							if (!fetched_dependencies) {
+								dependencies = DBLaneDependency_Extensions.GetDependencies (db, null);
+								fetched_dependencies = true;
+							}
+
 							has_dependencies = dependencies != null && dependencies.Any (dep => dep.lane_id == lane.id);
 
 							log.DebugFormat ("AddWork: Lane '{0}', revisionwork_id '{1}' has dependencies: {2}", lane.lane, revisionwork.id, has_dependencies);
@@ -426,6 +432,7 @@ LIMIT 1
 					}
 
 					if (mostRecent >= 0 && mostRecentState == (int)DBState.NoWorkYet) {
+						// Don't need to fetch deps here because they should already have been fetched in previous loop
 						has_dependencies = dependencies != null && dependencies.Any (dep => dep.lane_id == editedHostLane.lane_id);
 						sql.AppendFormat ("UPDATE Revisionwork SET state = {0} where id = {1};", (int)(has_dependencies ? DBState.DependencyNotFulfilled : DBState.NotDone), mostRecent);
 						sql.AppendFormat ("UPDATE Work SET state = {0} where revisionwork_id = {1};", (int)(has_dependencies? DBState.DependencyNotFulfilled : DBState.NotDone), mostRecent);
