@@ -439,11 +439,6 @@ INNER JOIN (
 
 						using (IDataReader reader = cmd.ExecuteReader ()) {
 							while (reader.Read ()) {
-								if ((lines % 100) == 0 || (lines % 101) == 0) {
-									db.ExecuteNonQuery (sql.ToString ());
-									sql.Clear ();
-									log.DebugFormat ("AddWork: flushed work queue, added {0} items now.", lines);
-								}
 								revisionwork_id = reader.GetInt32 (0);
 								lane_id = reader.GetInt32 (1);
 
