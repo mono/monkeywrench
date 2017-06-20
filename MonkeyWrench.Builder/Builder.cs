@@ -52,18 +52,18 @@ namespace MonkeyWrench.Builder
 				}
 
 				if (!Configuration.VerifyBuildBotConfiguration ()) {
-					log.Error ("Configuration verification failed.");
+					log.Error ("*** Configuration verification failed. ***");
 					return 1;
 				}
 
 				process_lock = Lock.Create ("MonkeyWrench.Builder");
 				if (process_lock == null) {
-					log.Info ("Builder could not acquire lock. Exiting");
+					log.Info ("*** Builder could not acquire lock. Exiting ***");
 					return 1;
 				}
 				log.Info ("Builder lock aquired successfully.");
 			} catch (Exception ex) {
-				log.ErrorFormat ("Could not aquire lock: {0}", ex);
+				log.ErrorFormat ("*** Could not aquire lock: {0} ***", ex);
 				return 1;
 			}
 
@@ -76,13 +76,13 @@ namespace MonkeyWrench.Builder
 				status.FillInAssemblyAttributes ();
 				status_response = WebService.ReportBuildBotStatus (WebService.WebServiceLogin, status);
 				if (status_response.Exception != null) {
-					log.ErrorFormat ("Failed to report status: {0}", status_response.Exception);
+					log.ErrorFormat ("*** Failed to report status ***: {0}", status_response.Exception);
 					return 1;
 				}
 
 				if (!string.IsNullOrEmpty (status_response.ConfiguredVersion) && status_response.ConfiguredVersion != status.AssemblyVersion) {
 					if (!Update (status, status_response)) {
-						log.ErrorFormat ("Automatic update to: {0} / {1} failed (see log for details). Please update manually.", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
+						log.ErrorFormat ("*** Automatic update to: {0} / {1} failed *** (see log for details). Please update manually.", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
 						return 2; /* Magic return code that means "automatic update failed" */
 					} else {
 						log.Info ("The builder has been updated. Please run 'make build' again.");
@@ -109,11 +109,20 @@ namespace MonkeyWrench.Builder
 
 				return 0;
 			} catch (Exception ex) {
-				log.ErrorFormat ("An exception occurred: {0}", ex);
+				log.ErrorFormat ("*** An exception occurred: {0} ***", ex);
 				return 1;
 			} finally {
 				process_lock.Unlock ();
 			}
+		}
+
+		private static bool IsDiskFull (Exception ex)
+		{
+			const int HR_ERROR_HANDLE_DISK_FULL = unchecked((int)0x80070027);
+			const int HR_ERROR_DISK_FULL = unchecked((int)0x80070070);
+
+			return ex.HResult == HR_ERROR_HANDLE_DISK_FULL
+				|| ex.HResult == HR_ERROR_DISK_FULL;
 		}
 
 		private static bool Update (BuildBotStatus status, ReportBuildBotStatusResponse status_response)
@@ -136,11 +145,11 @@ namespace MonkeyWrench.Builder
 					git.BeginErrorReadLine ();
 					git.BeginOutputReadLine ();
 					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
-						log.Error ("Update (): Could not get git status, git didn't get any status in 1 minute.");
+						log.Error ("*** Update (): Could not get git status, git didn't get any status in 1 minute. ***");
 						return false;
 					}
 					if (git.ExitCode != 0) {
-						log.ErrorFormat ("Update (): git status failed: {0}", output);
+						log.ErrorFormat ("*** Update (): git status failed ***: {0}", output);
 						return false;
 					}
 
@@ -150,7 +159,7 @@ namespace MonkeyWrench.Builder
 					} else if (stdout.Contains ("nothing to commit (working directory clean)")) {
 						/* OK - git 1.6 doesn't seem to understand the -s flag */
 					} else {
-						log.ErrorFormat ("Update (): git status shows that there are local changes: \n{0}", output);
+						log.ErrorFormat ("*** Update (): git status shows that there are local changes ***: \n{0}", output);
 						return false;
 					}
 				}
@@ -170,11 +179,11 @@ namespace MonkeyWrench.Builder
 					git.BeginErrorReadLine ();
 					git.BeginOutputReadLine ();
 					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
-						log.Error ("Update (): git fetch didn't finish in 1 minute");
+						log.Error ("*** Update (): git fetch didn't finish in 1 minute ***");
 						return false;
 					}
 					if (git.ExitCode != 0) {
-						log.ErrorFormat ("Update (): git status failed: {0}", output);
+						log.ErrorFormat ("*** Update (): git status failed ***: {0}", output);
 						return false;
 					}
 				}
@@ -194,18 +203,18 @@ namespace MonkeyWrench.Builder
 					git.BeginErrorReadLine ();
 					git.BeginOutputReadLine ();
 					if (!git.WaitForExit ((int) TimeSpan.FromMinutes (1).TotalMilliseconds)) {
-						log.Error ("Update (): Could not checkout the required revision in 1 minute.");
+						log.Error ("*** Update (): Could not checkout the required revision in 1 minute. ***");
 						return false;
 					}
 					if (git.ExitCode != 0) {
-						log.ErrorFormat ("Update (): git reset failed: {0}", output);
+						log.ErrorFormat ("*** Update (): git reset failed ***: {0}", output);
 						return false;
 					}
 				}
 
 				log.InfoFormat ("Successfully updated to {0} {1})", status_response.ConfiguredVersion, status_response.ConfiguredRevision);
 			} catch (Exception ex) {
-				log.ErrorFormat ("Update (): error: {0}", ex);
+				log.ErrorFormat ("*** Update (): error: {0} ***", ex);
 				return false;
 			}
 
@@ -227,10 +236,12 @@ namespace MonkeyWrench.Builder
 				Build (info);
 			} catch (Exception ex) {
 				// Just swallow all exceptions here.
-				if (info == null) {
-					log.ErrorFormat ("Exception while building lane: {0}", ex);
+				if (IsDiskFull(ex)) {
+					log.ErrorFormat (" *** The disk became full while building ***");
+				} else if (info == null) {
+					log.ErrorFormat ("*** Exception while building lane: {0} ***", ex);
 				} else {
-					log.ErrorFormat ("{2} Exception while building lane '{0}': {1}", info.lane.lane, ex, info.number);
+					log.ErrorFormat ("*** {2} Exception while building lane '{0}' ***: {1}", info.lane.lane, ex, info.number);
 				}
 			}
 		}
@@ -446,7 +457,7 @@ namespace MonkeyWrench.Builder
 				info.work.State = DBState.Failed;
 				info.work.summary = ex.Message;
 				info.work = WebService.ReportBuildStateSafe (info.work).Work;
-				log.ErrorFormat ("{3} Revision {0}, got exception '{1}': \n{2}", info.revision.revision, ex.Message, ex.StackTrace, info.number);
+				log.ErrorFormat ("*** {3} Revision {0} ***, got exception '{1}': \n{2}", info.revision.revision, ex.Message, ex.StackTrace, info.number);
 				throw;
 			} finally {
 				log.DebugFormat ("{0} Builder finished thread for sequence {0}", info.number);
@@ -565,7 +576,12 @@ namespace MonkeyWrench.Builder
 				log.InfoFormat ("Finished building {0} work items", list.Count);
 
 			} catch (Exception ex) {
-				log.ErrorFormat ("Exception while building lane: {0}", ex);
+				if (IsDiskFull(ex)) {
+					log.ErrorFormat (" *** The disk became full while building ***");
+				} else {
+					log.ErrorFormat (" *** Exception while building lane: {0} ***", ex);
+				}
+				
 			} finally {
 				// clean up after us
 				if (temp_dir != null && Directory.Exists (temp_dir))
@@ -616,7 +632,7 @@ namespace MonkeyWrench.Builder
 								files.Add (line.Trim ());
 								hidden.Add (cmd.Contains ("Hidden"));
 							} catch (Exception e) {
-								log.ErrorFormat ("Error while executing @MonkeyWrench command '{0}': {1}", cmd, e);
+								log.ErrorFormat ("*** Error while executing @MonkeyWrench command '{0}' ***: {1}", cmd, e);
 							}
 							break;
 						case "AddDirectory":
@@ -628,7 +644,7 @@ namespace MonkeyWrench.Builder
 									hidden.Add (cmd.Contains ("Hidden"));
 								}
 							} catch (Exception ex) {
-								log.ErrorFormat ("Error while executing @MonkeyWrench command '{0}': {1}", cmd, ex);
+								log.ErrorFormat ("*** Error while executing @MonkeyWrench command '{0}' ***: {1}", cmd, ex);
 							}
 							break;
 						case "AddFileLink":
@@ -636,7 +652,7 @@ namespace MonkeyWrench.Builder
 								log.DebugFormat ("@MonkeyWrench command: '{0}' args: '{1}'", cmd, line);
 								links.Add (line.Trim ());
 							} catch (Exception e) {
-								log.ErrorFormat ("Error while executing @MonkeyWrench command '{0}': {1}", cmd, e);
+								log.ErrorFormat ("*** Error while executing @MonkeyWrench command '{0}' ***: {1}", cmd, e);
 							}
 							break;
 						case "SetSummary":
@@ -664,7 +680,7 @@ namespace MonkeyWrench.Builder
 							break;
 						case "AddRelease":
 							if (release == null) {
-								log.ErrorFormat ("Invalid @MonkeyWrench command: '{0}: No release created", cmd);
+								log.ErrorFormat ("*** Invalid @MonkeyWrench command: {0} ***: No release created", cmd);
 								break;
 							}
 
@@ -675,14 +691,14 @@ namespace MonkeyWrench.Builder
 								File.Copy (line.Trim (), Path.Combine (Configuration.GetReleaseDirectory (), release.filename), true);
 								rsp = WebService.AddRelease (WebService.WebServiceLogin, release);
 								if (rsp.Exception != null) {
-									log.ErrorFormat ("Error while adding release: {0}", rsp.Exception);
+									log.ErrorFormat ("*** Error while adding release ***: {0}", rsp.Exception);
 								}
 							} catch (Exception ex) {
-								log.ErrorFormat ("Could not copy release: {0}", ex);
+								log.ErrorFormat ("*** Could not copy release ***: {0}", ex);
 							}
 							break;
 						default:
-							log.ErrorFormat ("Invalid @MonkeyWrench command: '{0}', entire line: '{1}'", cmd, l);
+							log.ErrorFormat ("*** Invalid @MonkeyWrench command: '{0}' ***, entire line: '{1}'", cmd, l);
 							break;
 						}
 					}
@@ -691,7 +707,7 @@ namespace MonkeyWrench.Builder
 						try {
 							WebService.UploadLinks (WebService.WebServiceLogin, info.work, links.ToArray ());
 						} catch (Exception ex) {
-							log.ErrorFormat ("Could not upload links: {0}", ex);
+							log.ErrorFormat ("*** Could not upload links: {0} ***", ex);
 						}
 					}
 
