@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Text;
 using log4net;
-
+using System.Runtime.InteropServices;
 using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
@@ -120,9 +120,9 @@ namespace MonkeyWrench.Builder
 		{
 			const int HR_ERROR_HANDLE_DISK_FULL = unchecked((int)0x80070027);
 			const int HR_ERROR_DISK_FULL = unchecked((int)0x80070070);
-
-			return ex.HResult == HR_ERROR_HANDLE_DISK_FULL
-				|| ex.HResult == HR_ERROR_DISK_FULL;
+			int hr = Marshal.GetHRForException(ex);
+			return hr == HR_ERROR_HANDLE_DISK_FULL
+				|| hr == HR_ERROR_DISK_FULL;
 		}
 
 		private static bool Update (BuildBotStatus status, ReportBuildBotStatusResponse status_response)
