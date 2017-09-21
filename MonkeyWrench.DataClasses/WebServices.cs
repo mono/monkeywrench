@@ -342,10 +342,10 @@ namespace MonkeyWrench.Web.WebServices
 								fi = new FileInfo (path_to_contents);
 
 								long length = fi.Length;
-								if (length > 1024 * 1024 * 200) {
+								if (length > 1024 * 1024 * 250) {
 									files.Dequeue ();
 									hiddens.Dequeue ();
-									throw new ApplicationException (string.Format ("Not uploading {0} ({2}): filesize is > 200MB (it is: {1} MB)", path_to_contents, length / (1024.0 * 1024.0), filename));
+									throw new ApplicationException (string.Format ("Not uploading {0} ({2}): filesize is > 250MB (it is: {1} MB)", path_to_contents, length / (1024.0 * 1024.0), filename));
 								}
 
 								if (compressed_mime == null) {
