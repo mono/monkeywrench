@@ -170,7 +170,8 @@ public partial class EditHost : System.Web.UI.Page
 		foreach (DBHost host in response.SlaveHosts) {
 			tblSlaves.Rows.AddAt (1, Utils.CreateTableRow (
 				string.Format ("<a href='EditHost.aspx?host_id={0}'>{1}</a>", host.id, host.host),
-				Utils.CreateLinkButton ("removeSaveHostLinkButton_" + host.id.ToString (), "Remove", "RemoveSlaveHost", host.id.ToString (), OnLinkButtonCommand)));
+				Utils.CreateLinkButton ("removeSaveHostLinkButton_" + host.id.ToString (), "Remove", "RemoveSlaveHost", host.id.ToString (), OnLinkButtonCommand),
+				host.description));
 		}
 
 		string txt = string.Format (@"
