@@ -122,7 +122,7 @@
         <br />
         <asp:Table ID="tblSlaves" runat="server" CssClass="buildstatus">
             <asp:TableHeaderRow>
-                <asp:TableHeaderCell>Slave Host</asp:TableHeaderCell><asp:TableHeaderCell>Action</asp:TableHeaderCell>
+                <asp:TableHeaderCell>Slave Host</asp:TableHeaderCell><asp:TableHeaderCell>Action</asp:TableHeaderCell><asp:TableHeaderCell>Slave Host Description</asp:TableHeaderCell>
             </asp:TableHeaderRow>
         </asp:Table>
         <br />
